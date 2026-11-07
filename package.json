@@ -1,0 +1,12 @@
+{
+  "name": "la-pica-del-benjamin",
+  "version": "1.0.0",
+  "description": "Servidor de pagos Mercado Pago",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
