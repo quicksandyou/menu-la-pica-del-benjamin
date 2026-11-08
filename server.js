@@ -117,10 +117,14 @@ const server = http.createServer(async (req, res) => {
     if (!Array.isArray(data.items) || !data.items.length) throw new Error("Carrito vacío");
 
     const customerName = String(data.customer?.name || "").trim();
+    const customerEmail = String(data.customer?.email || "").trim().toLowerCase();
     const method = String(data.delivery?.method || "");
     const address = String(data.delivery?.address || "").trim();
 
     if (!customerName) throw new Error("Falta el nombre del cliente.");
+    if (!customerEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customerEmail)) {
+  throw new Error("Ingresa un correo electrónico válido.");
+}
     if (method === "Delivery" && !address) throw new Error("Falta la dirección de despacho.");
     if (method !== "Delivery" && method !== "Retiro en el local") throw new Error("Método de entrega inválido.");
 
@@ -144,6 +148,9 @@ const server = http.createServer(async (req, res) => {
       total_amount: String(total),
       external_reference: randomUUID(),
       description: "Pedido La Picá del Benjamín",
+      payer: {
+  email: customerEmail
+},
       items,
       config: {
         online: {
