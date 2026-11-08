@@ -275,7 +275,7 @@ async function showPaymentResult(){
    const data=await response.json();
    if(!response.ok)throw new Error(data.error||"No pudimos verificar el pago.");
    if(data.approved){
-     panel.innerHTML=`<div style="font-size:25px">✅</div><h2 style="margin:6px 0;color:#ffd34d">¡Gracias por comprar en La Picá del Benjamín!</h2><p>🎉 Tu pago fue confirmado y ya estamos preparando tu pedido. ¡Esperamos que disfrutes cada bocado!</p>${data.delivery&&data.customer_address?`<p><b>Dirección de despacho:</b><br>${data.customer_address.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}</p>`:"<p><b>Modalidad:</b> Retiro en el local.</p>"}`;
+     panel.innerHTML=`<div style="font-size:25px">✅</div><h2 style="margin:6px 0;color:#ffd34d">¡Gracias por comprar en La Picá del Benjamín!</h2><p>🎉 Tu pago fue confirmado y ya estamos preparando tu pedido. ¡Esperamos que disfrutes cada bocado!</p><p><b>Modalidad:</b> ${data.delivery?"Despacho a domicilio":"Retiro en el local"}.</p>`;
      document.querySelector(".layout").style.display="none";
    }else{
      panel.innerHTML=`<b>Tu pago todavía no está confirmado.</b><p>Estado de la orden: ${data.status}. No prepares otro pedido todavía; revisa tu cuenta de Mercado Pago.</p>`;
