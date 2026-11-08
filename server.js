@@ -173,6 +173,11 @@ const server = http.createServer(async (req, res) => {
     });
 
     const result = await response.json();
+    console.log("MP HTTP:", response.status);
+console.log("MP campos:", Object.keys(result || {}));
+console.log("MP order ID:", Boolean(result?.id));
+console.log("MP checkout URL:", Boolean(result?.checkout_url));
+console.log("MP status:", result?.status);
     if (!response.ok) {
       console.error("Mercado Pago:", result);
       return send(res, response.status, { error: "Mercado Pago rechazó la creación de la orden. Revisa los logs de Render." });
