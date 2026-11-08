@@ -180,6 +180,16 @@ const server = http.createServer(async (req, res) => {
     });
 
     const result = await response.json();
+    console.log("MP RESPUESTA SEGURA:", JSON.stringify({
+  id: result?.id,
+  type: result?.type,
+  processing_mode: result?.processing_mode,
+  status: result?.status,
+  status_detail: result?.status_detail,
+  checkout_url: result?.checkout_url || null,
+  application_id: result?.integration_data?.application_id,
+  config: result?.config
+}, null, 2));
     console.log("MP HTTP:", response.status);
 console.log("MP campos:", Object.keys(result || {}));
 console.log("MP order ID:", Boolean(result?.id));
