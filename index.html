@@ -36,7 +36,7 @@ nav button.on{background:linear-gradient(100deg,#ffd35a,#e76b0d);color:#1a0e04;b
 <div class="layout"><section><h2 class="section-title">🍽️ Nuestras categorías</h2><nav id="tabs"></nav><div id="menu"></div></section>
 <section class="cart"><h2>🛒 Tu pedido <small id="count"></small></h2><div id="lines">Todavía no agregas productos.</div><div class="total" id="total">Total: $0</div>
 <div class="fields"><input id="name" placeholder="Tu nombre *"><input id="phone" placeholder="Tu teléfono (opcional)"><input id="email" type="email" placeholder="Tu correo electrónico *" required><select id="method" onchange="toggleAddress()"><option>Delivery</option><option>Retiro en el local</option></select><input id="address" placeholder="Dirección y referencia (delivery)"><textarea id="notes" placeholder="Notas del pedido (opcional)"></textarea></div>
-<button class="online-pay" onclick="payOnline()">💳 Pagar por Internet</button><button class="send" id="whatsappButton" onclick="sendOrder()">🟢 Pedir por WhatsApp · Solo retiro en local</button><button class="clear" onclick="cart={};drawCart()">Vaciar carrito</button><p class="small">Para delivery, completa tu dirección y paga por Internet. WhatsApp está disponible solamente para pedidos con retiro en el local.</p></section></div></main>
+<button class="online-pay" onclick="payOnline()">💳 Pagar por Internet</button><button class="send" id="whatsappButton" onclick="sendOrder()">🟢 Pedir por WhatsApp · Solo retiro en local</button><button class="clear" style="background:#29231d;color:#ffd34d;width:100%;margin-top:8px" id="printButton" onclick="printOrder()">🖨️ Imprimir comanda</button><button class="clear" onclick="cart={};drawCart()">Vaciar carrito</button><p class="small">Para delivery, completa tu dirección y paga por Internet. WhatsApp está disponible solamente para pedidos con retiro en el local.</p></section></div></main>
 <script>
 const P=[
 ["Rolls","California Rolls",4700,"Queso, palta y proteína a elección."],["Rolls","Tempura o Panko",4900,"Queso, cebollín y proteína a elección."],["Rolls","Salmón",5500,"Queso, ciboulette y proteína a elección."],["Rolls","Avocado",4900,"Queso, pimentón y proteína a elección."],["Rolls","Hosomaki",2350,"1 ingrediente."],["Rolls","Chicken (10 cortes)",5390,"Pollo, camarón, queso Philadelphia, palta y ciboulette; nori apanado."],["Rolls","Fresh (10 cortes)",4990,"Pepino, queso Philadelphia, camarón furay, pimentón y atún; envuelto en salmón."],["Rolls","Mechada Rolls (10 cortes)",5490,"Mechada, queso Philadelphia, cebollín y camarón furay; envuelto en palta."],["Rolls","Tropical Spicy (10 cortes)",5890,"Camarón furay, palta y queso Philadelphia; envuelto en mango, toque picante."],["Rolls","Tor Rolls (10 cortes)",5550,"Pollo, palta, queso Philadelphia y cebollín; envuelto en pollo apanado."],["Rolls","Delicious Rolls (10 cortes)",5890,"Atún, queso Philadelphia, aceitunas negras y cebollín; panko y salsa teriyaki."],["Rolls","Nigiri (2 bocados)",3300,"Proteína a elección."],["Rolls","Sashimi 3 cortes",3200,"Pulpo, salmón o atún."],["Rolls","Sashimi 6 cortes",5200,"Pulpo, salmón o atún."],["Rolls","Sashimi 9 cortes",6900,"Pulpo, salmón o atún."],
@@ -60,6 +60,34 @@ function add(n){cart[n]=(cart[n]||0)+1;drawCart()}function qty(n,d){cart[n]+=d;i
 function drawCart(){let sum=0,count=0,s="";Object.entries(cart).forEach(([n,q])=>{let p=P.find(x=>x[1]===n);sum+=p[2]*q;count+=q;s+=`<div class="line"><span>${n} · ${fmt(p[2])}</span><span class="qty"><button onclick="qty('${n}',-1)">−</button> ${q} <button onclick="qty('${n}',1)">＋</button></span><b>${fmt(p[2]*q)}</b></div>`});document.getElementById("lines").innerHTML=s||"Todavía no agregas productos.";document.getElementById("count").textContent=`(${count} productos)`;document.getElementById("total").textContent="Total: "+fmt(sum)}
 function toggleAddress(){const delivery=document.getElementById("method").value==="Delivery";document.getElementById("address").style.display=delivery?"block":"none";document.getElementById("whatsappButton").style.display=delivery?"none":"block"}
 function sendOrder(){let items=Object.entries(cart);if(!items.length)return alert("Agrega al menos un producto.");let name=document.getElementById("name").value.trim(),method=document.getElementById("method").value,address=document.getElementById("address").value.trim();if(method!=="Retiro en el local")return alert("WhatsApp está disponible solamente para pedidos con retiro en el local. Para delivery, utiliza Pagar por Internet.");if(!name)return alert("Escribe tu nombre.");let sum=0,detail=items.map(([n,q])=>{let p=P.find(x=>x[1]===n);sum+=p[2]*q;return `• ${q} x ${n} — ${fmt(p[2]*q)}`}).join("\n");let msg=`¡Hola! Quiero pedir en La Picá del Benjamín:\n\n${detail}\n\nTOTAL: ${fmt(sum)}\nNombre: ${name}\nTeléfono: ${document.getElementById("phone").value}\nEntrega: Retiro en el local\nForma de pago: Efectivo o coordinación en el local\nNotas: ${document.getElementById("notes").value||"Sin observaciones"}\n\nQuedo atento/a a la confirmación.`;window.open("https://wa.me/56999064818?text="+encodeURIComponent(msg),"_blank")}
+
+
+function printOrder(){
+ const items=Object.entries(cart);
+ if(!items.length)return alert("Agrega al menos un producto antes de imprimir.");
+ const name=document.getElementById("name").value.trim();
+ const method=document.getElementById("method").value;
+ const address=document.getElementById("address").value.trim();
+ if(!name)return alert("Escribe el nombre del cliente antes de imprimir.");
+ if(method==="Delivery"&&!address)return alert("Escribe la dirección de delivery antes de imprimir.");
+ const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+ let total=0;
+ const rows=items.map(([n,q])=>{const p=P.find(x=>x[1]===n);const sub=p[2]*q;total+=sub;return "<tr><td>"+esc(n)+"</td><td>"+q+"</td><td>"+fmt(sub)+"</td></tr>"}).join("");
+ const w=window.open("","_blank","width=420,height=700");
+ if(!w)return alert("El navegador bloqueó la ventana de impresión. Permite las ventanas emergentes para este sitio e inténtalo nuevamente.");
+ w.document.write(`<!doctype html><html lang="es"><meta charset="utf-8"><title>Comanda - La Picá del Benjamín</title><style>
+ @page{size:80mm auto;margin:4mm}*{box-sizing:border-box}body{font:13px Arial,sans-serif;color:#000;width:72mm;margin:0 auto;padding:2mm}
+ h1{text-align:center;font-size:18px;margin:0 0 4px}p{margin:4px 0}.center{text-align:center}.rule{border-top:1px dashed #000;margin:8px 0}
+ table{width:100%;border-collapse:collapse;margin-top:8px}th,td{text-align:left;padding:4px 2px;border-bottom:1px dashed #aaa;font-size:12px}th:nth-child(2),td:nth-child(2){text-align:center}th:last-child,td:last-child{text-align:right}.total{text-align:right;font-size:17px;font-weight:bold;margin-top:10px}.notes{white-space:pre-wrap;overflow-wrap:anywhere}
+ </style><body><h1>LA PICÁ DEL BENJAMÍN</h1><p class="center">COMANDA DE PEDIDO</p><div class="rule"></div>
+ <p><b>Fecha:</b> ${esc(new Date().toLocaleString("es-CL"))}</p><p><b>Cliente:</b> ${esc(name)}</p><p><b>Teléfono:</b> ${esc(document.getElementById("phone").value.trim()||"No indicado")}</p>
+ <p><b>Entrega:</b> ${esc(method)}</p>${method==="Delivery"?"<p><b>Dirección:</b> "+esc(address)+"</p>":""}
+ <table><thead><tr><th>Producto</th><th>Cant.</th><th>Total</th></tr></thead><tbody>${rows}</tbody></table>
+ <p class="total">TOTAL: ${fmt(total)}</p><div class="rule"></div><p><b>Observaciones:</b></p><p class="notes">${esc(document.getElementById("notes").value.trim()||"Sin observaciones")}</p>
+ <div class="rule"></div><p class="center">¡Gracias por preferirnos!</p><p class="center">Pje. Hermano Claudio Ortíz #1229 · Linares</p>
+ <script>window.onload=()=>{window.focus();window.print()}<\/script></body></html>`);
+ w.document.close();
+}
 
 async function payOnline(){
  let items=Object.entries(cart);
