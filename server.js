@@ -19,7 +19,11 @@ const products = {
   "Clásico de la casa": 4990, "Chacarero": 4990, "Barros Luco": 4990,
   "Benjita": 6490, "Sándwich del chef": 5990, "A lo pobre": 5990,
   "Vegetariano": 6490, "Mexicano": 5990, "Chileno": 5990,
-  "Cheese Cream": 6890, "Chicken": 6990
+  "Cheese Cream": 6890, "Chicken": 6990,
+  "Bebida lata 350 cc": 1500, "Bebida botella 1,5 litros": 2500,
+  "Jugo natural 350 cc": 2500, "Jugo natural 1 litro": 3990,
+  "Néctar 1,5 litros": 2500, "Agua mineral 600 ml": 1000,
+  "Red Bull 250 cc": 2500
 };
 
 function send(res, status, body) {
