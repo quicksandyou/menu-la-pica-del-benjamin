@@ -106,6 +106,20 @@ nav button:hover{transform:translateY(-3px);filter:brightness(1.15);box-shadow:0
 @keyframes titleLine{from{transform:scaleX(.35);opacity:.45}to{transform:scaleX(1);opacity:1}}
 @media(hover:none){.grid .item:hover{transform:none}.grid .item:hover .food-art img{transform:none}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+
+/* Movimiento continuo visible, pero suave */
+.grid .item{animation:cardFloat 4.2s ease-in-out infinite!important}
+.grid .item:nth-child(2n){animation-delay:-1.4s!important}
+.grid .item:nth-child(3n){animation-delay:-2.8s!important}
+@keyframes cardFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+.food-art img{animation:foodBreathe 5s ease-in-out infinite;transform-origin:center}
+.grid .item:nth-child(2n) .food-art img{animation-delay:-2.5s}
+@keyframes foodBreathe{0%,100%{transform:scale(1)}50%{transform:scale(1.045)}}
+nav button{animation:tabGlow 3.8s ease-in-out infinite}
+nav button:nth-child(2n){animation-delay:-1.9s}
+@keyframes tabGlow{0%,100%{box-shadow:0 0 0 #ffbd3500;filter:brightness(1)}50%{box-shadow:0 0 12px #ffbd3533;filter:brightness(1.12)}}
+.hero-main{animation:heroPulse 5s ease-in-out infinite}
+@keyframes heroPulse{0%,100%{box-shadow:0 0 0 #ffbd3500}50%{box-shadow:0 0 22px #ffbd3526}}
 </style><audio id="siteMusic" src="./soundtrack.mp3.mpeg" loop preload="none"></audio><button id="musicToggle" type="button" aria-pressed="false" onclick="toggleMusic()">🎵 Activar música</button><a class="delivery-help" href="https://wa.me/56962662078?text=Hola%2C%20quisiera%20hacer%20una%20consulta%20sobre%20mi%20pedido%20de%20La%20Pic%C3%A1%20del%20Benjam%C3%ADn." target="_blank" rel="noopener noreferrer" aria-label="Consultar pedido con el encargado de delivery por WhatsApp"><span class="wa-icon">🟢</span><span>Consultar mi pedido</span></a><button type="button" class="ketchup-side left" aria-label="¡Aprieta para lanzar kétchup!" title="¡Toca para lanzar kétchup!" onclick="splashKetchup(event)"><span class="ketchup-splash">〰</span><span class="ketchup-bottle"></span></button><button type="button" class="ketchup-side right" aria-label="¡Aprieta para lanzar kétchup!" title="¡Toca para lanzar kétchup!" onclick="splashKetchup(event)"><span class="ketchup-splash">〰</span><span class="ketchup-bottle"></span></button><header class="site-header"><div class="head-inner"><div><div class="brand">La Picá del Benjamín</div><div class="tagline">Sabor que enamora, porciones que impresionan</div></div><div class="header-info"><div class="info-chip">📍 <b>Pje. Hermano Claudio Ortíz #1229</b><br>Linares · <a href="https://maps.app.goo.gl/zV6W4sxRxqezmYtb7" target="_blank" rel="noopener">Ver ubicación real ↗</a></div><div class="info-chip">🕒 <b>Horario de atención</b><br>Martes a sábado · 17:30 a 02:00 AM</div></div></div></header>
 <main class="wrap"><div class="feature-update" role="status"><span class="feature-icon">🚀</span><div><strong>¡Estamos incorporando nuevas funciones!</strong><p>Estamos mejorando nuestra tienda online para entregarte una experiencia de compra cada vez mejor. Gracias por tu paciencia y por preferir La Picá del Benjamín. ❤️</p></div></div>
 <div class="app-install" id="appInstall"><div><strong>📲 Lleva La Picá del Benjamín en tu celular</strong><p>Instala nuestra aplicación para hacer tus pedidos más rápido.</p></div><button id="installAppButton" type="button">Instalar aplicación</button></div>
