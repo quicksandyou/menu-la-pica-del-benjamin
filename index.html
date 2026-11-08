@@ -1,11 +1,42 @@
 <!doctype html><html lang="es"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>La Picá del Benjamín</title>
 <style>
-:root{--o:#ff7918;--y:#ffd21a;--r:#d9271c}*{box-sizing:border-box}body{margin:0;background:#101010;color:white;font:16px system-ui}header{text-align:center;padding:28px 12px;background:radial-gradient(#55200b,#101010);border-bottom:3px solid var(--o)}header strong{display:block;color:#ff9b25;font-size:clamp(28px,7vw,46px);text-shadow:2px 3px #541900}header b{color:var(--y);letter-spacing:3px}.wrap{max-width:1000px;margin:auto;padding:14px}.notice,.cart{background:#211b17;border:1px solid #884318;border-radius:14px;padding:14px;margin:12px 0}nav{display:flex;gap:7px;overflow:auto;position:sticky;top:0;background:#101010;padding:8px 0;z-index:2}button{cursor:pointer;border:0;border-radius:9px;padding:10px;font-weight:800}nav button{white-space:nowrap;background:#303030;color:white}nav button.on,.add{background:linear-gradient(90deg,var(--y),var(--o));color:#17100a}h2{color:var(--y);margin:18px 0 8px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:10px}.item{background:#211f1d;border:1px solid #593019;border-radius:12px;padding:13px;display:flex;flex-direction:column;gap:8px}.item h3{margin:0;color:#ff9b35}.desc{font-size:13px;color:#ccc;flex:1}.price{font-size:19px;font-weight:900;color:var(--y)}.add{width:100%}.line{display:flex;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:1px solid #444;font-size:14px}.qty button{background:#444;color:white;padding:4px 9px}.total{text-align:right;color:var(--y);font-size:22px;font-weight:900;margin:12px 0}.fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:9px}input,select,textarea{width:100%;padding:11px;border-radius:8px;background:#292929;color:white;border:1px solid #555;font:inherit}textarea{grid-column:1/-1}.pay-options{display:grid;grid-template-columns:1fr 1fr;gap:10px}.pay-choice{background:#303030;color:white;border:2px solid #555;padding:14px;font-size:16px}.pay-choice.selected{background:linear-gradient(90deg,var(--y),var(--o));color:#17100a;border-color:var(--y)}.send{width:100%;background:#20b65a;color:white;font-size:17px;margin-top:10px}.online-pay{width:100%;background:#009ee3;color:white;font-size:17px;margin-top:9px}.clear{background:#444;color:white;width:100%;margin-top:8px}.small{color:#aaa;font-size:12px}
-</style><header><strong>La Picá del Benjamín</strong><b>PURO SABOR</b><p>¡Elige tus favoritos y arma tu pedido!</p></header><main class="wrap">
-<div class="notice">📍 Rengo 1030-A, lado estadio municipal · Linares<br>📲 Pedidos: +56 9 9906 4818 · Delivery o retiro en el local</div><nav id="tabs"></nav><div id="menu"></div>
+:root{--gold:#ffbd35;--orange:#f47716;--red:#a92717;--bg:#080808;--panel:#171310;--line:#573719;--muted:#c8bcae}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#241307 0,#080808 48%);color:#fff;font:15px system-ui,Arial}
+a{color:var(--gold)}button{cursor:pointer;border:0;border-radius:11px;padding:12px;font-weight:850}
+.site-header{background:linear-gradient(110deg,#050505,#241006,#050505);border-bottom:2px solid #a85b13;padding:18px 20px}
+.head-inner{max-width:1400px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap}
+.brand{font-size:clamp(27px,4vw,48px);font-weight:950;font-style:italic;color:var(--gold);text-shadow:2px 3px #6e2600;line-height:1.05}
+.tagline{color:#f4dfb9;font-style:italic;margin-top:5px}
+.header-info{display:flex;gap:12px;flex-wrap:wrap}.info-chip{border:1px solid #9a5c1e;border-radius:13px;padding:10px 13px;background:#120d09;color:#f4dfb9;font-size:13px}
+.wrap{max-width:1400px;margin:auto;padding:18px}.hero{display:grid;grid-template-columns:1.5fr 1fr;gap:14px;margin-bottom:20px}
+.hero-main{min-height:220px;border:1px solid #754318;border-radius:18px;padding:28px;display:flex;align-items:center;justify-content:space-between;gap:12px;background:radial-gradient(circle at 75% 45%,#69300c,#211006 42%,#100b08);overflow:hidden}
+.hero-title{font-size:clamp(30px,5vw,58px);font-weight:1000;line-height:1;color:var(--gold);text-shadow:3px 4px #4c1c00}.hero-sub{font-weight:750;color:#fff;margin-top:12px}.hero-emoji{font-size:clamp(65px,10vw,125px);filter:drop-shadow(0 8px 12px #000)}
+.hero-side{border:1px solid #754318;border-radius:18px;padding:20px;background:linear-gradient(145deg,#21140b,#090909);display:flex;flex-direction:column;justify-content:center}
+.hero-side strong{color:var(--gold);font-size:22px}.hero-side p{color:var(--muted);margin:8px 0}
+.section-title{color:var(--gold);font-size:23px;margin:18px 0 12px}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 370px;gap:18px;align-items:start}
+nav{display:flex;gap:8px;overflow-x:auto;padding:8px 0 14px;position:sticky;top:0;background:#090909;z-index:4}
+nav button{white-space:nowrap;background:#211a14;color:#f4dfb9;border:1px solid #674019}
+nav button.on{background:linear-gradient(100deg,#ffd35a,#e76b0d);color:#1a0e04;border-color:#ffcb52}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(205px,1fr));gap:13px}
+.item{background:linear-gradient(150deg,#211a15,#111);border:1px solid #573719;border-radius:16px;padding:13px;display:flex;flex-direction:column;gap:8px;box-shadow:0 6px 18px #0008;min-height:245px}
+.food-art{height:112px;border-radius:12px;background:radial-gradient(circle,#63300f,#211008 70%);display:grid;place-items:center;font-size:64px;border:1px solid #74451e}
+.item h3{margin:3px 0 0;color:#ffc35a;font-size:17px}.desc{font-size:12px;color:#c9c1b8;flex:1}.price{font-size:20px;font-weight:950;color:#ffd34d}.add{width:100%;background:linear-gradient(90deg,#ffd34d,#ef7814);color:#211006}
+.cart{background:#f4f0e9;color:#20180f;border-radius:18px;padding:17px;border:3px solid #a75b16;position:sticky;top:68px;box-shadow:0 12px 30px #0009}
+.cart h2{color:#21170f;margin:0 0 12px;font-size:23px}.line{display:flex;justify-content:space-between;gap:8px;padding:9px 0;border-bottom:1px solid #d4c8b9;font-size:13px}.qty{white-space:nowrap}.qty button{background:#30251b;color:white;padding:3px 9px}.total{text-align:right;color:#9e3f08;font-size:23px;font-weight:950;margin:14px 0}
+.fields{display:grid;grid-template-columns:1fr;gap:9px}input,select,textarea{width:100%;padding:11px;border-radius:9px;background:#fff;color:#21170f;border:1px solid #c9bcae;font:inherit}textarea{min-height:65px}
+.online-pay{width:100%;background:linear-gradient(90deg,#ffcc49,#e96c0b);color:#241306;font-size:17px;margin-top:12px}.send{width:100%;background:#218c4a;color:white;font-size:15px;margin-top:9px}.clear{background:#d9d2c8;color:#24180d;width:100%;margin-top:8px}.small{color:#6e6256;font-size:11px;line-height:1.4}
+.notice{background:#1b120b;border:1px solid #754318;border-radius:13px;padding:12px;margin-bottom:16px;color:#f5dfbd}
+@media(max-width:900px){.layout{grid-template-columns:1fr}.cart{position:static;order:-1}.hero{grid-template-columns:1fr}.hero-main{min-height:180px}}
+@media(max-width:520px){.wrap{padding:10px}.hero-main{padding:18px}.hero-emoji{font-size:68px}.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.item{padding:9px;min-height:225px}.food-art{height:86px;font-size:48px}.item h3{font-size:14px}.desc{font-size:11px}.price{font-size:17px}}
+</style><header class="site-header"><div class="head-inner"><div><div class="brand">La Picá del Benjamín</div><div class="tagline">Sabor que enamora, porciones que impresionan</div></div><div class="header-info"><div class="info-chip">📍 <b>Claudio Ortiz #1235</b><br>Linares · <a href="https://www.google.com/maps/search/?api=1&query=Claudio+Ortiz+1235+Linares+Chile" target="_blank" rel="noopener">Ver en Google Maps ↗</a></div><div class="info-chip">🕒 <b>Horario de atención</b><br>17:30 a 01:30 AM</div></div></div></header>
+<main class="wrap">
+<div class="hero"><div class="hero-main"><div><div class="hero-title">¡Puro sabor!</div><div class="hero-sub">Sushi · Sándwiches · Pizzas · Ceviches y más</div></div><div class="hero-emoji">🍣 🍔</div></div><div class="hero-side"><strong>¡Arma tu pedido!</strong><p>Elige tus favoritos, selecciona delivery o retiro y paga de forma segura por Internet.</p><p>🚗 Delivery o retiro en el local</p></div></div>
+<div class="notice">📍 Estamos en <b>Claudio Ortiz #1235, Linares</b> · 📲 Pedidos: +56 9 9906 4818</div><section id="payment-result" class="notice" style="display:none"></section>
+<div class="layout"><section><h2 class="section-title">🍽️ Nuestras categorías</h2><nav id="tabs"></nav><div id="menu"></div></section>
 <section class="cart"><h2>🛒 Tu pedido <small id="count"></small></h2><div id="lines">Todavía no agregas productos.</div><div class="total" id="total">Total: $0</div>
 <div class="fields"><input id="name" placeholder="Tu nombre *"><input id="phone" placeholder="Tu teléfono (opcional)"><select id="method" onchange="toggleAddress()"><option>Delivery</option><option>Retiro en el local</option></select><input id="address" placeholder="Dirección y referencia (delivery)"><textarea id="notes" placeholder="Notas del pedido (opcional)"></textarea></div>
-<button class="online-pay" onclick="payOnline()">💳 Pagar online con Mercado Pago</button><button class="send" onclick="sendOrder()">Enviar pedido por WhatsApp</button><button class="clear" onclick="cart={};drawCart()">Vaciar carrito</button><p class="small">Al pagar online serás redirigido al checkout seguro de Mercado Pago. También puedes enviar tu pedido por WhatsApp.</p></section></main>
+<button class="online-pay" onclick="payOnline()">💳 Pagar por Internet</button><button class="send" id="whatsappButton" onclick="sendOrder()">🟢 Pedir por WhatsApp · Solo retiro en local</button><button class="clear" onclick="cart={};drawCart()">Vaciar carrito</button><p class="small">Para delivery, completa tu dirección y paga por Internet. WhatsApp está disponible solamente para pedidos con retiro en el local.</p></section></div></main>
 <script>
 const P=[
 ["Rolls","California Rolls",4700,"Queso, palta y proteína a elección."],["Rolls","Tempura o Panko",4900,"Queso, cebollín y proteína a elección."],["Rolls","Salmón",5500,"Queso, ciboulette y proteína a elección."],["Rolls","Avocado",4900,"Queso, pimentón y proteína a elección."],["Rolls","Hosomaki",2350,"1 ingrediente."],["Rolls","Chicken (10 cortes)",5390,"Pollo, camarón, queso Philadelphia, palta y ciboulette; nori apanado."],["Rolls","Fresh (10 cortes)",4990,"Pepino, queso Philadelphia, camarón furay, pimentón y atún; envuelto en salmón."],["Rolls","Mechada Rolls (10 cortes)",5490,"Mechada, queso Philadelphia, cebollín y camarón furay; envuelto en palta."],["Rolls","Tropical Spicy (10 cortes)",5890,"Camarón furay, palta y queso Philadelphia; envuelto en mango, toque picante."],["Rolls","Tor Rolls (10 cortes)",5550,"Pollo, palta, queso Philadelphia y cebollín; envuelto en pollo apanado."],["Rolls","Delicious Rolls (10 cortes)",5890,"Atún, queso Philadelphia, aceitunas negras y cebollín; panko y salsa teriyaki."],["Rolls","Nigiri (2 bocados)",3300,"Proteína a elección."],["Rolls","Sashimi 3 cortes",3200,"Pulpo, salmón o atún."],["Rolls","Sashimi 6 cortes",5200,"Pulpo, salmón o atún."],["Rolls","Sashimi 9 cortes",6900,"Pulpo, salmón o atún."],
@@ -17,11 +48,11 @@ const P=[
 // Cambia esta dirección por la URL pública de tu servidor Render.
 const PAYMENT_API_BASE_URL = "https://menu-la-pica-del-benjamin-pago.onrender.com"; // Reemplazar cuando publiques el servidor en Render.
 const cats=["Todos",...new Set(P.map(x=>x[0]))];let active="Todos",cart={},payment="Efectivo";const fmt=n=>"$"+n.toLocaleString("es-CL");
-function render(){document.getElementById("tabs").innerHTML=cats.map(c=>`<button class="${c===active?'on':''}" onclick="active='${c}';render()">${c}</button>`).join("");let arr=P.filter(p=>active==="Todos"||p[0]===active),out="",last="";arr.forEach((p,i)=>{if(p[0]!==last){out+=`<h2>${p[0]}</h2><div class="grid">`;last=p[0]}out+=`<article class="item"><h3>${p[1]}</h3><div class="desc">${p[3]}</div><div class="price">${fmt(p[2])}</div><button class="add" onclick="add('${p[1]}')">＋ Agregar</button></article>`;if(i===arr.length-1||arr[i+1][0]!==last)out+="</div>"});document.getElementById("menu").innerHTML=out;drawCart()}
+function render(){const icons={"Rolls":"🍣","Ceviches":"🍤","Gohan":"🍱","Pizzas":"🍕","Sándwiches":"🥪"};document.getElementById("tabs").innerHTML=cats.map(c=>`<button class="${c===active?'on':''}" onclick="active='${c}';render()">${icons[c]||"🍽️"} ${c}</button>`).join("");let arr=P.filter(p=>active==="Todos"||p[0]===active),out="",last="";arr.forEach((p,i)=>{if(p[0]!==last){out+=`<h2 class="section-title">${icons[p[0]]||"🍽️"} ${p[0]}</h2><div class="grid">`;last=p[0]}out+=`<article class="item"><div class="food-art">${icons[p[0]]||"🍽️"}</div><h3>${p[1]}</h3><div class="desc">${p[3]}</div><div class="price">${fmt(p[2])}</div><button class="add" onclick="add('${p[1]}')">＋ Agregar al pedido</button></article>`;if(i===arr.length-1||arr[i+1][0]!==last)out+="</div>"});document.getElementById("menu").innerHTML=out;drawCart()}
 function add(n){cart[n]=(cart[n]||0)+1;drawCart()}function qty(n,d){cart[n]+=d;if(cart[n]<=0)delete cart[n];drawCart()}
 function drawCart(){let sum=0,count=0,s="";Object.entries(cart).forEach(([n,q])=>{let p=P.find(x=>x[1]===n);sum+=p[2]*q;count+=q;s+=`<div class="line"><span>${n} · ${fmt(p[2])}</span><span class="qty"><button onclick="qty('${n}',-1)">−</button> ${q} <button onclick="qty('${n}',1)">＋</button></span><b>${fmt(p[2]*q)}</b></div>`});document.getElementById("lines").innerHTML=s||"Todavía no agregas productos.";document.getElementById("count").textContent=`(${count} productos)`;document.getElementById("total").textContent="Total: "+fmt(sum)}
-function toggleAddress(){document.getElementById("address").style.display=document.getElementById("method").value==="Delivery"?"block":"none"}
-function sendOrder(){let items=Object.entries(cart);if(!items.length)return alert("Agrega al menos un producto.");let name=document.getElementById("name").value.trim(),method=document.getElementById("method").value,address=document.getElementById("address").value.trim();if(!name)return alert("Escribe tu nombre.");if(method==="Delivery"&&!address)return alert("Escribe tu dirección.");let sum=0,detail=items.map(([n,q])=>{let p=P.find(x=>x[1]===n);sum+=p[2]*q;return `• ${q} x ${n} — ${fmt(p[2]*q)}`}).join("\n");let msg=`¡Hola! Quiero pedir en La Picá del Benjamín:\n\n${detail}\n\nTOTAL: ${fmt(sum)}\nNombre: ${name}\nTeléfono: ${document.getElementById("phone").value}\nEntrega: ${method}\n${method==="Delivery"?"Dirección: "+address:""}\nForma de pago: ${payment==="Online"?"Pago online (solicito enlace de pago)":"Efectivo"}\nNotas: ${document.getElementById("notes").value||"Sin observaciones"}\n\nQuedo atento/a a la confirmación.`;window.open("https://wa.me/56999064818?text="+encodeURIComponent(msg),"_blank")}
+function toggleAddress(){const delivery=document.getElementById("method").value==="Delivery";document.getElementById("address").style.display=delivery?"block":"none";document.getElementById("whatsappButton").style.display=delivery?"none":"block"}
+function sendOrder(){let items=Object.entries(cart);if(!items.length)return alert("Agrega al menos un producto.");let name=document.getElementById("name").value.trim(),method=document.getElementById("method").value,address=document.getElementById("address").value.trim();if(method!=="Retiro en el local")return alert("WhatsApp está disponible solamente para pedidos con retiro en el local. Para delivery, utiliza Pagar por Internet.");if(!name)return alert("Escribe tu nombre.");let sum=0,detail=items.map(([n,q])=>{let p=P.find(x=>x[1]===n);sum+=p[2]*q;return `• ${q} x ${n} — ${fmt(p[2]*q)}`}).join("\n");let msg=`¡Hola! Quiero pedir en La Picá del Benjamín:\n\n${detail}\n\nTOTAL: ${fmt(sum)}\nNombre: ${name}\nTeléfono: ${document.getElementById("phone").value}\nEntrega: Retiro en el local\nForma de pago: Efectivo o coordinación en el local\nNotas: ${document.getElementById("notes").value||"Sin observaciones"}\n\nQuedo atento/a a la confirmación.`;window.open("https://wa.me/56999064818?text="+encodeURIComponent(msg),"_blank")}
 
 async function payOnline(){
  let items=Object.entries(cart);
@@ -42,15 +73,40 @@ async function payOnline(){
      delivery:{method,address:method==="Delivery"?address:""},notes:document.getElementById("notes").value.trim(),
      items:products,total_clp:total
    })});
-   if(!response.ok)throw new Error("No se pudo crear la orden. Revisa que el servidor Render esté publicado y configurado.");
    const data=await response.json();
+   if(!response.ok)throw new Error(data.error || "No se pudo crear la orden. Revisa la configuración de Render.");
    if(!data.checkout_url)throw new Error("Mercado Pago no devolvió checkout_url.");
    window.location.href=data.checkout_url;
  }catch(error){
    alert(error.message||"No fue posible iniciar el pago. Puedes enviar tu pedido por WhatsApp.");
-   button.disabled=false;button.textContent="💳 Pagar online con Mercado Pago";
+   button.disabled=false;button.textContent="💳 Pagar por Internet";
  }
 }
 
-render();toggleAddress();
+async function showPaymentResult(){
+ const params=new URLSearchParams(window.location.search);
+ if(params.get("pago")!=="retorno")return;
+ const panel=document.getElementById("payment-result");
+ panel.style.display="block";
+ panel.innerHTML="<b>Estamos verificando tu pago...</b>";
+ const orderId=params.get("order_id");
+ if(!orderId){
+   panel.innerHTML="<b>No pudimos identificar la orden.</b><p>Revisa tu pago en Mercado Pago o contáctanos.</p>";
+   return;
+ }
+ try{
+   const response=await fetch(`${PAYMENT_API_BASE_URL}/api/orden/${encodeURIComponent(orderId)}`);
+   const data=await response.json();
+   if(!response.ok)throw new Error(data.error||"No pudimos verificar el pago.");
+   if(data.approved){
+     panel.innerHTML=`<div style="font-size:25px">✅</div><h2 style="margin:6px 0;color:#ffd34d">¡Estamos preparando tu pedido!</h2><p>Tu pago fue confirmado correctamente.</p>${data.delivery&&data.customer_address?`<p><b>Dirección de despacho:</b><br>${data.customer_address.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}</p>`:"<p><b>Modalidad:</b> Retiro en el local.</p>"}`;
+     document.querySelector(".layout").style.display="none";
+   }else{
+     panel.innerHTML=`<b>Tu pago todavía no está confirmado.</b><p>Estado de la orden: ${data.status}. No prepares otro pedido todavía; revisa tu cuenta de Mercado Pago.</p>`;
+   }
+ }catch(error){
+   panel.innerHTML=`<b>No pudimos verificar el pago en este momento.</b><p>${error.message}</p><p>Por seguridad, no mostraremos el pedido como confirmado hasta comprobarlo.</p>`;
+ }
+}
+render();toggleAddress();showPaymentResult();
 </script></html>
