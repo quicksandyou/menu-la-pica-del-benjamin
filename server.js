@@ -5,7 +5,7 @@ const PORT = process.env.PORT || 3000;
 const MP_API = "https://api.mercadopago.com";
 const FRONTEND_URL = (process.env.FRONTEND_URL || "").replace(/\/+$/, "");
 
-const products = {
+const deliveryFees = { "Linares":1990, "Longaví":3500, "Yerbas Buenas":3000, "Colbún":4000, "Villa Alegre":4000, "San Javier":5000, "Palmilla":5000 };\n\nconst products = {
   "California Rolls": 4700, "Tempura o Panko": 4900, "Salmón": 5500,
   "Avocado": 4900, "Hosomaki": 2350, "Chicken (10 cortes)": 5390,
   "Fresh (10 cortes)": 4990, "Mechada Rolls (10 cortes)": 5490,
@@ -123,13 +123,13 @@ const server = http.createServer(async (req, res) => {
     const customerName = String(data.customer?.name || "").trim();
     const customerEmail = String(data.customer?.email || "").trim().toLowerCase();
     const method = String(data.delivery?.method || "");
-    const address = String(data.delivery?.address || "").trim();
+    const address = String(data.delivery?.address || "").trim();\n    const locality = String(data.delivery?.locality || "");
 
     if (!customerName) throw new Error("Falta el nombre del cliente.");
     if (!customerEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customerEmail)) {
   throw new Error("Ingresa un correo electrónico válido.");
 }
-    if (method === "Delivery" && !address) throw new Error("Falta la dirección de despacho.");
+    if (method === "Delivery" && !address) throw new Error("Falta la dirección de despacho.");\n    if (method === "Delivery" && !Object.prototype.hasOwnProperty.call(deliveryFees, locality)) throw new Error("Selecciona una localidad de despacho válida.");
     if (method !== "Delivery" && method !== "Retiro en el local") throw new Error("Método de entrega inválido.");
 
     let total = 0;
@@ -142,7 +142,7 @@ const server = http.createServer(async (req, res) => {
       return { title: item.name, quantity: item.quantity, unit_price: String(price) };
     });
 
-    if (Number(data.total_clp) !== total) throw new Error("El total del pedido no coincide.");
+    const deliveryFee = method === "Delivery" ? deliveryFees[locality] : 0;\n    if (deliveryFee > 0) { total += deliveryFee; items.push({ title: `Despacho a ${locality}`, quantity: 1, unit_price: String(deliveryFee) }); }\n    if (Number(data.total_clp) !== total) throw new Error("El total del pedido no coincide.");
 
     const returnUrl = `${FRONTEND_URL}/?pago=retorno`;
     const payload = {
@@ -157,7 +157,7 @@ const server = http.createServer(async (req, res) => {
   ...(method === "Delivery" ? {
     address: {
       street_name: address,
-      city: "Linares"
+      city: locality
     }
   } : {})
 },
