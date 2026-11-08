@@ -180,6 +180,15 @@ const server = http.createServer(async (req, res) => {
     });
 
     const result = await response.json();
+    console.log("MP DIAGNOSTICO DELIVERY:", JSON.stringify({
+  method,
+  hasShipmentRequest: Boolean(payload.shipment),
+  shipmentKeys: Object.keys(payload.shipment || {}),
+  hasShipmentResponse: Boolean(result?.shipment),
+  checkoutUrlPresent: Boolean(result?.checkout_url),
+  clientTokenPresent: Boolean(result?.client_token),
+  status: result?.status
+}));
     console.log("MP RESPUESTA SEGURA:", JSON.stringify({
   id: result?.id,
   type: result?.type,
