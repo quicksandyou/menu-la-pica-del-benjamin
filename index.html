@@ -1,4 +1,5 @@
-<!doctype html><html lang="es"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>La Picá del Benjamín</title>
+<!doctype html><html lang="es"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="manifest" href="/manifest.json"><meta name="theme-color" content="#100b07"><link rel="icon" href="/icons/icon.svg" type="image/svg+xml"><title>La Picá del Benjamín</title>
 <style>
 :root{--gold:#ffbd35;--orange:#f47716;--red:#a92717;--bg:#080808;--panel:#171310;--line:#573719;--muted:#c8bcae}
 *{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#241307 0,#080808 48%);color:#fff;font:15px system-ui,Arial}
@@ -30,8 +31,11 @@ nav button.on{background:linear-gradient(100deg,#ffd35a,#e76b0d);color:#1a0e04;b
 #musicToggle{position:fixed;left:18px;bottom:18px;z-index:20;background:linear-gradient(100deg,#ffd34d,#ef7814);color:#211006;border:1px solid #ffcf58;border-radius:999px;padding:12px 17px;box-shadow:0 5px 20px #000b;font-weight:900}#musicToggle[aria-pressed="true"]{background:linear-gradient(100deg,#2c9c5b,#176b3a);color:#fff;border-color:#8ee0a8}
 @media(max-width:900px){.layout{grid-template-columns:1fr}.cart{position:static;order:-1}.hero{grid-template-columns:1fr}.hero-main{min-height:180px}}
 @media(max-width:520px){.wrap{padding:10px}.hero-main{padding:18px}.hero-emoji{font-size:68px}.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.item{padding:9px;min-height:225px}.food-art{height:86px;font-size:48px}.item h3{font-size:14px}.desc{font-size:11px}.price{font-size:17px}}
+
+.app-install{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:14px 0;padding:15px 17px;border:1px solid #a85b13;border-radius:15px;background:linear-gradient(110deg,#211207,#100b07);color:#f7e5c8}.app-install strong{display:block;color:#ffbd35;font-size:17px}.app-install p{margin:4px 0 0;color:#d7c6b0;font-size:13px}.app-install button{background:linear-gradient(90deg,#ffd34d,#ef7814);color:#211006;padding:12px 18px}.app-install button:disabled{opacity:.65;cursor:default}
 </style><audio id="siteMusic" src="./soundtrack.mp3.mpeg" loop preload="none"></audio><button id="musicToggle" type="button" aria-pressed="false" onclick="toggleMusic()">🎵 Activar música</button><header class="site-header"><div class="head-inner"><div><div class="brand">La Picá del Benjamín</div><div class="tagline">Sabor que enamora, porciones que impresionan</div></div><div class="header-info"><div class="info-chip">📍 <b>Pje. Hermano Claudio Ortíz #1229</b><br>Linares · <a href="https://maps.app.goo.gl/zV6W4sxRxqezmYtb7" target="_blank" rel="noopener">Ver ubicación real ↗</a></div><div class="info-chip">🕒 <b>Horario de atención</b><br>Martes a sábado · 17:30 a 02:00 AM</div></div></div></header>
 <main class="wrap">
+<div class="app-install" id="appInstall"><div><strong>📲 Lleva La Picá del Benjamín en tu celular</strong><p>Instala nuestra aplicación para hacer tus pedidos más rápido.</p></div><button id="installAppButton" type="button">Instalar aplicación</button></div>
 <div class="hero"><div class="hero-main brand-hero"><img src="./logo_picada.jpg" alt="La Picá del Benjamín - Sushi, ceviches, fajitas, pizzas, churrascos y chorrillanas"></div><div class="hero-side"><strong>¡Arma tu pedido!</strong><p>Elige tus favoritos, selecciona delivery o retiro y paga de forma segura por Internet.</p><p>🚗 Linares $1.990 · Retiro gratis</p><p>Fuera de Linares: tarifa según localidad (desde $3.000).</p></div></div>
 <div class="notice">📍 Estamos en <b>Pje. Hermano Claudio Ortíz #1229, Linares</b> · <a href="https://maps.app.goo.gl/zV6W4sxRxqezmYtb7" target="_blank" rel="noopener">Cómo llegar con Google Maps ↗</a> · 📲 Pedidos: +56 9 9906 4818</div><section id="payment-result" class="notice" style="display:none"></section>
 <div class="layout"><section><h2 class="section-title">🍽️ Nuestras categorías</h2><nav id="tabs"></nav><div id="menu"></div></section>
@@ -142,6 +146,31 @@ async function showPaymentResult(){
  }catch(error){
    panel.innerHTML=`<b>No pudimos verificar el pago en este momento.</b><p>${error.message}</p><p>Por seguridad, no mostraremos el pedido como confirmado hasta comprobarlo.</p>`;
  }
+}
+let deferredInstallPrompt=null;
+const installButton=document.getElementById("installAppButton");
+window.addEventListener("beforeinstallprompt",event=>{
+ event.preventDefault();
+ deferredInstallPrompt=event;
+ installButton.textContent="Instalar aplicación";
+});
+installButton.addEventListener("click",async()=>{
+ if(deferredInstallPrompt){
+  deferredInstallPrompt.prompt();
+  await deferredInstallPrompt.userChoice;
+  deferredInstallPrompt=null;
+  installButton.textContent="Aplicación instalada";
+  installButton.disabled=true;
+ }else{
+  alert("Para instalar: abre el menú de tu navegador y selecciona 'Instalar aplicación' o 'Agregar a pantalla principal'. En iPhone, usa Compartir y luego 'Agregar a pantalla de inicio'.");
+ }
+});
+window.addEventListener("appinstalled",()=>{
+ installButton.textContent="Aplicación instalada";
+ installButton.disabled=true;
+});
+if("serviceWorker" in navigator){
+ window.addEventListener("load",()=>navigator.serviceWorker.register("/service-worker.js").catch(error=>console.error("No se pudo activar el modo instalable:",error)));
 }
 render();toggleAddress();applySchedule();setInterval(applySchedule,60000);showPaymentResult();
 </script></html>
