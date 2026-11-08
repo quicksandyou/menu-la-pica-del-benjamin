@@ -1,0 +1,16 @@
+{
+  "id": "/",
+  "name": "La Picá del Benjamín",
+  "short_name": "La Picá",
+  "description": "Haz tus pedidos online en La Picá del Benjamín, Linares.",
+  "lang": "es-CL",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#080808",
+  "theme_color": "#100b07",
+  "orientation": "portrait",
+  "icons": [
+    {"src": "/icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any"}
+  ]
+}
