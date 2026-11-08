@@ -178,6 +178,9 @@ console.log("MP campos:", Object.keys(result || {}));
 console.log("MP order ID:", Boolean(result?.id));
 console.log("MP checkout URL:", Boolean(result?.checkout_url));
 console.log("MP status:", result?.status);
+    console.log("MP status_detail:", result?.status_detail);
+console.log("MP config online:", Object.keys(result?.config?.online || {}));
+console.log("MP country:", result?.country_code);
     if (!response.ok) {
       console.error("Mercado Pago:", result);
       return send(res, response.status, { error: "Mercado Pago rechazó la creación de la orden. Revisa los logs de Render." });
