@@ -120,10 +120,41 @@ nav button:nth-child(2n){animation-delay:-1.9s}
 @keyframes tabGlow{0%,100%{box-shadow:0 0 0 #ffbd3500;filter:brightness(1)}50%{box-shadow:0 0 12px #ffbd3533;filter:brightness(1.12)}}
 .hero-main{animation:heroPulse 5s ease-in-out infinite}
 @keyframes heroPulse{0%,100%{box-shadow:0 0 0 #ffbd3500}50%{box-shadow:0 0 22px #ffbd3526}}
+
+/* Acabado premium y baile suave de la mascota */
+:root{--gold:#ffc247;--gold-soft:#e6a63b;--gold-deep:#8f4d17}
+.site-header{background:radial-gradient(ellipse at 20% 0%,#3a1d08 0%,#100a06 48%,#050505 100%);border-bottom:1px solid #a96b27;box-shadow:0 8px 30px #0008}
+.brand{letter-spacing:-1.2px;text-shadow:0 2px 0 #63300d,0 0 22px #ffb52d35}
+.info-chip{background:linear-gradient(145deg,#1d140d,#0d0a08);border-color:#8d5a25;box-shadow:inset 0 1px #ffffff0b}
+.hero{gap:18px;margin:18px 0 24px}
+.hero-main{min-height:290px;border:1px solid #986126;background:radial-gradient(ellipse at center,#2b1709,#080706 72%);box-shadow:0 12px 30px #0008,inset 0 0 28px #ffb52d0c}
+.brand-hero img{max-height:350px;width:min(100%,520px);object-fit:contain;filter:drop-shadow(0 10px 20px #0009);animation:mascotDance 3.4s ease-in-out infinite;transform-origin:50% 78%}
+@keyframes mascotDance{0%,100%{transform:translateY(0) rotate(-1deg) scale(1)}18%{transform:translateY(-5px) rotate(2deg) scale(1.012)}38%{transform:translateY(1px) rotate(-2deg) scale(1)}58%{transform:translateY(-4px) rotate(1.5deg) scale(1.01)}78%{transform:translateY(0) rotate(-1deg) scale(1)}}
+.hero-side{border-color:#986126;background:linear-gradient(145deg,#261708,#0b0907);box-shadow:0 12px 30px #0007}
+.hero-side strong{color:#ffd16a}
+.feature-update,.app-install{border-color:#81521f;background:linear-gradient(110deg,#241609,#100b07);box-shadow:0 8px 24px #0005}
+.section-title{color:#ffd16a;letter-spacing:.1px}
+.section-title:after{background:linear-gradient(90deg,#c58a3a,#8f4d1700)}
+nav{background:#090807;border-bottom:1px solid #513316;backdrop-filter:blur(12px)}
+nav button{border-radius:999px;padding:10px 15px;background:linear-gradient(145deg,#24180e,#100d0a);border:1px solid #75501f;color:#f3dfbd;animation:tabGlow 5s ease-in-out infinite}
+nav button.on{background:linear-gradient(110deg,#ffd66c,#d77a1d);color:#241306;border-color:#ffe09a;box-shadow:0 4px 16px #e89b3444}
+.grid .item{border-color:#52371e;background:linear-gradient(155deg,#21170f,#100d0a 70%);box-shadow:0 7px 20px #0008;animation:cardFloat 6s ease-in-out infinite!important}
+.grid .item:nth-child(2n){animation-delay:-2s!important}
+.grid .item:nth-child(3n){animation-delay:-4s!important}
+@keyframes cardFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-2px)}}
+.grid .item:hover{border-color:#d69a42;box-shadow:0 13px 26px #000a,0 0 0 1px #d69a4222}
+.food-art{border-color:#65451f;background:linear-gradient(145deg,#f2e9d9,#cdbb9e)}
+.food-art img{animation:foodBreathe 6s ease-in-out infinite}
+@keyframes foodBreathe{0%,100%{transform:scale(1)}50%{transform:scale(1.025)}}
+.cart{border-color:#b4772e;box-shadow:0 14px 34px #0009}
+.add,.online-pay,.send{border-radius:11px;font-weight:850;box-shadow:0 4px 12px #0004}
+.delivery-help{box-shadow:0 8px 22px #0009,0 0 0 1px #ffffff24}
+@media(max-width:700px){.hero{grid-template-columns:1fr}.hero-main{min-height:220px}.brand-hero img{max-height:250px}.hero-side{padding:17px}}
+@media(prefers-reduced-motion:reduce){.brand-hero img,.grid .item,.food-art img,nav button{animation:none!important}}
 </style><audio id="siteMusic" src="./soundtrack.mp3.mpeg" loop preload="none"></audio><button id="musicToggle" type="button" aria-pressed="false" onclick="toggleMusic()">🎵 Activar música</button><a class="delivery-help" href="https://wa.me/56962662078?text=Hola%2C%20quisiera%20hacer%20una%20consulta%20sobre%20mi%20pedido%20de%20La%20Pic%C3%A1%20del%20Benjam%C3%ADn." target="_blank" rel="noopener noreferrer" aria-label="Consultar pedido con el encargado de delivery por WhatsApp"><span class="wa-icon">🟢</span><span>Consultar mi pedido</span></a><button type="button" class="ketchup-side left" aria-label="¡Aprieta para lanzar kétchup!" title="¡Toca para lanzar kétchup!" onclick="splashKetchup(event)"><span class="ketchup-splash">〰</span><span class="ketchup-bottle"></span></button><button type="button" class="ketchup-side right" aria-label="¡Aprieta para lanzar kétchup!" title="¡Toca para lanzar kétchup!" onclick="splashKetchup(event)"><span class="ketchup-splash">〰</span><span class="ketchup-bottle"></span></button><header class="site-header"><div class="head-inner"><div><div class="brand">La Picá del Benjamín</div><div class="tagline">Sabor que enamora, porciones que impresionan</div></div><div class="header-info"><div class="info-chip">📍 <b>Pje. Hermano Claudio Ortíz #1229</b><br>Linares · <a href="https://maps.app.goo.gl/zV6W4sxRxqezmYtb7" target="_blank" rel="noopener">Ver ubicación real ↗</a></div><div class="info-chip">🕒 <b>Horario de atención</b><br>Martes a sábado · 17:30 a 02:00 AM</div></div></div></header>
 <main class="wrap"><div class="feature-update" role="status"><span class="feature-icon">🚀</span><div><strong>¡Estamos incorporando nuevas funciones!</strong><p>Estamos mejorando nuestra tienda online para entregarte una experiencia de compra cada vez mejor. Gracias por tu paciencia y por preferir La Picá del Benjamín. ❤️</p></div></div>
 <div class="app-install" id="appInstall"><div><strong>📲 Lleva La Picá del Benjamín en tu celular</strong><p>Instala nuestra aplicación para hacer tus pedidos más rápido.</p></div><button id="installAppButton" type="button">Instalar aplicación</button></div>
-<div class="hero"><div class="hero-main brand-hero"><img src="https://d2jqrm6oza8nb6.cloudfront.net/datasets/a1083fd0-e74e-4721-887c-54853f16df4d.jpg?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiNDZlYTVjNzZkNjI4N2UxYSIsImJ1Y2tldCI6InJ1bndheS1kYXRhc2V0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5NDMwNTAxNH0.OkSypocPP9WI5mWr7VTjHWmKpy6IrSzX7tw3I21CIMw" alt="Banner de comida de La Picá del Benjamín" loading="eager" decoding="async"></div><div class="hero-side"><strong>¡Arma tu pedido!</strong><p>Elige tus favoritos, selecciona delivery o retiro y paga de forma segura por Internet.</p><p>🚗 Linares $1.990 · Retiro gratis</p><p>Fuera de Linares: tarifa según localidad (desde $3.000).</p></div></div>
+<div class="hero"><div class="hero-main brand-hero"><img src="https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/logo_picada.jpg" alt="Banner de comida de La Picá del Benjamín" loading="eager" decoding="async"></div><div class="hero-side"><strong>¡Arma tu pedido!</strong><p>Elige tus favoritos, selecciona delivery o retiro y paga de forma segura por Internet.</p><p>🚗 Linares $1.990 · Retiro gratis</p><p>Fuera de Linares: tarifa según localidad (desde $3.000).</p></div></div>
 <div class="notice">📍 Estamos en <b>Pje. Hermano Claudio Ortíz #1229, Linares</b> · <a href="https://maps.app.goo.gl/zV6W4sxRxqezmYtb7" target="_blank" rel="noopener">Cómo llegar con Google Maps ↗</a> · 📲 Pedidos: +56 9 9906 4818</div><section id="payment-result" class="notice" style="display:none"></section>
 <div class="layout"><section><h2 class="section-title">🍽️ Nuestras categorías</h2><nav id="tabs"></nav><div id="menu"></div></section>
 <section class="cart"><h2>🛒 Tu pedido <small id="count"></small></h2><div id="lines">Todavía no agregas productos.</div><div class="total" id="total">Total: $0</div>
