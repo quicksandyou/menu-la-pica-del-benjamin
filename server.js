@@ -42,8 +42,34 @@ function isOrderingOpen(){
 }
 
 function send(res, status, body) {
-  res.writeHead(status, { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" });
+  res.writeHead(status, {
+    "Content-Type": "application/json; charset=utf-8",
+    "Cache-Control": "no-store",
+    "X-Content-Type-Options": "nosniff",
+    "Referrer-Policy": "no-referrer",
+    "X-Frame-Options": "DENY"
+  });
   res.end(JSON.stringify(body));
+}
+
+// Límite básico por IP para reducir consultas automatizadas.
+// Se usa la IP de la conexión directa y no cabeceras reenviadas por el cliente.
+const requestBuckets = new Map();
+function isRateLimited(req, limit, windowMs) {
+  const ip = req.socket.remoteAddress || "unknown";
+  const now = Date.now();
+  let bucket = requestBuckets.get(ip);
+  if (!bucket || now - bucket.startedAt >= windowMs) {
+    bucket = { startedAt: now, count: 0 };
+    requestBuckets.set(ip, bucket);
+  }
+  bucket.count += 1;
+  if (requestBuckets.size > 5000) {
+    for (const [key, value] of requestBuckets) {
+      if (now - value.startedAt >= windowMs) requestBuckets.delete(key);
+    }
+  }
+  return bucket.count > limit;
 }
 
 async function readJson(req) {
@@ -89,6 +115,9 @@ const server = http.createServer(async (req, res) => {
   // Consultar la orden directamente en Mercado Pago; nunca confiar en el estado de la URL.
   const orderMatch = req.method === "GET" && req.url.match(/^\/api\/orden\/([A-Za-z0-9_-]+)$/);
   if (orderMatch) {
+    if (isRateLimited(req, 20, 60_000)) {
+      return send(res, 429, { error: "Demasiadas consultas. Espera un minuto e inténtalo nuevamente." });
+    }
     try {
       const orderId = orderMatch[1];
       const response = await mpRequest(`/v1/orders/${encodeURIComponent(orderId)}`);
@@ -102,22 +131,14 @@ const server = http.createServer(async (req, res) => {
       const total = Number(order.total_amount || 0);
       const approved = order.status === "processed" && total > 0 && paid >= total;
 
-      const shipmentAddress = order.payer?.address || order.shipment?.address || {};
-      const addressParts = [
-        shipmentAddress.street_name,
-        shipmentAddress.street_number,
-        shipmentAddress.complement,
-        shipmentAddress.neighborhood,
-        shipmentAddress.city,
-        shipmentAddress.state
-      ].filter(Boolean);
+      // Nunca devolver dirección, teléfono ni otros datos personales al navegador.
+      const delivery = Boolean(order.payer?.address || order.shipment?.address);
 
       return send(res, 200, {
         approved,
         status: order.status || "unknown",
         status_detail: order.status_detail || "",
-        customer_address: addressParts.join(", "),
-        delivery: Boolean(addressParts.length)
+        delivery
       });
     } catch (error) {
       console.error(error);
@@ -131,6 +152,10 @@ const server = http.createServer(async (req, res) => {
 
   if (req.method !== "POST" || req.url !== "/api/crear-orden") {
     return send(res, 404, { error: "No encontrado" });
+  }
+
+  if (isRateLimited(req, 10, 60_000)) {
+    return send(res, 429, { error: "Recibimos demasiados intentos. Espera un minuto e inténtalo nuevamente." });
   }
 
   try {
