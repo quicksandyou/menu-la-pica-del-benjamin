@@ -76,6 +76,36 @@ nav button.on{background:linear-gradient(100deg,#ffd35a,#e76b0d);color:#1a0e04;b
 .ketchup-drop{position:fixed;z-index:99;pointer-events:none;width:13px;height:19px;background:radial-gradient(circle at 35% 30%,#ff8a75,#ed2922 50%,#9f1010);border-radius:60% 40% 65% 35%;box-shadow:0 2px 5px #0007;animation:ketchupFly .85s cubic-bezier(.15,.75,.35,1) forwards}
 @keyframes ketchupFly{0%{opacity:1;transform:translate(0,0) scale(.65) rotate(0)}75%{opacity:1}100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(1.1) rotate(220deg)}}
 @media(max-width:700px){.ketchup-side{width:38px;height:74px}.ketchup-side.left{left:0}.ketchup-side.right{right:0}}
+
+/* Microinteracciones suaves para una tienda viva */
+html{scroll-behavior:smooth}
+.site-header{position:relative;overflow:hidden}
+.site-header:after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(110deg,transparent 35%,#ffc04a0b 50%,transparent 65%);transform:translateX(-100%);animation:headerGlow 9s ease-in-out infinite}
+@keyframes headerGlow{0%,55%{transform:translateX(-100%)}85%,100%{transform:translateX(100%)}}
+.hero-main,.hero-side{transition:transform .35s ease,box-shadow .35s ease}
+.hero-main:hover,.hero-side:hover{transform:translateY(-3px);box-shadow:0 12px 28px #0008}
+.hero-emoji{animation:mascotBob 3s ease-in-out infinite;transform-origin:50% 90%}
+@keyframes mascotBob{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-7px) rotate(2deg)}}
+nav button{transition:transform .2s ease,filter .2s ease,box-shadow .2s ease}
+nav button:hover{transform:translateY(-3px);filter:brightness(1.15);box-shadow:0 5px 13px #0008}
+.grid .item{position:relative;overflow:hidden;transition:transform .28s ease,border-color .28s ease,box-shadow .28s ease;animation:cardEnter .55s both;animation-delay:calc(var(--card-index,0)*35ms)}
+@keyframes cardEnter{from{opacity:0;transform:translateY(16px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+.grid .item:after{content:"";position:absolute;inset:0;pointer-events:none;border-radius:inherit;background:linear-gradient(115deg,transparent 30%,#fff1 50%,transparent 70%);transform:translateX(-120%);transition:transform .65s ease}
+.grid .item:hover{transform:translateY(-5px);border-color:#d18a36;box-shadow:0 12px 24px #0009}
+.grid .item:hover:after{transform:translateX(120%)}
+.food-art img{transition:transform .45s ease,filter .45s ease}
+.item:hover .food-art img{transform:scale(1.07);filter:saturate(1.12)}
+.add,.online-pay,.send,.clear,.app-install button{transition:transform .18s ease,filter .18s ease,box-shadow .18s ease}
+.add:hover,.online-pay:hover,.send:hover,.clear:hover,.app-install button:hover{transform:translateY(-2px);filter:brightness(1.08);box-shadow:0 6px 15px #0004}
+.add:active,.online-pay:active,.send:active,.clear:active{transform:scale(.97)}
+.cart{transition:box-shadow .25s ease,transform .25s ease}
+.cart.cart-pulse{animation:cartPulse .45s ease}
+@keyframes cartPulse{0%,100%{transform:scale(1)}45%{transform:scale(1.012);box-shadow:0 0 0 4px #ffbd3540,0 12px 30px #0009}}
+.section-title{position:relative;display:flex;align-items:center;gap:9px}
+.section-title:after{content:"";height:2px;flex:1;background:linear-gradient(90deg,#a85b13,transparent);transform-origin:left;animation:titleLine 2.8s ease-in-out infinite alternate}
+@keyframes titleLine{from{transform:scaleX(.35);opacity:.45}to{transform:scaleX(1);opacity:1}}
+@media(hover:none){.grid .item:hover{transform:none}.grid .item:hover .food-art img{transform:none}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
 </style><audio id="siteMusic" src="./soundtrack.mp3.mpeg" loop preload="none"></audio><button id="musicToggle" type="button" aria-pressed="false" onclick="toggleMusic()">🎵 Activar música</button><a class="delivery-help" href="https://wa.me/56962662078?text=Hola%2C%20quisiera%20hacer%20una%20consulta%20sobre%20mi%20pedido%20de%20La%20Pic%C3%A1%20del%20Benjam%C3%ADn." target="_blank" rel="noopener noreferrer" aria-label="Consultar pedido con el encargado de delivery por WhatsApp"><span class="wa-icon">🟢</span><span>Consultar mi pedido</span></a><button type="button" class="ketchup-side left" aria-label="¡Aprieta para lanzar kétchup!" title="¡Toca para lanzar kétchup!" onclick="splashKetchup(event)"><span class="ketchup-splash">〰</span><span class="ketchup-bottle"></span></button><button type="button" class="ketchup-side right" aria-label="¡Aprieta para lanzar kétchup!" title="¡Toca para lanzar kétchup!" onclick="splashKetchup(event)"><span class="ketchup-splash">〰</span><span class="ketchup-bottle"></span></button><header class="site-header"><div class="head-inner"><div><div class="brand">La Picá del Benjamín</div><div class="tagline">Sabor que enamora, porciones que impresionan</div></div><div class="header-info"><div class="info-chip">📍 <b>Pje. Hermano Claudio Ortíz #1229</b><br>Linares · <a href="https://maps.app.goo.gl/zV6W4sxRxqezmYtb7" target="_blank" rel="noopener">Ver ubicación real ↗</a></div><div class="info-chip">🕒 <b>Horario de atención</b><br>Martes a sábado · 17:30 a 02:00 AM</div></div></div></header>
 <main class="wrap"><div class="feature-update" role="status"><span class="feature-icon">🚀</span><div><strong>¡Estamos incorporando nuevas funciones!</strong><p>Estamos mejorando nuestra tienda online para entregarte una experiencia de compra cada vez mejor. Gracias por tu paciencia y por preferir La Picá del Benjamín. ❤️</p></div></div>
 <div class="app-install" id="appInstall"><div><strong>📲 Lleva La Picá del Benjamín en tu celular</strong><p>Instala nuestra aplicación para hacer tus pedidos más rápido.</p></div><button id="installAppButton" type="button">Instalar aplicación</button></div>
