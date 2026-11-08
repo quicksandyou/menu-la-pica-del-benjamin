@@ -28,6 +28,19 @@ const products = {
   "Red Bull 250 cc": 2500
 };
 
+function isOrderingOpen(){
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/Santiago", weekday: "short", hour: "2-digit", minute: "2-digit", hourCycle: "h23"
+  }).formatToParts(new Date());
+  const values = Object.fromEntries(parts.map(part => [part.type, part.value]));
+  const days = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
+  let day = days[values.weekday];
+  const hour = Number(values.hour);
+  const minute = Number(values.minute);
+  if (hour < 2) day = (day + 6) % 7;
+  return day >= 2 && day <= 6 && (hour < 2 || hour > 17 || (hour === 17 && minute >= 30));
+}
+
 function send(res, status, body) {
   res.writeHead(status, { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" });
   res.end(JSON.stringify(body));
@@ -70,7 +83,7 @@ const server = http.createServer(async (req, res) => {
   }
 
   if (req.method === "GET" && req.url === "/") {
-    return send(res, 200, { status: "Servidor activo" });
+    return send(res, 200, { status: "Servidor activo", ordering_open: isOrderingOpen(), hours: "Martes a sábado, 17:30 a 02:00 (America/Santiago)" });
   }
 
   // Consultar la orden directamente en Mercado Pago; nunca confiar en el estado de la URL.
@@ -110,6 +123,10 @@ const server = http.createServer(async (req, res) => {
       console.error(error);
       return send(res, 500, { error: "No fue posible verificar el estado del pago." });
     }
+  }
+
+  if (req.method === "POST" && req.url === "/api/crear-orden" && !isOrderingOpen()) {
+    return send(res, 403, { error: "Estamos fuera de horario. Los pedidos y pagos online están disponibles de martes a sábado, de 17:30 a 02:00. Muchas gracias por preferir La Picá del Benjamín." });
   }
 
   if (req.method !== "POST" || req.url !== "/api/crear-orden") {
