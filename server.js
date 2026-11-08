@@ -83,7 +83,7 @@ const server = http.createServer(async (req, res) => {
       const total = Number(order.total_amount || 0);
       const approved = order.status === "processed" && total > 0 && paid >= total;
 
-      const shipmentAddress = order.shipment?.address || {};
+      const shipmentAddress = order.payer?.address || order.shipment?.address || {};
       const addressParts = [
         shipmentAddress.street_name,
         shipmentAddress.street_number,
@@ -148,8 +148,14 @@ const server = http.createServer(async (req, res) => {
       total_amount: String(total),
       external_reference: randomUUID(),
       description: "Pedido La Picá del Benjamín",
-      payer: {
-  email: customerEmail
+     payer: {
+  email: customerEmail,
+  ...(method === "Delivery" ? {
+    address: {
+      street_name: address,
+      city: "Linares"
+    }
+  } : {})
 },
       items,
       config: {
@@ -161,18 +167,6 @@ const server = http.createServer(async (req, res) => {
         }
       }
     };
-
-    // Mercado Pago devuelve la dirección de despacho en shipment al consultar la orden.
-    if (method === "Delivery") {
-      payload.shipment = {
-        address: {
-          street_name: address,
-          city: "Linares",
-          state: "Maule"
-        }
-      };
-    }
-
     const response = await mpRequest("/v1/orders", {
       method: "POST",
       headers: { "X-Idempotency-Key": randomUUID() },
