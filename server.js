@@ -5,7 +5,9 @@ const PORT = process.env.PORT || 3000;
 const MP_API = "https://api.mercadopago.com";
 const FRONTEND_URL = (process.env.FRONTEND_URL || "").replace(/\/+$/, "");
 
-const deliveryFees = { "Linares":1990, "Longaví":3500, "Yerbas Buenas":3000, "Colbún":4000, "Villa Alegre":4000, "San Javier":5000, "Palmilla":5000 };\n\nconst products = {
+const deliveryFees = { "Linares":1990, "Longaví":3500, "Yerbas Buenas":3000, "Colbún":4000, "Villa Alegre":4000, "San Javier":5000, "Palmilla":5000 };
+
+const products = {
   "California Rolls": 4700, "Tempura o Panko": 4900, "Salmón": 5500,
   "Avocado": 4900, "Hosomaki": 2350, "Chicken (10 cortes)": 5390,
   "Fresh (10 cortes)": 4990, "Mechada Rolls (10 cortes)": 5490,
