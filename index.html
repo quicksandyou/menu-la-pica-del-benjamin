@@ -326,6 +326,24 @@ body.jewelry-mode .ketchup-side{display:none!important}
 @keyframes boxBounce{0%,100%{transform:translateY(0) rotate(-5deg)}50%{transform:translateY(-9px) rotate(5deg)}}
 @keyframes heartGlow{0%,100%{opacity:.7}50%{opacity:1;text-shadow:0 0 18px #ffbd35}}
 @media(prefers-reduced-motion:reduce){#delivery-success *{animation:none!important}}
+
+/* Rediseño responsive: botones accesibles y navegación clara */
+:root{--gold:#ffc247;--orange:#f28a20;--bg:#090806;--panel:#1c1712;--line:#72502b}
+button,.add,.online-pay,.send,.clear{min-height:48px;border-radius:13px;transition:transform .15s,filter .15s,box-shadow .15s}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid #ffe09a;outline-offset:3px}
+button:hover{filter:brightness(1.08)}button:active{transform:scale(.98)}
+.site-header{position:relative;box-shadow:0 8px 28px #0008}
+.info-chip{font-weight:650}
+nav{scrollbar-width:thin}
+nav button{min-height:46px;padding:12px 17px;font-size:14px}
+.item{border-radius:18px;padding:14px;gap:10px}
+.item h3{line-height:1.25}
+.add{font-size:15px;box-shadow:0 5px 14px #0005}
+.cart{border-radius:20px}
+.fields input,.fields select,.fields textarea{min-height:48px}
+@media(max-width:700px){.wrap{padding:12px}.site-header{padding:15px 12px}.hero-main{min-height:190px}.layout{gap:12px}.cart{padding:14px}.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.item{padding:10px}.item h3{font-size:15px}.price{font-size:18px}.food-art{height:100px}nav{margin:0 -4px;padding:8px 4px 12px}.section-title{font-size:21px}}
+@media(max-width:360px){.grid{grid-template-columns:1fr}.food-art{height:135px}}
+
 </style><audio id="siteMusic" src="./soundtrack.mp3.mpeg" loop preload="none"></audio><button id="musicToggle" type="button" aria-pressed="false" onclick="toggleMusic()">🎵 Activar música</button><a class="delivery-help" href="https://wa.me/56962662078?text=Hola%2C%20quisiera%20hacer%20una%20consulta%20sobre%20mi%20pedido%20de%20La%20Pic%C3%A1%20del%20Benjam%C3%ADn." target="_blank" rel="noopener noreferrer" aria-label="Consultar pedido con el encargado de delivery por WhatsApp"><span class="wa-icon">🟢</span><span>Consultar mi pedido</span></a><button type="button" class="ketchup-side left" aria-label="¡Aprieta para lanzar kétchup!" title="¡Toca para lanzar kétchup!" onclick="splashKetchup(event)"><span class="ketchup-splash">〰</span><span class="ketchup-bottle"></span></button><button type="button" class="ketchup-side right" aria-label="¡Aprieta para lanzar kétchup!" title="¡Toca para lanzar kétchup!" onclick="splashKetchup(event)"><span class="ketchup-splash">〰</span><span class="ketchup-bottle"></span></button><header class="site-header"><div class="head-inner"><div><div class="brand">La Picá del Benjamín</div><div class="tagline">Sabor que enamora, porciones que impresionan</div>
 <a class="instagram-link" href="https://www.instagram.com/la_pica_de_benjamin?mdxt=MXdnZ3BwcHhncHFpdw==" target="_blank" rel="noopener noreferrer" aria-label="Visitar Instagram de La Picá del Benjamín">
 <span class="instagram-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="18" cy="6" r="1" fill="currentColor" stroke="none"/></svg></span>
