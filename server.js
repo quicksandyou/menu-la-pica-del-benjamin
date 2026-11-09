@@ -182,6 +182,32 @@ function send(res, status, body) {
 // Límite básico por IP para reducir consultas automatizadas.
 // Se usa la IP de la conexión directa y no cabeceras reenviadas por el cliente.
 const requestBuckets = new Map();
+// Protección adicional del buzón de sugerencias: pausa entre envíos y cupos por hora/día.
+// Se mantiene en memoria del servidor y no modifica los límites de pagos.
+const suggestionBuckets = new Map();
+function isSuggestionRateLimited(req) {
+  const ip = req.socket.remoteAddress || "unknown";
+  const now = Date.now();
+  const oneMinute = 60 * 1000;
+  const oneHour = 60 * 60 * 1000;
+  const oneDay = 24 * oneHour;
+  let entries = suggestionBuckets.get(ip) || [];
+  entries = entries.filter((timestamp) => now - timestamp < oneDay);
+  const lastSent = entries.length ? entries[entries.length - 1] : 0;
+  const hourlyCount = entries.filter((timestamp) => now - timestamp < oneHour).length;
+  if ((lastSent && now - lastSent < oneMinute) || hourlyCount >= 3 || entries.length >= 5) {
+    suggestionBuckets.set(ip, entries);
+    return true;
+  }
+  entries.push(now);
+  suggestionBuckets.set(ip, entries);
+  if (suggestionBuckets.size > 5000) {
+    for (const [key, value] of suggestionBuckets) {
+      if (!value.length || now - value[value.length - 1] >= oneDay) suggestionBuckets.delete(key);
+    }
+  }
+  return false;
+}
 function isRateLimited(req, limit, windowMs) {
   const ip = req.socket.remoteAddress || "unknown";
   const now = Date.now();
@@ -242,7 +268,7 @@ const server = http.createServer(async (req, res) => {
 
   // Buzón público de sugerencias: aislado de los flujos de pago.
   if (req.method === "POST" && requestPath === "/api/sugerencias") {
-    if (isRateLimited(req, 5, 10 * 60 * 1000)) return send(res, 429, { error: "Has enviado varias sugerencias. Intenta nuevamente más tarde." });
+    if (isSuggestionRateLimited(req)) return send(res, 429, { error: "Para cuidar nuestro buzón, puedes enviar una sugerencia cada minuto, hasta 3 por hora y 5 al día. Gracias por tu comprensión." });
     try {
       const data = await readJson(req);
       // Campo trampa para bots: aceptar silenciosamente sin enviar correo.
