@@ -1,1 +1,30 @@
-const {app,BrowserWindow,shell,dialog}=require("electron");const path=require("path");const {autoUpdater}=require("electron-updater");let win;function createWindow(){win=new BrowserWindow({width:1440,height:920,minWidth:1100,minHeight:720,title:"La Picá del Benjamín",backgroundColor:"#100b07",autoHideMenuBar:true,webPreferences:{preload:path.join(__dirname,"preload.js"),contextIsolation:true,nodeIntegration:false,sandbox:true,webSecurity:true,partition:"persist:lapica-local"}});win.loadFile(path.join(__dirname,"app","index.html"));win.webContents.setWindowOpenHandler(({url})=>{if(url.startsWith("https://menu-la-pica-del-benjamin.onrender.com/")||url.startsWith("https://menu-la-pica-del-benjamin-pago.onrender.com/"))win.loadURL(url);else if(url.startsWith("https://"))shell.openExternal(url);return{action:"deny"}});win.webContents.on("will-navigate",(e,url)=>{if(!url.startsWith("file://")&&!url.startsWith("https://menu-la-pica-del-benjamin.onrender.com/")&&!url.startsWith("https://menu-la-pica-del-benjamin-pago.onrender.com/"))e.preventDefault()});win.on("closed",()=>win=null)}app.whenReady().then(()=>{createWindow();if(app.isPackaged){autoUpdater.checkForUpdatesAndNotify().catch(console.error);autoUpdater.on("update-downloaded",()=>dialog.showMessageBox(win,{type:"info",buttons:["Reiniciar e instalar","Más tarde"],defaultId:0,cancelId:1,title:"Actualización disponible",message:"Hay una actualización lista."}).then(({response})=>{if(response===0)autoUpdater.quitAndInstall()}));setInterval(()=>autoUpdater.checkForUpdates().catch(console.error),1800000)}});app.on("window-all-closed",()=>{if(process.platform!=="darwin")app.quit()});app.on("activate",()=>{if(BrowserWindow.getAllWindows().length===0)createWindow()});
+const {app,BrowserWindow,shell}=require("electron");
+const path=require("path");
+let win;
+function createWindow(){
+  win=new BrowserWindow({
+    width:1440,height:920,minWidth:1100,minHeight:720,
+    title:"La Picá del Benjamín",backgroundColor:"#100b07",autoHideMenuBar:true,
+    webPreferences:{
+      preload:path.join(__dirname,"preload.js"),
+      contextIsolation:true,nodeIntegration:false,sandbox:true,webSecurity:true,
+      partition:"persist:lapica-local"
+    }
+  });
+  win.loadFile(path.join(__dirname,"app","index.html"));
+  win.webContents.setWindowOpenHandler(({url})=>{
+    if(url.startsWith("https://menu-la-pica-del-benjamin.onrender.com/")||
+       url.startsWith("https://menu-la-pica-del-benjamin-pago.onrender.com/")) win.loadURL(url);
+    else if(url.startsWith("https://")) shell.openExternal(url);
+    return {action:"deny"};
+  });
+  win.webContents.on("will-navigate",(e,url)=>{
+    if(!url.startsWith("file://")&&
+       !url.startsWith("https://menu-la-pica-del-benjamin.onrender.com/")&&
+       !url.startsWith("https://menu-la-pica-del-benjamin-pago.onrender.com/")) e.preventDefault();
+  });
+  win.on("closed",()=>win=null);
+}
+app.whenReady().then(createWindow);
+app.on("window-all-closed",()=>{if(process.platform!=="darwin")app.quit()});
+app.on("activate",()=>{if(BrowserWindow.getAllWindows().length===0)createWindow()});
