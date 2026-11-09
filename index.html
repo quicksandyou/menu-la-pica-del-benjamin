@@ -295,6 +295,11 @@ body.jewelry-mode .ketchup-side{display:none!important}
 .facebook-icon{width:25px;height:25px;display:grid;place-items:center;border-radius:8px;background:#1877f2;color:#fff}
 .facebook-icon svg{width:19px;height:19px;display:block}
 
+
+/* Botellas de kétchup arrastrables por toda la pantalla */
+.ketchup-side{touch-action:none;user-select:none;-webkit-user-select:none;cursor:grab}
+.ketchup-side.is-dragging{animation:none!important;transform:none!important;cursor:grabbing;z-index:110!important}
+
 </style><audio id="siteMusic" src="./soundtrack.mp3.mpeg" loop preload="none"></audio><button id="musicToggle" type="button" aria-pressed="false" onclick="toggleMusic()">🎵 Activar música</button><a class="delivery-help" href="https://wa.me/56962662078?text=Hola%2C%20quisiera%20hacer%20una%20consulta%20sobre%20mi%20pedido%20de%20La%20Pic%C3%A1%20del%20Benjam%C3%ADn." target="_blank" rel="noopener noreferrer" aria-label="Consultar pedido con el encargado de delivery por WhatsApp"><span class="wa-icon">🟢</span><span>Consultar mi pedido</span></a><button type="button" class="ketchup-side left" aria-label="¡Aprieta para lanzar kétchup!" title="¡Toca para lanzar kétchup!" onclick="splashKetchup(event)"><span class="ketchup-splash">〰</span><span class="ketchup-bottle"></span></button><button type="button" class="ketchup-side right" aria-label="¡Aprieta para lanzar kétchup!" title="¡Toca para lanzar kétchup!" onclick="splashKetchup(event)"><span class="ketchup-splash">〰</span><span class="ketchup-bottle"></span></button><header class="site-header"><div class="head-inner"><div><div class="brand">La Picá del Benjamín</div><div class="tagline">Sabor que enamora, porciones que impresionan</div>
 <a class="instagram-link" href="https://www.instagram.com/la_pica_de_benjamin?mdxt=MXdnZ3BwcHhncHFpdw==" target="_blank" rel="noopener noreferrer" aria-label="Visitar Instagram de La Picá del Benjamín">
 <span class="instagram-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="18" cy="6" r="1" fill="currentColor" stroke="none"/></svg></span>
@@ -430,6 +435,9 @@ function explodeKetchupBottle(button){
  setTimeout(()=>button.remove(),760);
 }
 function splashKetchup(event){
+ const button=event.currentTarget;
+ if(ketchupDragged.has(button)){ketchupDragged.delete(button);return;}
+
  const button=event.currentTarget;
  const now=Date.now(),previous=ketchupPresses.get(button)||{count:0,time:0};
  const count=now-previous.time<4500?previous.count+1:1;
@@ -587,5 +595,38 @@ window.addEventListener("appinstalled",()=>{
 if("serviceWorker" in navigator){
  window.addEventListener("load",()=>navigator.serviceWorker.register("/service-worker.js").catch(error=>console.error("No se pudo activar el modo instalable:",error)));
 }
+
+const ketchupDragged=new WeakSet();
+function enableKetchupDragging(){
+ document.querySelectorAll(".ketchup-side").forEach(button=>{
+  let startX=0,startY=0,startLeft=0,startTop=0,moved=false;
+  button.addEventListener("pointerdown",event=>{
+   if(event.button!==undefined&&event.button!==0)return;
+   const rect=button.getBoundingClientRect();
+   startX=event.clientX;startY=event.clientY;startLeft=rect.left;startTop=rect.top;moved=false;
+   button.classList.add("is-dragging");
+   button.style.left=rect.left+"px";button.style.top=rect.top+"px";button.style.right="auto";
+   try{button.setPointerCapture(event.pointerId)}catch(_){}
+  });
+  button.addEventListener("pointermove",event=>{
+   if(!button.classList.contains("is-dragging"))return;
+   const dx=event.clientX-startX,dy=event.clientY-startY;
+   if(Math.abs(dx)+Math.abs(dy)>5)moved=true;
+   const maxX=Math.max(0,window.innerWidth-button.offsetWidth),maxY=Math.max(0,window.innerHeight-button.offsetHeight);
+   button.style.left=Math.min(maxX,Math.max(0,startLeft+dx))+"px";
+   button.style.top=Math.min(maxY,Math.max(0,startTop+dy))+"px";
+  });
+  const finish=event=>{
+   if(!button.classList.contains("is-dragging"))return;
+   button.classList.remove("is-dragging");
+   if(moved)ketchupDragged.add(button);
+   try{button.releasePointerCapture(event.pointerId)}catch(_){}
+  };
+  button.addEventListener("pointerup",finish);
+  button.addEventListener("pointercancel",finish);
+ });
+}
+
 render();toggleAddress();applySchedule();setInterval(applySchedule,60000);showPaymentResult();
+enableKetchupDragging();
 </script></html>
