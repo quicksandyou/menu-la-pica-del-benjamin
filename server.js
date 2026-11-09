@@ -276,7 +276,7 @@ const server = http.createServer(async (req, res) => {
         text: "Nueva comunicación desde la tienda web.\n\nTipo: " + type + "\nNombre: " + (name || "No indicado") + "\nFecha: " + new Date().toLocaleString("es-CL", { timeZone: "America/Santiago" }) + "\n\nMensaje:\n" + message,
         replyTo: user
       });
-      return send(res, 200, { ok: true, message: "¡Gracias! Tu mensaje fue enviado al equipo." });
+      return send(res, 200, { ok: true, message: "¡Muchas gracias por tus comentarios! Tu opinión nos ayuda a mejorar La Picá del Benjamín. ¡Que tengas un excelente día!" });
     } catch (error) {
       console.error("Error enviando sugerencia:", error.message);
       return send(res, 502, { error: "No pudimos enviar tu mensaje. Intenta nuevamente más tarde." });
