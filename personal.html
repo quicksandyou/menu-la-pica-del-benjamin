@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#100b07"><title>Acceso personal | La Picá del Benjamín</title>
+<style>
+*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;background:radial-gradient(ellipse at top,#3b210b,#090807 65%);color:#fff;font:16px system-ui,Arial;padding:20px}.panel{width:min(100%,440px);background:#19130e;border:1px solid #69451e;border-radius:20px;padding:26px;box-shadow:0 20px 60px #0009}h1{color:#ffc34b;margin:0 0 8px}p{color:#d6c8b5}.field{display:grid;gap:7px;margin:14px 0}input{width:100%;padding:14px;border-radius:10px;border:1px solid #70502d;background:#090807;color:white;font-size:16px}button{width:100%;padding:14px;border:0;border-radius:10px;background:#f4a623;color:#211306;font-weight:800;font-size:16px;margin-top:10px;cursor:pointer}.secondary{background:#342619;color:#fff}.hidden{display:none}.status{padding:12px;border-radius:10px;background:#2a2118;margin-top:14px;white-space:pre-wrap}.small{font-size:13px;color:#bcae9c}
+</style>
+</head>
+<body><main class="panel">
+<h1>La Picá del Benjamín</h1><p>Portal privado del equipo</p>
+<section id="login">
+<div class="field"><label for="username">Usuario</label><input id="username" autocomplete="username" placeholder="jefa / maximo / claudio"></div>
+<div class="field"><label for="password">Contraseña</label><input id="password" type="password" autocomplete="current-password" placeholder="Tu contraseña"></div>
+<button id="loginBtn">Ingresar</button>
+</section>
+<section id="account" class="hidden">
+<h2 id="welcome"></h2><p id="role"></p>
+<div id="changeBox" class="hidden">
+<p>Por seguridad, crea una contraseña personal de al menos 10 caracteres.</p>
+<div class="field"><label for="newPassword">Nueva contraseña</label><input id="newPassword" type="password" autocomplete="new-password"></div>
+<div class="field"><label for="confirmPassword">Repite la contraseña</label><input id="confirmPassword" type="password" autocomplete="new-password"></div>
+<button id="changeBtn">Guardar nueva contraseña</button>
+</div>
+<p id="ready" class="hidden">Acceso validado. El panel de pedidos y reparto se habilitará en la siguiente etapa.</p>
+<button id="logoutBtn" class="secondary">Cerrar sesión</button>
+</section>
+<div id="status" class="status" role="status">Conectando con el servidor seguro…</div>
+<p class="small">No compartas tu contraseña. Este portal es para personal autorizado.</p>
+</main>
+<script>
+const API="https://menu-la-pica-del-benjamin-pago.onrender.com";
+const $=id=>document.getElementById(id);
+function msg(t){$("status").textContent=t}
+async function api(path,body){const r=await fetch(API+path,{method:body?"POST":"GET",credentials:"include",headers:{"Content-Type":"application/json"},...(body?{body:JSON.stringify(body)}:{})});const d=await r.json();if(!r.ok)throw new Error(d.error||"Error de conexión");return d}
+function showUser(u,mustChange){$("login").classList.add("hidden");$("account").classList.remove("hidden");$("welcome").textContent="Hola, "+u.full_name;$("role").textContent=u.role==="admin"?"Administradora":"Repartidor";$("changeBox").classList.toggle("hidden",!mustChange);$("ready").classList.toggle("hidden",mustChange);msg(mustChange?"Debes cambiar tu contraseña para continuar.":"Sesión iniciada correctamente.")}
+$("loginBtn").onclick=async()=>{try{const d=await api("/api/personal/login",{username:$("username").value,password:$("password").value});showUser(d.user,d.mustChangePassword)}catch(e){msg(e.message)}};
+$("changeBtn").onclick=async()=>{const p=$("newPassword").value;if(p!==$("confirmPassword").value)return msg("Las contraseñas no coinciden.");try{await api("/api/personal/cambiar-clave",{password:p});$("changeBox").classList.add("hidden");$("ready").classList.remove("hidden");msg("Contraseña cambiada correctamente.")}catch(e){msg(e.message)}};
+$("logoutBtn").onclick=async()=>{try{await api("/api/personal/logout",{});}catch(e){}$("account").classList.add("hidden");$("login").classList.remove("hidden");$("password").value="";msg("Sesión cerrada.")};
+(async()=>{try{const d=await api("/api/personal/me");showUser(d.user,false)}catch(e){msg("Ingresa con tu usuario para acceder.")}})();
+</script></body></html>
