@@ -35,6 +35,10 @@ async function initializeDatabase() {
     ALTER TABLE orders ADD COLUMN IF NOT EXISTS delivery_zone VARCHAR(20) NOT NULL DEFAULT 'normal';
     ALTER TABLE orders ADD COLUMN IF NOT EXISTS delivery_latitude DOUBLE PRECISION;
     ALTER TABLE orders ADD COLUMN IF NOT EXISTS delivery_longitude DOUBLE PRECISION;
+    ALTER TABLE orders ADD COLUMN IF NOT EXISTS approval_status VARCHAR(20) NOT NULL DEFAULT 'pending';
+    ALTER TABLE orders ADD COLUMN IF NOT EXISTS approved_by BIGINT REFERENCES app_users(id);
+    ALTER TABLE orders ADD COLUMN IF NOT EXISTS approved_at TIMESTAMPTZ;
+    ALTER TABLE orders ADD COLUMN IF NOT EXISTS approval_note TEXT;
     CREATE TABLE IF NOT EXISTS app_users (
       id BIGSERIAL PRIMARY KEY,
       username VARCHAR(80) UNIQUE NOT NULL,
@@ -353,11 +357,26 @@ const server = http.createServer(async (req, res) => {
       const selectedDate = /^\d{4}-\d{2}-\d{2}$/.test(requestedDate) ? requestedDate : new Intl.DateTimeFormat("en-CA",{timeZone:"America/Santiago",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date());
       params.push(selectedDate);
       if (staff.role === "driver") params.push(staff.id);
+      const managerView = ["manager","superadmin"].includes(staff.role);
       const result = await dbPool.query(
-        "SELECT o.id,o.order_number,o.customer_name,o.customer_phone,o.delivery_address,o.locality,o.delivery_latitude,o.delivery_longitude,o.delivery_method,o.total_clp,o.payment_status,o.delivery_status,o.created_at,a.id AS assignment_id,a.status AS assignment_status,a.delivered_at,d.display_name AS driver_name FROM orders o LEFT JOIN LATERAL (SELECT da.* FROM delivery_assignments da WHERE da.order_id=o.id ORDER BY da.assigned_at DESC LIMIT 1) a ON TRUE LEFT JOIN drivers d ON d.id=a.driver_id WHERE LOWER(COALESCE(o.payment_status,'')) IN ('approved','paid') AND LOWER(COALESCE(o.delivery_method,'')) IN ('delivery','despacho') AND (o.created_at AT TIME ZONE 'America/Santiago')::date=$1::date " +
+        "SELECT o.id,o.order_number,o.customer_name,o.customer_phone,o.delivery_address,o.locality,o.delivery_latitude,o.delivery_longitude,o.delivery_method,o.total_clp,o.payment_status,o.delivery_status,o.approval_status,o.approval_note,o.items_json,o.notes,o.source,o.created_at,a.id AS assignment_id,a.status AS assignment_status,a.delivered_at,d.display_name AS driver_name FROM orders o LEFT JOIN LATERAL (SELECT da.* FROM delivery_assignments da WHERE da.order_id=o.id ORDER BY da.assigned_at DESC LIMIT 1) a ON TRUE LEFT JOIN drivers d ON d.id=a.driver_id WHERE (o.created_at AT TIME ZONE 'America/Santiago')::date=$1::date " +
+        (managerView ? "" : "AND o.approval_status='approved' AND LOWER(COALESCE(o.payment_status,'')) IN ('approved','paid') AND LOWER(COALESCE(o.delivery_method,'')) IN ('delivery','despacho') ") +
         (staff.role === "driver" ? "AND d.app_user_id=$2 " : "") +
         "ORDER BY o.created_at DESC LIMIT 500", params);
       return send(res,200,{orders:result.rows,role:staff.role,date:selectedDate});
+    }
+    if (requestPath === "/api/reparto/aprobar-pedido" && req.method === "POST") {
+      if (staff.role !== "manager") return send(res,403,{error:"Solo la jefa del local puede aprobar o rechazar pedidos."});
+      try {
+        const d=await readJson(req), id=Number(d.order_id), approved=d.approved===true, note=String(d.note||"").trim().slice(0,500);
+        if(!Number.isInteger(id)||id<1) return send(res,400,{error:"Pedido inválido."});
+        const result=await dbPool.query(
+          "UPDATE orders SET approval_status=$1,approved_by=$2,approved_at=NOW(),approval_note=$3,updated_at=NOW() WHERE id=$4 AND approval_status='pending' RETURNING order_number",
+          [approved?"approved":"rejected",staff.id,note||null,id]
+        );
+        if(!result.rowCount) return send(res,409,{error:"El pedido ya fue revisado o no existe."});
+        return send(res,200,{ok:true,approval_status:approved?"approved":"rejected",order_number:result.rows[0].order_number});
+      } catch(e) { console.error("Order approval:",e.message); return send(res,400,{error:"No se pudo registrar la decisión."}); }
     }
     if (requestPath === "/api/reparto/asignar-lote" && req.method === "POST") {
       if (!canManageOrders(staff)) return send(res,403,{error:"No tienes permisos para asignar pedidos."});
@@ -369,7 +388,7 @@ const server = http.createServer(async (req, res) => {
         const client=await dbPool.connect();
         try {
           await client.query("BEGIN");
-          const eligible=await client.query("SELECT o.id FROM orders o WHERE o.id=ANY($1::int[]) AND o.payment_status IN ('approved','paid') AND o.delivery_method IN ('Delivery','delivery','despacho') AND NOT EXISTS (SELECT 1 FROM delivery_assignments da WHERE da.order_id=o.id AND da.status IN ('assigned','picked_up')) FOR UPDATE",[ids]);
+          const eligible=await client.query("SELECT o.id FROM orders o WHERE o.id=ANY($1::int[]) AND o.approval_status='approved' AND o.payment_status IN ('approved','paid') AND o.delivery_method IN ('Delivery','delivery','despacho') AND NOT EXISTS (SELECT 1 FROM delivery_assignments da WHERE da.order_id=o.id AND da.status IN ('assigned','picked_up')) FOR UPDATE",[ids]);
           if(eligible.rowCount!==ids.length) throw new Error("Uno o más pedidos ya fueron asignados, no están pagados o no son delivery. Actualiza la lista.");
           for(const id of ids){
             await client.query("UPDATE delivery_assignments SET status='reassigned' WHERE order_id=$1 AND status IN ('assigned','picked_up')",[id]);
@@ -386,7 +405,7 @@ const server = http.createServer(async (req, res) => {
       try {
         const data=await readJson(req), orderId=Number(data.order_id), username=String(data.driver_username||"");
         if(!Number.isInteger(orderId)||orderId<1||!["maximo","claudio"].includes(username)) return send(res,400,{error:"Pedido o repartidor inválido."});
-        const eligible=await dbPool.query("SELECT o.id FROM orders o WHERE o.id=$1 AND LOWER(COALESCE(o.payment_status,'')) IN ('approved','paid') AND LOWER(COALESCE(o.delivery_method,'')) IN ('delivery','despacho') AND NOT EXISTS (SELECT 1 FROM delivery_assignments da WHERE da.order_id=o.id AND da.status IN ('assigned','picked_up'))",[orderId]);
+        const eligible=await dbPool.query("SELECT o.id FROM orders o WHERE o.id=$1 AND o.approval_status='approved' AND LOWER(COALESCE(o.payment_status,'')) IN ('approved','paid') AND LOWER(COALESCE(o.delivery_method,'')) IN ('delivery','despacho') AND NOT EXISTS (SELECT 1 FROM delivery_assignments da WHERE da.order_id=o.id AND da.status IN ('assigned','picked_up'))",[orderId]);
         if(!eligible.rowCount) return send(res,409,{error:"El pedido ya fue asignado o no está pagado y listo para delivery."});
         const driver=await dbPool.query("SELECT id FROM drivers WHERE username=$1 AND active=TRUE",[username]);
         if(!driver.rowCount) return send(res,404,{error:"Repartidor no encontrado."});
