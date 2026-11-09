@@ -22,7 +22,7 @@
 <div class="field"><label for="confirmPassword">Repite la contraseña</label><input id="confirmPassword" type="password" autocomplete="new-password"></div>
 <button id="changeBtn">Guardar nueva contraseña</button>
 </div>
-<p id="ready" class="hidden">Acceso validado. El panel de pedidos y reparto se habilitará en la siguiente etapa.</p>
+<p id="ready" class="hidden">Acceso validado. Puedes abrir el panel de pedidos y reparto.</p><a id="panelLink" class="hidden" href="/reparto.html" style="display:block;text-align:center;padding:14px;background:#f4a623;color:#211306;border-radius:10px;font-weight:800;text-decoration:none;margin-top:12px">Abrir panel de reparto</a>
 <button id="logoutBtn" class="secondary">Cerrar sesión</button>
 </section>
 <div id="status" class="status" role="status">Conectando con el servidor seguro…</div>
@@ -33,9 +33,9 @@ const API="https://menu-la-pica-del-benjamin-pago.onrender.com";
 const $=id=>document.getElementById(id);
 function msg(t){$("status").textContent=t}
 async function api(path,body){const r=await fetch(API+path,{method:body?"POST":"GET",credentials:"include",headers:{"Content-Type":"application/json"},...(body?{body:JSON.stringify(body)}:{})});const d=await r.json();if(!r.ok)throw new Error(d.error||"Error de conexión");return d}
-function showUser(u,mustChange){$("login").classList.add("hidden");$("account").classList.remove("hidden");$("welcome").textContent="Hola, "+u.full_name;$("role").textContent=u.role==="admin"?"Administradora":"Repartidor";$("changeBox").classList.toggle("hidden",!mustChange);$("ready").classList.toggle("hidden",mustChange);msg(mustChange?"Debes cambiar tu contraseña para continuar.":"Sesión iniciada correctamente.")}
+function showUser(u,mustChange){$("login").classList.add("hidden");$("account").classList.remove("hidden");$("welcome").textContent="Hola, "+u.full_name;$("role").textContent=u.role==="admin"?"Administradora":"Repartidor";$("changeBox").classList.toggle("hidden",!mustChange);$("ready").classList.toggle("hidden",mustChange);$("panelLink").classList.toggle("hidden",mustChange);msg(mustChange?"Debes cambiar tu contraseña para continuar.":"Sesión iniciada correctamente.")}
 $("loginBtn").onclick=async()=>{try{const d=await api("/api/personal/login",{username:$("username").value,password:$("password").value});showUser(d.user,d.mustChangePassword)}catch(e){msg(e.message)}};
-$("changeBtn").onclick=async()=>{const p=$("newPassword").value;if(p!==$("confirmPassword").value)return msg("Las contraseñas no coinciden.");try{await api("/api/personal/cambiar-clave",{password:p});$("changeBox").classList.add("hidden");$("ready").classList.remove("hidden");msg("Contraseña cambiada correctamente.")}catch(e){msg(e.message)}};
+$("changeBtn").onclick=async()=>{const p=$("newPassword").value;if(p!==$("confirmPassword").value)return msg("Las contraseñas no coinciden.");try{await api("/api/personal/cambiar-clave",{password:p});$("changeBox").classList.add("hidden");$("ready").classList.remove("hidden");$("panelLink").classList.remove("hidden");msg("Contraseña cambiada correctamente.")}catch(e){msg(e.message)}};
 $("logoutBtn").onclick=async()=>{try{await api("/api/personal/logout",{});}catch(e){}$("account").classList.add("hidden");$("login").classList.remove("hidden");$("password").value="";msg("Sesión cerrada.")};
 (async()=>{try{const d=await api("/api/personal/me");showUser(d.user,false)}catch(e){msg("Ingresa con tu usuario para acceder.")}})();
 </script></body></html>
