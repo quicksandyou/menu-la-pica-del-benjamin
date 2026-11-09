@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+<defs>
+ <linearGradient id="bg" x2="0" y2="1"><stop stop-color="#32150d"/><stop offset="1" stop-color="#100907"/></linearGradient>
+ <linearGradient id="gold"><stop stop-color="#ffe17a"/><stop offset="1" stop-color="#f28a1d"/></linearGradient>
+ <linearGradient id="red"><stop stop-color="#ff4433"/><stop offset="1" stop-color="#8c120d"/></linearGradient>
+</defs>
+<rect x="5" y="5" width="246" height="246" rx="48" fill="url(#bg)" stroke="url(#red)" stroke-width="8"/>
+<circle cx="128" cy="78" r="45" fill="#f6bd87" stroke="#17100d" stroke-width="7"/>
+<path d="M80 75 Q88 25 132 28 Q174 30 181 74 L166 63 Q132 49 95 68Z" fill="#17100d" stroke="#f5d7aa" stroke-width="5"/>
+<path d="M94 91 Q109 80 119 91 M139 91 Q151 80 163 91" fill="none" stroke="#25120d" stroke-width="7" stroke-linecap="round"/>
+<path d="M115 111 Q132 126 151 109" fill="none" stroke="#6d2417" stroke-width="7" stroke-linecap="round"/>
+<path d="M49 111 Q78 89 108 111 L116 124 L53 124Z" fill="#f5b536" stroke="#4a2110" stroke-width="5"/>
+<path d="M53 126 L113 126 L108 135 L57 135Z" fill="#5b9a34"/>
+<path d="M53 137 L110 137 L104 145 L58 145Z" fill="#a52b21"/>
+<path d="M148 118 Q176 103 202 122 L194 145 Q173 157 151 140Z" fill="#fff0d4" stroke="#8a4c24" stroke-width="4"/>
+<path d="M157 123 Q174 112 190 126" fill="none" stroke="#ef8a43" stroke-width="9" stroke-linecap="round"/>
+<rect x="27" y="155" width="202" height="59" rx="15" fill="url(#red)" stroke="#ffb33c" stroke-width="3"/>
+<text x="128" y="179" text-anchor="middle" font-family="Arial,sans-serif" font-size="17" font-weight="900" fill="#fff">LA PICÁ DEL</text>
+<text x="128" y="204" text-anchor="middle" font-family="Arial,sans-serif" font-size="25" font-weight="900" fill="url(#gold)">BENJAMÍN</text>
+<rect x="81" y="222" width="94" height="23" rx="8" fill="#17100d" stroke="#f6a52b" stroke-width="2"/>
+<text x="128" y="238" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" font-weight="900" fill="#ffe08a">POS</text>
+</svg>
