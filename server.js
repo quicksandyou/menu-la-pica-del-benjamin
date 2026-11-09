@@ -52,6 +52,12 @@ async function initializeDatabase() {
       username VARCHAR(80) UNIQUE NOT NULL, password_hash TEXT NOT NULL,
       active BOOLEAN NOT NULL DEFAULT TRUE, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     );
+    ALTER TABLE drivers ADD COLUMN IF NOT EXISTS app_user_id BIGINT REFERENCES app_users(id);
+    INSERT INTO drivers (display_name,username,password_hash) VALUES
+      ('Máximo Palma','maximo','DISABLED_USE_APP_USERS_AUTH'),
+      ('Claudio Scheid','claudio','DISABLED_USE_APP_USERS_AUTH')
+    ON CONFLICT (username) DO UPDATE SET display_name=EXCLUDED.display_name;
+    UPDATE drivers d SET app_user_id=u.id FROM app_users u WHERE d.username=u.username AND d.app_user_id IS NULL;
     CREATE TABLE IF NOT EXISTS delivery_assignments (
       id BIGSERIAL PRIMARY KEY, order_id BIGINT NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
       driver_id BIGINT NOT NULL REFERENCES drivers(id), assigned_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
@@ -248,6 +254,58 @@ const server = http.createServer(async (req, res) => {
       await dbPool.query("UPDATE app_users SET password_salt=$1,password_hash=$2,must_change_password=FALSE WHERE id=$3", [salt,hash,session.rows[0].user_id]);
       return send(res, 200, { ok:true, message:"Contraseña actualizada." });
     } catch (error) { console.error("Password update error:",error.message); return send(res,400,{error:"No fue posible cambiar la contraseña."}); }
+  }
+
+
+  async function getStaffUser() {
+    const token = (req.headers.cookie || "").split(";").map(x=>x.trim()).find(x=>x.startsWith("pb_session="))?.slice(11);
+    if (!token || !dbPool) return null;
+    const result = await dbPool.query("SELECT u.id,u.username,u.full_name,u.role FROM app_sessions s JOIN app_users u ON u.id=s.user_id WHERE s.token_hash=$1 AND s.expires_at>NOW() AND u.active=TRUE", [createHash("sha256").update(token).digest("hex")]);
+    return result.rows[0] || null;
+  }
+  if (requestPath.startsWith("/api/reparto/")) {
+    if (!dbPool) return send(res,503,{error:"Base de datos no disponible."});
+    const staff = await getStaffUser();
+    if (!staff) return send(res,401,{error:"Inicia sesión para continuar."});
+    if (requestPath === "/api/reparto/pedidos" && req.method === "GET") {
+      const params = [];
+      let where = "";
+      if (staff.role === "driver") { params.push(staff.id); where = "WHERE d.app_user_id=$1"; }
+      const result = await dbPool.query(
+        "SELECT o.id,o.order_number,o.customer_name,o.customer_phone,o.delivery_address,o.locality,o.delivery_method,o.total_clp,o.payment_status,o.delivery_status,o.created_at,a.id AS assignment_id,a.status AS assignment_status,d.display_name AS driver_name FROM orders o LEFT JOIN LATERAL (SELECT da.* FROM delivery_assignments da WHERE da.order_id=o.id ORDER BY da.assigned_at DESC LIMIT 1) a ON TRUE LEFT JOIN drivers d ON d.id=a.driver_id " +
+        (staff.role === "driver" ? "WHERE d.app_user_id=$1 " : "") +
+        "ORDER BY o.created_at DESC LIMIT 200", params);
+      return send(res,200,{orders:result.rows,role:staff.role});
+    }
+    if (requestPath === "/api/reparto/asignar" && req.method === "POST") {
+      if (staff.role !== "admin") return send(res,403,{error:"Solo administración puede asignar pedidos."});
+      try {
+        const data=await readJson(req), orderId=Number(data.order_id), username=String(data.driver_username||"");
+        if(!Number.isInteger(orderId)||orderId<1||!["maximo","claudio"].includes(username)) return send(res,400,{error:"Pedido o repartidor inválido."});
+        const driver=await dbPool.query("SELECT id FROM drivers WHERE username=$1 AND active=TRUE",[username]);
+        if(!driver.rowCount) return send(res,404,{error:"Repartidor no encontrado."});
+        const client=await dbPool.connect();
+        try {
+          await client.query("BEGIN");
+          await client.query("UPDATE delivery_assignments SET status='reassigned' WHERE order_id=$1 AND status IN ('assigned','picked_up')",[orderId]);
+          await client.query("INSERT INTO delivery_assignments(order_id,driver_id,status) VALUES($1,$2,'assigned')",[orderId,driver.rows[0].id]);
+          await client.query("UPDATE orders SET delivery_status='assigned',updated_at=NOW() WHERE id=$1",[orderId]);
+          await client.query("COMMIT");
+        } catch(e) { await client.query("ROLLBACK"); throw e; } finally { client.release(); }
+        return send(res,200,{ok:true});
+      } catch(e) { return send(res,400,{error:"No se pudo asignar el pedido."}); }
+    }
+    if (requestPath === "/api/reparto/estado" && req.method === "POST") {
+      try {
+        const data=await readJson(req), orderId=Number(data.order_id), status=String(data.status||"");
+        if(!Number.isInteger(orderId)||!["picked_up","delivered"].includes(status)) return send(res,400,{error:"Estado inválido."});
+        const assignment=await dbPool.query("SELECT da.id FROM delivery_assignments da JOIN drivers d ON d.id=da.driver_id WHERE da.order_id=$1 AND da.status IN ('assigned','picked_up') AND ($2='admin' OR d.app_user_id=$3) ORDER BY da.assigned_at DESC LIMIT 1",[orderId,staff.role,staff.id]);
+        if(!assignment.rowCount) return send(res,404,{error:"Pedido no asignado a tu cuenta."});
+        await dbPool.query("UPDATE delivery_assignments SET status=$1 WHERE id=$2",[status,assignment.rows[0].id]);
+        await dbPool.query("UPDATE orders SET delivery_status=$1,updated_at=NOW() WHERE id=$2",[status,orderId]);
+        return send(res,200,{ok:true});
+      } catch(e) { return send(res,400,{error:"No se pudo actualizar el pedido."}); }
+    }
   }
 
   if (req.method === "GET" && requestPath === "/api/salud-db") {
