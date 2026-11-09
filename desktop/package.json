@@ -1,0 +1,53 @@
+{
+  "name": "la-pica-del-benjamin-desktop",
+  "version": "1.0.0",
+  "description": "Aplicación de escritorio La Picá del Benjamín",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist:win": "electron-builder --win nsis"
+  },
+  "devDependencies": {
+    "electron": "^38.0.0",
+    "electron-builder": "^26.0.12",
+    "electron-updater": "^6.6.2"
+  },
+  "build": {
+    "appId": "cl.lapicadelbenjamin.desktop",
+    "productName": "La Pica del Benjamin",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "app/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "artifactName": "LaPicaDelBenjamin-Setup-${version}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "La Picá del Benjamín"
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "quicksandyou",
+        "repo": "menu-la-pica-del-benjamin"
+      }
+    ]
+  }
+}
