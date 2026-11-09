@@ -271,8 +271,44 @@ const server = http.createServer(async (req, res) => {
         body: JSON.stringify({
           from: "La Picá del Benjamín <onboarding@resend.dev>",
           to: [recipient],
-          subject: "[Sugerencia web] " + type,
-          text: "Nueva comunicación desde la tienda web.\\n\\nTipo: " + type + "\\nNombre: " + (name || "No indicado") + "\\nFecha: " + new Date().toLocaleString("es-CL", { timeZone: "America/Santiago" }) + "\\n\\nMensaje:\\n" + message
+          subject: "Nueva sugerencia para La Picá del Benjamín: " + type,
+          text: `¡Hola, equipo de La Picá del Benjamín!
+
+Han recibido un nuevo comentario desde la tienda web.
+
+DETALLES DEL COMENTARIO
+Tipo: ${type}
+Nombre: ${name || "No indicado"}
+Fecha: ${new Date().toLocaleString("es-CL", { timeZone: "America/Santiago" })}
+
+MENSAJE DEL CLIENTE
+“${message}”
+
+¡Gracias por seguir mejorando la experiencia de nuestros clientes!
+La Picá del Benjamín`,
+          html: (() => {
+            const escapeHtml = (value) => String(value).replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]);
+            return `<div style="margin:0;padding:32px 16px;background:#f7f3ef;font-family:Arial,sans-serif;color:#302720">
+              <div style="max-width:600px;margin:0 auto;background:#ffffff;border:1px solid #eadfd5;border-radius:16px;overflow:hidden">
+                <div style="padding:26px 30px;background:#29211d;color:#ffffff">
+                  <div style="font-size:13px;letter-spacing:1px;color:#f2c9a5">LA PICÁ DEL BENJAMÍN</div>
+                  <h1 style="margin:10px 0 0;font-size:24px">¡Hola, equipo!</h1>
+                  <p style="margin:8px 0 0;color:#f5e8df">Han recibido un nuevo comentario desde la tienda web.</p>
+                </div>
+                <div style="padding:28px 30px">
+                  <h2 style="margin:0 0 16px;font-size:17px;color:#8f2d22">Detalles del comentario</h2>
+                  <p style="margin:8px 0"><strong>Tipo:</strong> ${escapeHtml(type)}</p>
+                  <p style="margin:8px 0"><strong>Nombre:</strong> ${escapeHtml(name || "No indicado")}</p>
+                  <p style="margin:8px 0"><strong>Fecha:</strong> ${escapeHtml(new Date().toLocaleString("es-CL", { timeZone: "America/Santiago" }))}</p>
+                  <div style="height:1px;background:#eee4dc;margin:22px 0"></div>
+                  <h2 style="margin:0 0 12px;font-size:17px;color:#8f2d22">Mensaje del cliente</h2>
+                  <div style="padding:18px;background:#faf6f2;border-left:4px solid #a52b21;border-radius:8px;line-height:1.7;white-space:pre-wrap;font-size:15px">${escapeHtml(message)}</div>
+                  <p style="margin:26px 0 0;line-height:1.6">¡Gracias por seguir mejorando la experiencia de nuestros clientes!</p>
+                  <p style="margin:8px 0 0;font-weight:bold;color:#8f2d22">La Picá del Benjamín</p>
+                </div>
+              </div>
+            </div>`;
+          })()
         }),
         signal: AbortSignal.timeout(20000)
       });
