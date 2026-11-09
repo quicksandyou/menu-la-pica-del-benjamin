@@ -1,6 +1,7 @@
 const http = require("http");
 const { randomUUID, randomBytes, scryptSync, timingSafeEqual, createHash, createHmac } = require("crypto");
 const { Pool } = require("pg");
+const nodemailer = require("nodemailer");
 
 const PORT = process.env.PORT || 3000;
 const MP_API = "https://api.mercadopago.com";
@@ -238,6 +239,48 @@ const server = http.createServer(async (req, res) => {
 
   const requestPath = new URL(req.url, "http://localhost").pathname;
 
+
+
+  // Buzón público de sugerencias: aislado de los flujos de pago.
+  if (req.method === "POST" && requestPath === "/api/sugerencias") {
+    if (isRateLimited(req, 5, 10 * 60 * 1000)) return send(res, 429, { error: "Has enviado varias sugerencias. Intenta nuevamente más tarde." });
+    try {
+      const data = await readJson(req);
+      // Campo trampa para bots: aceptar silenciosamente sin enviar correo.
+      if (String(data.website || "").trim()) return send(res, 200, { ok: true });
+      const name = String(data.name || "").trim().slice(0, 100);
+      const message = String(data.message || "").trim();
+      const type = String(data.type || "Sugerencia").trim();
+      if (!message || message.length < 8 || message.length > 3000) {
+        return send(res, 400, { error: "Escribe una sugerencia de entre 8 y 3000 caracteres." });
+      }
+      if (!["Sugerencia", "Problema con la página", "Idea para mejorar"].includes(type)) {
+        return send(res, 400, { error: "Selecciona un tipo de mensaje válido." });
+      }
+      const user = process.env.MAIL_USER;
+      const pass = process.env.MAIL_PASS;
+      const recipient = process.env.SUGGESTIONS_TO;
+      if (!user || !pass || !recipient) {
+        console.error("Faltan variables de correo para sugerencias.");
+        return send(res, 503, { error: "El buzón de sugerencias todavía no está disponible." });
+      }
+      const transporter = nodemailer.createTransport({
+        host: "smtp.gmail.com", port: 465, secure: true,
+        auth: { user, pass }
+      });
+      await transporter.sendMail({
+        from: '"La Picá del Benjamín" <' + user + '>',
+        to: recipient,
+        subject: "[Sugerencia web] " + type,
+        text: "Nueva comunicación desde la tienda web.\n\nTipo: " + type + "\nNombre: " + (name || "No indicado") + "\nFecha: " + new Date().toLocaleString("es-CL", { timeZone: "America/Santiago" }) + "\n\nMensaje:\n" + message,
+        replyTo: user
+      });
+      return send(res, 200, { ok: true, message: "¡Gracias! Tu mensaje fue enviado al equipo." });
+    } catch (error) {
+      console.error("Error enviando sugerencia:", error.message);
+      return send(res, 502, { error: "No pudimos enviar tu mensaje. Intenta nuevamente más tarde." });
+    }
+  }
 
   // Autenticación de personal: sesión aleatoria en cookie HttpOnly y contraseña scrypt.
   if (req.method === "POST" && requestPath === "/api/personal/login") {
