@@ -72,6 +72,22 @@ async function initializeDatabase() {
       ('Claudio Scheid','claudio','DISABLED_USE_APP_USERS_AUTH')
     ON CONFLICT (username) DO UPDATE SET display_name=EXCLUDED.display_name;
     UPDATE drivers d SET app_user_id=u.id FROM app_users u WHERE d.username=u.username AND d.app_user_id IS NULL;
+
+    -- Cuenta separada de Máximo como repartidor: conserva la contraseña vigente del administrador,
+    -- pero tiene usuario y rol propios para no mezclar permisos administrativos y de reparto.
+    INSERT INTO app_users (username,full_name,role,password_salt,password_hash,active,must_change_password)
+    SELECT 'maximo_repartidor',full_name,'driver',password_salt,password_hash,active,FALSE
+    FROM app_users WHERE username='maximo' AND password_hash IS NOT NULL AND password_salt IS NOT NULL
+    ON CONFLICT (username) DO UPDATE SET
+      full_name=EXCLUDED.full_name,
+      role='driver',
+      password_salt=EXCLUDED.password_salt,
+      password_hash=EXCLUDED.password_hash,
+      active=EXCLUDED.active,
+      must_change_password=FALSE;
+
+    UPDATE drivers SET app_user_id=(SELECT id FROM app_users WHERE username='maximo_repartidor')
+    WHERE username='maximo' AND EXISTS (SELECT 1 FROM app_users WHERE username='maximo_repartidor');
     CREATE TABLE IF NOT EXISTS delivery_assignments (
       id BIGSERIAL PRIMARY KEY, order_id BIGINT NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
       driver_id BIGINT NOT NULL REFERENCES drivers(id), assigned_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
