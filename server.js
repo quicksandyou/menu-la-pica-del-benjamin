@@ -36,7 +36,6 @@ async function initializeDatabase() {
     ALTER TABLE orders ADD COLUMN IF NOT EXISTS delivery_latitude DOUBLE PRECISION;
     ALTER TABLE orders ADD COLUMN IF NOT EXISTS delivery_longitude DOUBLE PRECISION;
     ALTER TABLE orders ADD COLUMN IF NOT EXISTS approval_status VARCHAR(20) NOT NULL DEFAULT 'pending';
-    ALTER TABLE orders ADD COLUMN IF NOT EXISTS approved_by BIGINT REFERENCES app_users(id);
     ALTER TABLE orders ADD COLUMN IF NOT EXISTS approved_at TIMESTAMPTZ;
     ALTER TABLE orders ADD COLUMN IF NOT EXISTS approval_note TEXT;
     CREATE TABLE IF NOT EXISTS app_users (
@@ -49,6 +48,7 @@ async function initializeDatabase() {
       active BOOLEAN NOT NULL DEFAULT TRUE,
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     );
+    ALTER TABLE orders ADD COLUMN IF NOT EXISTS approved_by BIGINT REFERENCES app_users(id);
     -- Se conserva cualquier rol existente para evitar bloquear la migración de usuarios.
     -- La autorización se controla en la aplicación mediante isSuperAdmin/canManageOrders.
     ALTER TABLE app_users DROP CONSTRAINT IF EXISTS app_users_role_check;
