@@ -290,6 +290,28 @@ const server = http.createServer(async (req, res) => {
         "ORDER BY o.created_at DESC LIMIT 200", params);
       return send(res,200,{orders:result.rows,role:staff.role});
     }
+    if (requestPath === "/api/reparto/asignar-lote" && req.method === "POST") {
+      if (staff.role !== "admin") return send(res,403,{error:"Solo administración puede asignar pedidos."});
+      try {
+        const data=await readJson(req), ids=[...new Set((Array.isArray(data.order_ids)?data.order_ids:[]).map(Number).filter(n=>Number.isInteger(n)&&n>0))], username=String(data.driver_username||"");
+        if(!ids.length||ids.length>100||!["maximo","claudio"].includes(username)) return send(res,400,{error:"Selecciona pedidos y un repartidor válido."});
+        const driver=await dbPool.query("SELECT id FROM drivers WHERE username=$1 AND active=TRUE",[username]);
+        if(!driver.rowCount) return send(res,404,{error:"Repartidor no encontrado."});
+        const client=await dbPool.connect();
+        try {
+          await client.query("BEGIN");
+          const eligible=await client.query("SELECT id FROM orders WHERE id=ANY($1::int[]) AND payment_status IN ('approved','paid') AND delivery_method IN ('Delivery','delivery','despacho') FOR UPDATE",[ids]);
+          if(eligible.rowCount!==ids.length) throw new Error("Uno o más pedidos no están pagados o no son delivery. Actualiza la lista.");
+          for(const id of ids){
+            await client.query("UPDATE delivery_assignments SET status='reassigned' WHERE order_id=$1 AND status IN ('assigned','picked_up')",[id]);
+            await client.query("INSERT INTO delivery_assignments(order_id,driver_id,status) VALUES($1,$2,'assigned')",[id,driver.rows[0].id]);
+            await client.query("UPDATE orders SET delivery_status='assigned',updated_at=NOW() WHERE id=$1",[id]);
+          }
+          await client.query("COMMIT");
+        } catch(e) { await client.query("ROLLBACK"); throw e; } finally { client.release(); }
+        return send(res,200,{ok:true,assigned:ids.length});
+      } catch(e) { return send(res,409,{error:e.message||"No se pudieron asignar los pedidos."}); }
+    }
     if (requestPath === "/api/reparto/asignar" && req.method === "POST") {
       if (staff.role !== "admin") return send(res,403,{error:"Solo administración puede asignar pedidos."});
       try {
