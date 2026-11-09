@@ -1,7 +1,6 @@
 const http = require("http");
 const { randomUUID, randomBytes, scryptSync, timingSafeEqual, createHash, createHmac } = require("crypto");
 const { Pool } = require("pg");
-const nodemailer = require("nodemailer");
 
 const PORT = process.env.PORT || 3000;
 const MP_API = "https://api.mercadopago.com";
