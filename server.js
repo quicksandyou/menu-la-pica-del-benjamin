@@ -36,7 +36,7 @@ async function initializeDatabase() {
       active BOOLEAN NOT NULL DEFAULT TRUE,
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     );
-    INSERT INTO app_users (username, full_name, role) VALUES
+    ALTER TABLE app_users ADD COLUMN IF NOT EXISTS must_change_password BOOLEAN NOT NULL DEFAULT TRUE;\n    INSERT INTO app_users (username, full_name, role) VALUES
       ('jefa', 'Michelle Ibáñez', 'admin'),
       ('maximo', 'Máximo Palma', 'driver'),
       ('claudio', 'Claudio Scheid', 'driver')
@@ -197,7 +197,7 @@ const server = http.createServer(async (req, res) => {
       const tokenHash = createHash("sha256").update(token).digest("hex");
       await dbPool.query("INSERT INTO app_sessions(token_hash,user_id,expires_at) VALUES($1,$2,NOW()+INTERVAL '12 hours')", [tokenHash,user.id]);
       res.setHeader("Set-Cookie", "pb_session="+token+"; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=43200");
-      return send(res, 200, { user: { username:user.username, full_name:user.full_name, role:user.role }, mustChangePassword: user.password_hash === process.env.INITIAL_TEMP_PASSWORD });
+      return send(res, 200, { user: { username:user.username, full_name:user.full_name, role:user.role }, mustChangePassword: user.must_change_password });
     } catch (error) { console.error("Login error:", error.message); return send(res, 400, { error: "No fue posible iniciar sesión." }); }
   }
 
@@ -227,7 +227,7 @@ const server = http.createServer(async (req, res) => {
       if (!session.rowCount) return send(res, 401, { error:"Sesión vencida." });
       const salt = randomBytes(16).toString("hex");
       const hash = scryptSync(password, salt, 64).toString("hex");
-      await dbPool.query("UPDATE app_users SET password_salt=$1,password_hash=$2 WHERE id=$3", [salt,hash,session.rows[0].user_id]);
+      await dbPool.query("UPDATE app_users SET password_salt=$1,password_hash=$2,must_change_password=FALSE WHERE id=$3", [salt,hash,session.rows[0].user_id]);
       return send(res, 200, { ok:true, message:"Contraseña actualizada." });
     } catch (error) { console.error("Password update error:",error.message); return send(res,400,{error:"No fue posible cambiar la contraseña."}); }
   }
