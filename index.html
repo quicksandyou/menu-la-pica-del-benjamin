@@ -530,7 +530,7 @@ async function payOnline(){
  button.disabled=true;button.textContent="Creando orden de pago...";
  try{
    // El Access Token debe permanecer en el servidor, nunca en este HTML.
-   const response=await fetch(`${PAYMENT_API_BASE_URL}/api/crear-orden`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({
+   const response=await fetch(`${PAYMENT_API_BASE_URL}/api/crear-orden`,{method:"POST",credentials:"include",headers:{"Content-Type":"application/json"},body:JSON.stringify({
      restaurant:"La Picá del Benjamín",customer:{name,email:document.getElementById("email").value.trim(),phone:document.getElementById("phone").value.trim()},
      delivery:{method,address:method==="Delivery"?address:"",locality,fee_clp:fee},notes:document.getElementById("notes").value.trim(),
      items:products,total_clp:total
