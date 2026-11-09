@@ -35,7 +35,21 @@ jobs:
             desktop/dist/*.blockmap
           if-no-files-found: error
           retention-days: 30
-      - name: Publish installer and update metadata
+      - name: Publish automatic update release
+        if: startsWith(github.ref, 'refs/heads/')
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: desktop-build-${{ github.run_number }}
+          target_commitish: main
+          name: La Picá del Benjamín v${{ github.run_number }}
+          files: |
+            desktop/dist/*.exe
+            desktop/dist/latest.yml
+            desktop/dist/*.blockmap
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Publish tagged installer release
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v2
         with:
