@@ -512,6 +512,23 @@ La Picá del Benjamín`,
         "ORDER BY o.created_at DESC LIMIT 500", params);
       return send(res,200,{orders:result.rows,role:staff.role,date:selectedDate});
     }
+    if (requestPath === "/api/reparto/rechazar-lote" && req.method === "POST") {
+      if (staff.role !== "manager") return send(res,403,{error:"Solo la jefatura puede rechazar pedidos en lote."});
+      try {
+        const data=await readJson(req);
+        const ids=[...new Set((Array.isArray(data.order_ids)?data.order_ids:[]).map(Number).filter(n=>Number.isInteger(n)&&n>0))];
+        const note=String(data.note||"Rechazado por jefatura").trim().slice(0,500);
+        if(!ids.length||ids.length>100) return send(res,400,{error:"Selecciona entre 1 y 100 pedidos pendientes."});
+        const result=await dbPool.query(
+          "UPDATE orders SET approval_status='rejected',approved_by=$1,approved_at=NOW(),approval_note=$2,updated_at=NOW() WHERE id=ANY($3::bigint[]) AND approval_status='pending' RETURNING id,order_number",
+          [staff.id,note,ids]
+        );
+        return send(res,200,{ok:true,rejected:result.rowCount,orders:result.rows});
+      } catch(error) {
+        console.error("Bulk order rejection:",error.message);
+        return send(res,400,{error:"No se pudieron rechazar los pedidos seleccionados."});
+      }
+    }
     if (requestPath === "/api/reparto/aprobar-pedido" && req.method === "POST") {
       if (staff.role !== "manager") return send(res,403,{error:"Solo la jefa del local puede aprobar o rechazar pedidos."});
       try {
