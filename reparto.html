@@ -121,8 +121,9 @@ if('serviceWorker'in navigator)navigator.serviceWorker.register('/sw.js').catch(
 async function call(path,body){const r=await fetch(API+path,{method:body?"POST":"GET",credentials:"include",headers:{"Content-Type":"application/json"},...(body?{body:JSON.stringify(body)}:{})});const d=await r.json();if(!r.ok)throw Error(d.error||"Error");return d}
 let managerCurrentTab="pageOrders";
 function setupManagerHome(role){
- const nav=$("managerNav");
+ const nav=$("managerNav"),driverNav=$("driverNav");
  if(role!=="manager"){nav.classList.add("hidden");return;}
+ driverNav.classList.add("hidden");
  nav.classList.remove("hidden");
  openManagerTab(managerCurrentTab);
 }
@@ -162,10 +163,11 @@ function openDriverTab(tabName){
  if(tabName==="chat"){setChatUnread(0);const box=$("chatMessages");box.scrollTop=box.scrollHeight;}
  window.scrollTo({top:0,behavior:"smooth"});
 }
-document.querySelectorAll(".driver-tab").forEach(b=>b.addEventListener("click",()=>openDriverTab(b.dataset.driverTab)));
+document.querySelectorAll("[data-driver-tab]").forEach(b=>b.addEventListener("click",()=>openDriverTab(b.dataset.driverTab)));
 function setupDriverHome(role,orders){
- const nav=$("driverNav"),welcome=$("driverWelcome");
+ const nav=$("driverNav"),managerNav=$("managerNav"),welcome=$("driverWelcome");
  if(role!=="driver"){nav.classList.add("hidden");welcome.classList.add("hidden");return;}
+ managerNav.classList.add("hidden");
  nav.classList.remove("hidden");
  $("newOrderAlerts").classList.add("hidden");
  $("manual").classList.add("hidden");
