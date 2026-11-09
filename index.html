@@ -251,6 +251,18 @@ nav button.on{background:linear-gradient(110deg,#ffd66c,#d77a1d);color:#241306;b
 .jewelry-coming .soon-tag{display:inline-block;margin-top:12px;padding:9px 16px;border:1px solid #b88b45;border-radius:999px;color:#ffda8a;font-weight:900;letter-spacing:2px}
 @media(max-width:520px){.store-switch{padding:7px}.store-switch button{min-width:100%;padding:12px}}
 
+
+/* Decoración exclusiva de la tienda de joyas */
+body.jewelry-mode .ketchup-side{display:none!important}
+.jewelry-coming{position:relative;overflow:hidden}
+.jewel-sparkle{position:absolute;z-index:0;color:#ffe7a1;text-shadow:0 0 9px #ffd45c,0 0 22px #e6ad43;pointer-events:none;animation:jewelTwinkle 2.4s ease-in-out infinite}
+.jewel-sparkle.s1{top:12%;left:12%;font-size:32px}
+.jewel-sparkle.s2{top:22%;right:14%;font-size:24px;animation-delay:.5s}
+.jewel-sparkle.s3{bottom:18%;left:20%;font-size:22px;animation-delay:1s}
+.jewel-sparkle.s4{bottom:15%;right:18%;font-size:34px;animation-delay:1.5s}
+.jewelry-coming>*:not(.jewel-sparkle){position:relative;z-index:1}
+@keyframes jewelTwinkle{0%,100%{opacity:.35;transform:scale(.7) rotate(0)}50%{opacity:1;transform:scale(1.2) rotate(22deg)}}
+
 </style><audio id="siteMusic" src="./soundtrack.mp3.mpeg" loop preload="none"></audio><button id="musicToggle" type="button" aria-pressed="false" onclick="toggleMusic()">🎵 Activar música</button><a class="delivery-help" href="https://wa.me/56962662078?text=Hola%2C%20quisiera%20hacer%20una%20consulta%20sobre%20mi%20pedido%20de%20La%20Pic%C3%A1%20del%20Benjam%C3%ADn." target="_blank" rel="noopener noreferrer" aria-label="Consultar pedido con el encargado de delivery por WhatsApp"><span class="wa-icon">🟢</span><span>Consultar mi pedido</span></a><button type="button" class="ketchup-side left" aria-label="¡Aprieta para lanzar kétchup!" title="¡Toca para lanzar kétchup!" onclick="splashKetchup(event)"><span class="ketchup-splash">〰</span><span class="ketchup-bottle"></span></button><button type="button" class="ketchup-side right" aria-label="¡Aprieta para lanzar kétchup!" title="¡Toca para lanzar kétchup!" onclick="splashKetchup(event)"><span class="ketchup-splash">〰</span><span class="ketchup-bottle"></span></button><header class="site-header"><div class="head-inner"><div><div class="brand">La Picá del Benjamín</div><div class="tagline">Sabor que enamora, porciones que impresionan</div></div><div class="header-info"><div class="info-chip">📍 <b>Pje. Hermano Claudio Ortíz #1229</b><br>Linares · <a href="https://maps.app.goo.gl/zV6W4sxRxqezmYtb7" target="_blank" rel="noopener">Ver ubicación real ↗</a></div><div class="info-chip">🕒 <b>Horario de atención</b><br>Martes a sábado · 17:30 a 02:00 AM</div></div></div></header>
 <main class="wrap">
 <div class="store-switch" role="tablist" aria-label="Seleccionar tienda">
@@ -268,6 +280,7 @@ nav button.on{background:linear-gradient(110deg,#ffd66c,#d77a1d);color:#241306;b
 <button class="online-pay" onclick="payOnline()">💳 Pagar por Internet</button><button class="send" id="whatsappButton" onclick="sendOrder()">🟢 Pedir por WhatsApp · Solo retiro en local</button><button class="clear" onclick="cart={};drawCart()">Vaciar carrito</button><p class="small">Para delivery, selecciona tu localidad: Linares $1.990; Longaví $3.500; Yerbas Buenas $3.000; Colbún y Villa Alegre $4.000; San Javier y Palmilla $5.000. Retiro en local gratis. Completa tu dirección y paga por Internet. WhatsApp está disponible solamente para pedidos con retiro en el local.</p></section></div>
 </div>
 <section id="jewelrySection" class="jewelry-coming" style="display:none" aria-labelledby="jewelryTitle">
+<span class="jewel-sparkle s1" aria-hidden="true">✦</span><span class="jewel-sparkle s2" aria-hidden="true">✧</span><span class="jewel-sparkle s3" aria-hidden="true">✧</span><span class="jewel-sparkle s4" aria-hidden="true">✦</span>
 <div class="jewel-icon" aria-hidden="true">💎</div>
 <p style="margin:0;color:#ffdc9b;font-weight:900;letter-spacing:3px">NUEVA SECCIÓN</p>
 <h2 id="jewelryTitle">TIENDA DE JOYAS</h2>
@@ -279,6 +292,7 @@ nav button.on{background:linear-gradient(110deg,#ffd66c,#d77a1d);color:#241306;b
 <script>
 function showStoreSection(section){
  const food=section==="food";
+ document.body.classList.toggle("jewelry-mode",!food);
  document.getElementById("foodSection").style.display=food?"block":"none";
  document.getElementById("jewelrySection").style.display=food?"none":"flex";
  const foodTab=document.getElementById("foodStoreTab");
