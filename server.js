@@ -74,8 +74,10 @@ async function initializeDatabase() {
     CREATE TABLE IF NOT EXISTS delivery_assignments (
       id BIGSERIAL PRIMARY KEY, order_id BIGINT NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
       driver_id BIGINT NOT NULL REFERENCES drivers(id), assigned_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-      status VARCHAR(30) NOT NULL DEFAULT 'assigned'
+      status VARCHAR(30) NOT NULL DEFAULT 'assigned', delivered_at TIMESTAMPTZ
     );
+    ALTER TABLE delivery_assignments ADD COLUMN IF NOT EXISTS delivered_at TIMESTAMPTZ;
+    UPDATE delivery_assignments SET delivered_at=assigned_at WHERE status='delivered' AND delivered_at IS NULL;
     CREATE TABLE IF NOT EXISTS extra_runs (
       id BIGSERIAL PRIMARY KEY, driver_id BIGINT NOT NULL REFERENCES drivers(id),
       description TEXT NOT NULL, destination TEXT, requested_amount_clp INTEGER NOT NULL DEFAULT 0,
@@ -330,12 +332,15 @@ const server = http.createServer(async (req, res) => {
     if (!staff) return send(res,401,{error:"Inicia sesión para continuar."});
     if (requestPath === "/api/reparto/pedidos" && req.method === "GET") {
       const params = [];
+      const requestedDate = String(new URL(req.url,"http://localhost").searchParams.get("date") || "");
+      const selectedDate = /^\\d{4}-\\d{2}-\\d{2}$/.test(requestedDate) ? requestedDate : new Intl.DateTimeFormat("en-CA",{timeZone:"America/Santiago",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date());
+      params.push(selectedDate);
       if (staff.role === "driver") params.push(staff.id);
       const result = await dbPool.query(
-        "SELECT o.id,o.order_number,o.customer_name,o.customer_phone,o.delivery_address,o.locality,o.delivery_latitude,o.delivery_longitude,o.delivery_method,o.total_clp,o.payment_status,o.delivery_status,o.created_at,a.id AS assignment_id,a.status AS assignment_status,d.display_name AS driver_name FROM orders o LEFT JOIN LATERAL (SELECT da.* FROM delivery_assignments da WHERE da.order_id=o.id ORDER BY da.assigned_at DESC LIMIT 1) a ON TRUE LEFT JOIN drivers d ON d.id=a.driver_id WHERE LOWER(COALESCE(o.payment_status,'')) IN ('approved','paid') AND LOWER(COALESCE(o.delivery_method,'')) IN ('delivery','despacho') " +
-        (staff.role === "driver" ? "AND d.app_user_id=$1 " : "") +
-        "ORDER BY o.created_at DESC LIMIT 200", params);
-      return send(res,200,{orders:result.rows,role:staff.role});
+        "SELECT o.id,o.order_number,o.customer_name,o.customer_phone,o.delivery_address,o.locality,o.delivery_latitude,o.delivery_longitude,o.delivery_method,o.total_clp,o.payment_status,o.delivery_status,o.created_at,a.id AS assignment_id,a.status AS assignment_status,a.delivered_at,d.display_name AS driver_name FROM orders o LEFT JOIN LATERAL (SELECT da.* FROM delivery_assignments da WHERE da.order_id=o.id ORDER BY da.assigned_at DESC LIMIT 1) a ON TRUE LEFT JOIN drivers d ON d.id=a.driver_id WHERE LOWER(COALESCE(o.payment_status,'')) IN ('approved','paid') AND LOWER(COALESCE(o.delivery_method,'')) IN ('delivery','despacho') AND (o.created_at AT TIME ZONE 'America/Santiago')::date=$1::date " +
+        (staff.role === "driver" ? "AND d.app_user_id=$2 " : "") +
+        "ORDER BY o.created_at DESC LIMIT 500", params);
+      return send(res,200,{orders:result.rows,role:staff.role,date:selectedDate});
     }
     if (requestPath === "/api/reparto/asignar-lote" && req.method === "POST") {
       if (!canManageOrders(staff)) return send(res,403,{error:"No tienes permisos para asignar pedidos."});
@@ -448,7 +453,7 @@ const server = http.createServer(async (req, res) => {
         if(!Number.isInteger(orderId)||!["picked_up","delivered"].includes(status)) return send(res,400,{error:"Estado inválido."});
         const assignment=await dbPool.query("SELECT da.id FROM delivery_assignments da JOIN drivers d ON d.id=da.driver_id WHERE da.order_id=$1 AND da.status IN ('assigned','picked_up') AND ($2='superadmin' OR d.app_user_id=$3) ORDER BY da.assigned_at DESC LIMIT 1",[orderId,staff.role,staff.id]);
         if(!assignment.rowCount) return send(res,404,{error:"Pedido no asignado a tu cuenta."});
-        await dbPool.query("UPDATE delivery_assignments SET status=$1 WHERE id=$2",[status,assignment.rows[0].id]);
+        await dbPool.query("UPDATE delivery_assignments SET status=$1,delivered_at=CASE WHEN $1='delivered' THEN NOW() ELSE delivered_at END WHERE id=$2",[status,assignment.rows[0].id]);
         await dbPool.query("UPDATE orders SET delivery_status=$1,updated_at=NOW() WHERE id=$2",[status,orderId]);
         return send(res,200,{ok:true});
       } catch(e) { return send(res,400,{error:"No se pudo actualizar el pedido."}); }
