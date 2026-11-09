@@ -39,19 +39,23 @@ async function initializeDatabase() {
       id BIGSERIAL PRIMARY KEY,
       username VARCHAR(80) UNIQUE NOT NULL,
       full_name VARCHAR(120) NOT NULL,
-      role VARCHAR(20) NOT NULL CHECK (role IN ('admin','driver')),
+      role VARCHAR(20) NOT NULL DEFAULT 'driver',
       password_salt TEXT,
       password_hash TEXT,
       active BOOLEAN NOT NULL DEFAULT TRUE,
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     );
+    ALTER TABLE app_users DROP CONSTRAINT IF EXISTS app_users_role_check;
+    ALTER TABLE app_users ADD CONSTRAINT app_users_role_check CHECK (role IN ('superadmin','manager','driver'));
     ALTER TABLE app_users ADD COLUMN IF NOT EXISTS must_change_password BOOLEAN NOT NULL DEFAULT TRUE;
     INSERT INTO app_users (username, full_name, role) VALUES
-      ('jefa', 'Michelle Ibáñez', 'admin'),
-      ('maximo', 'Máximo Palma', 'driver'),
+      ('jefa', 'Michelle Ibáñez', 'manager'),
+      ('maximo', 'Máximo Palma', 'superadmin'),
       ('claudio', 'Claudio Scheid', 'driver')
-    ON CONFLICT (username) DO UPDATE
-      SET full_name = EXCLUDED.full_name, role = EXCLUDED.role;
+    ON CONFLICT (username) DO UPDATE SET full_name = EXCLUDED.full_name;
+    UPDATE app_users SET role='superadmin' WHERE username='maximo';
+    UPDATE app_users SET role='manager' WHERE username='jefa';
+    UPDATE app_users SET role='driver' WHERE username='claudio';
     CREATE TABLE IF NOT EXISTS app_sessions (
       token_hash TEXT PRIMARY KEY, user_id BIGINT NOT NULL REFERENCES app_users(id) ON DELETE CASCADE,
       expires_at TIMESTAMPTZ NOT NULL, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
@@ -234,6 +238,47 @@ const server = http.createServer(async (req, res) => {
     } catch (error) { console.error("Login error:", error.message); return send(res, 400, { error: "No fue posible iniciar sesión." }); }
   }
 
+  if (requestPath.startsWith("/api/personal/usuarios")) {
+    const actor = await getStaffUser();
+    if (!isSuperAdmin(actor)) return send(res,403,{error:"Solo el administrador TI puede administrar usuarios."});
+    if (req.method === "GET" && requestPath === "/api/personal/usuarios") {
+      const users = await dbPool.query("SELECT username,full_name,role,active,created_at FROM app_users ORDER BY created_at");
+      return send(res,200,{users:users.rows});
+    }
+    if (req.method === "POST" && requestPath === "/api/personal/usuarios") {
+      try {
+        const d=await readJson(req), username=String(d.username||"").trim().toLowerCase(), fullName=String(d.full_name||"").trim(), role=String(d.role||"");
+        if(!/^[a-z0-9._-]{3,40}$/.test(username)||!fullName||fullName.length>120||!["manager","driver"].includes(role)) return send(res,400,{error:"Datos inválidos. Usuario de 3 a 40 caracteres y rol permitido."});
+        const saved=await dbPool.query("INSERT INTO app_users(username,full_name,role) VALUES($1,$2,$3) RETURNING username,full_name,role,active",[username,fullName,role]);
+        if(role==="driver"){
+          await dbPool.query("INSERT INTO drivers(display_name,username,password_hash,app_user_id) VALUES($1,$2,'DISABLED_USE_APP_USERS_AUTH',$3)",[fullName,username,(await dbPool.query("SELECT id FROM app_users WHERE username=$1",[username])).rows[0].id]);
+        }
+        return send(res,201,{user:saved.rows[0],message:"Usuario creado. Debe establecer su contraseña en el primer acceso."});
+      } catch(e) { return send(res,409,{error:"No se pudo crear el usuario. Puede que el nombre ya exista."}); }
+    }
+    if (req.method === "POST" && requestPath === "/api/personal/usuarios/clave") {
+      try {
+        const d=await readJson(req), username=String(d.username||"").trim().toLowerCase(), password=String(d.password||"");
+        if(!username||password.length<10) return send(res,400,{error:"La contraseña debe tener al menos 10 caracteres."});
+        const salt=randomBytes(16).toString("hex"), hash=scryptSync(password,salt,64).toString("hex");
+        const updated=await dbPool.query("UPDATE app_users SET password_salt=$1,password_hash=$2,must_change_password=TRUE WHERE username=$3 AND username<>'maximo' RETURNING username",[salt,hash,username]);
+        if(!updated.rowCount) return send(res,404,{error:"Usuario no encontrado o no se permite restablecer la cuenta principal desde esta opción."});
+        await dbPool.query("DELETE FROM app_sessions WHERE user_id=(SELECT id FROM app_users WHERE username=$1)",[username]);
+        return send(res,200,{ok:true,message:"Contraseña restablecida; deberá cambiarla al ingresar."});
+      } catch(e) { return send(res,400,{error:"No se pudo restablecer la contraseña."}); }
+    }
+    if (req.method === "POST" && requestPath === "/api/personal/usuarios/estado") {
+      try {
+        const d=await readJson(req), username=String(d.username||"").trim().toLowerCase(), active=d.active===true;
+        if(!username||username==="maximo") return send(res,400,{error:"No puedes desactivar la cuenta principal."});
+        const updated=await dbPool.query("UPDATE app_users SET active=$1 WHERE username=$2 RETURNING id",[active,username]);
+        if(!updated.rowCount) return send(res,404,{error:"Usuario no encontrado."});
+        if(!active) await dbPool.query("DELETE FROM app_sessions WHERE user_id=$1",[updated.rows[0].id]);
+        return send(res,200,{ok:true});
+      } catch(e) { return send(res,400,{error:"No se pudo cambiar el estado del usuario."}); }
+    }
+  }
+
   if (req.method === "POST" && requestPath === "/api/personal/logout") {
     const token = (req.headers.cookie || "").split(";").map(x=>x.trim()).find(x=>x.startsWith("pb_session="))?.slice(11);
     if (token && dbPool) await dbPool.query("DELETE FROM app_sessions WHERE token_hash=$1", [createHash("sha256").update(token).digest("hex")]);
@@ -272,9 +317,11 @@ const server = http.createServer(async (req, res) => {
     const result = await dbPool.query("SELECT u.id,u.username,u.full_name,u.role FROM app_sessions s JOIN app_users u ON u.id=s.user_id WHERE s.token_hash=$1 AND s.expires_at>NOW() AND u.active=TRUE", [createHash("sha256").update(token).digest("hex")]);
     return result.rows[0] || null;
   }
+  const isSuperAdmin = staff => Boolean(staff && staff.role === "superadmin");
+  const canManageOrders = staff => Boolean(staff && ["superadmin","manager"].includes(staff.role));
   if (req.method === "GET" && requestPath === "/api/personal/test-mode") {
     const staff = await getStaffUser();
-    return send(res, 200, { allowed: Boolean(staff && staff.role === "admin") });
+    return send(res, 200, { allowed: isSuperAdmin(staff) });
   }
 
   if (requestPath.startsWith("/api/reparto/")) {
@@ -291,7 +338,7 @@ const server = http.createServer(async (req, res) => {
       return send(res,200,{orders:result.rows,role:staff.role});
     }
     if (requestPath === "/api/reparto/asignar-lote" && req.method === "POST") {
-      if (staff.role !== "admin") return send(res,403,{error:"Solo administración puede asignar pedidos."});
+      if (!canManageOrders(staff)) return send(res,403,{error:"No tienes permisos para asignar pedidos."});
       try {
         const data=await readJson(req), ids=[...new Set((Array.isArray(data.order_ids)?data.order_ids:[]).map(Number).filter(n=>Number.isInteger(n)&&n>0))], username=String(data.driver_username||"");
         if(!ids.length||ids.length>100||!["maximo","claudio"].includes(username)) return send(res,400,{error:"Selecciona pedidos y un repartidor válido."});
@@ -334,7 +381,7 @@ const server = http.createServer(async (req, res) => {
     }
 
     if (requestPath === "/api/reparto/orden-manual" && req.method === "POST") {
-      if (staff.role !== "admin") return send(res,403,{error:"Solo administración puede registrar pedidos manuales."});
+      if (!isSuperAdmin(staff)) return send(res,403,{error:"Solo el administrador TI puede registrar pedidos manuales."});
       try {
         const d=await readJson(req);
         const name=String(d.customer_name||"").trim(), phone=String(d.customer_phone||"").trim();
@@ -356,7 +403,7 @@ const server = http.createServer(async (req, res) => {
       } catch(e) { console.error("Manual order:",e.message); return send(res,400,{error:"No se pudo registrar el pedido."}); }
     }
     if (requestPath === "/api/reparto/extras" && req.method === "GET") {
-      const q=staff.role==="admin"
+      const q=staff.role==="superadmin"
         ? await dbPool.query("SELECT e.id,e.description,e.destination,e.requested_amount_clp,e.approved_amount_clp,e.approval_status,e.created_at,d.display_name AS driver_name FROM extra_runs e JOIN drivers d ON d.id=e.driver_id ORDER BY e.created_at DESC LIMIT 200")
         : await dbPool.query("SELECT e.id,e.description,e.destination,e.requested_amount_clp,e.approved_amount_clp,e.approval_status,e.created_at,d.display_name AS driver_name FROM extra_runs e JOIN drivers d ON d.id=e.driver_id WHERE d.app_user_id=$1 ORDER BY e.created_at DESC LIMIT 100",[staff.id]);
       return send(res,200,{extras:q.rows});
@@ -373,7 +420,7 @@ const server = http.createServer(async (req, res) => {
       } catch(e) { return send(res,400,{error:"No se pudo registrar la carrera extra."}); }
     }
     if (requestPath === "/api/reparto/extras/aprobar" && req.method === "POST") {
-      if(staff.role!=="admin") return send(res,403,{error:"Solo administración puede aprobar carreras."});
+      if(!isSuperAdmin(staff)) return send(res,403,{error:"Solo el administrador TI puede aprobar carreras."});
       try {
         const d=await readJson(req), id=Number(d.id), approved=d.approved===true, amount=Number(d.amount);
         if(!Number.isInteger(id)||id<1||(approved&&(!Number.isInteger(amount)||amount<0||amount>200000))) return send(res,400,{error:"Datos de aprobación inválidos."});
@@ -383,8 +430,8 @@ const server = http.createServer(async (req, res) => {
       } catch(e) { return send(res,400,{error:"No se pudo revisar la carrera."}); }
     }
     if (requestPath === "/api/reparto/cierre" && req.method === "GET") {
-      const driverId=staff.role==="driver"?(await dbPool.query("SELECT id FROM drivers WHERE app_user_id=$1",[staff.id])).rows[0]?.id:null;
-      if(staff.role==="driver"&&!driverId) return send(res,404,{error:"Perfil de repartidor no configurado."});
+      const driverId=["driver","superadmin"].includes(staff.role)?(await dbPool.query("SELECT id FROM drivers WHERE app_user_id=$1",[staff.id])).rows[0]?.id:null;
+      if(["driver","superadmin"].includes(staff.role)&&!driverId) return send(res,404,{error:"Perfil de repartidor no configurado."});
       const params=driverId?[driverId]:[];
       const where=driverId?"AND da.driver_id=$1":"";
       const deliveries=await dbPool.query(
@@ -399,7 +446,7 @@ const server = http.createServer(async (req, res) => {
       try {
         const data=await readJson(req), orderId=Number(data.order_id), status=String(data.status||"");
         if(!Number.isInteger(orderId)||!["picked_up","delivered"].includes(status)) return send(res,400,{error:"Estado inválido."});
-        const assignment=await dbPool.query("SELECT da.id FROM delivery_assignments da JOIN drivers d ON d.id=da.driver_id WHERE da.order_id=$1 AND da.status IN ('assigned','picked_up') AND ($2='admin' OR d.app_user_id=$3) ORDER BY da.assigned_at DESC LIMIT 1",[orderId,staff.role,staff.id]);
+        const assignment=await dbPool.query("SELECT da.id FROM delivery_assignments da JOIN drivers d ON d.id=da.driver_id WHERE da.order_id=$1 AND da.status IN ('assigned','picked_up') AND ($2 IN ('superadmin','manager') OR d.app_user_id=$3) ORDER BY da.assigned_at DESC LIMIT 1",[orderId,staff.role,staff.id]);
         if(!assignment.rowCount) return send(res,404,{error:"Pedido no asignado a tu cuenta."});
         await dbPool.query("UPDATE delivery_assignments SET status=$1 WHERE id=$2",[status,assignment.rows[0].id]);
         await dbPool.query("UPDATE orders SET delivery_status=$1,updated_at=NOW() WHERE id=$2",[status,orderId]);
