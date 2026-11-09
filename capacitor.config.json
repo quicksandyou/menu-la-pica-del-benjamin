@@ -1,0 +1,17 @@
+{
+  "appId": "cl.benjamin.picada",
+  "appName": "La Picá del Benjamín",
+  "webDir": "www",
+  "server": {
+    "url": "https://menu-la-pica-del-benjamin.onrender.com",
+    "cleartext": false,
+    "allowNavigation": [
+      "menu-la-pica-del-benjamin.onrender.com",
+      "menu-la-pica-del-benjamin-pago.onrender.com",
+      "www.mercadopago.cl",
+      "mercadopago.cl",
+      "wa.me",
+      "www.google.com"
+    ]
+  }
+}
