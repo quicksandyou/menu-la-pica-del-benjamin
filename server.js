@@ -446,7 +446,7 @@ const server = http.createServer(async (req, res) => {
       try {
         const data=await readJson(req), orderId=Number(data.order_id), status=String(data.status||"");
         if(!Number.isInteger(orderId)||!["picked_up","delivered"].includes(status)) return send(res,400,{error:"Estado inválido."});
-        const assignment=await dbPool.query("SELECT da.id FROM delivery_assignments da JOIN drivers d ON d.id=da.driver_id WHERE da.order_id=$1 AND da.status IN ('assigned','picked_up') AND ($2 IN ('superadmin','manager') OR d.app_user_id=$3) ORDER BY da.assigned_at DESC LIMIT 1",[orderId,staff.role,staff.id]);
+        const assignment=await dbPool.query("SELECT da.id FROM delivery_assignments da JOIN drivers d ON d.id=da.driver_id WHERE da.order_id=$1 AND da.status IN ('assigned','picked_up') AND ($2='superadmin' OR d.app_user_id=$3) ORDER BY da.assigned_at DESC LIMIT 1",[orderId,staff.role,staff.id]);
         if(!assignment.rowCount) return send(res,404,{error:"Pedido no asignado a tu cuenta."});
         await dbPool.query("UPDATE delivery_assignments SET status=$1 WHERE id=$2",[status,assignment.rows[0].id]);
         await dbPool.query("UPDATE orders SET delivery_status=$1,updated_at=NOW() WHERE id=$2",[status,orderId]);
