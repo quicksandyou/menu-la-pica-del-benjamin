@@ -411,6 +411,147 @@ button,a,select,input,textarea{-webkit-tap-highlight-color:transparent}
   }
   .category-sidebar nav button{touch-action:pan-x!important;flex-shrink:0!important;}
 }
+
+/* ===== Renovación visual 2026: solo estilos, sin tocar lógica de pedidos ni pagos ===== */
+:root{
+ --gold:#ffc64b;--orange:#f28a27;--red:#a52b21;
+ --bg:#100c09;--panel:#1b1511;--line:#604326;--muted:#d2c3b2;
+}
+body{
+ background:radial-gradient(ellipse at 50% -12%,#43230f 0%,#17100b 38%,#0b0908 78%)!important;
+ color:#fffaf3!important;
+}
+.site-header{
+ background:linear-gradient(115deg,#090807 0%,#24150d 52%,#090807 100%)!important;
+ border-bottom:1px solid #b9782d!important;
+ box-shadow:0 8px 30px #0007!important;
+}
+.brand{letter-spacing:-1.2px!important;text-shadow:0 3px 0 #6c2d12,0 0 22px #ffbd3530!important}
+.tagline{color:#f4dfc5!important;font-style:normal!important;letter-spacing:.2px}
+.info-chip{background:#21160f!important;border-color:#77512c!important;border-radius:14px!important;box-shadow:inset 0 1px #ffffff0a}
+.wrap{max-width:1480px!important;padding-top:22px!important}
+.hero-main,.hero-side{
+ border:1px solid #80552d!important;border-radius:22px!important;
+ box-shadow:0 12px 32px #0006!important;
+}
+.hero-main{background:linear-gradient(135deg,#21150e,#090807)!important}
+.hero-side{background:linear-gradient(145deg,#2b1b10,#100b08)!important}
+.hero-title{letter-spacing:-1.5px!important}
+.store-switch{gap:9px!important;margin:18px 0 20px!important}
+.store-switch button{
+ min-height:46px!important;padding:12px 19px!important;
+ background:#211811!important;border:1px solid #79532e!important;
+ color:#f7e7d1!important;box-shadow:0 4px 12px #0004!important;
+ transition:transform .2s ease,background .2s ease!important;
+}
+.store-switch button.active,.store-switch button[aria-selected="true"]{
+ background:linear-gradient(110deg,#ffd66a,#ed851e)!important;color:#211006!important;
+ border-color:#ffe09a!important;box-shadow:0 5px 18px #f28a2730!important;
+}
+.feature-update{
+ border:1px solid #93602b!important;border-radius:17px!important;
+ background:linear-gradient(110deg,#2b1a0e,#17100b)!important;
+ box-shadow:0 8px 22px #0005!important;padding:16px 19px!important;
+}
+.app-install{border-radius:17px!important;box-shadow:0 8px 22px #0005!important}
+.notice{border-color:#79512d!important;border-radius:15px!important;line-height:1.55!important}
+.layout{gap:18px!important}
+.category-sidebar{
+ border:1px solid #76502c!important;border-radius:18px!important;
+ background:linear-gradient(180deg,#21160f,#0e0b09)!important;
+ box-shadow:0 10px 26px #0006!important;padding:15px!important;
+}
+.sidebar-brand{color:#ffd16a!important;letter-spacing:1px!important}
+.category-sidebar nav{
+ background:transparent!important;border:0!important;padding-top:12px!important;
+}
+.category-sidebar nav button,nav button{
+ border-radius:999px!important;border:1px solid #654526!important;
+ background:#251a12!important;color:#f6e7d3!important;
+}
+.category-sidebar nav button.on,nav button.on{
+ background:linear-gradient(110deg,#ffd66a,#ed851e)!important;
+ color:#201006!important;border-color:#ffe2a0!important;
+}
+.menu-column>.section-title,.menu-column .section-title{
+ color:#ffd16a!important;font-size:clamp(21px,2vw,27px)!important;
+ letter-spacing:-.4px!important;margin:20px 0 13px!important;
+}
+.grid{gap:15px!important}
+.grid .item{
+ background:linear-gradient(155deg,#2a1d14 0%,#17110d 72%)!important;
+ border:1px solid #654626!important;border-radius:18px!important;
+ padding:13px!important;gap:9px!important;
+ box-shadow:0 8px 22px #0006!important;
+}
+.grid .item:hover{border-color:#d99a45!important;box-shadow:0 14px 28px #0008!important}
+.food-art{
+ height:148px!important;border-radius:14px!important;
+ border:1px solid #78512c!important;background:#f3e8d9!important;
+}
+.food-art img{object-fit:cover!important}
+.item h3{color:#ffcf70!important;font-size:17px!important;line-height:1.3!important}
+.desc{color:#e0d2c2!important;font-size:12px!important;line-height:1.45!important}
+.price{color:#ffe08a!important;font-size:21px!important}
+.add{
+ border-radius:12px!important;min-height:45px!important;
+ background:linear-gradient(110deg,#ffd66a,#ef861f)!important;
+ color:#211006!important;font-weight:900!important;
+ box-shadow:0 4px 12px #0003!important;
+}
+.add:active,.online-pay:active,.send:active{transform:scale(.98)}
+.cart{
+ border:1px solid #d1a05e!important;border-radius:20px!important;
+ box-shadow:0 14px 32px #0007!important;
+}
+.cart h2{letter-spacing:-.4px!important}
+.total{border-radius:13px!important}
+.fields input,.fields select,.fields textarea{
+ border-radius:12px!important;border-color:#d8c5ae!important;
+ min-height:46px!important;
+}
+.online-pay,.send,.clear{border-radius:13px!important;min-height:48px!important}
+.online-pay{background:linear-gradient(110deg,#ffd66a,#ef861f)!important;color:#211006!important}
+.send{background:linear-gradient(110deg,#279b59,#16733d)!important}
+.delivery-help{box-shadow:0 8px 22px #0008!important}
+#musicToggle{box-shadow:0 8px 22px #0008!important}
+.instagram-link{border-radius:999px!important}
+@media(max-width:900px){
+ .layout{gap:14px!important}
+ .cart{border-radius:18px!important}
+}
+@media(max-width:700px){
+ .wrap{padding:12px!important}
+ .site-header{padding:15px 14px!important}
+ .brand{font-size:clamp(27px,8vw,38px)!important}
+ .head-inner{gap:12px!important}
+ .header-info{gap:7px!important}
+ .info-chip{padding:9px 10px!important;font-size:12px!important}
+ .store-switch{display:grid!important;grid-template-columns:1fr 1fr!important;gap:8px!important}
+ .store-switch button{min-width:0!important;padding:10px 8px!important;font-size:12px!important;line-height:1.25!important}
+ .store-switch button:first-child{grid-column:1/-1}
+ .feature-update{padding:12px 13px!important}
+ .category-sidebar{border-radius:14px!important;padding:9px!important}
+ .menu-column>.section-title,.menu-column .section-title{font-size:20px!important;margin:15px 0 10px!important}
+ .grid{gap:10px!important}
+ .grid .item{padding:9px!important;gap:7px!important;border-radius:15px!important}
+ .food-art{height:clamp(105px,31vw,145px)!important;border-radius:11px!important}
+ .item h3{font-size:clamp(13px,3.8vw,16px)!important}
+ .desc{font-size:11px!important;line-height:1.35!important}
+ .price{font-size:18px!important}
+ .add{font-size:12px!important;padding:10px 6px!important}
+ .cart{padding:14px!important}
+}
+@media(max-width:380px){
+ .grid .item{padding:7px!important}
+ .food-art{height:105px!important}
+ .desc{font-size:10px!important}
+ .add{font-size:11px!important}
+}
+@media(prefers-reduced-motion:reduce){
+ *,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+}
+
 </style><audio id="siteMusic" src="./soundtrack.mp3.mpeg" loop preload="none"></audio><button id="musicToggle" type="button" aria-pressed="false" onclick="toggleMusic()">🎵 Activar música</button><a class="delivery-help" href="https://wa.me/56962662078?text=Hola%2C%20quisiera%20hacer%20una%20consulta%20sobre%20mi%20pedido%20de%20La%20Pic%C3%A1%20del%20Benjam%C3%ADn." target="_blank" rel="noopener noreferrer" aria-label="Consultar pedido con el encargado de delivery por WhatsApp"><span class="wa-icon">🟢</span><span>Consultar mi pedido</span></a><button type="button" class="ketchup-side left" aria-label="¡Aprieta para lanzar kétchup!" title="¡Toca para lanzar kétchup!" onclick="splashKetchup(event)"><span class="ketchup-splash">〰</span><span class="ketchup-bottle"></span></button><button type="button" class="ketchup-side right" aria-label="¡Aprieta para lanzar kétchup!" title="¡Toca para lanzar kétchup!" onclick="splashKetchup(event)"><span class="ketchup-splash">〰</span><span class="ketchup-bottle"></span></button><header class="site-header"><div class="head-inner"><div><div class="brand">La Picá del Benjamín</div><div class="tagline">Sabor que enamora, porciones que impresionan</div>
 <a class="instagram-link" href="https://www.instagram.com/la_pica_de_benjamin?mdxt=MXdnZ3BwcHhncHFpdw==" target="_blank" rel="noopener noreferrer" aria-label="Visitar Instagram de La Picá del Benjamín">
 <span class="instagram-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="18" cy="6" r="1" fill="currentColor" stroke="none"/></svg></span>
