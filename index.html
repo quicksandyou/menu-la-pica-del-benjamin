@@ -263,6 +263,19 @@ body.jewelry-mode .ketchup-side{display:none!important}
 .jewelry-coming>*:not(.jewel-sparkle){position:relative;z-index:1}
 @keyframes jewelTwinkle{0%,100%{opacity:.35;transform:scale(.7) rotate(0)}50%{opacity:1;transform:scale(1.2) rotate(22deg)}}
 
+
+#jewelrySparkleLayer{position:fixed;inset:0;z-index:30;pointer-events:none;overflow:hidden;display:none}
+#jewelrySparkleLayer span{position:absolute;color:#ffe8a3;font-size:clamp(22px,3vw,42px);text-shadow:0 0 8px #fff2b8,0 0 18px #f6c65b,0 0 30px #d99b2d;animation:globalJewelryTwinkle 2s ease-in-out infinite}
+#jewelrySparkleLayer span:nth-child(1){left:8%;top:25%}
+#jewelrySparkleLayer span:nth-child(2){left:24%;top:72%;animation-delay:.35s}
+#jewelrySparkleLayer span:nth-child(3){left:48%;top:18%;animation-delay:.7s}
+#jewelrySparkleLayer span:nth-child(4){left:69%;top:68%;animation-delay:1.05s}
+#jewelrySparkleLayer span:nth-child(5){left:88%;top:30%;animation-delay:1.4s}
+#jewelrySparkleLayer span:nth-child(6){left:12%;top:83%;animation-delay:.5s}
+#jewelrySparkleLayer span:nth-child(7){left:82%;top:82%;animation-delay:.9s}
+#jewelrySparkleLayer span:nth-child(8){left:56%;top:85%;animation-delay:1.3s}
+@keyframes globalJewelryTwinkle{0%,100%{opacity:.25;transform:scale(.55) rotate(0)}50%{opacity:1;transform:scale(1.25) rotate(35deg)}}
+
 </style><audio id="siteMusic" src="./soundtrack.mp3.mpeg" loop preload="none"></audio><button id="musicToggle" type="button" aria-pressed="false" onclick="toggleMusic()">🎵 Activar música</button><a class="delivery-help" href="https://wa.me/56962662078?text=Hola%2C%20quisiera%20hacer%20una%20consulta%20sobre%20mi%20pedido%20de%20La%20Pic%C3%A1%20del%20Benjam%C3%ADn." target="_blank" rel="noopener noreferrer" aria-label="Consultar pedido con el encargado de delivery por WhatsApp"><span class="wa-icon">🟢</span><span>Consultar mi pedido</span></a><button type="button" class="ketchup-side left" aria-label="¡Aprieta para lanzar kétchup!" title="¡Toca para lanzar kétchup!" onclick="splashKetchup(event)"><span class="ketchup-splash">〰</span><span class="ketchup-bottle"></span></button><button type="button" class="ketchup-side right" aria-label="¡Aprieta para lanzar kétchup!" title="¡Toca para lanzar kétchup!" onclick="splashKetchup(event)"><span class="ketchup-splash">〰</span><span class="ketchup-bottle"></span></button><header class="site-header"><div class="head-inner"><div><div class="brand">La Picá del Benjamín</div><div class="tagline">Sabor que enamora, porciones que impresionan</div></div><div class="header-info"><div class="info-chip">📍 <b>Pje. Hermano Claudio Ortíz #1229</b><br>Linares · <a href="https://maps.app.goo.gl/zV6W4sxRxqezmYtb7" target="_blank" rel="noopener">Ver ubicación real ↗</a></div><div class="info-chip">🕒 <b>Horario de atención</b><br>Martes a sábado · 17:30 a 02:00 AM</div></div></div></header>
 <main class="wrap">
 <div class="store-switch" role="tablist" aria-label="Seleccionar tienda">
@@ -292,9 +305,27 @@ body.jewelry-mode .ketchup-side{display:none!important}
 <script>
 function showStoreSection(section){
  const food=section==="food";
- document.body.classList.toggle("jewelry-mode",!food);
  document.getElementById("foodSection").style.display=food?"block":"none";
  document.getElementById("jewelrySection").style.display=food?"none":"flex";
+ // Ocultar físicamente los dos botones decorativos de kétchup al entrar a Joyas.
+ document.querySelectorAll(".ketchup-side").forEach(el=>{
+   el.style.setProperty("display",food?"block":"none","important");
+   el.style.setProperty("visibility",food?"visible":"hidden","important");
+ });
+ // Activar destellos flotantes dorados solo en la tienda de joyas.
+ let sparkleLayer=document.getElementById("jewelrySparkleLayer");
+ if(!food){
+   if(!sparkleLayer){
+     sparkleLayer=document.createElement("div");
+     sparkleLayer.id="jewelrySparkleLayer";
+     sparkleLayer.setAttribute("aria-hidden","true");
+     sparkleLayer.innerHTML='<span>✦</span><span>✧</span><span>✦</span><span>✧</span><span>✦</span><span>✧</span><span>✦</span><span>✧</span>';
+     document.body.appendChild(sparkleLayer);
+   }
+   sparkleLayer.style.display="block";
+ }else if(sparkleLayer){
+   sparkleLayer.style.display="none";
+ }
  const foodTab=document.getElementById("foodStoreTab");
  const jewelryTab=document.getElementById("jewelryStoreTab");
  foodTab.classList.toggle("active",food);
