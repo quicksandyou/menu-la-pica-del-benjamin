@@ -360,7 +360,7 @@ const server = http.createServer(async (req, res) => {
       } catch(e) { return send(res,409,{error:e.message||"No se pudieron asignar los pedidos."}); }
     }
     if (requestPath === "/api/reparto/asignar" && req.method === "POST") {
-      if (staff.role !== "admin") return send(res,403,{error:"Solo administración puede asignar pedidos."});
+      if (!canManageOrders(staff)) return send(res,403,{error:"No tienes permisos para asignar pedidos."});
       try {
         const data=await readJson(req), orderId=Number(data.order_id), username=String(data.driver_username||"");
         if(!Number.isInteger(orderId)||orderId<1||!["maximo","claudio"].includes(username)) return send(res,400,{error:"Pedido o repartidor inválido."});
@@ -409,7 +409,7 @@ const server = http.createServer(async (req, res) => {
       return send(res,200,{extras:q.rows});
     }
     if (requestPath === "/api/reparto/extras" && req.method === "POST") {
-      if(staff.role!=="driver") return send(res,403,{error:"Solo repartidores pueden solicitar carreras extra."});
+      if(!["driver","superadmin"].includes(staff.role)) return send(res,403,{error:"Solo repartidores pueden solicitar carreras extra."});
       try {
         const d=await readJson(req), description=String(d.description||"").trim(), destination=String(d.destination||"").trim(), amount=Number(d.amount);
         if(!description||!Number.isInteger(amount)||amount<0||amount>200000) return send(res,400,{error:"Descripción o monto inválido."});
