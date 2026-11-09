@@ -26,6 +26,22 @@ async function initializeDatabase() {
       delivery_status VARCHAR(30) NOT NULL DEFAULT 'pending',
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     );
+    CREATE TABLE IF NOT EXISTS app_users (
+      id BIGSERIAL PRIMARY KEY,
+      username VARCHAR(80) UNIQUE NOT NULL,
+      full_name VARCHAR(120) NOT NULL,
+      role VARCHAR(20) NOT NULL CHECK (role IN ('admin','driver')),
+      password_salt TEXT,
+      password_hash TEXT,
+      active BOOLEAN NOT NULL DEFAULT TRUE,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    );
+    INSERT INTO app_users (username, full_name, role) VALUES
+      ('jefa', 'Michelle Ibáñez', 'admin'),
+      ('maximo', 'Máximo Palma', 'driver'),
+      ('claudio', 'Claudio Scheid', 'driver')
+    ON CONFLICT (username) DO UPDATE
+      SET full_name = EXCLUDED.full_name, role = EXCLUDED.role;
     CREATE TABLE IF NOT EXISTS drivers (
       id BIGSERIAL PRIMARY KEY, display_name VARCHAR(120) NOT NULL,
       username VARCHAR(80) UNIQUE NOT NULL, password_hash TEXT NOT NULL,
