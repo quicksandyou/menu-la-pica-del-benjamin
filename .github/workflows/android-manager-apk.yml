@@ -1,10 +1,12 @@
-name: Construir APK de la jefa
+name: Construir APK única de La Picá del Benjamín
 on:
   workflow_dispatch:
   push:
     paths:
       - ".github/workflows/android-manager-apk.yml"
       - "reparto.html"
+      - "personal.html"
+      - "server.js"
       - "reparto-manifest.json"
       - "sw.js"
 jobs:
@@ -22,13 +24,13 @@ jobs:
       - uses: android-actions/setup-android@v4
         with:
           packages: 'platform-tools'
-      - name: Preparar Capacitor para la jefa
+      - name: Preparar Capacitor para todos los perfiles
         run: |
           mkdir -p www
           cat > capacitor.config.json <<'EOF'
           {
-            "appId": "cl.benjamin.picada.jefa",
-            "appName": "La Pica - Pedidos",
+            "appId": "cl.benjamin.picada",
+            "appName": "La Picá del Benjamín",
             "webDir": "www",
             "server": {
               "url": "https://menu-la-pica-del-benjamin.onrender.com/reparto.html",
@@ -52,7 +54,7 @@ jobs:
           ./gradlew assembleDebug
       - uses: actions/upload-artifact@v4
         with:
-          name: la-pica-app-jefa-apk
+          name: la-pica-app-unica-apk
           path: android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
           retention-days: 30
