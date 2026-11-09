@@ -345,6 +345,9 @@ nav button{min-height:46px;padding:12px 17px;font-size:14px}
 @media(max-width:360px){.grid{grid-template-columns:1fr}.food-art{height:135px}}
 
 </style><audio id="siteMusic" src="./soundtrack.mp3.mpeg" loop preload="none"></audio><button id="musicToggle" type="button" aria-pressed="false" onclick="toggleMusic()">🎵 Activar música</button><a class="delivery-help" href="https://wa.me/56962662078?text=Hola%2C%20quisiera%20hacer%20una%20consulta%20sobre%20mi%20pedido%20de%20La%20Pic%C3%A1%20del%20Benjam%C3%ADn." target="_blank" rel="noopener noreferrer" aria-label="Consultar pedido con el encargado de delivery por WhatsApp"><span class="wa-icon">🟢</span><span>Consultar mi pedido</span></a><button type="button" class="ketchup-side left" aria-label="¡Aprieta para lanzar kétchup!" title="¡Toca para lanzar kétchup!" onclick="splashKetchup(event)"><span class="ketchup-splash">〰</span><span class="ketchup-bottle"></span></button><button type="button" class="ketchup-side right" aria-label="¡Aprieta para lanzar kétchup!" title="¡Toca para lanzar kétchup!" onclick="splashKetchup(event)"><span class="ketchup-splash">〰</span><span class="ketchup-bottle"></span></button><style id="maintenance-mode-style">
+/* Evita que reaparezca la mascota flotante lateral; se conserva el personaje junto al mensaje de regreso. */
+.dancing-brand, #maintenance-screen ~ .dancing-brand, body > .dancing-brand { display:none !important; visibility:hidden !important; animation:none !important; }
+
 html,body{min-height:100%;margin:0}
 body{background:radial-gradient(ellipse at 50% 10%,#3a210e 0,#120c07 48%,#050505 100%)!important}
 body>*:not(#maintenance-screen){display:none!important}
