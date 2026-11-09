@@ -270,6 +270,11 @@ const server = http.createServer(async (req, res) => {
     const result = await dbPool.query("SELECT u.id,u.username,u.full_name,u.role FROM app_sessions s JOIN app_users u ON u.id=s.user_id WHERE s.token_hash=$1 AND s.expires_at>NOW() AND u.active=TRUE", [createHash("sha256").update(token).digest("hex")]);
     return result.rows[0] || null;
   }
+  if (req.method === "GET" && requestPath === "/api/personal/test-mode") {
+    const staff = await getStaffUser();
+    return send(res, 200, { allowed: Boolean(staff && staff.role === "admin") });
+  }
+
   if (requestPath.startsWith("/api/reparto/")) {
     if (!dbPool) return send(res,503,{error:"Base de datos no disponible."});
     const staff = await getStaffUser();
@@ -496,7 +501,7 @@ const server = http.createServer(async (req, res) => {
     }
   }
 
-  if (req.method === "POST" && req.url === "/api/crear-orden" && !isOrderingOpen()) {
+  if (req.method === "POST" && req.url === "/api/crear-orden" && !isOrderingOpen() && !((await getStaffUser())?.role === "admin")) {
     return send(res, 403, { error: "Estamos fuera de horario. Los pedidos y pagos online están disponibles de martes a sábado, de 17:30 a 02:00. Muchas gracias por preferir La Picá del Benjamín." });
   }
 
