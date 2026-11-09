@@ -3,6 +3,7 @@ on:
   workflow_dispatch:
   push:
     paths:
+      - "icons/**"
       - "capacitor.config.json"
       - ".github/workflows/android-apk.yml"
       - "www/**"
@@ -26,6 +27,23 @@ jobs:
           npm install --no-save @capacitor/core@^7 @capacitor/cli@^7 @capacitor/android@^7
           npx cap add android
           npx cap sync android
+      - name: Aplicar icono 3D de la aplicación Android
+        run: |
+          npm install --no-save sharp
+          node <<'NODE'
+          const sharp = require('sharp');
+          const fs = require('fs');
+          const path = require('path');
+          const svg = fs.readFileSync('icons/icon.svg');
+          const sizes = { mdpi:48, hdpi:72, xhdpi:96, xxhdpi:144, xxxhdpi:192 };
+          (async()=>{
+            for (const [density,size] of Object.entries(sizes)) {
+              const dir = path.join('android/app/src/main/res', 'mipmap-' + density);
+              fs.mkdirSync(dir,{recursive:true});
+              await sharp(svg).resize(size,size).png().toFile(path.join(dir,'ic_launcher.png'));
+            }
+          })().catch(e=>{console.error(e);process.exit(1)});
+          NODE
       - name: Construir APK de prueba
         run: |
           cd android
