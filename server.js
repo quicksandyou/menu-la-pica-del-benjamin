@@ -334,7 +334,7 @@ const server = http.createServer(async (req, res) => {
     if (requestPath === "/api/reparto/pedidos" && req.method === "GET") {
       const params = [];
       const requestedDate = String(new URL(req.url,"http://localhost").searchParams.get("date") || "");
-      const selectedDate = /^\\d{4}-\\d{2}-\\d{2}$/.test(requestedDate) ? requestedDate : new Intl.DateTimeFormat("en-CA",{timeZone:"America/Santiago",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date());
+      const selectedDate = /^\d{4}-\d{2}-\d{2}$/.test(requestedDate) ? requestedDate : new Intl.DateTimeFormat("en-CA",{timeZone:"America/Santiago",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date());
       params.push(selectedDate);
       if (staff.role === "driver") params.push(staff.id);
       const result = await dbPool.query(
