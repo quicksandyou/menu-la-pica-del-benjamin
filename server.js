@@ -436,8 +436,13 @@ const server = http.createServer(async (req, res) => {
       } catch(e) { return send(res,400,{error:"No se pudo revisar la carrera."}); }
     }
     if (requestPath === "/api/reparto/cierre" && req.method === "GET") {
-      const driverId=["driver","superadmin"].includes(staff.role)?(await dbPool.query("SELECT id FROM drivers WHERE app_user_id=$1",[staff.id])).rows[0]?.id:null;
-      if(["driver","superadmin"].includes(staff.role)&&!driverId) return send(res,404,{error:"Perfil de repartidor no configurado."});
+      // Jefatura y Administrador TI consultan el cierre global; cada repartidor solo ve sus propios registros.
+      let driverId=null;
+      if(staff.role==="driver"){
+        const driver=await dbPool.query("SELECT id FROM drivers WHERE app_user_id=$1 AND active=TRUE",[staff.id]);
+        driverId=driver.rows[0]?.id||null;
+        if(!driverId) return send(res,404,{error:"Tu usuario todavía no está vinculado a un perfil de repartidor. Solicita a administración que lo configure."});
+      }
       const params=driverId?[driverId]:[];
       const where=driverId?"AND da.driver_id=$1":"";
       const deliveries=await dbPool.query(
