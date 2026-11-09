@@ -1,8 +1,13 @@
 name: Build Windows desktop installer
 on:
   push:
+    branches: [main]
     tags:
       - "desktop-v*"
+    paths:
+      - "desktop/**"
+      - ".github/workflows/desktop-release.yml"
+  workflow_dispatch:
 permissions:
   contents: write
 jobs:
@@ -19,7 +24,19 @@ jobs:
       - name: Build Windows installer
         working-directory: desktop
         run: npx electron-builder --win nsis --publish never
+      - name: Upload installer for testing
+        if: startsWith(github.ref, 'refs/heads/')
+        uses: actions/upload-artifact@v4
+        with:
+          name: LaPicaDelBenjamin-Windows-Installer
+          path: |
+            desktop/dist/*.exe
+            desktop/dist/latest.yml
+            desktop/dist/*.blockmap
+          if-no-files-found: error
+          retention-days: 30
       - name: Publish installer and update metadata
+        if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v2
         with:
           files: |
