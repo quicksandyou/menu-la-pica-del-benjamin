@@ -336,7 +336,44 @@ function showStoreSection(section){
 }
 
 
+let ketchupAudioContext=null;
+function playKetchupSqueeze(){
+ try{
+  const AudioCtx=window.AudioContext||window.webkitAudioContext;
+  if(!AudioCtx)return;
+  if(!ketchupAudioContext)ketchupAudioContext=new AudioCtx();
+  const ctx=ketchupAudioContext;
+  if(ctx.state==="suspended")ctx.resume();
+  const now=ctx.currentTime;
+  // Sonido corto de presión y salida de kétchup: un chirrido grave más un soplido filtrado.
+  const osc=ctx.createOscillator(), toneGain=ctx.createGain();
+  osc.type="sawtooth";
+  osc.frequency.setValueAtTime(175,now);
+  osc.frequency.exponentialRampToValueAtTime(68,now+0.19);
+  toneGain.gain.setValueAtTime(0.0001,now);
+  toneGain.gain.exponentialRampToValueAtTime(0.16,now+0.025);
+  toneGain.gain.exponentialRampToValueAtTime(0.0001,now+0.23);
+  const filter=ctx.createBiquadFilter();
+  filter.type="lowpass";filter.frequency.setValueAtTime(850,now);
+  filter.frequency.exponentialRampToValueAtTime(260,now+0.2);
+  osc.connect(filter);filter.connect(toneGain);toneGain.connect(ctx.destination);
+  osc.start(now);osc.stop(now+0.24);
+  const length=Math.floor(ctx.sampleRate*0.2);
+  const buffer=ctx.createBuffer(1,length,ctx.sampleRate);
+  const data=buffer.getChannelData(0);
+  for(let i=0;i<length;i++)data[i]=(Math.random()*2-1)*(1-i/length);
+  const noise=ctx.createBufferSource(), noiseFilter=ctx.createBiquadFilter(), noiseGain=ctx.createGain();
+  noise.buffer=buffer;noiseFilter.type="lowpass";noiseFilter.frequency.value=1100;
+  noiseGain.gain.setValueAtTime(0.0001,now);
+  noiseGain.gain.exponentialRampToValueAtTime(0.09,now+0.018);
+  noiseGain.gain.exponentialRampToValueAtTime(0.0001,now+0.2);
+  noise.connect(noiseFilter);noiseFilter.connect(noiseGain);noiseGain.connect(ctx.destination);
+  noise.start(now);noise.stop(now+0.21);
+ }catch(error){console.warn("No se pudo reproducir el sonido del kétchup:",error);}
+}
+
 function splashKetchup(event){
+ playKetchupSqueeze();
  const rect=event.currentTarget.getBoundingClientRect();
  const originX=rect.left+rect.width/2, originY=rect.top+rect.height/2;
  for(let i=0;i<10;i++){
