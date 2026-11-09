@@ -20,6 +20,8 @@
 on:
   push:
     branches: [ "main" ]
+    paths:
+      - ".github/workflows/azure-webapps-node.yml"
   workflow_dispatch:
 
 env:
