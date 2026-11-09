@@ -403,7 +403,7 @@ const server = http.createServer(async (req, res) => {
       } catch(e) { console.error("Manual order:",e.message); return send(res,400,{error:"No se pudo registrar el pedido."}); }
     }
     if (requestPath === "/api/reparto/extras" && req.method === "GET") {
-      const q=staff.role==="superadmin"
+      const q=["superadmin","manager"].includes(staff.role)
         ? await dbPool.query("SELECT e.id,e.description,e.destination,e.requested_amount_clp,e.approved_amount_clp,e.approval_status,e.created_at,d.display_name AS driver_name FROM extra_runs e JOIN drivers d ON d.id=e.driver_id ORDER BY e.created_at DESC LIMIT 200")
         : await dbPool.query("SELECT e.id,e.description,e.destination,e.requested_amount_clp,e.approved_amount_clp,e.approval_status,e.created_at,d.display_name AS driver_name FROM extra_runs e JOIN drivers d ON d.id=e.driver_id WHERE d.app_user_id=$1 ORDER BY e.created_at DESC LIMIT 100",[staff.id]);
       return send(res,200,{extras:q.rows});
@@ -420,7 +420,7 @@ const server = http.createServer(async (req, res) => {
       } catch(e) { return send(res,400,{error:"No se pudo registrar la carrera extra."}); }
     }
     if (requestPath === "/api/reparto/extras/aprobar" && req.method === "POST") {
-      if(!isSuperAdmin(staff)) return send(res,403,{error:"Solo el administrador TI puede aprobar carreras."});
+      if(staff.role!=="manager") return send(res,403,{error:"Solo el perfil de jefatura puede aprobar o rechazar carreras extra."});
       try {
         const d=await readJson(req), id=Number(d.id), approved=d.approved===true, amount=Number(d.amount);
         if(!Number.isInteger(id)||id<1||(approved&&(!Number.isInteger(amount)||amount<0||amount>200000))) return send(res,400,{error:"Datos de aprobación inválidos."});
