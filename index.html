@@ -239,16 +239,57 @@ nav button.on{background:linear-gradient(110deg,#ffd66c,#d77a1d);color:#241306;b
   .app-install{display:none}
 }
 
+
+/* Selector de tiendas independientes */
+.store-switch{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 18px;padding:10px;border:1px solid #765020;border-radius:16px;background:linear-gradient(110deg,#201307,#0c0907)}
+.store-switch button{flex:1;min-width:210px;border:1px solid #805522;border-radius:12px;padding:14px;background:#21180f;color:#f5dfbd;font-size:15px}
+.store-switch button.active{background:linear-gradient(100deg,#ffd35a,#e97919);color:#211306;border-color:#ffd35a}
+.jewelry-coming{min-height:420px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:32px 18px;border:1px solid #9b702f;border-radius:20px;background:radial-gradient(ellipse at center,#3b260f,#100b07 70%);box-shadow:0 14px 35px #0008}
+.jewelry-coming .jewel-icon{font-size:76px;filter:drop-shadow(0 8px 14px #0009);margin-bottom:12px}
+.jewelry-coming h2{margin:4px 0;color:#ffd36a;font-size:clamp(27px,5vw,42px);letter-spacing:1px}
+.jewelry-coming p{max-width:560px;color:#e7d5b8;line-height:1.6}
+.jewelry-coming .soon-tag{display:inline-block;margin-top:12px;padding:9px 16px;border:1px solid #b88b45;border-radius:999px;color:#ffda8a;font-weight:900;letter-spacing:2px}
+@media(max-width:520px){.store-switch{padding:7px}.store-switch button{min-width:100%;padding:12px}}
+
 </style><audio id="siteMusic" src="./soundtrack.mp3.mpeg" loop preload="none"></audio><button id="musicToggle" type="button" aria-pressed="false" onclick="toggleMusic()">🎵 Activar música</button><a class="delivery-help" href="https://wa.me/56962662078?text=Hola%2C%20quisiera%20hacer%20una%20consulta%20sobre%20mi%20pedido%20de%20La%20Pic%C3%A1%20del%20Benjam%C3%ADn." target="_blank" rel="noopener noreferrer" aria-label="Consultar pedido con el encargado de delivery por WhatsApp"><span class="wa-icon">🟢</span><span>Consultar mi pedido</span></a><button type="button" class="ketchup-side left" aria-label="¡Aprieta para lanzar kétchup!" title="¡Toca para lanzar kétchup!" onclick="splashKetchup(event)"><span class="ketchup-splash">〰</span><span class="ketchup-bottle"></span></button><button type="button" class="ketchup-side right" aria-label="¡Aprieta para lanzar kétchup!" title="¡Toca para lanzar kétchup!" onclick="splashKetchup(event)"><span class="ketchup-splash">〰</span><span class="ketchup-bottle"></span></button><header class="site-header"><div class="head-inner"><div><div class="brand">La Picá del Benjamín</div><div class="tagline">Sabor que enamora, porciones que impresionan</div></div><div class="header-info"><div class="info-chip">📍 <b>Pje. Hermano Claudio Ortíz #1229</b><br>Linares · <a href="https://maps.app.goo.gl/zV6W4sxRxqezmYtb7" target="_blank" rel="noopener">Ver ubicación real ↗</a></div><div class="info-chip">🕒 <b>Horario de atención</b><br>Martes a sábado · 17:30 a 02:00 AM</div></div></div></header>
-<main class="wrap"><div class="feature-update" role="status"><span class="feature-icon">🚀</span><div><strong>¡Estamos incorporando nuevas funciones!</strong><p>Estamos mejorando nuestra tienda online para entregarte una experiencia de compra cada vez mejor. Gracias por tu paciencia y por preferir La Picá del Benjamín. ❤️</p></div></div>
+<main class="wrap">
+<div class="store-switch" role="tablist" aria-label="Seleccionar tienda">
+<button id="foodStoreTab" class="active" type="button" role="tab" aria-selected="true" onclick="showStoreSection('food')">🍔 La Picá del Benjamín · Comida</button>
+<button id="jewelryStoreTab" type="button" role="tab" aria-selected="false" onclick="showStoreSection('jewelry')">💎 Tienda de Joyas</button>
+</div>
+<div id="foodSection">
+<div class="feature-update" role="status"><span class="feature-icon">🚀</span><div><strong>¡Estamos incorporando nuevas funciones!</strong><p>Estamos mejorando nuestra tienda online para entregarte una experiencia de compra cada vez mejor. Gracias por tu paciencia y por preferir La Picá del Benjamín. ❤️</p></div></div>
 <div class="app-install" id="appInstall"><div><strong>📲 Instala La Picá en tu celular o computador</strong><p>Accede como una app desde Android, iPhone o Windows, sin buscar la página cada vez.</p></div><button id="installAppButton" type="button">Instalar aplicación</button></div>
 <div class="hero"><div class="hero-main brand-hero"><img src="./La%20Pic%C3%A1%20del%20Benjam%C3%ADn_%20Sabor%20Ne%C3%B3n.png" alt="Banner de comida de La Picá del Benjamín" loading="eager" decoding="async"></div><div class="hero-side"><strong>¡Arma tu pedido!</strong><p>Elige tus favoritos, selecciona delivery o retiro y paga de forma segura por Internet.</p><p>🚗 Linares $1.990 · Retiro gratis</p><p>Fuera de Linares: tarifa según localidad (desde $3.000).</p></div></div>
 <div class="notice">📍 Estamos en <b>Pje. Hermano Claudio Ortíz #1229, Linares</b> · <a href="https://maps.app.goo.gl/zV6W4sxRxqezmYtb7" target="_blank" rel="noopener">Cómo llegar con Google Maps ↗</a> · 📲 Pedidos: +56 9 9906 4818</div><section id="payment-result" class="notice" style="display:none"></section>
 <div class="layout"><section><h2 class="section-title">🍽️ Nuestras categorías</h2><nav id="tabs"></nav><div id="menu"></div></section>
 <section class="cart"><h2>🛒 Tu pedido <small id="count"></small></h2><div id="lines">Todavía no agregas productos.</div><div class="total" id="total">Total: $0</div>
 <div id="closedNotice" class="closed-notice" style="display:none"><strong>🌙 ¡Por ahora estamos fuera de horario!</strong><p>La tienda online y los pagos están disponibles de martes a sábado, de 17:30 a 02:00 AM.</p><p>Muchas gracias por preferir La Picá del Benjamín. ❤️ ¡Te esperamos en nuestro próximo horario!</p></div><div class="fields"><input id="name" placeholder="Tu nombre *"><input id="phone" placeholder="Tu teléfono (opcional)"><input id="email" type="email" placeholder="Tu correo electrónico *" required><select id="method" onchange="toggleAddress()"><option>Delivery</option><option>Retiro en el local</option></select><select id="locality" onchange="drawCart()"><option value="Linares">Linares</option><option value="Longaví">Longaví</option><option value="Yerbas Buenas">Yerbas Buenas</option><option value="Colbún">Colbún</option><option value="Villa Alegre">Villa Alegre</option><option value="San Javier">San Javier</option><option value="Palmilla">Palmilla</option></select><input id="address" placeholder="Dirección y referencia (delivery)"><textarea id="notes" placeholder="Notas del pedido (opcional)"></textarea></div>
-<button class="online-pay" onclick="payOnline()">💳 Pagar por Internet</button><button class="send" id="whatsappButton" onclick="sendOrder()">🟢 Pedir por WhatsApp · Solo retiro en local</button><button class="clear" onclick="cart={};drawCart()">Vaciar carrito</button><p class="small">Para delivery, selecciona tu localidad: Linares $1.990; Longaví $3.500; Yerbas Buenas $3.000; Colbún y Villa Alegre $4.000; San Javier y Palmilla $5.000. Retiro en local gratis. Completa tu dirección y paga por Internet. WhatsApp está disponible solamente para pedidos con retiro en el local.</p></section></div></main>
+<button class="online-pay" onclick="payOnline()">💳 Pagar por Internet</button><button class="send" id="whatsappButton" onclick="sendOrder()">🟢 Pedir por WhatsApp · Solo retiro en local</button><button class="clear" onclick="cart={};drawCart()">Vaciar carrito</button><p class="small">Para delivery, selecciona tu localidad: Linares $1.990; Longaví $3.500; Yerbas Buenas $3.000; Colbún y Villa Alegre $4.000; San Javier y Palmilla $5.000. Retiro en local gratis. Completa tu dirección y paga por Internet. WhatsApp está disponible solamente para pedidos con retiro en el local.</p></section></div>
+</div>
+<section id="jewelrySection" class="jewelry-coming" style="display:none" aria-labelledby="jewelryTitle">
+<div class="jewel-icon" aria-hidden="true">💎</div>
+<p style="margin:0;color:#ffdc9b;font-weight:900;letter-spacing:3px">NUEVA SECCIÓN</p>
+<h2 id="jewelryTitle">TIENDA DE JOYAS</h2>
+<p>Estamos preparando un espacio especial para que descubras nuestras joyas favoritas. Muy pronto podrás ver fotografías, conocer sus precios y realizar tus compras desde aquí.</p>
+<div class="soon-tag">PRÓXIMAMENTE</div>
+<p style="font-size:13px;color:#c9b18d;margin-top:22px">Esta tienda será independiente del menú de comida.</p>
+</section>
+</main>
 <script>
+function showStoreSection(section){
+ const food=section==="food";
+ document.getElementById("foodSection").style.display=food?"block":"none";
+ document.getElementById("jewelrySection").style.display=food?"none":"flex";
+ const foodTab=document.getElementById("foodStoreTab");
+ const jewelryTab=document.getElementById("jewelryStoreTab");
+ foodTab.classList.toggle("active",food);
+ jewelryTab.classList.toggle("active",!food);
+ foodTab.setAttribute("aria-selected",String(food));
+ jewelryTab.setAttribute("aria-selected",String(!food));
+ window.scrollTo({top:0,behavior:"smooth"});
+}
+
 
 function splashKetchup(event){
  const rect=event.currentTarget.getBoundingClientRect();
