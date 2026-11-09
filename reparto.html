@@ -76,13 +76,9 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .manager-mode #message{display:block}
 @media(max-width:650px){.manager-nav{margin:8px -2px}.manager-nav .driver-tab{padding:11px 13px;font-size:13px}}
 
-.driver-nav .driver-tab{touch-action:pan-y;user-select:none;-webkit-user-select:none}
-.driver-nav .driver-tab.dragging{opacity:.45;outline:2px dashed #ffd36a}
-.driver-nav .driver-tab.drag-over{box-shadow:inset 0 0 0 2px #ffd36a}
-.driver-nav .driver-tab .drag-grip{display:inline-block;margin-right:5px;opacity:.72;font-size:17px;vertical-align:-1px}
-.driver-nav-hint{font-size:11px;color:#c9b69d;margin:-5px 2px 8px}
 .driver-mode .order-contact{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin:8px 0}
 .driver-mode .order-contact a{display:inline-flex;align-items:center;gap:6px;padding:9px 12px;border-radius:10px;background:#173d2b;color:#d9ffe6;text-decoration:none;font-weight:800;border:1px solid #31744b}
+.driver-nav.hidden,.manager-nav.hidden{display:none!important}
 </style></head><body><main class="wrap"><header class="brand-top"><img src="/icons/repartidor.svg" alt="Mascota repartidor 3D de La Picá del Benjamín"><div><h1>La Picá del Benjamín</h1><p>Reparto · ¡Rápido, seguro y con sabor!</p></div></header><div class="row"><span id="identity" class="muted"></span><button class="btn secondary" id="refresh">Actualizar</button><button class="btn secondary" id="logout">Cerrar sesión</button></div>
 <nav id="driverNav" class="driver-nav hidden" aria-label="Menú del repartidor">
  <button type="button" class="driver-tab active" data-driver-tab="delivery">🚚 Mi entrega</button>
@@ -91,7 +87,6 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
  <button type="button" class="driver-tab chat-tab" data-driver-tab="chat">💬 Chat <span id="chatUnread" class="chat-unread hidden">0</span></button>
  <button type="button" class="driver-tab" data-driver-tab="extras">➕ Carreras</button>
 </nav>
-<div id="driverNavHint" class="driver-nav-hint hidden">Mantén presionada una pestaña y arrástrala para cambiar su posición.</div>
 <nav id="managerNav" class="driver-nav manager-nav hidden" aria-label="Menú de jefatura">
  <button type="button" class="driver-tab active" data-manager-tab="delivery">🚚 Delivery</button>
  <button type="button" class="driver-tab" data-manager-tab="assign">📋 Asignar pedidos</button>
@@ -154,39 +149,6 @@ function setChatUnread(count){
  badge.classList.toggle("hidden",chatUnreadCount===0);
  tab.classList.toggle("has-unread",chatUnreadCount>0);
 }
-function restoreDriverTabOrder(){
- const nav=$("driverNav"),buttons=[...nav.querySelectorAll("[data-driver-tab]")];
- let saved=[];try{saved=JSON.parse(localStorage.getItem("picada_driver_tab_order")||"[]")}catch{}
- if(!Array.isArray(saved)||!saved.length)return;
- const byId=new Map(buttons.map(b=>[b.dataset.driverTab,b]));
- saved.forEach(id=>{const b=byId.get(id);if(b){nav.appendChild(b);byId.delete(id)}});
- byId.forEach(b=>nav.appendChild(b));
-}
-function saveDriverTabOrder(){
- localStorage.setItem("picada_driver_tab_order",JSON.stringify([...$("driverNav").querySelectorAll("[data-driver-tab]")].map(b=>b.dataset.driverTab)));
-}
-function enableDriverTabReorder(){
- const nav=$("driverNav");let dragged=null,startX=0,startY=0,holdTimer=null,activePointer=null;
- const tabs=()=>[...nav.querySelectorAll("[data-driver-tab]")];
- tabs().forEach(btn=>{
-  if(btn.dataset.reorderReady)return;btn.dataset.reorderReady="1";
-  const grip=document.createElement("span");grip.className="drag-grip";grip.textContent="⠿";grip.setAttribute("aria-hidden","true");btn.prepend(grip);
-  btn.addEventListener("pointerdown",e=>{
-   if(e.pointerType==="mouse"&&e.button!==0)return;
-   activePointer=e.pointerId;startX=e.clientX;startY=e.clientY;
-   holdTimer=setTimeout(()=>{dragged=btn;btn.classList.add("dragging");try{btn.setPointerCapture(activePointer)}catch{}},e.pointerType==="mouse"?120:380);
-  });
-  btn.addEventListener("pointermove",e=>{
-   if(!dragged||dragged!==btn)return;
-   const over=tabs().find(other=>other!==dragged&&(()=>{const r=other.getBoundingClientRect();return e.clientX>r.left&&e.clientX<r.right&&e.clientY>r.top&&e.clientY<r.bottom})());
-   tabs().forEach(t=>t.classList.toggle("drag-over",t===over));
-   if(over){const r=over.getBoundingClientRect();nav.insertBefore(dragged,e.clientX<r.left+r.width/2?over:over.nextSibling);}
-  });
-  const finish=()=>{clearTimeout(holdTimer);if(dragged){dragged.dataset.justDragged="1";dragged.classList.remove("dragging");tabs().forEach(t=>t.classList.remove("drag-over"));saveDriverTabOrder();dragged=null;}activePointer=null;};
-  btn.addEventListener("pointerup",finish);btn.addEventListener("pointercancel",finish);
-  btn.addEventListener("click",e=>{if(btn.dataset.justDragged==="1"){e.preventDefault();e.stopImmediatePropagation();btn.dataset.justDragged="0";}},true);
- });
-}
 function openDriverTab(tabName){
  driverCurrentTab=tabName;
  document.querySelectorAll(".driver-tab").forEach(b=>b.classList.toggle("active",b.dataset.driverTab===tabName));
@@ -208,8 +170,6 @@ function setupDriverHome(role,orders){
  const nav=$("driverNav"),welcome=$("driverWelcome");
  if(role!=="driver"){nav.classList.add("hidden");welcome.classList.add("hidden");return;}
  nav.classList.remove("hidden");
- $("driverNavHint").classList.remove("hidden");
- restoreDriverTabOrder();enableDriverTabReorder();
  $("newOrderAlerts").classList.add("hidden");
  $("manual").classList.add("hidden");
  $("assign").classList.add("hidden");
@@ -293,7 +253,14 @@ function chileToday(){return new Intl.DateTimeFormat("en-CA",{timeZone:"America/
 for(const o of displayOrders){const card=el("article","card driver-order-card");card.dataset.assignment=o.assignment_status||o.delivery_status||"pending";card.dataset.orderId=o.id;card.append(el("h3","",o.order_number||("Pedido #"+o.id)));card.append(el("p","",o.customer_name||"Cliente"));
 if(d.role==="manager"){
  const contact=el("div","order-contact");
- if(o.customer_phone){const phone=el("a","","📞 "+o.customer_phone);phone.href="tel:"+String(o.customer_phone).replace(/[^+0-9]/g,"");contact.append(phone)}
+ if(o.customer_phone){
+  const raw=String(o.customer_phone).replace(/[^0-9]/g,"");
+  const waNumber=raw.startsWith("56")?raw:(raw.startsWith("0")?"56"+raw.slice(1):"56"+raw);
+  const phone=el("a","","🟢 WhatsApp · "+o.customer_phone);
+  phone.href="https://wa.me/"+waNumber;phone.target="_blank";phone.rel="noopener noreferrer";
+  contact.append(phone);
+  const call=el("a","","📞 Llamar");call.href="tel:"+String(o.customer_phone).replace(/[^+0-9]/g,"");contact.append(call);
+ }
  if(contact.childNodes.length)card.append(contact);
  const address=el("div","order-address");
  address.append(el("strong","","📍 Dirección de entrega"));
