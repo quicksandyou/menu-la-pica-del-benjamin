@@ -281,11 +281,10 @@ const server = http.createServer(async (req, res) => {
     if (!staff) return send(res,401,{error:"Inicia sesión para continuar."});
     if (requestPath === "/api/reparto/pedidos" && req.method === "GET") {
       const params = [];
-      let where = "";
-      if (staff.role === "driver") { params.push(staff.id); where = "WHERE d.app_user_id=$1"; }
+      if (staff.role === "driver") params.push(staff.id);
       const result = await dbPool.query(
-        "SELECT o.id,o.order_number,o.customer_name,o.customer_phone,o.delivery_address,o.locality,o.delivery_method,o.total_clp,o.payment_status,o.delivery_status,o.created_at,a.id AS assignment_id,a.status AS assignment_status,d.display_name AS driver_name FROM orders o LEFT JOIN LATERAL (SELECT da.* FROM delivery_assignments da WHERE da.order_id=o.id ORDER BY da.assigned_at DESC LIMIT 1) a ON TRUE LEFT JOIN drivers d ON d.id=a.driver_id " +
-        (staff.role === "driver" ? "WHERE d.app_user_id=$1 " : "") +
+        "SELECT o.id,o.order_number,o.customer_name,o.customer_phone,o.delivery_address,o.locality,o.delivery_method,o.total_clp,o.payment_status,o.delivery_status,o.created_at,a.id AS assignment_id,a.status AS assignment_status,d.display_name AS driver_name FROM orders o LEFT JOIN LATERAL (SELECT da.* FROM delivery_assignments da WHERE da.order_id=o.id ORDER BY da.assigned_at DESC LIMIT 1) a ON TRUE LEFT JOIN drivers d ON d.id=a.driver_id WHERE LOWER(COALESCE(o.payment_status,'')) IN ('approved','paid') AND LOWER(COALESCE(o.delivery_method,'')) IN ('delivery','despacho') " +
+        (staff.role === "driver" ? "AND d.app_user_id=$1 " : "") +
         "ORDER BY o.created_at DESC LIMIT 200", params);
       return send(res,200,{orders:result.rows,role:staff.role});
     }
@@ -294,6 +293,8 @@ const server = http.createServer(async (req, res) => {
       try {
         const data=await readJson(req), orderId=Number(data.order_id), username=String(data.driver_username||"");
         if(!Number.isInteger(orderId)||orderId<1||!["maximo","claudio"].includes(username)) return send(res,400,{error:"Pedido o repartidor inválido."});
+        const eligible=await dbPool.query("SELECT id FROM orders WHERE id=$1 AND LOWER(COALESCE(payment_status,'')) IN ('approved','paid') AND LOWER(COALESCE(delivery_method,'')) IN ('delivery','despacho')",[orderId]);
+        if(!eligible.rowCount) return send(res,409,{error:"Solo se pueden asignar pedidos de delivery con pago confirmado."});
         const driver=await dbPool.query("SELECT id FROM drivers WHERE username=$1 AND active=TRUE",[username]);
         if(!driver.rowCount) return send(res,404,{error:"Repartidor no encontrado."});
         const client=await dbPool.connect();
