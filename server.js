@@ -65,6 +65,13 @@ async function initializeDatabase() {
       token_hash TEXT PRIMARY KEY, user_id BIGINT NOT NULL REFERENCES app_users(id) ON DELETE CASCADE,
       expires_at TIMESTAMPTZ NOT NULL, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     );
+    CREATE TABLE IF NOT EXISTS staff_chat_messages (
+      id BIGSERIAL PRIMARY KEY,
+      sender_id BIGINT NOT NULL REFERENCES app_users(id) ON DELETE CASCADE,
+      message TEXT NOT NULL CHECK (char_length(message) BETWEEN 1 AND 1000),
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    );
+    CREATE INDEX IF NOT EXISTS idx_staff_chat_messages_created ON staff_chat_messages(created_at DESC);
     CREATE TABLE IF NOT EXISTS drivers (
       id BIGSERIAL PRIMARY KEY, display_name VARCHAR(120) NOT NULL,
       username VARCHAR(80) UNIQUE NOT NULL, password_hash TEXT NOT NULL,
@@ -462,6 +469,35 @@ La Picá del Benjamín`,
     if (!dbPool) return send(res,503,{error:"Base de datos no disponible."});
     const staff = await getStaffUser();
     if (!staff) return send(res,401,{error:"Inicia sesión para continuar."});
+    if (requestPath === "/api/reparto/chat" && req.method === "GET") {
+      if (!["driver","manager","superadmin"].includes(staff.role)) return send(res,403,{error:"No tienes acceso al chat interno."});
+      try {
+        const result = await dbPool.query(
+          "SELECT m.id,m.sender_id,u.full_name AS sender_name,u.role AS sender_role,m.message,m.created_at FROM (SELECT * FROM staff_chat_messages ORDER BY id DESC LIMIT 100) m JOIN app_users u ON u.id=m.sender_id ORDER BY m.id ASC"
+        );
+        return send(res,200,{messages:result.rows,current_user_id:staff.id});
+      } catch (error) {
+        console.error("Staff chat read:",error.message);
+        return send(res,500,{error:"No se pudieron cargar los mensajes."});
+      }
+    }
+    if (requestPath === "/api/reparto/chat" && req.method === "POST") {
+      if (!["driver","manager","superadmin"].includes(staff.role)) return send(res,403,{error:"No tienes acceso al chat interno."});
+      if (isRateLimited(req,20,60000)) return send(res,429,{error:"Espera un momento antes de enviar más mensajes."});
+      try {
+        const data=await readJson(req);
+        const message=String(data.message||"").trim();
+        if(!message || message.length>1000) return send(res,400,{error:"El mensaje debe tener entre 1 y 1000 caracteres."});
+        const result=await dbPool.query(
+          "INSERT INTO staff_chat_messages(sender_id,message) VALUES($1,$2) RETURNING id,sender_id,message,created_at",
+          [staff.id,message]
+        );
+        return send(res,201,{ok:true,message:{...result.rows[0],sender_name:staff.full_name,sender_role:staff.role}});
+      } catch(error) {
+        console.error("Staff chat send:",error.message);
+        return send(res,500,{error:"No se pudo enviar el mensaje."});
+      }
+    }
     if (requestPath === "/api/reparto/pedidos" && req.method === "GET") {
       const params = [];
       const requestedDate = String(new URL(req.url,"http://localhost").searchParams.get("date") || "");
