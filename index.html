@@ -347,7 +347,7 @@ body.jewelry-mode .ketchup-side{display:none!important}
 <div class="notice">📍 Estamos en <b>Pje. Hermano Claudio Ortíz #1229, Linares</b> · <a href="https://maps.app.goo.gl/zV6W4sxRxqezmYtb7" target="_blank" rel="noopener">Cómo llegar con Google Maps ↗</a> · 📲 Pedidos: +56 9 9906 4818</div><section id="payment-result" class="notice" style="display:none"></section>
 <div class="layout"><section><h2 class="section-title">🍽️ Nuestras categorías</h2><nav id="tabs"></nav><div id="menu"></div></section>
 <section class="cart"><h2>🛒 Tu pedido <small id="count"></small></h2><div id="lines">Todavía no agregas productos.</div><div class="total" id="total">Total: $0</div>
-<div id="testModeNotice" class="notice" style="display:none;border-color:#e7b93e;color:#ffe8a3"><strong>🧪 MODO DE PRUEBA DEL EQUIPO</strong><br>Solo administración autenticada. No compartas este enlace con clientes.</div><div id="closedNotice" class="closed-notice" style="display:none"><strong>🌙 ¡Por ahora estamos fuera de horario!</strong><p>La tienda online y los pagos están disponibles de martes a sábado, de 17:30 a 02:00 AM.</p><p>Muchas gracias por preferir La Picá del Benjamín. ❤️ ¡Te esperamos en nuestro próximo horario!</p></div><div class="fields"><input id="name" placeholder="Tu nombre *"><input id="phone" placeholder="Tu teléfono (opcional)"><input id="email" type="email" placeholder="Tu correo electrónico *" required><select id="method" onchange="toggleAddress()"><option>Delivery</option><option>Retiro en el local</option></select><select id="locality" onchange="drawCart()"><option value="Linares">Linares</option><option value="Longaví">Longaví</option><option value="Yerbas Buenas">Yerbas Buenas</option><option value="Colbún">Colbún</option><option value="Villa Alegre">Villa Alegre</option><option value="San Javier">San Javier</option><option value="Palmilla">Palmilla</option></select><input id="address" placeholder="Dirección y referencia (delivery)"><textarea id="notes" placeholder="Notas del pedido (opcional)"></textarea></div>
+<div id="testModeNotice" class="notice" style="display:none;border-color:#e7b93e;color:#ffe8a3"><strong>🧪 MODO DE PRUEBA DEL EQUIPO</strong><br>Solo administración autenticada. No compartas este enlace con clientes.</div><div id="closedNotice" class="closed-notice" style="display:none"><strong>🌙 ¡Por ahora estamos fuera de horario!</strong><p>La tienda online y los pagos están disponibles de martes a sábado, de 17:30 a 02:00 AM.</p><p>Muchas gracias por preferir La Picá del Benjamín. ❤️ ¡Te esperamos en nuestro próximo horario!</p></div><div class="fields"><input id="name" placeholder="Tu nombre *"><input id="phone" placeholder="Tu teléfono (opcional)"><input id="email" type="email" placeholder="Tu correo electrónico *" required><select id="method" onchange="toggleAddress()"><option>Delivery</option><option>Retiro en el local</option></select><select id="locality" onchange="drawCart()"><option value="Linares">Linares</option><option value="Longaví">Longaví</option><option value="Yerbas Buenas">Yerbas Buenas</option><option value="Colbún">Colbún</option><option value="Villa Alegre">Villa Alegre</option><option value="San Javier">San Javier</option><option value="Palmilla">Palmilla</option></select><input id="address" placeholder="Dirección y referencia (delivery)"><button type="button" class="secondary" id="locationBtn" onclick="captureDeliveryLocation()">📍 Compartir ubicación exacta (opcional)</button><small id="locationStatus" aria-live="polite">Puedes escribir tu dirección normalmente o compartir tu ubicación GPS.</small><input type="hidden" id="deliveryLat"><input type="hidden" id="deliveryLng"><textarea id="notes" placeholder="Notas del pedido (opcional)"></textarea></div>
 <button class="online-pay" onclick="payOnline()">💳 Pagar por Internet</button><button class="send" id="whatsappButton" onclick="sendOrder()">🟢 Pedir por WhatsApp · Solo retiro en local</button><button class="clear" onclick="cart={};drawCart()">Vaciar carrito</button><p class="small">Para delivery, selecciona tu localidad: Linares $1.990; Longaví $3.500; Yerbas Buenas $3.000; Colbún $12.000; Villa Alegre $4.000; San Javier y Palmilla $5.000. Retiro en local gratis. Completa tu dirección y paga por Internet. WhatsApp está disponible solamente para pedidos con retiro en el local.</p></section></div>
 </div>
 <section id="jewelrySection" class="jewelry-coming" style="display:none" aria-labelledby="jewelryTitle">
@@ -539,6 +539,21 @@ function sendOrder(){if(!isOrderingOpen()){applySchedule();return alert("Estamos
 
 
 
+function captureDeliveryLocation(){
+ const status=document.getElementById("locationStatus"),btn=document.getElementById("locationBtn");
+ if(!navigator.geolocation){status.textContent="Tu navegador no permite obtener ubicación. Puedes escribir la dirección.";return;}
+ btn.disabled=true;status.textContent="Solicitando ubicación…";
+ navigator.geolocation.getCurrentPosition(pos=>{
+  document.getElementById("deliveryLat").value=pos.coords.latitude;
+  document.getElementById("deliveryLng").value=pos.coords.longitude;
+  status.textContent="✅ Ubicación GPS agregada. También enviaremos la dirección escrita.";
+  btn.disabled=false;btn.textContent="📍 Ubicación compartida";
+ },err=>{
+  status.textContent=err.code===1?"No autorizaste la ubicación. Puedes continuar escribiendo la dirección.":"No pudimos obtener la ubicación. Puedes continuar escribiendo la dirección.";
+  btn.disabled=false;
+ },{enableHighAccuracy:true,timeout:12000,maximumAge:0});
+}
+
 async function payOnline(){
  if(!isOrderingOpen()){applySchedule();return alert("Estamos fuera de horario. Muchas gracias por preferir La Picá del Benjamín.");}
  let items=Object.entries(cart);
@@ -556,7 +571,7 @@ async function payOnline(){
    // El Access Token debe permanecer en el servidor, nunca en este HTML.
    const response=await fetch(`${PAYMENT_API_BASE_URL}/api/crear-orden`,{method:"POST",credentials:"include",headers:{"Content-Type":"application/json"},body:JSON.stringify({
      restaurant:"La Picá del Benjamín",customer:{name,email:document.getElementById("email").value.trim(),phone:document.getElementById("phone").value.trim()},
-     delivery:{method,address:method==="Delivery"?address:"",locality,fee_clp:fee},notes:document.getElementById("notes").value.trim(),
+     delivery:{method,address:method==="Delivery"?address:"",locality,fee_clp:fee,latitude:method==="Delivery"?(document.getElementById("deliveryLat").value||null):null,longitude:method==="Delivery"?(document.getElementById("deliveryLng").value||null):null},notes:document.getElementById("notes").value.trim(),
      items:products,total_clp:total
    })});
    const data=await response.json();
