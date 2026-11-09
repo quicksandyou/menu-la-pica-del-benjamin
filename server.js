@@ -36,13 +36,18 @@ async function initializeDatabase() {
       active BOOLEAN NOT NULL DEFAULT TRUE,
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     );
-    ALTER TABLE app_users ADD COLUMN IF NOT EXISTS must_change_password BOOLEAN NOT NULL DEFAULT TRUE;\n    INSERT INTO app_users (username, full_name, role) VALUES
+    ALTER TABLE app_users ADD COLUMN IF NOT EXISTS must_change_password BOOLEAN NOT NULL DEFAULT TRUE;
+    INSERT INTO app_users (username, full_name, role) VALUES
       ('jefa', 'Michelle Ibáñez', 'admin'),
       ('maximo', 'Máximo Palma', 'driver'),
       ('claudio', 'Claudio Scheid', 'driver')
     ON CONFLICT (username) DO UPDATE
       SET full_name = EXCLUDED.full_name, role = EXCLUDED.role;
-    CREATE TABLE IF NOT EXISTS app_sessions (\n      token_hash TEXT PRIMARY KEY, user_id BIGINT NOT NULL REFERENCES app_users(id) ON DELETE CASCADE,\n      expires_at TIMESTAMPTZ NOT NULL, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()\n    );\n    CREATE TABLE IF NOT EXISTS drivers (
+    CREATE TABLE IF NOT EXISTS app_sessions (
+      token_hash TEXT PRIMARY KEY, user_id BIGINT NOT NULL REFERENCES app_users(id) ON DELETE CASCADE,
+      expires_at TIMESTAMPTZ NOT NULL, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    );
+    CREATE TABLE IF NOT EXISTS drivers (
       id BIGSERIAL PRIMARY KEY, display_name VARCHAR(120) NOT NULL,
       username VARCHAR(80) UNIQUE NOT NULL, password_hash TEXT NOT NULL,
       active BOOLEAN NOT NULL DEFAULT TRUE, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
@@ -69,7 +74,19 @@ async function initializeDatabase() {
     CREATE INDEX IF NOT EXISTS idx_assignments_driver ON delivery_assignments(driver_id);
     CREATE INDEX IF NOT EXISTS idx_extra_runs_driver ON extra_runs(driver_id);
   `);
-  await dbPool.query("DELETE FROM app_sessions WHERE expires_at < NOW()");\n  const tempPassword = process.env.INITIAL_TEMP_PASSWORD;\n  if (tempPassword) {\n    for (const username of ["jefa", "maximo", "claudio"]) {\n      const row = await dbPool.query("SELECT password_hash FROM app_users WHERE username=$1", [username]);\n      if (row.rows[0] && !row.rows[0].password_hash) {\n        const salt = randomBytes(16).toString("hex");\n        const hash = scryptSync(tempPassword, salt, 64).toString("hex");\n        await dbPool.query("UPDATE app_users SET password_salt=$1,password_hash=$2 WHERE username=$3", [salt, hash, username]);\n      }\n    }\n  }\n  console.log("PostgreSQL conectado; esquema inicial verificado.");
+  await dbPool.query("DELETE FROM app_sessions WHERE expires_at < NOW()");
+  const tempPassword = process.env.INITIAL_TEMP_PASSWORD;
+  if (tempPassword) {
+    for (const username of ["jefa", "maximo", "claudio"]) {
+      const row = await dbPool.query("SELECT password_hash FROM app_users WHERE username=$1", [username]);
+      if (row.rows[0] && !row.rows[0].password_hash) {
+        const salt = randomBytes(16).toString("hex");
+        const hash = scryptSync(tempPassword, salt, 64).toString("hex");
+        await dbPool.query("UPDATE app_users SET password_salt=$1,password_hash=$2 WHERE username=$3", [salt, hash, username]);
+      }
+    }
+  }
+  console.log("PostgreSQL conectado; esquema inicial verificado.");
 }
 
 
@@ -169,7 +186,8 @@ const server = http.createServer(async (req, res) => {
   }
   res.setHeader("Vary", "Origin");
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type");\n  res.setHeader("Access-Control-Allow-Credentials", "true");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  res.setHeader("Access-Control-Allow-Credentials", "true");
 
   if (req.method === "OPTIONS") {
     res.writeHead(204);
