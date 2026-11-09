@@ -352,7 +352,18 @@ body>*:not(#maintenance-screen){display:none!important}
 #maintenance-screen .maintenance-card{width:min(100%,760px);padding:clamp(24px,5vw,48px);border:1px solid #a96b27;border-radius:28px;background:linear-gradient(145deg,#211409ee,#090706f5);box-shadow:0 24px 80px #000b,inset 0 1px #ffffff18}
 #maintenance-screen img{display:block;width:min(78%,340px);max-height:240px;object-fit:contain;margin:0 auto 22px;filter:drop-shadow(0 10px 22px #000b)}
 #maintenance-screen .eyebrow{color:#ffc247;font-size:13px;font-weight:900;letter-spacing:3px;text-transform:uppercase}
-#maintenance-screen h1{margin:12px 0;color:#ffc247;font-size:clamp(32px,7vw,58px);line-height:1.05}
+#maintenance-screen h1{margin:12px auto;color:#ffc247;font-size:clamp(32px,7vw,58px);line-height:1.05;position:relative;width:fit-content;max-width:100%;isolation:isolate;animation:maintenanceTitleBounce 3.2s ease-in-out infinite}
+#maintenance-screen h1:before,#maintenance-screen h1:after{content:"";position:absolute;top:50%;width:clamp(28px,6vw,54px);height:clamp(45px,8vw,72px);pointer-events:none;z-index:-1;background:
+ radial-gradient(ellipse at 35% 22%,#ffb0a2 0 5%,transparent 7%),
+ radial-gradient(ellipse at 62% 45%,#f31b2d 0 13%,transparent 15%),
+ radial-gradient(ellipse at 35% 70%,#c90019 0 9%,transparent 11%),
+ radial-gradient(ellipse at 78% 82%,#ff3445 0 6%,transparent 8%)}
+#maintenance-screen h1:before{right:calc(100% + 8px);transform:rotate(-24deg);animation:ketchupSprayLeft 2.4s ease-in-out infinite}
+#maintenance-screen h1:after{left:calc(100% + 8px);transform:scaleX(-1) rotate(-24deg);animation:ketchupSprayRight 2.4s ease-in-out infinite}
+@keyframes maintenanceTitleBounce{0%,100%{transform:translateY(0) rotate(0)}8%{transform:translateY(-3px) rotate(-.5deg)}16%{transform:translateY(0) rotate(.5deg)}22%,90%{transform:translateY(0) rotate(0)}}
+@keyframes ketchupSprayLeft{0%,100%{opacity:.45;transform:translate(0,0) rotate(-24deg) scale(.78)}35%{opacity:1;transform:translate(-7px,-7px) rotate(-36deg) scale(1.08)}65%{opacity:.85;transform:translate(2px,4px) rotate(-12deg) scale(.92)}}
+@keyframes ketchupSprayRight{0%,100%{opacity:.45;transform:scaleX(-1) translate(0,0) rotate(-24deg) scale(.78)}35%{opacity:1;transform:scaleX(-1) translate(-7px,-7px) rotate(-36deg) scale(1.08)}65%{opacity:.85;transform:scaleX(-1) translate(2px,4px) rotate(-12deg) scale(.92)}}
+@media(prefers-reduced-motion:reduce){#maintenance-screen h1,#maintenance-screen h1:before,#maintenance-screen h1:after{animation:none!important}}
 #maintenance-screen p{max-width:560px;margin:12px auto;color:#f0dfc8;font-size:clamp(15px,2.6vw,19px);line-height:1.65}
 #maintenance-screen .food-icons{font-size:clamp(28px,5vw,42px);letter-spacing:10px;margin:22px 0}
 #maintenance-screen .thanks{display:inline-block;margin-top:12px;padding:12px 20px;border-radius:999px;background:linear-gradient(90deg,#ffd66c,#df7418);color:#211006;font-weight:900}
