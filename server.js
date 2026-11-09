@@ -160,7 +160,9 @@ const server = http.createServer(async (req, res) => {
     return res.end();
   }
 
-  if (req.method === "GET" && req.url === "/api/salud-db") {
+  const requestPath = new URL(req.url, "http://localhost").pathname;
+
+  if (req.method === "GET" && requestPath === "/api/salud-db") {
     if (!dbPool) return send(res, 503, { database: "not_configured" });
     try {
       await dbPool.query("SELECT 1");
