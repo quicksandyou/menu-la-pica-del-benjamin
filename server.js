@@ -1,5 +1,5 @@
 const http = require("http");
-const { randomUUID } = require("crypto");
+const { randomUUID, randomBytes, scryptSync, timingSafeEqual, createHash } = require("crypto");
 const { Pool } = require("pg");
 
 const PORT = process.env.PORT || 3000;
@@ -42,7 +42,7 @@ async function initializeDatabase() {
       ('claudio', 'Claudio Scheid', 'driver')
     ON CONFLICT (username) DO UPDATE
       SET full_name = EXCLUDED.full_name, role = EXCLUDED.role;
-    CREATE TABLE IF NOT EXISTS drivers (
+    CREATE TABLE IF NOT EXISTS app_sessions (\n      token_hash TEXT PRIMARY KEY, user_id BIGINT NOT NULL REFERENCES app_users(id) ON DELETE CASCADE,\n      expires_at TIMESTAMPTZ NOT NULL, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()\n    );\n    CREATE TABLE IF NOT EXISTS drivers (
       id BIGSERIAL PRIMARY KEY, display_name VARCHAR(120) NOT NULL,
       username VARCHAR(80) UNIQUE NOT NULL, password_hash TEXT NOT NULL,
       active BOOLEAN NOT NULL DEFAULT TRUE, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
@@ -69,7 +69,7 @@ async function initializeDatabase() {
     CREATE INDEX IF NOT EXISTS idx_assignments_driver ON delivery_assignments(driver_id);
     CREATE INDEX IF NOT EXISTS idx_extra_runs_driver ON extra_runs(driver_id);
   `);
-  console.log("PostgreSQL conectado; esquema inicial verificado.");
+  await dbPool.query("DELETE FROM app_sessions WHERE expires_at < NOW()");\n  const tempPassword = process.env.INITIAL_TEMP_PASSWORD;\n  if (tempPassword) {\n    for (const username of ["jefa", "maximo", "claudio"]) {\n      const row = await dbPool.query("SELECT password_hash FROM app_users WHERE username=$1", [username]);\n      if (row.rows[0] && !row.rows[0].password_hash) {\n        const salt = randomBytes(16).toString("hex");\n        const hash = scryptSync(tempPassword, salt, 64).toString("hex");\n        await dbPool.query("UPDATE app_users SET password_salt=$1,password_hash=$2 WHERE username=$3", [salt, hash, username]);\n      }\n    }\n  }\n  console.log("PostgreSQL conectado; esquema inicial verificado.");
 }
 
 
@@ -169,7 +169,7 @@ const server = http.createServer(async (req, res) => {
   }
   res.setHeader("Vary", "Origin");
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");\n  res.setHeader("Access-Control-Allow-Credentials", "true");
 
   if (req.method === "OPTIONS") {
     res.writeHead(204);
@@ -177,6 +177,60 @@ const server = http.createServer(async (req, res) => {
   }
 
   const requestPath = new URL(req.url, "http://localhost").pathname;
+
+
+  // Autenticación de personal: sesión aleatoria en cookie HttpOnly y contraseña scrypt.
+  if (req.method === "POST" && requestPath === "/api/personal/login") {
+    if (!dbPool) return send(res, 503, { error: "Base de datos no disponible." });
+    if (isRateLimited(req, 8, 60000)) return send(res, 429, { error: "Demasiados intentos. Espera un minuto." });
+    try {
+      const data = await readJson(req);
+      const username = String(data.username || "").trim().toLowerCase();
+      const password = String(data.password || "");
+      const found = await dbPool.query("SELECT id,username,full_name,role,password_salt,password_hash,active FROM app_users WHERE username=$1", [username]);
+      const user = found.rows[0];
+      if (!user || !user.active || !user.password_hash || !user.password_salt) return send(res, 401, { error: "Usuario o contraseña incorrectos." });
+      const candidate = scryptSync(password, user.password_salt, 64);
+      const expected = Buffer.from(user.password_hash, "hex");
+      if (candidate.length !== expected.length || !timingSafeEqual(candidate, expected)) return send(res, 401, { error: "Usuario o contraseña incorrectos." });
+      const token = randomBytes(32).toString("hex");
+      const tokenHash = createHash("sha256").update(token).digest("hex");
+      await dbPool.query("INSERT INTO app_sessions(token_hash,user_id,expires_at) VALUES($1,$2,NOW()+INTERVAL '12 hours')", [tokenHash,user.id]);
+      res.setHeader("Set-Cookie", "pb_session="+token+"; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=43200");
+      return send(res, 200, { user: { username:user.username, full_name:user.full_name, role:user.role }, mustChangePassword: user.password_hash === process.env.INITIAL_TEMP_PASSWORD });
+    } catch (error) { console.error("Login error:", error.message); return send(res, 400, { error: "No fue posible iniciar sesión." }); }
+  }
+
+  if (req.method === "POST" && requestPath === "/api/personal/logout") {
+    const token = (req.headers.cookie || "").split(";").map(x=>x.trim()).find(x=>x.startsWith("pb_session="))?.slice(11);
+    if (token && dbPool) await dbPool.query("DELETE FROM app_sessions WHERE token_hash=$1", [createHash("sha256").update(token).digest("hex")]);
+    res.setHeader("Set-Cookie", "pb_session=; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=0");
+    return send(res, 200, { ok:true });
+  }
+
+  if (req.method === "GET" && requestPath === "/api/personal/me") {
+    const token = (req.headers.cookie || "").split(";").map(x=>x.trim()).find(x=>x.startsWith("pb_session="))?.slice(11);
+    if (!token || !dbPool) return send(res, 401, { error:"Sesión no válida." });
+    const found = await dbPool.query("SELECT u.username,u.full_name,u.role FROM app_sessions s JOIN app_users u ON u.id=s.user_id WHERE s.token_hash=$1 AND s.expires_at>NOW() AND u.active=TRUE", [createHash("sha256").update(token).digest("hex")]);
+    if (!found.rowCount) return send(res, 401, { error:"Sesión vencida." });
+    return send(res, 200, { user:found.rows[0] });
+  }
+
+  if (req.method === "POST" && requestPath === "/api/personal/cambiar-clave") {
+    const token = (req.headers.cookie || "").split(";").map(x=>x.trim()).find(x=>x.startsWith("pb_session="))?.slice(11);
+    if (!token || !dbPool) return send(res, 401, { error:"Inicia sesión nuevamente." });
+    try {
+      const data = await readJson(req);
+      const password = String(data.password || "");
+      if (password.length < 10) return send(res, 400, { error:"La nueva clave debe tener al menos 10 caracteres." });
+      const session = await dbPool.query("SELECT user_id FROM app_sessions WHERE token_hash=$1 AND expires_at>NOW()", [createHash("sha256").update(token).digest("hex")]);
+      if (!session.rowCount) return send(res, 401, { error:"Sesión vencida." });
+      const salt = randomBytes(16).toString("hex");
+      const hash = scryptSync(password, salt, 64).toString("hex");
+      await dbPool.query("UPDATE app_users SET password_salt=$1,password_hash=$2 WHERE id=$3", [salt,hash,session.rows[0].user_id]);
+      return send(res, 200, { ok:true, message:"Contraseña actualizada." });
+    } catch (error) { console.error("Password update error:",error.message); return send(res,400,{error:"No fue posible cambiar la contraseña."}); }
+  }
 
   if (req.method === "GET" && requestPath === "/api/salud-db") {
     if (!dbPool) return send(res, 503, { database: "not_configured" });
