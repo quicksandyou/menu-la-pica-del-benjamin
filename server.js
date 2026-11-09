@@ -300,8 +300,8 @@ const server = http.createServer(async (req, res) => {
         const client=await dbPool.connect();
         try {
           await client.query("BEGIN");
-          const eligible=await client.query("SELECT id FROM orders WHERE id=ANY($1::int[]) AND payment_status IN ('approved','paid') AND delivery_method IN ('Delivery','delivery','despacho') FOR UPDATE",[ids]);
-          if(eligible.rowCount!==ids.length) throw new Error("Uno o más pedidos no están pagados o no son delivery. Actualiza la lista.");
+          const eligible=await client.query("SELECT o.id FROM orders o WHERE o.id=ANY($1::int[]) AND o.payment_status IN ('approved','paid') AND o.delivery_method IN ('Delivery','delivery','despacho') AND NOT EXISTS (SELECT 1 FROM delivery_assignments da WHERE da.order_id=o.id AND da.status IN ('assigned','picked_up')) FOR UPDATE",[ids]);
+          if(eligible.rowCount!==ids.length) throw new Error("Uno o más pedidos ya fueron asignados, no están pagados o no son delivery. Actualiza la lista.");
           for(const id of ids){
             await client.query("UPDATE delivery_assignments SET status='reassigned' WHERE order_id=$1 AND status IN ('assigned','picked_up')",[id]);
             await client.query("INSERT INTO delivery_assignments(order_id,driver_id,status) VALUES($1,$2,'assigned')",[id,driver.rows[0].id]);
@@ -317,8 +317,8 @@ const server = http.createServer(async (req, res) => {
       try {
         const data=await readJson(req), orderId=Number(data.order_id), username=String(data.driver_username||"");
         if(!Number.isInteger(orderId)||orderId<1||!["maximo","claudio"].includes(username)) return send(res,400,{error:"Pedido o repartidor inválido."});
-        const eligible=await dbPool.query("SELECT id FROM orders WHERE id=$1 AND LOWER(COALESCE(payment_status,'')) IN ('approved','paid') AND LOWER(COALESCE(delivery_method,'')) IN ('delivery','despacho')",[orderId]);
-        if(!eligible.rowCount) return send(res,409,{error:"Solo se pueden asignar pedidos de delivery con pago confirmado."});
+        const eligible=await dbPool.query("SELECT o.id FROM orders o WHERE o.id=$1 AND LOWER(COALESCE(o.payment_status,'')) IN ('approved','paid') AND LOWER(COALESCE(o.delivery_method,'')) IN ('delivery','despacho') AND NOT EXISTS (SELECT 1 FROM delivery_assignments da WHERE da.order_id=o.id AND da.status IN ('assigned','picked_up'))",[orderId]);
+        if(!eligible.rowCount) return send(res,409,{error:"El pedido ya fue asignado o no está pagado y listo para delivery."});
         const driver=await dbPool.query("SELECT id FROM drivers WHERE username=$1 AND active=TRUE",[username]);
         if(!driver.rowCount) return send(res,404,{error:"Repartidor no encontrado."});
         const client=await dbPool.connect();
