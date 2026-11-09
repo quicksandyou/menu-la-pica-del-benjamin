@@ -38,6 +38,27 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .driver-mode #orders .driver-order-card h3{font-size:23px;color:#ffd36a}
 .driver-mode #orders .driver-order-card .btn{min-height:54px;font-size:16px}
 @media(max-width:600px){.driver-nav{gap:6px}.driver-tab{padding:11px 12px;font-size:13px}}
+
+/* Vista de una sola sección para el repartidor: no apilar paneles */
+.driver-mode #newOrderAlerts,
+.driver-mode #manual,
+.driver-mode #assign,
+.driver-mode #bulkRejectBar,
+.driver-mode #closingCard,
+.driver-mode #calendarCard,
+.driver-mode #driverWelcome{display:none!important}
+.driver-mode #ordersHeading{display:block;margin:14px 0 10px;font-size:21px;color:#ffd36a}
+.driver-mode #orders.driver-panel-hidden,
+.driver-mode #staffChat.driver-panel-hidden,
+.driver-mode #routePanel.driver-panel-hidden,
+.driver-mode #extrasBox.driver-panel-hidden,
+.driver-mode #message.driver-panel-hidden{display:none!important}
+.driver-mode #orders .driver-order-card{display:none}
+.driver-mode #orders .driver-order-card.driver-primary{display:block}
+.driver-mode #orders.driver-show-all .driver-order-card{display:block}
+.driver-mode #ordersHeading.driver-heading-hidden{display:none!important}
+.driver-mode #orders .driver-order-card{margin-top:0}
+.driver-mode #staffChat,#routePanel,#extrasBox{margin-top:14px}
 </style></head><body><main class="wrap"><header class="brand-top"><img src="/icons/repartidor.svg" alt="Mascota repartidor 3D de La Picá del Benjamín"><div><h1>La Picá del Benjamín</h1><p>Reparto · ¡Rápido, seguro y con sabor!</p></div></header><div class="row"><span id="identity" class="muted"></span><button class="btn secondary" id="refresh">Actualizar</button><button class="btn secondary" id="logout">Cerrar sesión</button></div>
 <nav id="driverNav" class="driver-nav hidden" aria-label="Menú del repartidor">
  <button type="button" class="driver-tab active" data-driver-tab="delivery">🚚 Mi entrega</button>
@@ -62,7 +83,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
  <p class="muted">Marca los pedidos pendientes que deseas rechazar.</p>
  <div class="row"><button type="button" class="btn secondary" id="selectPendingReject">Seleccionar pendientes</button><button type="button" class="btn secondary" id="clearPendingReject">Limpiar</button><span id="rejectCount" class="muted">0 seleccionados</span><button type="button" class="btn" id="rejectSelected">❌ Rechazar seleccionados</button></div>
 </section>
-<h2>Pedidos del día</h2><div id="orders"></div><div id="message" class="status">Cargando…</div></main>
+<h2 id="ordersHeading">Mi entrega</h2><div id="orders"></div><div id="message" class="status">Cargando…</div></main>
 <script>
 const API="https://menu-la-pica-del-benjamin-pago.onrender.com", $=id=>document.getElementById(id);
 let knownOrderIds=null, soundEnabled=false, audioCtx=null, installPrompt=null;
@@ -84,19 +105,30 @@ function setChatUnread(count){
 function openDriverTab(tabName){
  driverCurrentTab=tabName;
  document.querySelectorAll(".driver-tab").forEach(b=>b.classList.toggle("active",b.dataset.driverTab===tabName));
- const orders=$("orders"),chat=$("staffChat"),route=$("routePanel"),extras=$("extrasBox");
- orders.classList.toggle("driver-panel-hidden",!["delivery","orders"].includes(tabName));
+ const orders=$("orders"),chat=$("staffChat"),route=$("routePanel"),extras=$("extrasBox"),heading=$("ordersHeading"),status=$("message");
+ const isOrders=["delivery","orders"].includes(tabName);
+ orders.classList.toggle("driver-panel-hidden",!isOrders);
  orders.classList.toggle("driver-show-all",tabName==="orders");
  chat.classList.toggle("driver-panel-hidden",tabName!=="chat");
  route.classList.toggle("driver-panel-hidden",tabName!=="route");
  extras.classList.toggle("driver-panel-hidden",tabName!=="extras");
+ heading.classList.toggle("driver-heading-hidden",!isOrders);
+ heading.textContent=tabName==="orders"?"Mis pedidos":"Mi entrega";
+ status.classList.toggle("driver-panel-hidden",!isOrders);
  if(tabName==="chat"){setChatUnread(0);const box=$("chatMessages");box.scrollTop=box.scrollHeight;}
+ window.scrollTo({top:0,behavior:"smooth"});
 }
 document.querySelectorAll(".driver-tab").forEach(b=>b.addEventListener("click",()=>openDriverTab(b.dataset.driverTab)));
 function setupDriverHome(role,orders){
  const nav=$("driverNav"),welcome=$("driverWelcome");
  if(role!=="driver"){nav.classList.add("hidden");welcome.classList.add("hidden");return;}
  nav.classList.remove("hidden");
+ $("newOrderAlerts").classList.add("hidden");
+ $("manual").classList.add("hidden");
+ $("assign").classList.add("hidden");
+ $("bulkRejectBar").classList.add("hidden");
+ $("closingCard").classList.add("hidden");
+ $("calendarCard").classList.add("hidden");
  const cards=[...document.querySelectorAll("#orders .driver-order-card")];
  cards.forEach(c=>c.classList.remove("driver-primary"));
  const active=orders.filter(o=>!["delivered","cancelled","rejected"].includes(String(o.assignment_status||o.delivery_status||"").toLowerCase())&&o.delivery_method!=="Retiro en el local");
