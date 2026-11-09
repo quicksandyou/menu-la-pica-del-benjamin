@@ -1,5 +1,5 @@
 const http = require("http");
-const { randomUUID, randomBytes, scryptSync, timingSafeEqual, createHash } = require("crypto");
+const { randomUUID, randomBytes, scryptSync, timingSafeEqual, createHash, createHmac } = require("crypto");
 const { Pool } = require("pg");
 
 const PORT = process.env.PORT || 3000;
@@ -376,6 +376,32 @@ const server = http.createServer(async (req, res) => {
         return send(res,200,{ok:true});
       } catch(e) { return send(res,400,{error:"No se pudo actualizar el pedido."}); }
     }
+  }
+
+
+  if (req.method === "POST" && requestPath === "/api/mercadopago/webhook") {
+    try {
+      const secret=process.env.MP_WEBHOOK_SECRET;
+      if(!secret) return send(res,503,{error:"Webhook secret not configured."});
+      const data=await readJson(req);
+      const id=String(data?.data?.id||new URL(req.url,"http://localhost").searchParams.get("data.id")||"");
+      const signature=String(req.headers["x-signature"]||"");
+      const requestId=String(req.headers["x-request-id"]||"");
+      const ts=signature.match(/(?:^|,)\\s*ts=([^,]+)/)?.[1];
+      const v1=signature.match(/(?:^|,)\\s*v1=([^,]+)/)?.[1];
+      if(!id||!ts||!v1||!requestId) return send(res,401,{error:"Invalid webhook signature."});
+      const manifest="id:"+id+";request-id:"+requestId+";ts:"+ts+";";
+      const expected=createHmac("sha256",secret).update(manifest).digest("hex");
+      const a=Buffer.from(expected,"hex"), b=Buffer.from(v1,"hex");
+      if(a.length!==b.length||!timingSafeEqual(a,b)) return send(res,401,{error:"Invalid webhook signature."});
+      const response=await mpRequest("/v1/orders/"+encodeURIComponent(id));
+      const order=await response.json();
+      if(!response.ok) return send(res,502,{error:"Could not verify order with Mercado Pago."});
+      const paid=Number(order.total_paid_amount||0), total=Number(order.total_amount||0);
+      const approved=order.status==="processed"&&total>0&&paid>=total;
+      await dbPool.query("UPDATE orders SET payment_status=$1,updated_at=NOW() WHERE external_payment_id=$2",[approved?"approved":String(order.status||"pending"),id]);
+      return send(res,200,{received:true});
+    } catch(e) { console.error("MP webhook:",e.message); return send(res,400,{error:"Webhook processing failed."}); }
   }
 
   if (req.method === "GET" && requestPath === "/api/salud-db") {
