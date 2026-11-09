@@ -438,7 +438,6 @@ function splashKetchup(event){
  const button=event.currentTarget;
  if(ketchupDragged.has(button)){ketchupDragged.delete(button);return;}
 
- const button=event.currentTarget;
  const now=Date.now(),previous=ketchupPresses.get(button)||{count:0,time:0};
  const count=now-previous.time<4500?previous.count+1:1;
  ketchupPresses.set(button,{count,time:now});
