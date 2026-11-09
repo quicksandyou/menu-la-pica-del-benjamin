@@ -376,13 +376,7 @@ body>*:not(#maintenance-screen){display:none!important}
 @media(prefers-reduced-motion:reduce){#maintenance-screen .walking-mascot,#maintenance-screen .walking-mascot img{animation:none!important}}
 #maintenance-screen .thanks{display:inline-block;margin-top:12px;padding:12px 20px;border-radius:999px;background:linear-gradient(90deg,#ffd66c,#df7418);color:#211006;font-weight:900}
 #maintenance-screen small{display:block;margin-top:22px;color:#c9b79e}
-#maintenance-screen .dancing-brand{position:fixed;right:-82px;top:54%;z-index:8;width:clamp(142px,17vw,178px);height:clamp(142px,17vw,178px);overflow:hidden;border-radius:48% 48% 22% 22%;transform:translateY(-50%);pointer-events:none;animation:brandPeekDance 4.6s ease-in-out infinite;filter:drop-shadow(0 8px 14px #000b)}
-#maintenance-screen .dancing-brand img{display:block;width:100%;height:100%;max-width:none;object-fit:cover;object-position:50% 48%;animation:brandWiggle .48s ease-in-out infinite alternate;transform-origin:50% 88%}
-@keyframes brandPeekDance{0%,12%,100%{right:-132px;transform:translateY(-50%) rotate(0)}22%,42%{right:-76px;transform:translateY(-50%) rotate(-3deg)}50%,68%{right:-92px;transform:translateY(-50%) rotate(2deg)}78%,90%{right:-68px;transform:translateY(-50%) rotate(-2deg)}}
-@keyframes brandWiggle{from{transform:rotate(-9deg) translateY(2px) scale(.98)}to{transform:rotate(9deg) translateY(-7px) scale(1.02)}}
-@media(max-width:600px){#maintenance-screen .dancing-brand{top:auto;bottom:10px;right:-100px;width:clamp(118px,30vw,148px);height:clamp(118px,30vw,148px);animation:brandPeekDanceMobile 4.6s ease-in-out infinite}}
-@keyframes brandPeekDanceMobile{0%,12%,100%{right:-116px}22%,42%{right:-72px}50%,68%{right:-88px}78%,90%{right:-64px}}
-@media(prefers-reduced-motion:reduce){#maintenance-screen .dancing-brand,#maintenance-screen .dancing-brand img{animation:none!important}}
+}
 #maintenance-screen .food-icons{display:flex;align-items:center;justify-content:center;gap:clamp(24px,6vw,54px);margin:22px 0}
 #maintenance-screen .food-game{border:0;background:transparent;padding:4px;cursor:pointer;border-radius:16px;transition:transform .18s ease,filter .18s ease}
 #maintenance-screen .food-game span{display:block;font-size:clamp(34px,5vw,46px);line-height:1.25;filter:drop-shadow(0 5px 5px #0008)}
@@ -423,9 +417,7 @@ body>*:not(#maintenance-screen){display:none!important}
   <button class="maintenance-music" id="maintenanceMusicButton" type="button" aria-pressed="false" onclick="toggleMaintenanceMusic()">🎵 Activar música</button>
   <small>Estamos trabajando para ti.</small>
  </section>
- <div class="dancing-brand" aria-label="La Picá del Benjamín saludando y bailando">
-  <img src="/La%20Pic%C3%A1%20del%20Benjam%C3%ADn_%20Sabor%20Ne%C3%B3n.png" alt="" aria-hidden="true">
- </div>
+
 </main>
 <script>
 const foodTapCounts={sushi:0,sandwich:0};
