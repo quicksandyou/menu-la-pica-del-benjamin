@@ -277,6 +277,8 @@ body.jewelry-mode .ketchup-side{display:none!important}
 @keyframes globalJewelryTwinkle{0%,100%{opacity:.25;transform:scale(.55) rotate(0)}50%{opacity:1;transform:scale(1.25) rotate(35deg)}}
 
 
+.aura-infinita{position:fixed;z-index:130;pointer-events:none;left:50%;top:50%;transform:translate(-50%,-50%) scale(.35);padding:13px 22px;border:2px solid #ffe28a;border-radius:18px;background:linear-gradient(135deg,#241344ee,#09051bee);color:#fff4b0;font-size:clamp(25px,6vw,54px);font-weight:1000;letter-spacing:.09em;text-align:center;text-shadow:0 0 8px #fff2a8,0 0 20px #ffb52d,0 0 38px #d95cff;box-shadow:0 0 18px #ffd45c,0 0 45px #a34dff;white-space:nowrap;animation:auraInfinita .0s ease-out forwards;}
+@keyframes auraInfinita{0%{opacity:0;transform:translate(-50%,-50%) scale(.25) rotate(-8deg)}18%{opacity:1;transform:translate(-50%,-50%) scale(1.12) rotate(2deg)}35%,75%{opacity:1;transform:translate(-50%,-50%) scale(1) rotate(0)}100%{opacity:0;transform:translate(-50%,-65%) scale(1.18)}}
 .ketchup-explosion{position:fixed;z-index:120;pointer-events:none;width:18px;height:18px;border-radius:50%;background:radial-gradient(circle,#fff6b8 0 12%,#ffb52d 28%,#ed2922 58%,#9f1010 75%,transparent 78%);box-shadow:0 0 24px 12px #ff7b1c99;animation:ketchupBoom .72s ease-out forwards}
 .ketchup-shard{position:fixed;z-index:121;pointer-events:none;width:11px;height:17px;border-radius:60% 40% 65% 35%;background:linear-gradient(135deg,#ff7560,#c90d12);box-shadow:0 2px 5px #0008;animation:ketchupShard .9s cubic-bezier(.1,.7,.25,1) forwards}
 @keyframes ketchupBoom{0%{transform:scale(.2);opacity:1}35%{transform:scale(7);opacity:1}100%{transform:scale(12);opacity:0}}
@@ -422,6 +424,7 @@ function explodeKetchupBottle(button){
  const rect=button.getBoundingClientRect(),x=rect.left+rect.width/2,y=rect.top+rect.height/2;
  playKetchupExplosion();
  const boom=document.createElement("span");boom.className="ketchup-explosion";boom.style.left=(x-9)+"px";boom.style.top=(y-9)+"px";document.body.appendChild(boom);setTimeout(()=>boom.remove(),800);
+ const aura=document.createElement("div");aura.className="aura-infinita";aura.textContent="✨ AURA INFINITA ✨";document.body.appendChild(aura);setTimeout(()=>aura.remove(),1900);
  for(let i=0;i<24;i++){
   const shard=document.createElement("span");shard.className="ketchup-shard";shard.style.left=x+"px";shard.style.top=y+"px";
   const a=Math.PI*2*i/24+(Math.random()-.5)*.25,d=90+Math.random()*180;
