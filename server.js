@@ -1,9 +1,61 @@
 const http = require("http");
 const { randomUUID } = require("crypto");
+const { Pool } = require("pg");
 
 const PORT = process.env.PORT || 3000;
 const MP_API = "https://api.mercadopago.com";
 const FRONTEND_URL = (process.env.FRONTEND_URL || "").replace(/\/+$/, "");
+const dbPool = process.env.DATABASE_URL ? new Pool({
+  connectionString: process.env.DATABASE_URL,
+  max: 5,
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 5000,
+  ssl: process.env.DATABASE_URL.includes(".render.com") ? { rejectUnauthorized: false } : false
+}) : null;
+
+// Esquema inicial idempotente. La falta de DB no detiene el servidor de pagos.
+async function initializeDatabase() {
+  if (!dbPool) return console.warn("DATABASE_URL no configurada.");
+  await dbPool.query(`
+    CREATE TABLE IF NOT EXISTS orders (
+      id BIGSERIAL PRIMARY KEY, order_number VARCHAR(30) UNIQUE,
+      source VARCHAR(20) NOT NULL DEFAULT 'online', external_payment_id VARCHAR(100),
+      customer_name VARCHAR(120), customer_phone VARCHAR(30), customer_email VARCHAR(254),
+      delivery_address TEXT, locality VARCHAR(80), delivery_method VARCHAR(30),
+      total_clp INTEGER NOT NULL DEFAULT 0, payment_status VARCHAR(30) NOT NULL DEFAULT 'pending',
+      delivery_status VARCHAR(30) NOT NULL DEFAULT 'pending',
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    );
+    CREATE TABLE IF NOT EXISTS drivers (
+      id BIGSERIAL PRIMARY KEY, display_name VARCHAR(120) NOT NULL,
+      username VARCHAR(80) UNIQUE NOT NULL, password_hash TEXT NOT NULL,
+      active BOOLEAN NOT NULL DEFAULT TRUE, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    );
+    CREATE TABLE IF NOT EXISTS delivery_assignments (
+      id BIGSERIAL PRIMARY KEY, order_id BIGINT NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
+      driver_id BIGINT NOT NULL REFERENCES drivers(id), assigned_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      status VARCHAR(30) NOT NULL DEFAULT 'assigned'
+    );
+    CREATE TABLE IF NOT EXISTS extra_runs (
+      id BIGSERIAL PRIMARY KEY, driver_id BIGINT NOT NULL REFERENCES drivers(id),
+      description TEXT NOT NULL, destination TEXT, requested_amount_clp INTEGER NOT NULL DEFAULT 0,
+      approved_amount_clp INTEGER, approval_status VARCHAR(20) NOT NULL DEFAULT 'pending',
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), approved_at TIMESTAMPTZ
+    );
+    CREATE TABLE IF NOT EXISTS shift_closings (
+      id BIGSERIAL PRIMARY KEY, driver_id BIGINT NOT NULL REFERENCES drivers(id),
+      shift_date DATE NOT NULL DEFAULT CURRENT_DATE, delivery_total_clp INTEGER NOT NULL DEFAULT 0,
+      extra_total_clp INTEGER NOT NULL DEFAULT 0, grand_total_clp INTEGER NOT NULL DEFAULT 0,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    );
+    CREATE INDEX IF NOT EXISTS idx_orders_created_at ON orders(created_at);
+    CREATE INDEX IF NOT EXISTS idx_orders_delivery_status ON orders(delivery_status);
+    CREATE INDEX IF NOT EXISTS idx_assignments_driver ON delivery_assignments(driver_id);
+    CREATE INDEX IF NOT EXISTS idx_extra_runs_driver ON extra_runs(driver_id);
+  `);
+  console.log("PostgreSQL conectado; esquema inicial verificado.");
+}
+
 
 const deliveryFees = { "Linares":1990, "Longaví":3500, "Yerbas Buenas":3000, "Colbún":12000, "Villa Alegre":4000, "San Javier":5000, "Palmilla":5000 };
 
@@ -106,6 +158,17 @@ const server = http.createServer(async (req, res) => {
   if (req.method === "OPTIONS") {
     res.writeHead(204);
     return res.end();
+  }
+
+  if (req.method === "GET" && req.url === "/api/salud-db") {
+    if (!dbPool) return send(res, 503, { database: "not_configured" });
+    try {
+      await dbPool.query("SELECT 1");
+      return send(res, 200, { database: "connected" });
+    } catch (error) {
+      console.error("PostgreSQL health check failed:", error.message);
+      return send(res, 503, { database: "unavailable" });
+    }
   }
 
   if (req.method === "GET" && req.url === "/") {
@@ -269,4 +332,7 @@ console.log("MP country:", result?.country_code);
 
 server.listen(PORT, "0.0.0.0", () => {
   console.log("Servidor de pagos iniciado en puerto " + PORT);
+  initializeDatabase().catch(error => {
+    console.error("PostgreSQL no disponible; pagos siguen activos:", error.message);
+  });
 });
