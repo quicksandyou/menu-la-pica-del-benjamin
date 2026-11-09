@@ -3,7 +3,7 @@
   "appName": "La Picá del Benjamín",
   "webDir": "www",
   "server": {
-    "url": "https://menu-la-pica-del-benjamin.onrender.com",
+    "url": "https://menu-la-pica-del-benjamin.onrender.com/?modoPrueba=1",
     "cleartext": false,
     "allowNavigation": [
       "menu-la-pica-del-benjamin.onrender.com",
