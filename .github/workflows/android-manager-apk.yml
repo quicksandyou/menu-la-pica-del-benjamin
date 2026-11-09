@@ -55,4 +55,4 @@ jobs:
           name: la-pica-app-jefa-apk
           path: android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
-          retention-days: 14
+          retention-days: 30
