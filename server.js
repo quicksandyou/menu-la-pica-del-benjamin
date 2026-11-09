@@ -391,8 +391,8 @@ const server = http.createServer(async (req, res) => {
       const id = String(url.searchParams.get("data.id") || data?.data?.id || "");
       const signature = String(req.headers["x-signature"] || "");
       const requestId = String(req.headers["x-request-id"] || "");
-      const ts = signature.match(/(?:^|,)\\s*ts=([^,]+)/)?.[1];
-      const v1 = signature.match(/(?:^|,)\\s*v1=([^,]+)/)?.[1];
+      const ts = signature.match(/(?:^|,)\s*ts=([^,]+)/)?.[1];
+      const v1 = signature.match(/(?:^|,)\s*v1=([^,]+)/)?.[1];
 
       if (!id || !ts || !v1 || !requestId) {
         return send(res, 401, { error: "Invalid webhook signature." });
