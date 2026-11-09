@@ -588,6 +588,7 @@ async function payOnline(){
 async function showPaymentResult(){
  const params=new URLSearchParams(window.location.search);
  if(params.get("pago")!=="retorno")return;
+ if(params.get("modoPrueba")==="1")await enableStaffTestMode();
  const panel=document.getElementById("payment-result");
  panel.style.display="block";
  panel.innerHTML="<b>Estamos verificando tu pago...</b>";
