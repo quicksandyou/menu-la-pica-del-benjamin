@@ -178,6 +178,67 @@ nav button.on{background:linear-gradient(110deg,#ffd66c,#d77a1d);color:#241306;b
   .hero-main.brand-hero{aspect-ratio:16 / 9;padding:0}
   .hero-main.brand-hero img{border-radius:15px}
 }
+
+/* Experiencia móvil tipo app: navegación compacta y controles táctiles */
+@media(max-width:700px){
+  body{font-size:14px;padding-bottom:env(safe-area-inset-bottom)}
+  .site-header{padding:12px 13px 10px;position:relative}
+  .head-inner{display:block;gap:8px}
+  .brand{font-size:clamp(23px,7vw,31px);line-height:1}
+  .tagline{font-size:12px;margin-top:4px}
+  .header-info{display:flex;flex-wrap:nowrap;gap:7px;margin-top:10px;overflow-x:auto;padding:0 0 4px;scrollbar-width:none}
+  .header-info::-webkit-scrollbar{display:none}
+  .info-chip{flex:0 0 auto;min-width:0;padding:7px 10px;font-size:11px;border-radius:10px}
+  .wrap{padding:10px 10px 24px}
+  .feature-update{margin:8px 0;padding:9px 11px;gap:8px;border-radius:11px}
+  .feature-update .feature-icon{font-size:20px}
+  .feature-update strong{font-size:13px}
+  .feature-update p{font-size:11px;line-height:1.3}
+  .app-install{margin:9px 0;padding:10px 12px;border-radius:12px;gap:8px}
+  .app-install strong{font-size:14px}
+  .app-install p{font-size:11px}
+  .app-install button{padding:10px 12px;font-size:12px}
+  .hero{display:block;margin:8px 0 12px}
+  .hero-main.brand-hero{aspect-ratio:16/8;min-height:0;border-radius:13px}
+  .hero-main.brand-hero img{border-radius:10px}
+  .hero-side{display:none}
+  .notice{padding:9px 11px;margin-bottom:10px;font-size:12px;line-height:1.45;border-radius:11px}
+  .layout{display:flex;flex-direction:column;gap:12px}
+  .layout>section{width:100%;min-width:0}
+  .layout>.cart{order:2;width:100%;position:static;margin-top:2px}
+  .section-title{font-size:19px;margin:12px 0 8px}
+  nav{position:sticky;top:0;z-index:15;gap:7px;padding:7px 0 9px;margin:0 -10px 8px;padding-left:10px;padding-right:10px;background:#090909ed;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid #573719}
+  nav button{flex:0 0 auto;min-height:42px;padding:10px 13px;border-radius:999px;font-size:12px}
+  .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+  .item{padding:9px;border-radius:13px;gap:7px;min-height:0}
+  .food-art{height:82px;border-radius:10px}
+  .item h3{font-size:13px;line-height:1.25}
+  .desc{font-size:10px;line-height:1.35}
+  .price{font-size:16px}
+  .add{min-height:42px;width:100%;font-size:12px;padding:10px 7px;border-radius:10px}
+  .cart{border-radius:15px;padding:13px}
+  .cart h2{font-size:19px}
+  .cart button{min-height:42px}
+  .delivery-help{right:10px;bottom:calc(12px + env(safe-area-inset-bottom));padding:11px 14px;font-size:12px}
+  #musicToggle{left:10px;bottom:calc(12px + env(safe-area-inset-bottom));padding:10px 13px;font-size:12px}
+  .ketchup-side{opacity:.55}
+}
+@media(max-width:380px){
+  .grid{gap:7px}
+  .item{padding:7px}
+  .food-art{height:68px}
+  .item h3{font-size:12px}
+  .add{font-size:11px}
+  .brand{font-size:23px}
+}
+@media(display-mode:standalone) and (max-width:700px){
+  .app-install{display:none}
+  .site-header{padding-top:calc(10px + env(safe-area-inset-top))}
+}
+@media(display-mode:standalone) and (min-width:701px){
+  .app-install{display:none}
+}
+
 </style><audio id="siteMusic" src="./soundtrack.mp3.mpeg" loop preload="none"></audio><button id="musicToggle" type="button" aria-pressed="false" onclick="toggleMusic()">🎵 Activar música</button><a class="delivery-help" href="https://wa.me/56962662078?text=Hola%2C%20quisiera%20hacer%20una%20consulta%20sobre%20mi%20pedido%20de%20La%20Pic%C3%A1%20del%20Benjam%C3%ADn." target="_blank" rel="noopener noreferrer" aria-label="Consultar pedido con el encargado de delivery por WhatsApp"><span class="wa-icon">🟢</span><span>Consultar mi pedido</span></a><button type="button" class="ketchup-side left" aria-label="¡Aprieta para lanzar kétchup!" title="¡Toca para lanzar kétchup!" onclick="splashKetchup(event)"><span class="ketchup-splash">〰</span><span class="ketchup-bottle"></span></button><button type="button" class="ketchup-side right" aria-label="¡Aprieta para lanzar kétchup!" title="¡Toca para lanzar kétchup!" onclick="splashKetchup(event)"><span class="ketchup-splash">〰</span><span class="ketchup-bottle"></span></button><header class="site-header"><div class="head-inner"><div><div class="brand">La Picá del Benjamín</div><div class="tagline">Sabor que enamora, porciones que impresionan</div></div><div class="header-info"><div class="info-chip">📍 <b>Pje. Hermano Claudio Ortíz #1229</b><br>Linares · <a href="https://maps.app.goo.gl/zV6W4sxRxqezmYtb7" target="_blank" rel="noopener">Ver ubicación real ↗</a></div><div class="info-chip">🕒 <b>Horario de atención</b><br>Martes a sábado · 17:30 a 02:00 AM</div></div></div></header>
 <main class="wrap"><div class="feature-update" role="status"><span class="feature-icon">🚀</span><div><strong>¡Estamos incorporando nuevas funciones!</strong><p>Estamos mejorando nuestra tienda online para entregarte una experiencia de compra cada vez mejor. Gracias por tu paciencia y por preferir La Picá del Benjamín. ❤️</p></div></div>
 <div class="app-install" id="appInstall"><div><strong>📲 Lleva La Picá del Benjamín en tu celular</strong><p>Instala nuestra aplicación para hacer tus pedidos más rápido.</p></div><button id="installAppButton" type="button">Instalar aplicación</button></div>
