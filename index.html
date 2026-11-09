@@ -302,6 +302,30 @@ body.jewelry-mode .ketchup-side{display:none!important}
 .ketchup-side{touch-action:none;user-select:none;-webkit-user-select:none;cursor:grab}
 .ketchup-side.is-dragging{animation:none!important;transform:none!important;cursor:grabbing;z-index:110!important}
 
+
+/* Confirmación de compra inmersiva */
+#delivery-success{position:fixed;inset:0;z-index:99999;display:none;overflow:hidden;min-height:100vh;min-height:100dvh;background:radial-gradient(ellipse at 50% 28%,#512707 0,#211006 42%,#080706 100%);color:#fff;text-align:center;align-items:center;justify-content:center;padding:28px 18px}
+#delivery-success .success-inner{position:relative;z-index:2;width:min(900px,100%);margin:auto}
+#delivery-success .success-kicker{display:inline-block;padding:9px 17px;border:1px solid #ffce65;border-radius:999px;background:#2a170bd9;color:#ffda7c;font-weight:900;letter-spacing:1.5px}
+#delivery-success h1{font-size:clamp(34px,6vw,68px);line-height:1.02;margin:22px 0 12px;color:#ffd05a;text-shadow:0 4px 0 #79300a,0 0 30px #ff9d243d}
+#delivery-success .success-message{font-size:clamp(19px,3vw,29px);font-weight:750;line-height:1.35;margin:0 auto 22px;max-width:760px}
+#delivery-success .success-sub{font-size:16px;color:#f4dfc2;margin:12px auto 22px}
+#delivery-success .delivery-scene{height:clamp(180px,30vh,280px);position:relative;margin:12px auto 8px;max-width:760px;overflow:hidden;border-radius:24px;border:1px solid #9e641f;background:linear-gradient(180deg,#281608 0%,#5b2b0d 65%,#211108 66%,#130b07 100%);box-shadow:0 16px 45px #0009,inset 0 0 35px #ffb22a22}
+#delivery-success .cityline{position:absolute;bottom:34%;left:0;right:0;height:42%;opacity:.55;background:linear-gradient(90deg,transparent 0 3%,#120b08 3% 10%,transparent 10% 13%,#120b08 13% 21%,transparent 21% 25%,#120b08 25% 33%,transparent 33% 38%,#120b08 38% 46%,transparent 46% 52%,#120b08 52% 62%,transparent 62% 67%,#120b08 67% 76%,transparent 76% 80%,#120b08 80% 90%,transparent 90%)}
+#delivery-success .road{position:absolute;bottom:0;left:0;right:0;height:34%;background:linear-gradient(#342015,#100b08);border-top:3px solid #ffbd35}
+#delivery-success .road:after{content:"";position:absolute;top:50%;left:0;right:0;border-top:4px dashed #ffcf6b;opacity:.8}
+#delivery-success .car{position:absolute;z-index:2;bottom:15%;left:50%;transform:translateX(-50%);font-size:clamp(95px,17vw,155px);line-height:1;filter:drop-shadow(0 9px 8px #0009);animation:deliveryDrive 3.2s ease-in-out infinite}
+#delivery-success .driver{position:absolute;z-index:3;left:50%;top:22%;transform:translateX(-20%);font-size:clamp(32px,6vw,52px);animation:driverWave 1.4s ease-in-out infinite}
+#delivery-success .foodbox{position:absolute;z-index:3;right:17%;top:22%;font-size:clamp(35px,6vw,54px);animation:boxBounce 1.5s ease-in-out infinite}
+#delivery-success .success-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:24px}
+#delivery-success .success-actions button{background:linear-gradient(100deg,#ffd35a,#f47716);color:#211006;padding:14px 24px;font-size:16px;box-shadow:0 8px 22px #0007}
+#delivery-success .success-actions a{display:inline-flex;align-items:center;padding:14px 22px;border:1px solid #d99b43;border-radius:11px;color:#ffe2ad;text-decoration:none;font-weight:850;background:#1b1009}
+#delivery-success .success-hearts{font-size:25px;letter-spacing:10px;animation:heartGlow 1.8s ease-in-out infinite}
+@keyframes deliveryDrive{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-8px)}}
+@keyframes driverWave{0%,100%{transform:translateX(-20%) rotate(-5deg)}50%{transform:translateX(-20%) rotate(8deg)}}
+@keyframes boxBounce{0%,100%{transform:translateY(0) rotate(-5deg)}50%{transform:translateY(-9px) rotate(5deg)}}
+@keyframes heartGlow{0%,100%{opacity:.7}50%{opacity:1;text-shadow:0 0 18px #ffbd35}}
+@media(prefers-reduced-motion:reduce){#delivery-success *{animation:none!important}}
 </style><audio id="siteMusic" src="./soundtrack.mp3.mpeg" loop preload="none"></audio><button id="musicToggle" type="button" aria-pressed="false" onclick="toggleMusic()">🎵 Activar música</button><a class="delivery-help" href="https://wa.me/56962662078?text=Hola%2C%20quisiera%20hacer%20una%20consulta%20sobre%20mi%20pedido%20de%20La%20Pic%C3%A1%20del%20Benjam%C3%ADn." target="_blank" rel="noopener noreferrer" aria-label="Consultar pedido con el encargado de delivery por WhatsApp"><span class="wa-icon">🟢</span><span>Consultar mi pedido</span></a><button type="button" class="ketchup-side left" aria-label="¡Aprieta para lanzar kétchup!" title="¡Toca para lanzar kétchup!" onclick="splashKetchup(event)"><span class="ketchup-splash">〰</span><span class="ketchup-bottle"></span></button><button type="button" class="ketchup-side right" aria-label="¡Aprieta para lanzar kétchup!" title="¡Toca para lanzar kétchup!" onclick="splashKetchup(event)"><span class="ketchup-splash">〰</span><span class="ketchup-bottle"></span></button><header class="site-header"><div class="head-inner"><div><div class="brand">La Picá del Benjamín</div><div class="tagline">Sabor que enamora, porciones que impresionan</div>
 <a class="instagram-link" href="https://www.instagram.com/la_pica_de_benjamin?mdxt=MXdnZ3BwcHhncHFpdw==" target="_blank" rel="noopener noreferrer" aria-label="Visitar Instagram de La Picá del Benjamín">
 <span class="instagram-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="18" cy="6" r="1" fill="currentColor" stroke="none"/></svg></span>
@@ -561,8 +585,22 @@ async function showPaymentResult(){
    const data=await response.json();
    if(!response.ok)throw new Error(data.error||"No pudimos verificar el pago.");
    if(data.approved){
-     panel.innerHTML=`<div style="font-size:25px">✅</div><h2 style="margin:6px 0;color:#ffd34d">¡Gracias por comprar en La Picá del Benjamín!</h2><p>🎉 Tu pago fue confirmado y ya estamos preparando tu pedido. ¡Esperamos que disfrutes cada bocado!</p><p><b>Modalidad:</b> ${data.delivery?"Despacho a domicilio":"Retiro en el local"}.</p>`;
-     document.querySelector(".layout").style.display="none";
+     document.getElementById("delivery-success")?.remove();
+     const success=document.createElement("section");
+     success.id="delivery-success";
+     success.style.display="flex";
+     success.setAttribute("role","status");
+     success.setAttribute("aria-live","polite");
+     success.innerHTML=[
+       '<div class="success-inner"><div class="success-kicker">✅ PAGO CONFIRMADO · LA PICÁ DEL BENJAMÍN</div>',
+       '<h1>¡Tu pedido va en camino!</h1><p class="success-message">Lo llevaremos directo a tu mesa.<br>¡Prepárate para disfrutar!</p>',
+       '<div class="delivery-scene" aria-label="Ilustración animada de un repartidor conduciendo"><div class="cityline"></div><div class="road"></div><div class="driver" aria-hidden="true">🧑‍🍳</div><div class="foodbox" aria-hidden="true">🛍️</div><div class="car" aria-hidden="true">🚗</div></div>',
+       '<div class="success-hearts" aria-hidden="true">🍔 🍣 🥪</div>',
+       `<p class="success-sub">${data.delivery?"Nuestro repartidor llevará tu pedido a la dirección indicada.":"Tu pedido ya está confirmado para retiro en el local."} ¡Gracias por elegirnos y apoyar nuestro negocio!</p>`,
+       '<div class="success-actions"><button type="button" onclick="window.location.href=window.location.pathname">Volver a la tienda</button><a href="https://wa.me/56999064818?text=Hola%2C%20acabo%20de%20realizar%20un%20pedido%20en%20La%20Pic%C3%A1%20del%20Benjam%C3%ADn" target="_blank" rel="noopener">Consultar mi pedido</a></div></div>'
+     ].join("");
+     document.body.appendChild(success);
+     document.body.style.overflow="hidden";
    }else{
      panel.innerHTML=`<b>Tu pago todavía no está confirmado.</b><p>Estado de la orden: ${data.status}. No prepares otro pedido todavía; revisa tu cuenta de Mercado Pago.</p>`;
    }
