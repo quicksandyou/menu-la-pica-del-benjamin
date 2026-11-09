@@ -1,0 +1,16 @@
+{
+  "id": "/reparto.html",
+  "name": "La Picá del Benjamín · Panel de la jefa",
+  "short_name": "Picá Pedidos",
+  "description": "Panel privado para recibir y gestionar pedidos de La Picá del Benjamín.",
+  "lang": "es-CL",
+  "start_url": "/reparto.html",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#100b07",
+  "theme_color": "#100b07",
+  "orientation": "portrait",
+  "icons": [
+    {"src": "/icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any"}
+  ]
+}
