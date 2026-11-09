@@ -347,8 +347,8 @@ const server = http.createServer(async (req, res) => {
         const driverFee=method==="Delivery"?(zone==="far"?3000:2000):0;
         const items=Array.isArray(d.items)?d.items:[];
         const saved=await dbPool.query(
-          "INSERT INTO orders(source,customer_name,customer_phone,delivery_address,locality,delivery_method,total_clp,payment_status,delivery_status,items_json,notes,driver_fee_clp,delivery_zone) VALUES($1,$2,$3,$4,$5,$6,$7,$8,'pending',$9::jsonb,$10,$11,$12) RETURNING id",
-          [source,name,phone||null,address||null,locality||null,method,total,d.payment_status==="paid"?"paid":"pending",JSON.stringify(items),String(d.notes||""),driverFee,zone]
+          "INSERT INTO orders(source,customer_name,customer_phone,delivery_address,locality,delivery_method,total_clp,payment_status,delivery_status,items_json,notes,driver_fee_clp,delivery_zone,delivery_latitude,delivery_longitude) VALUES($1,$2,$3,$4,$5,$6,$7,$8,'pending',$9::jsonb,$10,$11,$12) RETURNING id",
+          [source,name,phone||null,address||null,locality||null,method,total,d.payment_status==="paid"?"paid":"pending",JSON.stringify(items),String(d.notes||""),driverFee,zone,d.latitude!==null&&d.latitude!==undefined&&d.latitude!==""&&Number.isFinite(Number(d.latitude))?Number(d.latitude):null,d.longitude!==null&&d.longitude!==undefined&&d.longitude!==""&&Number.isFinite(Number(d.longitude))?Number(d.longitude):null]
         );
         const id=saved.rows[0].id, number="PB-"+String(id).padStart(6,"0");
         await dbPool.query("UPDATE orders SET order_number=$1 WHERE id=$2",[number,id]);
