@@ -569,7 +569,8 @@ async function payOnline(){
  button.disabled=true;button.textContent="Creando orden de pago...";
  try{
    // El Access Token debe permanecer en el servidor, nunca en este HTML.
-   const response=await fetch(`${PAYMENT_API_BASE_URL}/api/crear-orden`,{method:"POST",credentials:"include",headers:{"Content-Type":"application/json"},body:JSON.stringify({
+   const testQuery=staffTestMode?"?modoPrueba=1":"";
+   const response=await fetch(`${PAYMENT_API_BASE_URL}/api/crear-orden${testQuery}`,{method:"POST",credentials:"include",headers:{"Content-Type":"application/json"},body:JSON.stringify({
      restaurant:"La Picá del Benjamín",customer:{name,email:document.getElementById("email").value.trim(),phone:document.getElementById("phone").value.trim()},
      delivery:{method,address:method==="Delivery"?address:"",locality,fee_clp:fee,latitude:method==="Delivery"?(document.getElementById("deliveryLat").value||null):null,longitude:method==="Delivery"?(document.getElementById("deliveryLng").value||null):null},notes:document.getElementById("notes").value.trim(),
      items:products,total_clp:total
@@ -596,7 +597,12 @@ async function showPaymentResult(){
    return;
  }
  try{
-   const response=await fetch(`${PAYMENT_API_BASE_URL}/api/orden/${encodeURIComponent(orderId)}`);
+   const testReturn=params.get("modoPrueba")==="1";
+   if(testReturn&&!staffTestMode){
+     panel.innerHTML="<b>Debes ingresar como administrador para consultar una orden de prueba.</b><p>Vuelve al portal del personal e inicia sesión.</p>";
+     return;
+   }
+   const response=await fetch(`${PAYMENT_API_BASE_URL}/api/orden/${encodeURIComponent(orderId)}${testReturn?"?modoPrueba=1":""}`,{credentials:testReturn?"include":"same-origin"});
    const data=await response.json();
    if(!response.ok)throw new Error(data.error||"No pudimos verificar el pago.");
    if(data.approved){
