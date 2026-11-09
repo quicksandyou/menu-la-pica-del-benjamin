@@ -33,6 +33,8 @@ async function initializeDatabase() {
     ALTER TABLE orders ADD COLUMN IF NOT EXISTS external_reference VARCHAR(100);
     ALTER TABLE orders ADD COLUMN IF NOT EXISTS driver_fee_clp INTEGER NOT NULL DEFAULT 2000;
     ALTER TABLE orders ADD COLUMN IF NOT EXISTS delivery_zone VARCHAR(20) NOT NULL DEFAULT 'normal';
+    ALTER TABLE orders ADD COLUMN IF NOT EXISTS delivery_latitude DOUBLE PRECISION;
+    ALTER TABLE orders ADD COLUMN IF NOT EXISTS delivery_longitude DOUBLE PRECISION;
     CREATE TABLE IF NOT EXISTS app_users (
       id BIGSERIAL PRIMARY KEY,
       username VARCHAR(80) UNIQUE NOT NULL,
@@ -283,7 +285,7 @@ const server = http.createServer(async (req, res) => {
       const params = [];
       if (staff.role === "driver") params.push(staff.id);
       const result = await dbPool.query(
-        "SELECT o.id,o.order_number,o.customer_name,o.customer_phone,o.delivery_address,o.locality,o.delivery_method,o.total_clp,o.payment_status,o.delivery_status,o.created_at,a.id AS assignment_id,a.status AS assignment_status,d.display_name AS driver_name FROM orders o LEFT JOIN LATERAL (SELECT da.* FROM delivery_assignments da WHERE da.order_id=o.id ORDER BY da.assigned_at DESC LIMIT 1) a ON TRUE LEFT JOIN drivers d ON d.id=a.driver_id WHERE LOWER(COALESCE(o.payment_status,'')) IN ('approved','paid') AND LOWER(COALESCE(o.delivery_method,'')) IN ('delivery','despacho') " +
+        "SELECT o.id,o.order_number,o.customer_name,o.customer_phone,o.delivery_address,o.locality,o.delivery_latitude,o.delivery_longitude,o.delivery_method,o.total_clp,o.payment_status,o.delivery_status,o.created_at,a.id AS assignment_id,a.status AS assignment_status,d.display_name AS driver_name FROM orders o LEFT JOIN LATERAL (SELECT da.* FROM delivery_assignments da WHERE da.order_id=o.id ORDER BY da.assigned_at DESC LIMIT 1) a ON TRUE LEFT JOIN drivers d ON d.id=a.driver_id WHERE LOWER(COALESCE(o.payment_status,'')) IN ('approved','paid') AND LOWER(COALESCE(o.delivery_method,'')) IN ('delivery','despacho') " +
         (staff.role === "driver" ? "AND d.app_user_id=$1 " : "") +
         "ORDER BY o.created_at DESC LIMIT 200", params);
       return send(res,200,{orders:result.rows,role:staff.role});
@@ -617,8 +619,8 @@ console.log("MP country:", result?.country_code);
     if (!result.checkout_url || !result.id) throw new Error("Mercado Pago no devolvió checkout_url o el ID de la orden.");
     if (dbPool) {
       const saved = await dbPool.query(
-        "INSERT INTO orders (source,external_payment_id,external_reference,customer_name,customer_phone,customer_email,delivery_address,locality,delivery_method,total_clp,payment_status,delivery_status,items_json,notes,delivery_fee_clp) VALUES ('online',$1,$2,$3,$4,$5,$6,$7,$8,$9,'pending','pending',$10::jsonb,$11,$12) RETURNING id",
-        [String(result.id),payload.external_reference,customerName,String(data.customer?.phone||"").trim(),customerEmail,method==="Delivery"?address:null,method==="Delivery"?locality:null,method,total,JSON.stringify(data.items),String(data.notes||""),deliveryFee]
+        "INSERT INTO orders (source,external_payment_id,external_reference,customer_name,customer_phone,customer_email,delivery_address,locality,delivery_method,total_clp,payment_status,delivery_status,items_json,notes,delivery_fee_clp,delivery_latitude,delivery_longitude) VALUES ('online',$1,$2,$3,$4,$5,$6,$7,$8,$9,'pending','pending',$10::jsonb,$11,$12,$13,$14) RETURNING id",
+        [String(result.id),payload.external_reference,customerName,String(data.customer?.phone||"").trim(),customerEmail,method==="Delivery"?address:null,method==="Delivery"?locality:null,method,total,JSON.stringify(data.items),String(data.notes||""),deliveryFee,method==="Delivery"&&Number.isFinite(Number(data.delivery?.latitude))?Number(data.delivery.latitude):null,method==="Delivery"&&Number.isFinite(Number(data.delivery?.longitude))?Number(data.delivery.longitude):null]
       );
       const orderNumber = "PB-" + String(saved.rows[0].id).padStart(6,"0");
       await dbPool.query("UPDATE orders SET order_number=$1 WHERE id=$2",[orderNumber,saved.rows[0].id]);
