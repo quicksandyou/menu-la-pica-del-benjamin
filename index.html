@@ -722,6 +722,45 @@ async function showPaymentResult(){
    panel.innerHTML=`<b>No pudimos verificar el pago en este momento.</b><p>${error.message}</p><p>Por seguridad, no mostraremos el pedido como confirmado hasta comprobarlo.</p>`;
  }
 }
+
+/* Buzón de sugerencias para clientes de La Picá del Benjamín */
+(function initSuggestionBox(){
+ if(document.getElementById("suggestionLauncher")) return;
+ const style=document.createElement("style");
+ style.textContent=`
+ #suggestionLauncher{position:fixed;right:18px;bottom:18px;z-index:9998;border:0;border-radius:999px;background:#24201e;color:#fff;padding:13px 18px;font-weight:800;box-shadow:0 5px 22px #0004;cursor:pointer}
+ #suggestionPanel{position:fixed;right:18px;bottom:78px;z-index:9999;width:min(370px,calc(100vw - 28px));background:#fff;color:#26211f;border:1px solid #e8ded6;border-radius:18px;padding:18px;box-shadow:0 12px 40px #0003;display:none}
+ #suggestionPanel h3{margin:0 0 7px;font-size:19px}#suggestionPanel p{margin:0 0 12px;color:#665d57;font-size:13px}
+ #suggestionPanel label{display:block;font-size:13px;font-weight:700;margin:10px 0 5px}
+ #suggestionPanel input,#suggestionPanel select,#suggestionPanel textarea{box-sizing:border-box;width:100%;border:1px solid #d8cec7;border-radius:9px;padding:10px;font:inherit;background:#fff;color:#26211f}
+ #suggestionPanel textarea{min-height:105px;resize:vertical}
+ #suggestionPanel button{border:0;border-radius:9px;padding:11px 14px;font-weight:800;cursor:pointer}
+ #suggestionSend{background:#a52b21;color:white;width:100%;margin-top:10px}#suggestionClose{background:#eee7e1;color:#332d29;float:right}
+ #suggestionStatus{font-size:13px;margin-top:9px;min-height:18px;color:#5a4c43}
+ @media(max-width:520px){#suggestionLauncher{right:12px;bottom:12px;padding:11px 14px}#suggestionPanel{right:10px;bottom:66px}}
+ `;
+ document.head.appendChild(style);
+ const panel=document.createElement("section");panel.id="suggestionPanel";panel.setAttribute("aria-label","Enviar sugerencia");
+ panel.innerHTML='<button type="button" id="suggestionClose" aria-label="Cerrar">✕</button><h3>💬 Sugerencias para el desarrollador</h3><p>Cuéntanos cómo podemos mejorar la tienda.</p><form id="suggestionForm"><label for="suggestionType">Tipo de mensaje</label><select id="suggestionType"><option>Sugerencia</option><option>Problema con la página</option><option>Idea para mejorar</option></select><label for="suggestionName">Tu nombre (opcional)</label><input id="suggestionName" maxlength="100" placeholder="¿Cómo te llamas?"><label for="suggestionMessage">Mensaje</label><textarea id="suggestionMessage" maxlength="3000" minlength="8" required placeholder="Escribe aquí tu sugerencia o problema..."></textarea><div style="position:absolute;left:-10000px" aria-hidden="true"><label>Sitio web<input id="suggestionWebsite" tabindex="-1" autocomplete="off"></label></div><button id="suggestionSend" type="submit">Enviar sugerencia</button><div id="suggestionStatus" role="status" aria-live="polite"></div></form>';
+ const launcher=document.createElement("button");launcher.type="button";launcher.id="suggestionLauncher";launcher.textContent="💬 Enviar sugerencia";
+ document.body.append(panel,launcher);
+ launcher.addEventListener("click",()=>{panel.style.display=panel.style.display==="block"?"none":"block";});
+ document.getElementById("suggestionClose").addEventListener("click",()=>panel.style.display="none");
+ document.getElementById("suggestionForm").addEventListener("submit",async event=>{
+  event.preventDefault();
+  const sendButton=document.getElementById("suggestionSend"),status=document.getElementById("suggestionStatus");
+  sendButton.disabled=true;sendButton.textContent="Enviando…";status.textContent="";
+  try{
+   const response=await fetch(PAYMENT_API_BASE_URL+"/api/sugerencias",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({type:document.getElementById("suggestionType").value,name:document.getElementById("suggestionName").value,message:document.getElementById("suggestionMessage").value,website:document.getElementById("suggestionWebsite").value})});
+   const data=await response.json();
+   if(!response.ok)throw new Error(data.error||"No se pudo enviar el mensaje.");
+   status.textContent="✅ "+(data.message||"¡Gracias por tu sugerencia!");
+   document.getElementById("suggestionForm").reset();
+  }catch(error){status.textContent="⚠️ "+error.message;}
+  finally{sendButton.disabled=false;sendButton.textContent="Enviar sugerencia";}
+ });
+})();
+
 let deferredInstallPrompt=null;
 const installButton=document.getElementById("installAppButton");
 window.addEventListener("beforeinstallprompt",event=>{
