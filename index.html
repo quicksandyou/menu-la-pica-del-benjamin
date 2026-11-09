@@ -397,6 +397,20 @@ button,a,select,input,textarea{-webkit-tap-highlight-color:transparent}
 }
 @media(max-width:360px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}.item{padding:6px!important}.item h3{font-size:11px!important}.add{padding:8px 4px!important;font-size:10px!important}}
 @media(display-mode:standalone) and (max-width:700px){body{padding-top:env(safe-area-inset-top)}.app-install{display:none!important}}
+/* Corrección del desplazamiento horizontal de categorías en APK móvil */
+@media(max-width:700px){
+  .category-sidebar nav{
+    touch-action:pan-x!important;
+    -webkit-overflow-scrolling:touch;
+    overscroll-behavior-x:contain!important;
+    overscroll-behavior-y:none!important;
+    overflow-x:auto!important;
+    overflow-y:hidden!important;
+    white-space:nowrap;
+    scroll-behavior:smooth;
+  }
+  .category-sidebar nav button{touch-action:pan-x!important;flex-shrink:0!important;}
+}
 </style><audio id="siteMusic" src="./soundtrack.mp3.mpeg" loop preload="none"></audio><button id="musicToggle" type="button" aria-pressed="false" onclick="toggleMusic()">🎵 Activar música</button><a class="delivery-help" href="https://wa.me/56962662078?text=Hola%2C%20quisiera%20hacer%20una%20consulta%20sobre%20mi%20pedido%20de%20La%20Pic%C3%A1%20del%20Benjam%C3%ADn." target="_blank" rel="noopener noreferrer" aria-label="Consultar pedido con el encargado de delivery por WhatsApp"><span class="wa-icon">🟢</span><span>Consultar mi pedido</span></a><button type="button" class="ketchup-side left" aria-label="¡Aprieta para lanzar kétchup!" title="¡Toca para lanzar kétchup!" onclick="splashKetchup(event)"><span class="ketchup-splash">〰</span><span class="ketchup-bottle"></span></button><button type="button" class="ketchup-side right" aria-label="¡Aprieta para lanzar kétchup!" title="¡Toca para lanzar kétchup!" onclick="splashKetchup(event)"><span class="ketchup-splash">〰</span><span class="ketchup-bottle"></span></button><header class="site-header"><div class="head-inner"><div><div class="brand">La Picá del Benjamín</div><div class="tagline">Sabor que enamora, porciones que impresionan</div>
 <a class="instagram-link" href="https://www.instagram.com/la_pica_de_benjamin?mdxt=MXdnZ3BwcHhncHFpdw==" target="_blank" rel="noopener noreferrer" aria-label="Visitar Instagram de La Picá del Benjamín">
 <span class="instagram-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="18" cy="6" r="1" fill="currentColor" stroke="none"/></svg></span>
