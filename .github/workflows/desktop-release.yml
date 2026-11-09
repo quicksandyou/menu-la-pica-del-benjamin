@@ -21,6 +21,11 @@ jobs:
       - name: Install desktop dependencies
         working-directory: desktop
         run: npm install
+      - name: Generate Windows icon from SVG
+        working-directory: desktop
+        run: |
+          npm install --no-save sharp png-to-ico
+          node -e "const sharp=require('sharp'); const pngToIco=require('png-to-ico'); (async()=>{const png=await sharp('build/icon.svg').resize(256,256).png().toBuffer(); require('fs').writeFileSync('build/icon.ico',await pngToIco(png));})().catch(e=>{console.error(e);process.exit(1)})"
       - name: Build Windows installer
         working-directory: desktop
         run: npx electron-builder --win nsis --publish never
