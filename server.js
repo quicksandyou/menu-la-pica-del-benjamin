@@ -266,6 +266,7 @@ const server = http.createServer(async (req, res) => {
       }
       const transporter = nodemailer.createTransport({
         host: "smtp.gmail.com", port: 465, secure: true,
+        connectionTimeout: 15000, greetingTimeout: 10000, socketTimeout: 20000,
         auth: { user, pass }
       });
       await transporter.sendMail({
