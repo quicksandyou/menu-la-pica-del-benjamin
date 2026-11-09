@@ -344,7 +344,33 @@ nav button{min-height:46px;padding:12px 17px;font-size:14px}
 @media(max-width:700px){.wrap{padding:12px}.site-header{padding:15px 12px}.hero-main{min-height:190px}.layout{gap:12px}.cart{padding:14px}.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.item{padding:10px}.item h3{font-size:15px}.price{font-size:18px}.food-art{height:100px}nav{margin:0 -4px;padding:8px 4px 12px}.section-title{font-size:21px}}
 @media(max-width:360px){.grid{grid-template-columns:1fr}.food-art{height:135px}}
 
-</style><audio id="siteMusic" src="./soundtrack.mp3.mpeg" loop preload="none"></audio><button id="musicToggle" type="button" aria-pressed="false" onclick="toggleMusic()">🎵 Activar música</button><a class="delivery-help" href="https://wa.me/56962662078?text=Hola%2C%20quisiera%20hacer%20una%20consulta%20sobre%20mi%20pedido%20de%20La%20Pic%C3%A1%20del%20Benjam%C3%ADn." target="_blank" rel="noopener noreferrer" aria-label="Consultar pedido con el encargado de delivery por WhatsApp"><span class="wa-icon">🟢</span><span>Consultar mi pedido</span></a><button type="button" class="ketchup-side left" aria-label="¡Aprieta para lanzar kétchup!" title="¡Toca para lanzar kétchup!" onclick="splashKetchup(event)"><span class="ketchup-splash">〰</span><span class="ketchup-bottle"></span></button><button type="button" class="ketchup-side right" aria-label="¡Aprieta para lanzar kétchup!" title="¡Toca para lanzar kétchup!" onclick="splashKetchup(event)"><span class="ketchup-splash">〰</span><span class="ketchup-bottle"></span></button><header class="site-header"><div class="head-inner"><div><div class="brand">La Picá del Benjamín</div><div class="tagline">Sabor que enamora, porciones que impresionan</div>
+</style><audio id="siteMusic" src="./soundtrack.mp3.mpeg" loop preload="none"></audio><button id="musicToggle" type="button" aria-pressed="false" onclick="toggleMusic()">🎵 Activar música</button><a class="delivery-help" href="https://wa.me/56962662078?text=Hola%2C%20quisiera%20hacer%20una%20consulta%20sobre%20mi%20pedido%20de%20La%20Pic%C3%A1%20del%20Benjam%C3%ADn." target="_blank" rel="noopener noreferrer" aria-label="Consultar pedido con el encargado de delivery por WhatsApp"><span class="wa-icon">🟢</span><span>Consultar mi pedido</span></a><button type="button" class="ketchup-side left" aria-label="¡Aprieta para lanzar kétchup!" title="¡Toca para lanzar kétchup!" onclick="splashKetchup(event)"><span class="ketchup-splash">〰</span><span class="ketchup-bottle"></span></button><button type="button" class="ketchup-side right" aria-label="¡Aprieta para lanzar kétchup!" title="¡Toca para lanzar kétchup!" onclick="splashKetchup(event)"><span class="ketchup-splash">〰</span><span class="ketchup-bottle"></span></button><style id="maintenance-mode-style">
+html,body{min-height:100%;margin:0}
+body{background:radial-gradient(ellipse at 50% 10%,#3a210e 0,#120c07 48%,#050505 100%)!important}
+body>*:not(#maintenance-screen){display:none!important}
+#maintenance-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:28px 18px;color:#fff;text-align:center;font-family:system-ui,Arial,sans-serif}
+#maintenance-screen .maintenance-card{width:min(100%,760px);padding:clamp(24px,5vw,48px);border:1px solid #a96b27;border-radius:28px;background:linear-gradient(145deg,#211409ee,#090706f5);box-shadow:0 24px 80px #000b,inset 0 1px #ffffff18}
+#maintenance-screen img{display:block;width:min(78%,340px);max-height:240px;object-fit:contain;margin:0 auto 22px;filter:drop-shadow(0 10px 22px #000b)}
+#maintenance-screen .eyebrow{color:#ffc247;font-size:13px;font-weight:900;letter-spacing:3px;text-transform:uppercase}
+#maintenance-screen h1{margin:12px 0;color:#ffc247;font-size:clamp(32px,7vw,58px);line-height:1.05}
+#maintenance-screen p{max-width:560px;margin:12px auto;color:#f0dfc8;font-size:clamp(15px,2.6vw,19px);line-height:1.65}
+#maintenance-screen .food-icons{font-size:clamp(28px,5vw,42px);letter-spacing:10px;margin:22px 0}
+#maintenance-screen .thanks{display:inline-block;margin-top:12px;padding:12px 20px;border-radius:999px;background:linear-gradient(90deg,#ffd66c,#df7418);color:#211006;font-weight:900}
+#maintenance-screen small{display:block;margin-top:22px;color:#c9b79e}
+</style>
+<main id="maintenance-screen" role="status" aria-live="polite">
+ <section class="maintenance-card">
+  <img src="/logo_picada.jpg" alt="Logo oficial de La Picá del Benjamín">
+  <div class="eyebrow">La Picá del Benjamín · Linares</div>
+  <h1>¡Estamos en mantenimiento!</h1>
+  <p>Estamos realizando mejoras en nuestra tienda online para entregarte una experiencia más rápida, cómoda y rica.</p>
+  <div class="food-icons" aria-hidden="true">🍣 🥪 🍟</div>
+  <p>Muy pronto estaremos de regreso. Gracias por tu paciencia y por preferirnos.</p>
+  <div class="thanks">¡Volvemos pronto con más sabor!</div>
+  <small>Estamos trabajando para ti.</small>
+ </section>
+</main>
+<header class="site-header"><div class="head-inner"><div><div class="brand">La Picá del Benjamín</div><div class="tagline">Sabor que enamora, porciones que impresionan</div>
 <a class="instagram-link" href="https://www.instagram.com/la_pica_de_benjamin?mdxt=MXdnZ3BwcHhncHFpdw==" target="_blank" rel="noopener noreferrer" aria-label="Visitar Instagram de La Picá del Benjamín">
 <span class="instagram-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="18" cy="6" r="1" fill="currentColor" stroke="none"/></svg></span>
 <span>Síguenos en Instagram</span>
