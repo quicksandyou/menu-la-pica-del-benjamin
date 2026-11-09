@@ -552,7 +552,7 @@ La Picá del Benjamín`,
         const client=await dbPool.connect();
         try {
           await client.query("BEGIN");
-          const eligible=await client.query("SELECT o.id FROM orders o WHERE o.id=ANY($1::int[]) AND o.approval_status='approved' AND o.payment_status IN ('approved','paid') AND o.delivery_method IN ('Delivery','delivery','despacho') AND NOT EXISTS (SELECT 1 FROM delivery_assignments da WHERE da.order_id=o.id AND da.status IN ('assigned','picked_up')) FOR UPDATE",[ids]);
+          const eligible=await client.query("SELECT o.id FROM orders o WHERE o.id=ANY($1::int[]) AND o.approval_status='approved' AND (o.payment_status IN ('approved','paid') OR o.source IN ('cash','whatsapp','in_person')) AND o.delivery_method IN ('Delivery','delivery','despacho') AND NOT EXISTS (SELECT 1 FROM delivery_assignments da WHERE da.order_id=o.id AND da.status IN ('assigned','picked_up')) FOR UPDATE",[ids]);
           if(eligible.rowCount!==ids.length) throw new Error("Uno o más pedidos ya fueron asignados, no están pagados o no son delivery. Actualiza la lista.");
           for(const id of ids){
             await client.query("UPDATE delivery_assignments SET status='reassigned' WHERE order_id=$1 AND status IN ('assigned','picked_up')",[id]);
@@ -586,7 +586,7 @@ La Picá del Benjamín`,
     }
 
     if (requestPath === "/api/reparto/orden-manual" && req.method === "POST") {
-      if (!isSuperAdmin(staff)) return send(res,403,{error:"Solo el administrador TI puede registrar pedidos manuales."});
+      if (!canManageOrders(staff)) return send(res,403,{error:"No tienes permisos para registrar pedidos manuales."});
       try {
         const d=await readJson(req);
         const name=String(d.customer_name||"").trim(), phone=String(d.customer_phone||"").trim();
@@ -599,8 +599,8 @@ La Picá del Benjamín`,
         const driverFee=method==="Delivery"?(zone==="far"?3000:2000):0;
         const items=Array.isArray(d.items)?d.items:[];
         const saved=await dbPool.query(
-          "INSERT INTO orders(source,customer_name,customer_phone,delivery_address,locality,delivery_method,total_clp,payment_status,delivery_status,items_json,notes,driver_fee_clp,delivery_zone,delivery_latitude,delivery_longitude) VALUES($1,$2,$3,$4,$5,$6,$7,$8,'pending',$9::jsonb,$10,$11,$12) RETURNING id",
-          [source,name,phone||null,address||null,locality||null,method,total,d.payment_status==="paid"?"paid":"pending",JSON.stringify(items),String(d.notes||""),driverFee,zone,d.latitude!==null&&d.latitude!==undefined&&d.latitude!==""&&Number.isFinite(Number(d.latitude))?Number(d.latitude):null,d.longitude!==null&&d.longitude!==undefined&&d.longitude!==""&&Number.isFinite(Number(d.longitude))?Number(d.longitude):null]
+          "INSERT INTO orders(source,customer_name,customer_phone,delivery_address,locality,delivery_method,total_clp,payment_status,delivery_status,items_json,notes,driver_fee_clp,delivery_zone,delivery_latitude,delivery_longitude,approval_status,approved_by,approved_at) VALUES($1,$2,$3,$4,$5,$6,$7,'pending','pending',$8::jsonb,$9,$10,$11,$12,$13,'approved',$14,NOW()) RETURNING id",
+          [source,name,phone||null,address||null,locality||null,method,total,JSON.stringify(items),String(d.notes||""),driverFee,zone,null,null,staff.id]
         );
         const id=saved.rows[0].id, number="PB-"+String(id).padStart(6,"0");
         await dbPool.query("UPDATE orders SET order_number=$1 WHERE id=$2",[number,id]);
