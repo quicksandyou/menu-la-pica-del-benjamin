@@ -1,6 +1,6 @@
 {
   "name": "la-pica-del-benjamin-desktop",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Aplicación de escritorio La Picá del Benjamín",
   "main": "main.js",
   "scripts": {
@@ -49,5 +49,7 @@
       }
     ]
   },
-  "dependencies": {}
+  "dependencies": {
+    "electron-updater": "^6.6.2"
+  }
 }
