@@ -257,25 +257,31 @@ const server = http.createServer(async (req, res) => {
       if (!["Sugerencia", "Problema con la página", "Idea para mejorar"].includes(type)) {
         return send(res, 400, { error: "Selecciona un tipo de mensaje válido." });
       }
-      const user = process.env.MAIL_USER;
-      const pass = process.env.MAIL_PASS;
-      const recipient = process.env.SUGGESTIONS_TO;
-      if (!user || !pass || !recipient) {
-        console.error("Faltan variables de correo para sugerencias.");
+      const apiKey = process.env.RESEND_API_KEY;
+      const recipient = process.env.SUGGESTIONS_TO || "lapicadadelbenjamin@gmail.com";
+      if (!apiKey || !recipient) {
+        console.error("Falta RESEND_API_KEY o destinatario para sugerencias.");
         return send(res, 503, { error: "El buzón de sugerencias todavía no está disponible." });
       }
-      const transporter = nodemailer.createTransport({
-        host: "smtp.gmail.com", port: 465, secure: true,
-        connectionTimeout: 15000, greetingTimeout: 10000, socketTimeout: 20000,
-        auth: { user, pass }
+      const emailResponse = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          "Authorization": "Bearer " + apiKey,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          from: "La Picá del Benjamín <onboarding@resend.dev>",
+          to: [recipient],
+          subject: "[Sugerencia web] " + type,
+          text: "Nueva comunicación desde la tienda web.\\n\\nTipo: " + type + "\\nNombre: " + (name || "No indicado") + "\\nFecha: " + new Date().toLocaleString("es-CL", { timeZone: "America/Santiago" }) + "\\n\\nMensaje:\\n" + message
+        }),
+        signal: AbortSignal.timeout(20000)
       });
-      await transporter.sendMail({
-        from: '"La Picá del Benjamín" <' + user + '>',
-        to: recipient,
-        subject: "[Sugerencia web] " + type,
-        text: "Nueva comunicación desde la tienda web.\n\nTipo: " + type + "\nNombre: " + (name || "No indicado") + "\nFecha: " + new Date().toLocaleString("es-CL", { timeZone: "America/Santiago" }) + "\n\nMensaje:\n" + message,
-        replyTo: user
-      });
+      const emailResult = await emailResponse.json().catch(() => ({}));
+      if (!emailResponse.ok) {
+        console.error("Resend rechazó la sugerencia:", emailResponse.status, emailResult.message || emailResult.name || "Error de envío");
+        return send(res, 502, { error: "El servicio de correo no pudo aceptar el mensaje. Revisa la configuración de Resend." });
+      }
       return send(res, 200, { ok: true, message: "¡Muchas gracias por tus comentarios! Tu opinión nos ayuda a mejorar La Picá del Benjamín. ¡Que tengas un excelente día!" });
     } catch (error) {
       console.error("Error enviando sugerencia:", error.message);
