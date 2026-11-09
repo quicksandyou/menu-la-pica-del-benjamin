@@ -182,7 +182,7 @@ function enableDriverTabReorder(){
    tabs().forEach(t=>t.classList.toggle("drag-over",t===over));
    if(over){const r=over.getBoundingClientRect();nav.insertBefore(dragged,e.clientX<r.left+r.width/2?over:over.nextSibling);}
   });
-  const finish=()=>{clearTimeout(holdTimer);if(dragged){dragged.classList.remove("dragging");tabs().forEach(t=>t.classList.remove("drag-over"));saveDriverTabOrder();dragged=null;}activePointer=null;};
+  const finish=()=>{clearTimeout(holdTimer);if(dragged){dragged.dataset.justDragged="1";dragged.classList.remove("dragging");tabs().forEach(t=>t.classList.remove("drag-over"));saveDriverTabOrder();dragged=null;}activePointer=null;};
   btn.addEventListener("pointerup",finish);btn.addEventListener("pointercancel",finish);
   btn.addEventListener("click",e=>{if(btn.dataset.justDragged==="1"){e.preventDefault();e.stopImmediatePropagation();btn.dataset.justDragged="0";}},true);
  });
