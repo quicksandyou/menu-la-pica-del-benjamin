@@ -276,6 +276,14 @@ body.jewelry-mode .ketchup-side{display:none!important}
 #jewelrySparkleLayer span:nth-child(8){left:56%;top:85%;animation-delay:1.3s}
 @keyframes globalJewelryTwinkle{0%,100%{opacity:.25;transform:scale(.55) rotate(0)}50%{opacity:1;transform:scale(1.25) rotate(35deg)}}
 
+
+.ketchup-explosion{position:fixed;z-index:120;pointer-events:none;width:18px;height:18px;border-radius:50%;background:radial-gradient(circle,#fff6b8 0 12%,#ffb52d 28%,#ed2922 58%,#9f1010 75%,transparent 78%);box-shadow:0 0 24px 12px #ff7b1c99;animation:ketchupBoom .72s ease-out forwards}
+.ketchup-shard{position:fixed;z-index:121;pointer-events:none;width:11px;height:17px;border-radius:60% 40% 65% 35%;background:linear-gradient(135deg,#ff7560,#c90d12);box-shadow:0 2px 5px #0008;animation:ketchupShard .9s cubic-bezier(.1,.7,.25,1) forwards}
+@keyframes ketchupBoom{0%{transform:scale(.2);opacity:1}35%{transform:scale(7);opacity:1}100%{transform:scale(12);opacity:0}}
+@keyframes ketchupShard{0%{transform:translate(0,0) rotate(0) scale(1);opacity:1}100%{transform:translate(var(--dx),var(--dy)) rotate(var(--rot)) scale(.2);opacity:0}}
+.ketchup-side.ketchup-launch{animation:ketchupLaunch .7s cubic-bezier(.2,.75,.25,1) forwards!important;pointer-events:none!important}
+@keyframes ketchupLaunch{0%{opacity:1;transform:scale(1) rotate(0)}25%{opacity:1;transform:scale(1.25) rotate(12deg)}100%{opacity:0;transform:translate(var(--launch-x),var(--launch-y)) rotate(620deg) scale(.05)}}
+
 </style><audio id="siteMusic" src="./soundtrack.mp3.mpeg" loop preload="none"></audio><button id="musicToggle" type="button" aria-pressed="false" onclick="toggleMusic()">🎵 Activar música</button><a class="delivery-help" href="https://wa.me/56962662078?text=Hola%2C%20quisiera%20hacer%20una%20consulta%20sobre%20mi%20pedido%20de%20La%20Pic%C3%A1%20del%20Benjam%C3%ADn." target="_blank" rel="noopener noreferrer" aria-label="Consultar pedido con el encargado de delivery por WhatsApp"><span class="wa-icon">🟢</span><span>Consultar mi pedido</span></a><button type="button" class="ketchup-side left" aria-label="¡Aprieta para lanzar kétchup!" title="¡Toca para lanzar kétchup!" onclick="splashKetchup(event)"><span class="ketchup-splash">〰</span><span class="ketchup-bottle"></span></button><button type="button" class="ketchup-side right" aria-label="¡Aprieta para lanzar kétchup!" title="¡Toca para lanzar kétchup!" onclick="splashKetchup(event)"><span class="ketchup-splash">〰</span><span class="ketchup-bottle"></span></button><header class="site-header"><div class="head-inner"><div><div class="brand">La Picá del Benjamín</div><div class="tagline">Sabor que enamora, porciones que impresionan</div></div><div class="header-info"><div class="info-chip">📍 <b>Pje. Hermano Claudio Ortíz #1229</b><br>Linares · <a href="https://maps.app.goo.gl/zV6W4sxRxqezmYtb7" target="_blank" rel="noopener">Ver ubicación real ↗</a></div><div class="info-chip">🕒 <b>Horario de atención</b><br>Martes a sábado · 17:30 a 02:00 AM</div></div></div></header>
 <main class="wrap">
 <div class="store-switch" role="tablist" aria-label="Seleccionar tienda">
@@ -372,24 +380,55 @@ function playKetchupSqueeze(){
  }catch(error){console.warn("No se pudo reproducir el sonido del kétchup:",error);}
 }
 
+const ketchupPresses=new WeakMap();
+function playKetchupExplosion(){
+ try{
+  const Ctx=window.AudioContext||window.webkitAudioContext;if(!Ctx)return;
+  if(!ketchupAudioContext)ketchupAudioContext=new Ctx();
+  const ctx=ketchupAudioContext;if(ctx.state==="suspended")ctx.resume();
+  const now=ctx.currentTime,len=Math.floor(ctx.sampleRate*.55),buf=ctx.createBuffer(1,len,ctx.sampleRate),data=buf.getChannelData(0);
+  for(let i=0;i<len;i++){const t=i/len;data[i]=(Math.random()*2-1)*Math.pow(1-t,2);}
+  const src=ctx.createBufferSource(),filter=ctx.createBiquadFilter(),gain=ctx.createGain();
+  src.buffer=buf;filter.type="lowpass";filter.frequency.setValueAtTime(950,now);filter.frequency.exponentialRampToValueAtTime(90,now+.5);
+  gain.gain.setValueAtTime(.0001,now);gain.gain.exponentialRampToValueAtTime(.55,now+.012);gain.gain.exponentialRampToValueAtTime(.0001,now+.52);
+  src.connect(filter);filter.connect(gain);gain.connect(ctx.destination);src.start(now);src.stop(now+.55);
+ }catch(error){console.warn("No se pudo reproducir la explosión:",error);}
+}
+function explodeKetchupBottle(button){
+ const rect=button.getBoundingClientRect(),x=rect.left+rect.width/2,y=rect.top+rect.height/2;
+ playKetchupExplosion();
+ const boom=document.createElement("span");boom.className="ketchup-explosion";boom.style.left=(x-9)+"px";boom.style.top=(y-9)+"px";document.body.appendChild(boom);setTimeout(()=>boom.remove(),800);
+ for(let i=0;i<24;i++){
+  const shard=document.createElement("span");shard.className="ketchup-shard";shard.style.left=x+"px";shard.style.top=y+"px";
+  const a=Math.PI*2*i/24+(Math.random()-.5)*.25,d=90+Math.random()*180;
+  shard.style.setProperty("--dx",Math.cos(a)*d+"px");shard.style.setProperty("--dy",Math.sin(a)*d+"px");shard.style.setProperty("--rot",(Math.random()*900-450)+"deg");
+  document.body.appendChild(shard);setTimeout(()=>shard.remove(),1000);
+ }
+ button.style.setProperty("--launch-x",(x<innerWidth/2?"-":"")+Math.max(300,innerWidth*.7)+"px");
+ button.style.setProperty("--launch-y",(y<innerHeight/2?"-":"")+Math.max(240,innerHeight*.55)+"px");
+ button.classList.add("ketchup-launch");
+ button.setAttribute("aria-label","Botella explotada");
+ setTimeout(()=>button.remove(),760);
+}
 function splashKetchup(event){
+ const button=event.currentTarget;
+ const now=Date.now(),previous=ketchupPresses.get(button)||{count:0,time:0};
+ const count=now-previous.time<4500?previous.count+1:1;
+ ketchupPresses.set(button,{count,time:now});
+ if(count>=8){explodeKetchupBottle(button);return;}
  playKetchupSqueeze();
- const rect=event.currentTarget.getBoundingClientRect();
+ const rect=button.getBoundingClientRect();
  const originX=rect.left+rect.width/2, originY=rect.top+rect.height/2;
  for(let i=0;i<10;i++){
-  const drop=document.createElement("span");
-  drop.className="ketchup-drop";
+  const drop=document.createElement("span");drop.className="ketchup-drop";
   drop.style.left=originX+"px";drop.style.top=originY+"px";
-  const angle=(Math.PI*2*i/10)+(Math.random()-.5)*.35;
-  const distance=45+Math.random()*75;
-  drop.style.setProperty("--dx",Math.cos(angle)*distance+"px");
-  drop.style.setProperty("--dy",Math.sin(angle)*distance+"px");
-  drop.style.animationDelay=(Math.random()*.09)+"s";
-  document.body.appendChild(drop);
-  setTimeout(()=>drop.remove(),1100);
+  const angle=(Math.PI*2*i/10)+(Math.random()-.5)*.35,distance=45+Math.random()*75;
+  drop.style.setProperty("--dx",Math.cos(angle)*distance+"px");drop.style.setProperty("--dy",Math.sin(angle)*distance+"px");
+  drop.style.animationDelay=(Math.random()*.09)+"s";document.body.appendChild(drop);setTimeout(()=>drop.remove(),1100);
  }
- event.currentTarget.animate([{transform:"scale(1)"},{transform:"scale(1.16) rotate(-8deg)"},{transform:"scale(1)"}],{duration:260,easing:"ease-out"});
+ button.animate([{transform:"scale(1)"},{transform:"scale(1.16) rotate(-8deg)"},{transform:"scale(1)"}],{duration:260,easing:"ease-out"});
 }
+
 
 function isOrderingOpen(){
  const parts=new Intl.DateTimeFormat("en-US",{timeZone:"America/Santiago",weekday:"short",hour:"2-digit",minute:"2-digit",hourCycle:"h23"}).formatToParts(new Date());
