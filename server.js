@@ -24,13 +24,15 @@ async function initializeDatabase() {
       delivery_address TEXT, locality VARCHAR(80), delivery_method VARCHAR(30),
       total_clp INTEGER NOT NULL DEFAULT 0, payment_status VARCHAR(30) NOT NULL DEFAULT 'pending',
       delivery_status VARCHAR(30) NOT NULL DEFAULT 'pending',
-      items_json JSONB NOT NULL DEFAULT '[]'::jsonb, notes TEXT, delivery_fee_clp INTEGER NOT NULL DEFAULT 0, external_reference VARCHAR(100),
+      items_json JSONB NOT NULL DEFAULT '[]'::jsonb, notes TEXT, delivery_fee_clp INTEGER NOT NULL DEFAULT 0, external_reference VARCHAR(100), driver_fee_clp INTEGER NOT NULL DEFAULT 2000, delivery_zone VARCHAR(20) NOT NULL DEFAULT 'normal',
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     );
     ALTER TABLE orders ADD COLUMN IF NOT EXISTS items_json JSONB NOT NULL DEFAULT '[]'::jsonb;
     ALTER TABLE orders ADD COLUMN IF NOT EXISTS notes TEXT;
     ALTER TABLE orders ADD COLUMN IF NOT EXISTS delivery_fee_clp INTEGER NOT NULL DEFAULT 0;
     ALTER TABLE orders ADD COLUMN IF NOT EXISTS external_reference VARCHAR(100);
+    ALTER TABLE orders ADD COLUMN IF NOT EXISTS driver_fee_clp INTEGER NOT NULL DEFAULT 2000;
+    ALTER TABLE orders ADD COLUMN IF NOT EXISTS delivery_zone VARCHAR(20) NOT NULL DEFAULT 'normal';
     CREATE TABLE IF NOT EXISTS app_users (
       id BIGSERIAL PRIMARY KEY,
       username VARCHAR(80) UNIQUE NOT NULL,
@@ -299,6 +301,69 @@ const server = http.createServer(async (req, res) => {
         } catch(e) { await client.query("ROLLBACK"); throw e; } finally { client.release(); }
         return send(res,200,{ok:true});
       } catch(e) { return send(res,400,{error:"No se pudo asignar el pedido."}); }
+    }
+
+    if (requestPath === "/api/reparto/orden-manual" && req.method === "POST") {
+      if (staff.role !== "admin") return send(res,403,{error:"Solo administración puede registrar pedidos manuales."});
+      try {
+        const d=await readJson(req);
+        const name=String(d.customer_name||"").trim(), phone=String(d.customer_phone||"").trim();
+        const address=String(d.delivery_address||"").trim(), locality=String(d.locality||"").trim();
+        const method=String(d.delivery_method||"Delivery");
+        const total=Number(d.total_clp), zone=d.delivery_zone==="far"?"far":"normal";
+        const source=["cash","whatsapp","in_person"].includes(d.source)?d.source:"cash";
+        if(!name||!Number.isInteger(total)||total<0||total>1000000||!["Delivery","Retiro en el local"].includes(method)) return send(res,400,{error:"Datos de pedido inválidos."});
+        if(method==="Delivery"&&(!address||!locality)) return send(res,400,{error:"Falta dirección o localidad."});
+        const driverFee=method==="Delivery"?(zone==="far"?3000:2000):0;
+        const items=Array.isArray(d.items)?d.items:[];
+        const saved=await dbPool.query(
+          "INSERT INTO orders(source,customer_name,customer_phone,delivery_address,locality,delivery_method,total_clp,payment_status,delivery_status,items_json,notes,driver_fee_clp,delivery_zone) VALUES($1,$2,$3,$4,$5,$6,$7,$8,'pending',$9::jsonb,$10,$11,$12) RETURNING id",
+          [source,name,phone||null,address||null,locality||null,method,total,d.payment_status==="paid"?"paid":"pending",JSON.stringify(items),String(d.notes||""),driverFee,zone]
+        );
+        const id=saved.rows[0].id, number="PB-"+String(id).padStart(6,"0");
+        await dbPool.query("UPDATE orders SET order_number=$1 WHERE id=$2",[number,id]);
+        return send(res,201,{ok:true,order_number:number,driver_fee_clp:driverFee});
+      } catch(e) { console.error("Manual order:",e.message); return send(res,400,{error:"No se pudo registrar el pedido."}); }
+    }
+    if (requestPath === "/api/reparto/extras" && req.method === "GET") {
+      const q=staff.role==="admin"
+        ? await dbPool.query("SELECT e.id,e.description,e.destination,e.requested_amount_clp,e.approved_amount_clp,e.approval_status,e.created_at,d.display_name AS driver_name FROM extra_runs e JOIN drivers d ON d.id=e.driver_id ORDER BY e.created_at DESC LIMIT 200")
+        : await dbPool.query("SELECT e.id,e.description,e.destination,e.requested_amount_clp,e.approved_amount_clp,e.approval_status,e.created_at,d.display_name AS driver_name FROM extra_runs e JOIN drivers d ON d.id=e.driver_id WHERE d.app_user_id=$1 ORDER BY e.created_at DESC LIMIT 100",[staff.id]);
+      return send(res,200,{extras:q.rows});
+    }
+    if (requestPath === "/api/reparto/extras" && req.method === "POST") {
+      if(staff.role!=="driver") return send(res,403,{error:"Solo repartidores pueden solicitar carreras extra."});
+      try {
+        const d=await readJson(req), description=String(d.description||"").trim(), destination=String(d.destination||"").trim(), amount=Number(d.amount);
+        if(!description||!Number.isInteger(amount)||amount<0||amount>200000) return send(res,400,{error:"Descripción o monto inválido."});
+        const driver=await dbPool.query("SELECT id FROM drivers WHERE app_user_id=$1 AND active=TRUE",[staff.id]);
+        if(!driver.rowCount) return send(res,404,{error:"Perfil de repartidor no configurado."});
+        const saved=await dbPool.query("INSERT INTO extra_runs(driver_id,description,destination,requested_amount_clp) VALUES($1,$2,$3,$4) RETURNING id",[driver.rows[0].id,description,destination,amount]);
+        return send(res,201,{ok:true,id:saved.rows[0].id,approval_status:"pending"});
+      } catch(e) { return send(res,400,{error:"No se pudo registrar la carrera extra."}); }
+    }
+    if (requestPath === "/api/reparto/extras/aprobar" && req.method === "POST") {
+      if(staff.role!=="admin") return send(res,403,{error:"Solo administración puede aprobar carreras."});
+      try {
+        const d=await readJson(req), id=Number(d.id), approved=d.approved===true, amount=Number(d.amount);
+        if(!Number.isInteger(id)||id<1||(approved&&(!Number.isInteger(amount)||amount<0||amount>200000))) return send(res,400,{error:"Datos de aprobación inválidos."});
+        const result=await dbPool.query("UPDATE extra_runs SET approval_status=$1,approved_amount_clp=$2,approved_at=NOW() WHERE id=$3 AND approval_status='pending' RETURNING id", [approved?"approved":"rejected",approved?amount:null,id]);
+        if(!result.rowCount) return send(res,404,{error:"Carrera no encontrada o ya revisada."});
+        return send(res,200,{ok:true});
+      } catch(e) { return send(res,400,{error:"No se pudo revisar la carrera."}); }
+    }
+    if (requestPath === "/api/reparto/cierre" && req.method === "GET") {
+      const driverId=staff.role==="driver"?(await dbPool.query("SELECT id FROM drivers WHERE app_user_id=$1",[staff.id])).rows[0]?.id:null;
+      if(staff.role==="driver"&&!driverId) return send(res,404,{error:"Perfil de repartidor no configurado."});
+      const params=driverId?[driverId]:[];
+      const where=driverId?"AND da.driver_id=$1":"";
+      const deliveries=await dbPool.query(
+        "SELECT o.order_number,o.created_at,o.delivery_address,o.locality,o.driver_fee_clp,o.delivery_zone,o.delivery_status,d.display_name AS driver_name FROM delivery_assignments da JOIN orders o ON o.id=da.order_id JOIN drivers d ON d.id=da.driver_id WHERE da.status='delivered' "+where+" ORDER BY o.created_at DESC LIMIT 500",params);
+      const extras=await dbPool.query(
+        "SELECT e.description,e.destination,e.requested_amount_clp,e.approved_amount_clp,e.approval_status,e.created_at,d.display_name AS driver_name FROM extra_runs e JOIN drivers d ON d.id=e.driver_id WHERE e.approval_status='approved' "+(driverId?"AND e.driver_id=$1 ":"")+"ORDER BY e.created_at DESC LIMIT 500",params);
+      const totals=await dbPool.query(
+        "SELECT d.display_name,COALESCE(SUM(o.driver_fee_clp),0)::int AS delivery_total FROM delivery_assignments da JOIN orders o ON o.id=da.order_id JOIN drivers d ON d.id=da.driver_id WHERE da.status='delivered' "+where+" GROUP BY d.id,d.display_name",params);
+      return send(res,200,{deliveries:deliveries.rows,extras:extras.rows,totals:totals.rows});
     }
     if (requestPath === "/api/reparto/estado" && req.method === "POST") {
       try {
