@@ -224,7 +224,7 @@ const server = http.createServer(async (req, res) => {
       const data = await readJson(req);
       const username = String(data.username || "").trim().toLowerCase();
       const password = String(data.password || "");
-      const found = await dbPool.query("SELECT id,username,full_name,role,password_salt,password_hash,active FROM app_users WHERE username=$1", [username]);
+      const found = await dbPool.query("SELECT id,username,full_name,role,password_salt,password_hash,active,must_change_password FROM app_users WHERE username=$1", [username]);
       const user = found.rows[0];
       if (!user || !user.active || !user.password_hash || !user.password_salt) return send(res, 401, { error: "Usuario o contraseña incorrectos." });
       const candidate = scryptSync(password, user.password_salt, 64);
