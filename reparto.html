@@ -56,34 +56,61 @@ $("manualGps").onclick=()=>{if(!navigator.geolocation){$("message").textContent=
 async function change(id,status){try{await call("/api/reparto/estado",{order_id:id,status});$("message").textContent="Estado actualizado.";load()}catch(e){$("message").textContent=e.message}}
 $("saveManual").onclick=async()=>{try{const d=await call("/api/reparto/orden-manual",{customer_name:$("mName").value,customer_phone:$("mPhone").value,total_clp:Number($("mTotal").value),source:$("mSource").value,delivery_method:$("mMethod").value,delivery_zone:$("mZone").value,delivery_address:$("mAddress").value,locality:$("mLocality").value,latitude:$("mLat").value||null,longitude:$("mLng").value||null,notes:$("mNotes").value});$("message").textContent="Pedido registrado: "+d.order_number+" · pago al repartidor $"+d.driver_fee_clp;load()}catch(e){$("message").textContent=e.message}};
 $("saveExtra").onclick=async()=>{try{await call("/api/reparto/extras",{description:$("extraDesc").value,destination:$("extraDest").value,amount:Number($("extraAmount").value)});$("message").textContent="Carrera enviada a aprobación.";load()}catch(e){$("message").textContent=e.message}};
+let closingCsvContent="";
 $("closeCsv").onclick=async()=>{
  const button=$("closeCsv"),preview=$("closingPreview");
  try{
-  button.disabled=true;button.textContent="Preparando archivo…";preview.classList.remove("hidden");preview.textContent="Consultando cierre de turno…";
+  button.disabled=true;button.textContent="Preparando cierre…";
+  preview.classList.remove("hidden");preview.replaceChildren();
+  const loading=document.createElement("p");loading.textContent="Consultando cierre de turno…";preview.append(loading);
   const d=await call("/api/reparto/cierre");
+  const deliveries=Array.isArray(d.deliveries)?d.deliveries:[];
+  const extras=Array.isArray(d.extras)?d.extras:[];
+  const totals=Array.isArray(d.totals)?d.totals:[];
   const rows=[
-   ["CIERRE DE TURNO · LA PICÁ DEL BENJAMÍN"],[],
-   ["PEDIDOS ENTREGADOS"],["Pedido","Fecha","Dirección","Localidad","Repartidor","Tipo","Pago repartidor (CLP)","Estado"],
-   ...d.deliveries.map(x=>[x.order_number,x.created_at,x.delivery_address,x.locality,x.driver_name,x.delivery_zone,x.driver_fee_clp,x.delivery_status]),
-   [],["CARRERAS EXTRA APROBADAS"],["Descripción","Destino","Solicitado (CLP)","Aprobado (CLP)","Estado","Repartidor"],
-   ...d.extras.map(x=>[x.description,x.destination,x.requested_amount_clp,x.approved_amount_clp,x.approval_status,x.driver_name]),
+   ["CIERRE DE TURNO - LA PICA DEL BENJAMIN"],[],
+   ["PEDIDOS ENTREGADOS"],["Pedido","Fecha","Direccion","Localidad","Repartidor","Tipo","Pago repartidor (CLP)","Estado"],
+   ...deliveries.map(x=>[x.order_number,x.created_at,x.delivery_address,x.locality,x.driver_name,x.delivery_zone,x.driver_fee_clp,x.delivery_status]),
+   [],["CARRERAS EXTRA APROBADAS"],["Descripcion","Destino","Solicitado (CLP)","Aprobado (CLP)","Estado","Repartidor"],
+   ...extras.map(x=>[x.description,x.destination,x.requested_amount_clp,x.approved_amount_clp,x.approval_status,x.driver_name]),
    [],["TOTALES POR REPARTIDOR"],["Repartidor","Total delivery (CLP)"],
-   ...d.totals.map(x=>[x.display_name,x.delivery_total])
+   ...totals.map(x=>[x.display_name,x.delivery_total])
   ];
-  const csv="\\uFEFF"+rows.map(row=>row.map(v=>'"'+String(v??"").replaceAll('"','""')+'"').join(";")).join("\\r\\n");
+  // BOM UTF-8 y saltos CRLF reales para que Excel reconozca tildes y columnas.
+  closingCsvContent="\uFEFF"+rows.map(row=>row.map(v=>'"'+String(v??"").replaceAll('"','""')+'"').join(";")).join("\r\n");
+  preview.replaceChildren();
+  const caption=document.createElement("strong");caption.textContent="Vista previa del cierre";preview.append(caption);
+  const summary=document.createElement("p");summary.textContent=deliveries.length+" entregas · "+extras.length+" carreras extra aprobadas · "+totals.length+" repartidores";preview.append(summary);
   const table=document.createElement("table");table.style.cssText="width:100%;border-collapse:collapse;margin-top:12px;font-size:13px";
-  const caption=document.createElement("strong");caption.textContent="Vista previa del cierre";preview.replaceChildren(caption);
-  const summary=document.createElement("p");summary.textContent=d.deliveries.length+" entregas · "+d.extras.length+" carreras extra aprobadas · "+d.totals.length+" repartidores";preview.append(summary);
-  const head=document.createElement("tr");["Repartidor","Entregas","Total delivery"].forEach(label=>{const th=document.createElement("th");th.textContent=label;th.style.cssText="text-align:left;padding:8px;border-bottom:1px solid #987";head.append(th)});table.append(head);
-  for(const total of d.totals){const tr=document.createElement("tr");[total.display_name,String(d.deliveries.filter(x=>x.driver_name===total.display_name).length),"$"+Number(total.delivery_total||0).toLocaleString("es-CL")].forEach(value=>{const td=document.createElement("td");td.textContent=value;td.style.cssText="padding:8px;border-bottom:1px solid #765";tr.append(td)});table.append(tr)}
+  const head=document.createElement("tr");
+  ["Repartidor","Entregas","Total delivery"].forEach(label=>{const th=document.createElement("th");th.textContent=label;th.style.cssText="text-align:left;padding:8px;border-bottom:1px solid #987";head.append(th)});
+  table.append(head);
+  for(const total of totals){const tr=document.createElement("tr");[
+   total.display_name,
+   String(deliveries.filter(x=>x.driver_name===total.display_name).length),
+   "$"+Number(total.delivery_total||0).toLocaleString("es-CL")
+  ].forEach(value=>{const td=document.createElement("td");td.textContent=value;td.style.cssText="padding:8px;border-bottom:1px solid #765";tr.append(td)});table.append(tr)}
   preview.append(table);
-  const blob=new Blob([csv],{type:"text/csv;charset=utf-8"});
-  const url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="cierre-turno-la-pica-del-benjamin.csv";a.style.display="none";document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);
-  preview.insertAdjacentText("beforeend","\\nArchivo generado. Si no comenzó la descarga, usa el enlace: ");
-  const fallback=document.createElement("a");fallback.href=url;fallback.download="cierre-turno-la-pica-del-benjamin.csv";fallback.textContent="Descargar cierre de turno";fallback.style.cssText="color:#ffd078;font-weight:800";preview.append(fallback);
-  $("message").textContent="Cierre preparado correctamente.";
- }catch(e){preview.classList.remove("hidden");preview.textContent="No se pudo generar el cierre: "+e.message;$("message").textContent=e.message}
- finally{button.disabled=false;button.textContent="Ver y descargar Excel (CSV)"}
+  const help=document.createElement("p");help.textContent="Para descargar, pulsa el botón de abajo. El archivo se abre con Microsoft Excel.";preview.append(help);
+  const download=document.createElement("button");download.type="button";download.className="btn";download.textContent="⬇ Descargar archivo para Excel (.csv)";
+  download.addEventListener("click",()=>{
+   if(!closingCsvContent){help.textContent="Primero vuelve a generar el cierre.";return}
+   const blob=new Blob([closingCsvContent],{type:"text/csv;charset=utf-8"});
+   const url=URL.createObjectURL(blob);
+   const link=document.createElement("a");link.href=url;link.download="cierre-turno-la-pica-del-benjamin.csv";link.style.display="none";
+   document.body.append(link);link.click();link.remove();
+   setTimeout(()=>URL.revokeObjectURL(url),120000);
+   help.textContent="Descarga solicitada. Revisa la carpeta Descargas de tu equipo.";
+  });
+  preview.append(download);
+  $("message").textContent="Cierre listo para visualizar y descargar.";
+ }catch(e){
+  preview.classList.remove("hidden");preview.textContent="No se pudo generar el cierre: "+e.message;
+  $("message").textContent=e.message;
+ }finally{
+  button.disabled=false;button.textContent="Ver cierre de turno";
+ }
 };
+
 $("ordersDate").value=chileToday();$("showDate").onclick=load;$("todayDate").onclick=()=>{$("ordersDate").value=chileToday();load()};$("refresh").onclick=load;$("logout").onclick=async()=>{try{await call("/api/personal/logout",{})}finally{location.href="/personal.html"}};load();setInterval(()=>{if(!document.hidden)load()},12000);
 </script></body></html>
