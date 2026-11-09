@@ -760,14 +760,16 @@ async function showPaymentResult(){
   event.preventDefault();
   const sendButton=document.getElementById("suggestionSend"),status=document.getElementById("suggestionStatus");
   sendButton.disabled=true;sendButton.textContent="Enviando…";status.textContent="";
+  const controller=new AbortController();
+  const timeoutId=setTimeout(()=>controller.abort(),25000);
   try{
-   const response=await fetch(PAYMENT_API_BASE_URL+"/api/sugerencias",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({type:document.getElementById("suggestionType").value,name:document.getElementById("suggestionName").value,message:document.getElementById("suggestionMessage").value,website:document.getElementById("suggestionWebsite").value})});
+   const response=await fetch(PAYMENT_API_BASE_URL+"/api/sugerencias",{method:"POST",headers:{"Content-Type":"application/json"},signal:controller.signal,body:JSON.stringify({type:document.getElementById("suggestionType").value,name:document.getElementById("suggestionName").value,message:document.getElementById("suggestionMessage").value,website:document.getElementById("suggestionWebsite").value})});
    const data=await response.json();
    if(!response.ok)throw new Error(data.error||"No se pudo enviar el mensaje.");
    status.textContent="✅ "+(data.message||"¡Gracias por tu sugerencia!");
    document.getElementById("suggestionForm").reset();
-  }catch(error){status.textContent="⚠️ "+error.message;}
-  finally{sendButton.disabled=false;sendButton.textContent="Enviar sugerencia";}
+  }catch(error){status.textContent=error.name==="AbortError"?"⚠️ El envío está tardando demasiado. Intenta nuevamente en unos minutos.":"⚠️ "+error.message;}
+  finally{clearTimeout(timeoutId);sendButton.disabled=false;sendButton.textContent="Enviar sugerencia";}
  });
 })();
 
