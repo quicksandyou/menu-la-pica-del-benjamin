@@ -579,7 +579,7 @@ const server = http.createServer(async (req, res) => {
     }
   }
 
-  if (req.method === "POST" && req.url === "/api/crear-orden" && !isOrderingOpen() && !((await getStaffUser())?.role === "admin")) {
+  if (req.method === "POST" && req.url === "/api/crear-orden" && !isOrderingOpen() && !isSuperAdmin(await getStaffUser())) {
     return send(res, 403, { error: "Estamos fuera de horario. Los pedidos y pagos online están disponibles de martes a sábado, de 17:30 a 02:00. Muchas gracias por preferir La Picá del Benjamín." });
   }
 
