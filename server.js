@@ -381,27 +381,64 @@ const server = http.createServer(async (req, res) => {
 
   if (req.method === "POST" && requestPath === "/api/mercadopago/webhook") {
     try {
-      const secret=process.env.MP_WEBHOOK_SECRET;
-      if(!secret) return send(res,503,{error:"Webhook secret not configured."});
-      const data=await readJson(req);
-      const id=String(data?.data?.id||new URL(req.url,"http://localhost").searchParams.get("data.id")||"");
-      const signature=String(req.headers["x-signature"]||"");
-      const requestId=String(req.headers["x-request-id"]||"");
-      const ts=signature.match(/(?:^|,)\\s*ts=([^,]+)/)?.[1];
-      const v1=signature.match(/(?:^|,)\\s*v1=([^,]+)/)?.[1];
-      if(!id||!ts||!v1||!requestId) return send(res,401,{error:"Invalid webhook signature."});
-      const manifest="id:"+id+";request-id:"+requestId+";ts:"+ts+";";
-      const expected=createHmac("sha256",secret).update(manifest).digest("hex");
-      const a=Buffer.from(expected,"hex"), b=Buffer.from(v1,"hex");
-      if(a.length!==b.length||!timingSafeEqual(a,b)) return send(res,401,{error:"Invalid webhook signature."});
-      const response=await mpRequest("/v1/orders/"+encodeURIComponent(id));
-      const order=await response.json();
-      if(!response.ok) return send(res,502,{error:"Could not verify order with Mercado Pago."});
-      const paid=Number(order.total_paid_amount||0), total=Number(order.total_amount||0);
-      const approved=order.status==="processed"&&total>0&&paid>=total;
-      await dbPool.query("UPDATE orders SET payment_status=$1,updated_at=NOW() WHERE external_payment_id=$2",[approved?"approved":String(order.status||"pending"),id]);
-      return send(res,200,{received:true});
-    } catch(e) { console.error("MP webhook:",e.message); return send(res,400,{error:"Webhook processing failed."}); }
+      const secret = process.env.MP_WEBHOOK_SECRET;
+      if (!secret) return send(res, 503, { error: "Webhook secret not configured." });
+
+      const url = new URL(req.url, "http://localhost");
+      const data = await readJson(req);
+      // Mercado Pago documents data.id in the query string; body fallback helps
+      // with compatible test senders. Preserve the original value for HMAC.
+      const id = String(url.searchParams.get("data.id") || data?.data?.id || "");
+      const signature = String(req.headers["x-signature"] || "");
+      const requestId = String(req.headers["x-request-id"] || "");
+      const ts = signature.match(/(?:^|,)\\s*ts=([^,]+)/)?.[1];
+      const v1 = signature.match(/(?:^|,)\\s*v1=([^,]+)/)?.[1];
+
+      if (!id || !ts || !v1 || !requestId) {
+        return send(res, 401, { error: "Invalid webhook signature." });
+      }
+
+      // Reject stale signatures (5-minute tolerance) to reduce replay risk.
+      const timestampMs = Number(ts) * 1000;
+      if (!Number.isFinite(timestampMs) || Math.abs(Date.now() - timestampMs) > 5 * 60 * 1000) {
+        return send(res, 401, { error: "Expired webhook signature." });
+      }
+
+      const manifest = "id:" + id + ";request-id:" + requestId + ";ts:" + ts + ";";
+      const expected = createHmac("sha256", secret).update(manifest).digest("hex");
+      const a = Buffer.from(expected, "hex");
+      const b = Buffer.from(v1, "hex");
+      if (a.length !== b.length || !timingSafeEqual(a, b)) {
+        return send(res, 401, { error: "Invalid webhook signature." });
+      }
+
+      // The simulator can send a synthetic Data ID that is not a real Order.
+      // A validly signed event is acknowledged even when that resource is absent.
+      const response = await mpRequest("/v1/orders/" + encodeURIComponent(id));
+      const order = await response.json();
+      if (response.status === 404) {
+        console.log("MP webhook validado; recurso de prueba no encontrado:", id);
+        return send(res, 200, { received: true, resource_found: false });
+      }
+      if (!response.ok) {
+        console.error("MP webhook: consulta de orden fallida", response.status);
+        return send(res, 502, { error: "Could not verify order with Mercado Pago." });
+      }
+
+      const paid = Number(order.total_paid_amount || 0);
+      const total = Number(order.total_amount || 0);
+      const approved = order.status === "processed" && total > 0 && paid >= total;
+      if (dbPool) {
+        await dbPool.query(
+          "UPDATE orders SET payment_status=$1,updated_at=NOW() WHERE external_payment_id=$2",
+          [approved ? "approved" : String(order.status || "pending"), id]
+        );
+      }
+      return send(res, 200, { received: true, resource_found: true });
+    } catch (e) {
+      console.error("MP webhook:", e.message);
+      return send(res, 400, { error: "Webhook processing failed." });
+    }
   }
 
   if (req.method === "GET" && requestPath === "/api/salud-db") {
