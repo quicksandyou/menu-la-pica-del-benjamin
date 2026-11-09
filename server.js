@@ -187,9 +187,12 @@ async function readJson(req) {
   return JSON.parse(raw || "{}");
 }
 
-async function mpRequest(path, options = {}) {
-  const token = process.env.MP_ACCESS_TOKEN;
-  if (!token) throw new Error("Falta configurar MP_ACCESS_TOKEN en Render");
+async function mpRequest(path, options = {}, environment = "production") {
+  const isTest = environment === "test";
+  const token = isTest ? process.env.MP_ACCESS_TOKEN_TEST : process.env.MP_ACCESS_TOKEN;
+  if (!token) throw new Error(isTest
+    ? "Falta configurar MP_ACCESS_TOKEN_TEST en Render."
+    : "Falta configurar MP_ACCESS_TOKEN en Render.");
   return fetch(`${MP_API}${path}`, {
     ...options,
     headers: {
@@ -461,9 +464,10 @@ const server = http.createServer(async (req, res) => {
   }
 
 
-  if (req.method === "POST" && requestPath === "/api/mercadopago/webhook") {
+  if (req.method === "POST" && ["/api/mercadopago/webhook", "/api/mercadopago/webhook/test"].includes(requestPath)) {
     try {
-      const secret = process.env.MP_WEBHOOK_SECRET;
+      const webhookTestMode = requestPath.endsWith("/test");
+      const secret = webhookTestMode ? process.env.MP_WEBHOOK_SECRET_TEST : process.env.MP_WEBHOOK_SECRET;
       if (!secret) return send(res, 503, { error: "Webhook secret not configured." });
 
       const url = new URL(req.url, "http://localhost");
@@ -496,7 +500,7 @@ const server = http.createServer(async (req, res) => {
 
       // The simulator can send a synthetic Data ID that is not a real Order.
       // A validly signed event is acknowledged even when that resource is absent.
-      const response = await mpRequest("/v1/orders/" + encodeURIComponent(id));
+      const response = await mpRequest("/v1/orders/" + encodeURIComponent(id), {}, webhookTestMode ? "test" : "production");
       const order = await response.json();
       if (response.status === 404) {
         console.log("MP webhook validado; recurso de prueba no encontrado:", id);
@@ -510,13 +514,13 @@ const server = http.createServer(async (req, res) => {
       const paid = Number(order.total_paid_amount || 0);
       const total = Number(order.total_amount || 0);
       const approved = order.status === "processed" && total > 0 && paid >= total;
-      if (dbPool) {
+      if (dbPool && !webhookTestMode) {
         await dbPool.query(
           "UPDATE orders SET payment_status=$1,updated_at=NOW() WHERE external_payment_id=$2",
           [approved ? "approved" : String(order.status || "pending"), id]
         );
       }
-      return send(res, 200, { received: true, resource_found: true });
+      return send(res, 200, { received: true, resource_found: true, environment: webhookTestMode ? "test" : "production" });
     } catch (e) {
       console.error("MP webhook:", e.message);
       return send(res, 400, { error: "Webhook processing failed." });
@@ -538,15 +542,20 @@ const server = http.createServer(async (req, res) => {
     return send(res, 200, { status: "Servidor activo", ordering_open: isOrderingOpen(), hours: "Martes a sábado, 17:30 a 02:00 (America/Santiago)" });
   }
 
-  // Consultar la orden directamente en Mercado Pago; nunca confiar en el estado de la URL.
-  const orderMatch = req.method === "GET" && req.url.match(/^\/api\/orden\/([A-Za-z0-9_-]+)$/);
+  // Consultar la orden directamente en el entorno correcto de Mercado Pago.
+  const verificationUrl = new URL(req.url, "http://localhost");
+  const orderMatch = req.method === "GET" && verificationUrl.pathname.match(/^\/api\/orden\/([A-Za-z0-9_-]+)$/);
   if (orderMatch) {
+    const verificationTestMode = verificationUrl.searchParams.get("modoPrueba") === "1";
+    if (verificationTestMode && !isSuperAdmin(await getStaffUser())) {
+      return send(res, 403, { error: "El modo de prueba requiere una sesión de administración autorizada." });
+    }
     if (isRateLimited(req, 20, 60_000)) {
       return send(res, 429, { error: "Demasiadas consultas. Espera un minuto e inténtalo nuevamente." });
     }
     try {
       const orderId = orderMatch[1];
-      const response = await mpRequest(`/v1/orders/${encodeURIComponent(orderId)}`);
+      const response = await mpRequest(`/v1/orders/${encodeURIComponent(orderId)}`, {}, verificationTestMode ? "test" : "production");
       const order = await response.json();
       if (!response.ok) {
         console.error("Error consultando orden:", order);
@@ -556,7 +565,7 @@ const server = http.createServer(async (req, res) => {
       const paid = Number(order.total_paid_amount || 0);
       const total = Number(order.total_amount || 0);
       const approved = order.status === "processed" && total > 0 && paid >= total;
-      if (dbPool) {
+      if (dbPool && !verificationTestMode) {
         await dbPool.query(
           "UPDATE orders SET payment_status=$1,updated_at=NOW() WHERE external_payment_id=$2",
           [approved ? "approved" : String(order.status || "pending"), orderId]
@@ -578,11 +587,19 @@ const server = http.createServer(async (req, res) => {
     }
   }
 
-  if (req.method === "POST" && req.url === "/api/crear-orden" && !isOrderingOpen() && !((await getStaffUser())?.role === "admin")) {
-    return send(res, 403, { error: "Estamos fuera de horario. Los pedidos y pagos online están disponibles de martes a sábado, de 17:30 a 02:00. Muchas gracias por preferir La Picá del Benjamín." });
+  let createTestMode = false;
+  if (req.method === "POST" && requestPath === "/api/crear-orden") {
+    const createUrl = new URL(req.url, "http://localhost");
+    createTestMode = createUrl.searchParams.get("modoPrueba") === "1";
+    if (createTestMode && !isSuperAdmin(await getStaffUser())) {
+      return send(res, 403, { error: "El modo de prueba requiere una sesión de administración autorizada." });
+    }
+    if (!createTestMode && !isOrderingOpen()) {
+      return send(res, 403, { error: "Estamos fuera de horario. Los pedidos y pagos online están disponibles de martes a sábado, de 17:30 a 02:00. Muchas gracias por preferir La Picá del Benjamín." });
+    }
   }
 
-  if (req.method !== "POST" || req.url !== "/api/crear-orden") {
+  if (req.method !== "POST" || requestPath !== "/api/crear-orden") {
     return send(res, 404, { error: "No encontrado" });
   }
 
@@ -624,7 +641,7 @@ const server = http.createServer(async (req, res) => {
     if (deliveryFee > 0) { total += deliveryFee; items.push({ title: `Despacho a ${locality}`, quantity: 1, unit_price: String(deliveryFee) }); }
     if (Number(data.total_clp) !== total) throw new Error("El total del pedido no coincide.");
 
-    const returnUrl = `${FRONTEND_URL}/?pago=retorno`;
+    const returnUrl = `${FRONTEND_URL}/?pago=retorno${createTestMode ? "&modoPrueba=1" : ""}`;
     const payload = {
       type: "online",
       processing_mode: "manual",
@@ -655,7 +672,7 @@ const server = http.createServer(async (req, res) => {
       method: "POST",
       headers: { "X-Idempotency-Key": randomUUID() },
       body: JSON.stringify(payload)
-    });
+    }, createTestMode ? "test" : "production");
 
     const result = await response.json();
     console.log("MP DIAGNOSTICO DELIVERY:", JSON.stringify({
@@ -691,7 +708,7 @@ console.log("MP country:", result?.country_code);
       return send(res, response.status, { error: "Mercado Pago rechazó la creación de la orden. Revisa los logs de Render." });
     }
     if (!result.checkout_url || !result.id) throw new Error("Mercado Pago no devolvió checkout_url o el ID de la orden.");
-    if (dbPool) {
+    if (dbPool && !createTestMode) {
       const saved = await dbPool.query(
         "INSERT INTO orders (source,external_payment_id,external_reference,customer_name,customer_phone,customer_email,delivery_address,locality,delivery_method,total_clp,payment_status,delivery_status,items_json,notes,delivery_fee_clp,delivery_latitude,delivery_longitude) VALUES ('online',$1,$2,$3,$4,$5,$6,$7,$8,$9,'pending','pending',$10::jsonb,$11,$12,$13,$14) RETURNING id",
         [String(result.id),payload.external_reference,customerName,String(data.customer?.phone||"").trim(),customerEmail,method==="Delivery"?address:null,method==="Delivery"?locality:null,method,total,JSON.stringify(data.items),String(data.notes||""),deliveryFee,method==="Delivery"&&data.delivery?.latitude!==null&&data.delivery?.latitude!==undefined&&data.delivery?.latitude!==""&&Number.isFinite(Number(data.delivery.latitude))?Number(data.delivery.latitude):null,method==="Delivery"&&data.delivery?.longitude!==null&&data.delivery?.longitude!==undefined&&data.delivery?.longitude!==""&&Number.isFinite(Number(data.delivery.longitude))?Number(data.delivery.longitude):null]
@@ -700,7 +717,7 @@ console.log("MP country:", result?.country_code);
       await dbPool.query("UPDATE orders SET order_number=$1 WHERE id=$2",[orderNumber,saved.rows[0].id]);
     }
 
-    return send(res, 200, { checkout_url: result.checkout_url, order_id: result.id });
+    return send(res, 200, { checkout_url: result.checkout_url, order_id: result.id, environment: createTestMode ? "test" : "production" });
   } catch (error) {
     console.error(error);
     return send(res, 400, { error: error.message || "No fue posible crear la orden." });
