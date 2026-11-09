@@ -24,8 +24,13 @@ async function initializeDatabase() {
       delivery_address TEXT, locality VARCHAR(80), delivery_method VARCHAR(30),
       total_clp INTEGER NOT NULL DEFAULT 0, payment_status VARCHAR(30) NOT NULL DEFAULT 'pending',
       delivery_status VARCHAR(30) NOT NULL DEFAULT 'pending',
+      items_json JSONB NOT NULL DEFAULT '[]'::jsonb, notes TEXT, delivery_fee_clp INTEGER NOT NULL DEFAULT 0, external_reference VARCHAR(100),
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     );
+    ALTER TABLE orders ADD COLUMN IF NOT EXISTS items_json JSONB NOT NULL DEFAULT '[]'::jsonb;
+    ALTER TABLE orders ADD COLUMN IF NOT EXISTS notes TEXT;
+    ALTER TABLE orders ADD COLUMN IF NOT EXISTS delivery_fee_clp INTEGER NOT NULL DEFAULT 0;
+    ALTER TABLE orders ADD COLUMN IF NOT EXISTS external_reference VARCHAR(100);
     CREATE TABLE IF NOT EXISTS app_users (
       id BIGSERIAL PRIMARY KEY,
       username VARCHAR(80) UNIQUE NOT NULL,
@@ -220,7 +225,7 @@ const server = http.createServer(async (req, res) => {
       const token = randomBytes(32).toString("hex");
       const tokenHash = createHash("sha256").update(token).digest("hex");
       await dbPool.query("INSERT INTO app_sessions(token_hash,user_id,expires_at) VALUES($1,$2,NOW()+INTERVAL '12 hours')", [tokenHash,user.id]);
-      res.setHeader("Set-Cookie", "pb_session="+token+"; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=43200");
+      res.setHeader("Set-Cookie", "pb_session="+token+"; HttpOnly; Secure; SameSite=None; Path=/; Max-Age=43200");
       return send(res, 200, { user: { username:user.username, full_name:user.full_name, role:user.role }, mustChangePassword: user.must_change_password });
     } catch (error) { console.error("Login error:", error.message); return send(res, 400, { error: "No fue posible iniciar sesión." }); }
   }
@@ -228,7 +233,7 @@ const server = http.createServer(async (req, res) => {
   if (req.method === "POST" && requestPath === "/api/personal/logout") {
     const token = (req.headers.cookie || "").split(";").map(x=>x.trim()).find(x=>x.startsWith("pb_session="))?.slice(11);
     if (token && dbPool) await dbPool.query("DELETE FROM app_sessions WHERE token_hash=$1", [createHash("sha256").update(token).digest("hex")]);
-    res.setHeader("Set-Cookie", "pb_session=; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=0");
+    res.setHeader("Set-Cookie", "pb_session=; HttpOnly; Secure; SameSite=None; Path=/; Max-Age=0");
     return send(res, 200, { ok:true });
   }
 
@@ -341,6 +346,12 @@ const server = http.createServer(async (req, res) => {
       const paid = Number(order.total_paid_amount || 0);
       const total = Number(order.total_amount || 0);
       const approved = order.status === "processed" && total > 0 && paid >= total;
+      if (dbPool) {
+        await dbPool.query(
+          "UPDATE orders SET payment_status=$1,updated_at=NOW() WHERE external_payment_id=$2",
+          [approved ? "approved" : String(order.status || "pending"), orderId]
+        );
+      }
 
       // Nunca devolver dirección, teléfono ni otros datos personales al navegador.
       const delivery = Boolean(order.payer?.address || order.shipment?.address);
@@ -470,6 +481,14 @@ console.log("MP country:", result?.country_code);
       return send(res, response.status, { error: "Mercado Pago rechazó la creación de la orden. Revisa los logs de Render." });
     }
     if (!result.checkout_url || !result.id) throw new Error("Mercado Pago no devolvió checkout_url o el ID de la orden.");
+    if (dbPool) {
+      const saved = await dbPool.query(
+        "INSERT INTO orders (source,external_payment_id,external_reference,customer_name,customer_phone,customer_email,delivery_address,locality,delivery_method,total_clp,payment_status,delivery_status,items_json,notes,delivery_fee_clp) VALUES ('online',$1,$2,$3,$4,$5,$6,$7,$8,$9,'pending','pending',$10::jsonb,$11,$12) RETURNING id",
+        [String(result.id),payload.external_reference,customerName,String(data.customer?.phone||"").trim(),customerEmail,method==="Delivery"?address:null,method==="Delivery"?locality:null,method,total,JSON.stringify(data.items),String(data.notes||""),deliveryFee]
+      );
+      const orderNumber = "PB-" + String(saved.rows[0].id).padStart(6,"0");
+      await dbPool.query("UPDATE orders SET order_number=$1 WHERE id=$2",[orderNumber,saved.rows[0].id]);
+    }
 
     return send(res, 200, { checkout_url: result.checkout_url, order_id: result.id });
   } catch (error) {
