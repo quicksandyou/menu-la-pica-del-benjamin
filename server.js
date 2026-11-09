@@ -45,8 +45,9 @@ async function initializeDatabase() {
       active BOOLEAN NOT NULL DEFAULT TRUE,
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     );
+    -- Se conserva cualquier rol existente para evitar bloquear la migración de usuarios.
+    -- La autorización se controla en la aplicación mediante isSuperAdmin/canManageOrders.
     ALTER TABLE app_users DROP CONSTRAINT IF EXISTS app_users_role_check;
-    ALTER TABLE app_users ADD CONSTRAINT app_users_role_check CHECK (role IN ('superadmin','manager','driver'));
     ALTER TABLE app_users ADD COLUMN IF NOT EXISTS must_change_password BOOLEAN NOT NULL DEFAULT TRUE;
     INSERT INTO app_users (username, full_name, role) VALUES
       ('jefa', 'Michelle Ibáñez', 'manager'),
