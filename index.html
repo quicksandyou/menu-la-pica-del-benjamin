@@ -687,6 +687,21 @@ html.native-app-ui #appNativeWhatsAppCta:active,html.native-app-ui .app-native-c
  html:not(.native-app-ui) .grid{grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px}
  html:not(.native-app-ui) .food-art{height:190px;min-height:190px}
 }
+
+/* Escritorio: ocupar todo el ancho visible y reducir márgenes laterales */
+@media (min-width:1101px){
+ html:not(.native-app-ui),html:not(.native-app-ui) body{width:100%;max-width:none;overflow-x:hidden}
+ html:not(.native-app-ui) .wrap{width:100%;max-width:none;margin:0;padding-left:clamp(18px,2vw,36px);padding-right:clamp(18px,2vw,36px)}
+ html:not(.native-app-ui) .head-inner{width:100%;max-width:none;padding-left:clamp(18px,2vw,36px);padding-right:clamp(18px,2vw,36px)}
+ html:not(.native-app-ui) .launch-countdown-inner{width:100%;max-width:none;padding-left:clamp(18px,2vw,36px);padding-right:clamp(18px,2vw,36px)}
+ html:not(.native-app-ui) .playstore-announcement{width:calc(100% - clamp(36px,4vw,72px));max-width:none}
+ html:not(.native-app-ui) .feature-update{width:calc(100% - clamp(36px,4vw,72px));max-width:none}
+ html:not(.native-app-ui) #contestsSection{width:100%;max-width:none}
+}
+@media (min-width:1500px){
+ html:not(.native-app-ui) .wrap{padding-left:38px;padding-right:38px}
+ html:not(.native-app-ui) .layout{grid-template-columns:245px minmax(0,1fr) 410px;gap:28px}
+}
 </style><button type="button" class="app-drawer-toggle" id="appDrawerToggle" aria-label="Abrir menú" style="display:none">☰</button><div class="app-drawer-overlay" id="appDrawerOverlay" style="display:none"></div><audio id="siteMusic" src="./soundtrack.mp3.mpeg" loop preload="none"></audio><button id="musicToggle" type="button" aria-pressed="false" onclick="toggleMusic()">🎵 Activar música</button><a class="delivery-help" href="https://wa.me/56962662078?text=Hola%2C%20quisiera%20hacer%20una%20consulta%20sobre%20mi%20pedido%20de%20La%20Pic%C3%A1%20del%20Benjam%C3%ADn." target="_blank" rel="noopener noreferrer" aria-label="Consultar pedido con el encargado de delivery por WhatsApp"><span class="wa-icon">🟢</span><span>Consultar mi pedido</span></a><button type="button" class="ketchup-side left" aria-label="¡Aprieta para lanzar kétchup!" title="¡Toca para lanzar kétchup!" onclick="splashKetchup(event)"><span class="ketchup-splash">〰</span><span class="ketchup-bottle"></span></button><button type="button" class="ketchup-side right" aria-label="¡Aprieta para lanzar kétchup!" title="¡Toca para lanzar kétchup!" onclick="splashKetchup(event)"><span class="ketchup-splash">〰</span><span class="ketchup-bottle"></span></button><header class="site-header"><div class="app-native-topbar"><div class="app-native-logo"><img src="/logo_picada.jpg" alt="La Picá del Benjamín"></div><button id="appCartShortcut" type="button" aria-label="Ver carrito">🛒<span id="appCartCount">0</span></button></div><div class="head-inner"><div><div class="brand">La Picá del Benjamín</div><div class="tagline">Sabor que enamora, porciones que impresionan</div>
 <a class="instagram-link" href="https://www.instagram.com/la_pica_de_benjamin?mdxt=MXdnZ3BwcHhncHFpdw==" target="_blank" rel="noopener noreferrer" aria-label="Visitar Instagram de La Picá del Benjamín">
 <span class="instagram-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="18" cy="6" r="1" fill="currentColor" stroke="none"/></svg></span>
