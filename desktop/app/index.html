@@ -55,14 +55,18 @@ function renderProducts(){
  const q=document.getElementById('search').value.trim().toLocaleLowerCase('es-CL');
  const list=P.map((p,index)=>({p,index})).filter(({p})=>(category==='Todos'||p[0]===category)&&[p[1],p[3]].join(' ').toLocaleLowerCase('es-CL').includes(q));
  const products=document.getElementById('products');
- products.innerHTML=list.map(({p,index})=>{const available=p[2]!==null&&Number.isFinite(p[2])&&p[2]>0;return '<article class="product">'+(p[4]?'<img class="product-image" src="'+escapeHTML(p[4])+'" alt="'+escapeHTML(p[1])+'" loading="lazy" onerror="this.hidden=true">':'')+'<strong>'+escapeHTML(p[1])+'</strong><span class="sub">'+escapeHTML(p[0])+'</span>'+(p[3]?'<span class="product-desc">'+escapeHTML(p[3])+'</span>':'')+'<span class="price">'+(available?money(p[2]):'Precio por confirmar')+'</span><button type="button" class="add" data-add-index="'+index+'" '+(available?'':'disabled')+'>'+(available?'＋ Agregar':'No disponible por ahora')+'</button></article>'}).join('');
+ products.innerHTML=list.map(({p,index})=>{const available=p[2]!==null&&Number.isFinite(p[2])&&p[2]>0;return '<article class="product">'+(p[4]?'<img class="product-image" src="'+escapeHTML(p[4])+'" alt="'+escapeHTML(p[1])+'" loading="lazy" onerror="this.hidden=true">':'')+'<strong>'+escapeHTML(p[1])+'</strong><span class="sub">'+escapeHTML(p[0])+'</span>'+(p[3]?'<span class="product-desc">'+escapeHTML(p[3])+'</span>':'')+optionGroupsHTML(p,index)+'<span class="price">'+(available?money(p[2]):'Precio por confirmar')+'</span><button type="button" class="add" data-add-index="'+index+'" '+(available?'':'disabled')+'>'+(available?'＋ Agregar':'No disponible por ahora')+'</button></article>'}).join('');
  if(!list.length)products.innerHTML='<p class="muted">No hay productos en esta categoría.</p>';
 }
-function add(n){
+function optionGroupsHTML(p,index){const groups=p[5]||[];return groups.map((g,gi)=>Array.from({length:g.quantity||1},(_,k)=>{const id='pos-option-'+index+'-'+gi+'-'+k;return '<label class="muted" for="'+id+'">'+escapeHTML(g.label)+(g.quantity>1?' '+(k+1):'')+'</label><select class="product-option" id="'+id+'"><option value="">Seleccionar opción</option>'+g.choices.map(v=>'<option value="'+escapeHTML(v)+'">'+escapeHTML(v)+'</option>').join('')+'</select>'}).join('');}
+function add(n,index){
  const product=P.find(p=>p[1]===n);
  if(!product)return;
  if(product[2]===null||!Number.isFinite(product[2])||product[2]<=0){alert("Este producto no está disponible por ahora.");return;}
- cart[n]=(cart[n]||0)+1;
+ const groups=product[5]||[];const selected=[];
+ for(let gi=0;gi<groups.length;gi++){const g=groups[gi];for(let k=0;k<(g.quantity||1);k++){const el=document.getElementById('pos-option-'+index+'-'+gi+'-'+k);if(!el||!el.value){alert('Completa las opciones de '+g.label+'.');if(el)el.focus();return;}selected.push(g.label+(g.quantity>1?' '+(k+1):'')+': '+el.value);}}
+ const key=selected.length?n+' | '+selected.join(' · '):n;
+ cart[key]=(cart[key]||0)+1;
  drawCart();
 }
 function change(n,d){
@@ -76,7 +80,7 @@ function drawCart(){
  const entries=Object.entries(cart);
  const lines=document.getElementById('cartLines');
  lines.innerHTML=entries.length?entries.map(([n,q])=>{
-   const p=P.find(x=>x[1]===n);
+   const p=P.find(x=>x[1]===n.split(' | ')[0]);
    if(!p)return '';
    const lineTotal=Number(p[2])*Number(q);
    sum+=lineTotal;
@@ -109,7 +113,7 @@ async function loadSharedMenu(){
  if(!r.ok)throw Error("No se pudo cargar la carta online.");
  const d=await r.json();
  if(!Array.isArray(d.products)||!d.products.length)throw Error("La carta online está vacía.");
- P=d.products.map(x=>[x.category,x.name,x.price_clp===null||x.price_clp===undefined?null:Number(x.price_clp),x.description||"",x.image_url||d.photos?.[x.category]||""]);
+ P=d.products.map(x=>[x.category,x.name,x.price_clp===null||x.price_clp===undefined?null:Number(x.price_clp),x.description||"",x.image_url||d.photos?.[x.category]||"",x.option_groups||[]]);
  cats=["Todos",...(d.categories||[...new Set(P.map(x=>x[0]))])];
  if(status)status.textContent='Carta sincronizada: '+P.length+' productos · '+new Date().toLocaleTimeString('es-CL');
  renderTabs();renderProducts();drawCart();
