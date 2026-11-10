@@ -968,10 +968,10 @@ async function showPaymentResult(){
  if(document.getElementById("suggestionLauncher")) return;
  const style=document.createElement("style");
  style.textContent=`
- #suggestionLauncher{position:fixed;right:245px;bottom:18px;z-index:21;border:0;border-radius:999px;background:#24201e;color:#fff;padding:13px 18px;font-weight:800;box-shadow:0 5px 22px #0004;cursor:pointer}
+ #suggestionLauncher{position:fixed;left:18px;bottom:78px;z-index:10000;border:0;border-radius:999px;background:linear-gradient(100deg,#ffd34d,#ef7814);color:#211006;padding:13px 18px;font-weight:900;box-shadow:0 5px 22px #0008;cursor:pointer}
  .delivery-help{bottom:18px!important;right:18px!important;z-index:20}
 
- #suggestionPanel{position:fixed;right:18px;bottom:78px;z-index:9999;width:min(370px,calc(100vw - 28px));background:#fff;color:#26211f;border:1px solid #e8ded6;border-radius:18px;padding:18px;box-shadow:0 12px 40px #0003;display:none}
+ #suggestionPanel{position:fixed;left:18px;bottom:138px;z-index:10001;width:min(370px,calc(100vw - 28px));background:#fff;color:#26211f;border:1px solid #e8ded6;border-radius:18px;padding:18px;box-shadow:0 12px 40px #0003;display:none}
  #suggestionPanel h3{margin:0 0 7px;font-size:19px}#suggestionPanel p{margin:0 0 12px;color:#665d57;font-size:13px}
  #suggestionPanel label{display:block;font-size:13px;font-weight:700;margin:10px 0 5px}
  #suggestionPanel input,#suggestionPanel select,#suggestionPanel textarea{box-sizing:border-box;width:100%;border:1px solid #d8cec7;border-radius:9px;padding:10px;font:inherit;background:#fff;color:#26211f}
@@ -980,12 +980,12 @@ async function showPaymentResult(){
  #suggestionSend{background:#a52b21;color:white;width:100%;margin-top:10px}#suggestionClose{background:#eee7e1;color:#332d29;float:right}
  #suggestionStatus{font-size:13px;margin-top:9px;min-height:18px;color:#5a4c43}
  @media(max-width:520px){
-  #suggestionLauncher{right:calc(12px + 174px);bottom:12px;padding:11px 10px;font-size:12px;white-space:nowrap}
+  #suggestionLauncher{left:10px;bottom:76px;padding:11px 12px;font-size:12px;white-space:nowrap}
   .delivery-help{right:10px!important;bottom:12px!important;padding:11px 10px!important;font-size:12px!important;gap:5px}
-  #suggestionPanel{right:10px;bottom:66px}
+  #suggestionPanel{left:10px;bottom:136px}
  }
  @media(max-width:370px){
-  #suggestionLauncher{right:calc(10px + 158px);padding:10px 8px;font-size:11px}
+  #suggestionLauncher{left:10px;padding:10px 9px;font-size:11px}
   .delivery-help{right:10px!important;padding:10px 8px!important;font-size:11px!important}
  }
  `;
