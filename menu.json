@@ -327,7 +327,10 @@
             "Coca-Cola",
             "Fanta",
             "Sprite",
-            "Otra variedad disponible"
+            "Kem Piña",
+            "Limón Soda",
+            "Bilz",
+            "Pap"
           ]
         }
       ]
@@ -391,9 +394,9 @@
             "Fanta",
             "Sprite",
             "Kem Piña",
+            "Limón Soda",
             "Bilz",
-            "Pap",
-            "Limón Soda"
+            "Pap"
           ]
         }
       ]
@@ -425,6 +428,18 @@
             "Mechada choclo",
             "Carnes mixtas"
           ]
+        },
+        {
+          "label": "Elige tu bebida 1,5 L",
+          "choices": [
+            "Coca-Cola",
+            "Fanta",
+            "Sprite",
+            "Kem Piña",
+            "Limón Soda",
+            "Bilz",
+            "Pap"
+          ]
         }
       ]
     },
@@ -454,6 +469,18 @@
             "Mediterránea",
             "Mechada choclo",
             "Carnes mixtas"
+          ]
+        },
+        {
+          "label": "Elige tu bebida 1,5 L",
+          "choices": [
+            "Coca-Cola",
+            "Fanta",
+            "Sprite",
+            "Kem Piña",
+            "Limón Soda",
+            "Bilz",
+            "Pap"
           ]
         }
       ]
