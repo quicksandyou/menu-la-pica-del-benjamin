@@ -1,39 +1,289 @@
 {
   "version": 1,
   "categories": [
-    [
-      "Promociones sushi",
-      "Acevichado (10 cortes)",
-      2990,
-      "10 cortes de sushi acevichado."
-    ]
+    "Promociones sushi",
+    "Rolls fríos",
+    "Rolls fritos",
+    "Ceviches",
+    "Gohan",
+    "Pizzas",
+    "Sándwiches",
+    "Bebidas",
+    "Jugos naturales",
+    "Néctares",
+    "Aguas",
+    "Energéticas"
   ],
   "products": [
     {
-      "category": [
-        "Promociones sushi",
-        "Acevichado (10 cortes)",
-        2990,
-        "10 cortes de sushi acevichado."
-      ],
-      "name": [
-        "Promociones sushi",
-        "Salsa teriyaki (adicional)",
-        500,
-        "Adicional para acompañar tu pedido."
-      ],
-      "price_clp": [
-        "Promociones sushi",
-        "Salsa cevichera (adicional)",
-        500,
-        "Adicional para acompañar tu pedido."
-      ],
-      "description": [
-        "Promociones sushi",
-        "Ceviche chico (camarón y salmón)",
-        3890,
-        "Ceviche pequeño de camarón y salmón."
-      ]
+      "category": "Promociones sushi",
+      "name": "Acevichado (10 cortes)",
+      "price_clp": 2990,
+      "description": "10 cortes de sushi acevichado."
+    },
+    {
+      "category": "Promociones sushi",
+      "name": "Salsa teriyaki (adicional)",
+      "price_clp": 500,
+      "description": "Adicional para acompañar tu pedido."
+    },
+    {
+      "category": "Promociones sushi",
+      "name": "Salsa cevichera (adicional)",
+      "price_clp": 500,
+      "description": "Adicional para acompañar tu pedido."
+    },
+    {
+      "category": "Promociones sushi",
+      "name": "Ceviche chico (camarón y salmón)",
+      "price_clp": 3890,
+      "description": "Ceviche pequeño de camarón y salmón."
+    },
+    {
+      "category": "Rolls fríos",
+      "name": "Roll en palta (10 cortes)",
+      "price_clp": 3990,
+      "description": "Envuelto en palta, relleno de camarón o pollo con queso Philadelphia. Sin salmón."
+    },
+    {
+      "category": "Rolls fritos",
+      "name": "Roll frito relleno (10 cortes)",
+      "price_clp": 3990,
+      "description": "Elige el relleno: camarón, pollo, mechada, kanikama o champiñón; con queso y palta. Precio provisorio para revisión."
+    },
+    {
+      "category": "Promociones sushi",
+      "name": "Mix 40 cortes",
+      "price_clp": 13990,
+      "description": "Mix surtido de 40 cortes."
+    },
+    {
+      "category": "Promociones sushi",
+      "name": "Mix 100 cortes",
+      "price_clp": 40990,
+      "description": "Mix surtido de 100 cortes."
+    },
+    {
+      "category": "Promociones sushi",
+      "name": "30 cortes fríos",
+      "price_clp": 7990,
+      "description": "Promoción de 30 piezas de sushi frío."
+    },
+    {
+      "category": "Promociones sushi",
+      "name": "30 cortes fritos",
+      "price_clp": 8490,
+      "description": "Promoción de 30 piezas de sushi frito."
+    },
+    {
+      "category": "Promociones sushi",
+      "name": "Mix 20 cortes",
+      "price_clp": 6490,
+      "description": "Mix surtido de 20 piezas."
+    },
+    {
+      "category": "Promociones sushi",
+      "name": "Mix 30 cortes",
+      "price_clp": 10990,
+      "description": "Mix surtido de 30 piezas."
+    },
+    {
+      "category": "Promociones sushi",
+      "name": "Mix 50 cortes",
+      "price_clp": 15990,
+      "description": "Mix surtido de 50 piezas."
+    },
+    {
+      "category": "Promociones sushi",
+      "name": "Mix 70 cortes",
+      "price_clp": 23900,
+      "description": "Mix surtido de 70 piezas."
+    },
+    {
+      "category": "Promociones sushi",
+      "name": "Mix 90 cortes",
+      "price_clp": 33900,
+      "description": "Mix surtido de 90 piezas."
+    },
+    {
+      "category": "Ceviches",
+      "name": "Ceviche camarón-salmón",
+      "price_clp": 7990,
+      "description": "Salmón, camarón, cebolla morada, cilantro y pimentón."
+    },
+    {
+      "category": "Ceviches",
+      "name": "Ceviche mixto",
+      "price_clp": 9490,
+      "description": "Salmón, camarones, palta, choclo, cebolla morada y pimentón."
+    },
+    {
+      "category": "Gohan",
+      "name": "Gohan a elección",
+      "price_clp": 5990,
+      "description": "Arroz, palta, cebollín, queso crema y proteína a elección."
+    },
+    {
+      "category": "Pizzas",
+      "name": "Napolitana",
+      "price_clp": 7990,
+      "description": "Queso, jamón, tomate y orégano."
+    },
+    {
+      "category": "Pizzas",
+      "name": "Pollo champiñón",
+      "price_clp": 8990,
+      "description": "Queso, pollo, champiñón, salame y orégano."
+    },
+    {
+      "category": "Pizzas",
+      "name": "Cuatro estaciones",
+      "price_clp": 8990,
+      "description": "Queso, tocino, champiñón, salame, jamón, tomate y orégano."
+    },
+    {
+      "category": "Pizzas",
+      "name": "Peperoni",
+      "price_clp": 7990,
+      "description": "Queso, peperoni y orégano."
+    },
+    {
+      "category": "Pizzas",
+      "name": "Especial carne",
+      "price_clp": 8990,
+      "description": "Queso, carne de vacuno, salame, aceituna, champiñón y orégano."
+    },
+    {
+      "category": "Pizzas",
+      "name": "Mexicana",
+      "price_clp": 8990,
+      "description": "Queso, pimentón, tomate, cebolla, carne y ají Tabasco."
+    },
+    {
+      "category": "Pizzas",
+      "name": "Mediterránea",
+      "price_clp": 9990,
+      "description": "Queso, champiñón, camarones, aceitunas y orégano."
+    },
+    {
+      "category": "Pizzas",
+      "name": "Mechada choclo",
+      "price_clp": 8990,
+      "description": "Queso, mechada, choclo, salame y orégano."
+    },
+    {
+      "category": "Pizzas",
+      "name": "Carnes mixtas",
+      "price_clp": 8990,
+      "description": "Queso, vacuno, pollo, mechada, salame y orégano."
+    },
+    {
+      "category": "Sándwiches",
+      "name": "Clásico de la casa",
+      "price_clp": 4990,
+      "description": "Carne, tomate, palta y mayonesa casera."
+    },
+    {
+      "category": "Sándwiches",
+      "name": "Chacarero",
+      "price_clp": 4990,
+      "description": "Carne, tomate, poroto verde, ají verde y mayonesa."
+    },
+    {
+      "category": "Sándwiches",
+      "name": "Barros Luco",
+      "price_clp": 4990,
+      "description": "Carne y queso fundido."
+    },
+    {
+      "category": "Sándwiches",
+      "name": "Benjita",
+      "price_clp": 6490,
+      "description": "Carne, champiñón, lechuga, tomate, papas al hilo y salsa golf."
+    },
+    {
+      "category": "Sándwiches",
+      "name": "Sándwich del chef",
+      "price_clp": 5990,
+      "description": "Carne, verduras salteadas, aros de cebolla, lechuga y salsa de la casa."
+    },
+    {
+      "category": "Sándwiches",
+      "name": "A lo pobre",
+      "price_clp": 5990,
+      "description": "Carne, cebolla caramelizada, huevo y papas al hilo."
+    },
+    {
+      "category": "Sándwiches",
+      "name": "Vegetariano",
+      "price_clp": 6490,
+      "description": "Champiñones, lechuga, poroto verde, tomate, choclo y mayonesa."
+    },
+    {
+      "category": "Sándwiches",
+      "name": "Mexicano",
+      "price_clp": 5990,
+      "description": "Carne, tomate, aros de cebolla, lechuga y ají verde."
+    },
+    {
+      "category": "Sándwiches",
+      "name": "Chileno",
+      "price_clp": 5990,
+      "description": "Carne, tomate, salsa verde y mayonesa."
+    },
+    {
+      "category": "Sándwiches",
+      "name": "Cheese Cream",
+      "price_clp": 6890,
+      "description": "Carne, salame, queso crema, cebolla caramelizada y BBQ."
+    },
+    {
+      "category": "Sándwiches",
+      "name": "Chicken",
+      "price_clp": 6990,
+      "description": "Pollo apanado, queso fundido y champiñón salteado."
+    },
+    {
+      "category": "Bebidas",
+      "name": "Bebida lata 350 cc",
+      "price_clp": 1500,
+      "description": "Elige tu sabor: Coca-Cola, Fanta, Sprite, Kem Piña, Bilz, Pap o Limón Soda."
+    },
+    {
+      "category": "Bebidas",
+      "name": "Bebida botella 1,5 litros",
+      "price_clp": 2500,
+      "description": "Variedades según disponibilidad."
+    },
+    {
+      "category": "Jugos naturales",
+      "name": "Jugo natural 350 cc",
+      "price_clp": 2500,
+      "description": "Frambuesa, piña, frutilla o mango."
+    },
+    {
+      "category": "Jugos naturales",
+      "name": "Jugo natural 1 litro",
+      "price_clp": 3990,
+      "description": "Frambuesa, piña, frutilla o mango."
+    },
+    {
+      "category": "Néctares",
+      "name": "Néctar 1,5 litros",
+      "price_clp": 2500,
+      "description": "Durazno, piña o naranja."
+    },
+    {
+      "category": "Aguas",
+      "name": "Agua mineral 600 ml",
+      "price_clp": 1000,
+      "description": "Con o sin gas."
+    },
+    {
+      "category": "Energéticas",
+      "name": "Red Bull 250 cc",
+      "price_clp": 2500,
+      "description": "Bebida energética."
     }
   ],
   "photos": {
