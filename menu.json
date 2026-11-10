@@ -12,6 +12,7 @@
     "Jugos naturales",
     "Néctares",
     "Aguas",
+    "Salsas",
     "Energéticas"
   ],
   "products": [
@@ -20,18 +21,6 @@
       "name": "Acevichado (10 cortes)",
       "price_clp": 2990,
       "description": "10 cortes de sushi acevichado."
-    },
-    {
-      "category": "Promociones sushi",
-      "name": "Salsa teriyaki (adicional)",
-      "price_clp": 500,
-      "description": "Adicional para acompañar tu pedido."
-    },
-    {
-      "category": "Promociones sushi",
-      "name": "Salsa cevichera (adicional)",
-      "price_clp": 500,
-      "description": "Adicional para acompañar tu pedido."
     },
     {
       "category": "Promociones sushi",
@@ -284,6 +273,20 @@
       "name": "Red Bull 250 cc",
       "price_clp": 2500,
       "description": "Bebida energética."
+    },
+    {
+      "category": "Salsas",
+      "name": "Salsa teriyaki (adicional)",
+      "price_clp": 500,
+      "description": "Porción individual para acompañar sushi y otros platos.",
+      "image_url": "https://d2j6dbq0eux0bg.cloudfront.net/images/64910856/2715282945.jpg"
+    },
+    {
+      "category": "Salsas",
+      "name": "Salsa cevichera (adicional)",
+      "price_clp": 500,
+      "description": "Porción individual para acompañar sushi y otros platos.",
+      "image_url": "https://tofuu.getjusto.com/orioneat-local/resized2/Mruur6nHh2mZNyq7J-2400-x.webp"
     }
   ],
   "photos": {
@@ -299,6 +302,7 @@
     "Jugos naturales": "https://images.unsplash.com/photo-1600271886742-f049cd451bba?auto=format&fit=crop&w=700&q=80",
     "Néctares": "https://images.unsplash.com/photo-1600271886742-f049cd451bba?auto=format&fit=crop&w=700&q=80",
     "Aguas": "https://images.unsplash.com/photo-1523362628745-0c100150b504?auto=format&fit=crop&w=700&q=80",
-    "Energéticas": "https://images.unsplash.com/photo-1622543925917-763c34d1a86e?auto=format&fit=crop&w=700&q=80"
+    "Energéticas": "https://images.unsplash.com/photo-1622543925917-763c34d1a86e?auto=format&fit=crop&w=700&q=80",
+    "Salsas": "https://tofuu.getjusto.com/orioneat-local/resized2/Mruur6nHh2mZNyq7J-2400-x.webp"
   }
 }
