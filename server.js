@@ -160,6 +160,13 @@ const products = {
   "Jugo natural 350 cc": 2500, "Jugo natural 1 litro": 3990,
   "Néctar 1,5 litros": 2500, "Agua mineral 600 ml": 1000,
   "Red Bull 250 cc": 2500
+  "Aros bote plata 925": 7990,
+  "Aros Minnie plata 925": 12990,
+  "Pulsera de plata 925 · diseños surtidos": 8990,
+  "Pulsera de plata 925 · colección": 8990,
+  "Cadena plata 925 Amor": 10990,
+  "Cadena de plata 925 con dije": 9990,
+  "Cadena de plata 925 mariposa": 8990,
 };
 
 function isOrderingOpen(){
