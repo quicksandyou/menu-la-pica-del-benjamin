@@ -893,6 +893,10 @@ La Picá del Benjamín`,
     }
   }
 
+  if (req.method === "POST" && new URL(req.url, "http://localhost").pathname === "/api/crear-orden" && Date.now() < 1794687621111) {
+    return send(res, 423, { error: "Los pagos online de La Picá del Benjamín están temporalmente bloqueados por preparación de lanzamiento. Se habilitarán automáticamente al finalizar la cuenta regresiva de estreno." });
+  }
+
   if (req.method === "POST" && req.url === "/api/crear-orden" && !isOrderingOpen() && !isSuperAdmin(await getStaffUser())) {
     return send(res, 403, { error: "Estamos fuera de horario. Los pedidos y pagos online están disponibles de martes a sábado, de 17:30 a 02:00. Muchas gracias por preferir La Picá del Benjamín." });
   }
