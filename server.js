@@ -596,8 +596,6 @@ La Picá del Benjamín`,
         const total=Number(d.total_clp), zone=d.delivery_zone==="far"?"far":"normal";
         const source=["cash","whatsapp","in_person"].includes(d.source)?d.source:"cash";
         const username=String(d.driver_username||"");
-        const latitude=d.latitude===null||d.latitude===undefined||d.latitude===""?null:Number(d.latitude), longitude=d.longitude===null||d.longitude===undefined||d.longitude===""?null:Number(d.longitude);
-        if((latitude===null)!==(longitude===null)||(latitude!==null&&(!Number.isFinite(latitude)||!Number.isFinite(longitude)||Math.abs(latitude)>90||Math.abs(longitude)>180))) return send(res,400,{error:"Las coordenadas GPS no son válidas. Ingresa latitud y longitud o deja ambas vacías."});
         if(!name||!Number.isInteger(total)||total<=0||total>1000000||!["Delivery","Retiro en el local"].includes(method)) return send(res,400,{error:"Datos de pedido inválidos."});
         if(method==="Delivery"&&(!address||!locality||!["maximo","claudio"].includes(username))) return send(res,400,{error:"Falta dirección, localidad o repartidor asignado."});
         const driverFee=method==="Delivery"?(zone==="far"?3000:2000):0;
@@ -612,7 +610,7 @@ La Picá del Benjamín`,
         }
         const saved=await client.query(
           "INSERT INTO orders(source,customer_name,customer_phone,delivery_address,locality,delivery_method,total_clp,payment_status,delivery_status,items_json,notes,driver_fee_clp,delivery_zone,delivery_latitude,delivery_longitude,approval_status,approved_by,approved_at) VALUES($1,$2,$3,$4,$5,$6,$7,'pending',$8,$9::jsonb,$10,$11,$12,$13,$14,'approved',$15,NOW()) RETURNING id",
-          [source,name,phone||null,address||null,locality||null,method,total,method==="Delivery"?"assigned":"pending",JSON.stringify(items),String(d.notes||""),driverFee,zone,latitude,longitude,staff.id]
+          [source,name,phone||null,address||null,locality||null,method,total,method==="Delivery"?"assigned":"pending",JSON.stringify(items),String(d.notes||""),driverFee,zone,null,null,staff.id]
         );
         const id=saved.rows[0].id, number="PB-"+String(id).padStart(6,"0");
         await client.query("UPDATE orders SET order_number=$1 WHERE id=$2",[number,id]);
