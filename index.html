@@ -758,7 +758,7 @@ html.native-app-ui #appNativeWhatsAppCta:active,html.native-app-ui .app-native-c
 </main>
 <script>
 /* En la tienda de joyas se ocultan las categorías del menú de comida. */
-document.head.insertAdjacentHTML("beforeend", '<style id="jewelry-view-layout">body.jewelry-view .category-sidebar{display:none!important}body.jewelry-view .layout{grid-template-columns:minmax(0,1fr) 350px!important}body.jewelry-view .menu-column{grid-column:1}body.jewelry-view .cart{grid-column:2}@media(max-width:1050px){body.jewelry-view .layout{grid-template-columns:minmax(0,1fr) 320px!important}}@media(max-width:700px){body.jewelry-view .layout{grid-template-columns:1fr!important}body.jewelry-view .menu-column,body.jewelry-view .cart{grid-column:1!important}}
+document.head.insertAdjacentHTML("beforeend", `<style id="jewelry-view-layout">body.jewelry-view .category-sidebar{display:none!important}body.jewelry-view .layout{grid-template-columns:minmax(0,1fr) 350px!important}body.jewelry-view .menu-column{grid-column:1}body.jewelry-view .cart{grid-column:2}@media(max-width:1050px){body.jewelry-view .layout{grid-template-columns:minmax(0,1fr) 320px!important}}@media(max-width:700px){body.jewelry-view .layout{grid-template-columns:1fr!important}body.jewelry-view .menu-column,body.jewelry-view .cart{grid-column:1!important}}
 /* ===== APK Android: pantalla compacta y compra directa ===== */
 html.native-app-ui #launchCountdown,html.native-app-ui .playstore-announcement{display:none!important}
 html.native-app-ui .app-native-topbar{height:60px!important}
@@ -806,7 +806,7 @@ html.native-app-ui #nativeProductDetail .native-detail-content .add{min-height:4
 html.native-app-ui #nativeProductDetail .native-detail-content .product-count-badge{display:none!important}
 @media(max-width:380px){html.native-app-ui .app-native-categories{gap:6px!important}html.native-app-ui .app-native-category-image{height:56px!important}html.native-app-ui .app-native-whatsapp{min-height:42px!important}}
 
-</style>');
+</style>`);
 function showStoreSection(section){
  const food=section==="food";
  const jewelry=section==="jewelry";
