@@ -591,6 +591,8 @@ body{
 </section>
 </main>
 <script>
+/* En la tienda de joyas se ocultan las categorías del menú de comida. */
+document.head.insertAdjacentHTML("beforeend", '<style id="jewelry-view-layout">body.jewelry-view .category-sidebar{display:none!important}body.jewelry-view .layout{grid-template-columns:minmax(0,1fr) 350px!important}body.jewelry-view .menu-column{grid-column:1}body.jewelry-view .cart{grid-column:2}@media(max-width:1050px){body.jewelry-view .layout{grid-template-columns:minmax(0,1fr) 320px!important}}@media(max-width:700px){body.jewelry-view .layout{grid-template-columns:1fr!important}body.jewelry-view .menu-column,body.jewelry-view .cart{grid-column:1!important}}</style>');
 function showStoreSection(section){
  const food=section==="food";
  const jewelry=section==="jewelry";
