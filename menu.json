@@ -861,7 +861,7 @@
       "name": "6 empanadas",
       "price_clp": 2000,
       "description": "6 empanadas doradas.",
-      "image_url": "assets/empanadas.svg",
+      "image_url": "assets/empanadas.jpg",
       "display_group": "Empanadas"
     },
     {
@@ -869,7 +869,7 @@
       "name": "12 empanadas",
       "price_clp": 4000,
       "description": "12 empanadas doradas.",
-      "image_url": "assets/empanadas.svg",
+      "image_url": "assets/empanadas.jpg",
       "display_group": "Empanadas"
     },
     {
@@ -877,7 +877,7 @@
       "name": "6 aros",
       "price_clp": 2000,
       "description": "6 aros de cebolla crujientes.",
-      "image_url": "assets/aros-cebolla.svg",
+      "image_url": "assets/aros-cebolla.jpg",
       "display_group": "Aros de cebolla"
     },
     {
@@ -885,7 +885,7 @@
       "name": "12 aros",
       "price_clp": 4000,
       "description": "12 aros de cebolla crujientes.",
-      "image_url": "assets/aros-cebolla.svg",
+      "image_url": "assets/aros-cebolla.jpg",
       "display_group": "Aros de cebolla"
     },
     {
@@ -893,7 +893,7 @@
       "name": "3 arrollados",
       "price_clp": 1500,
       "description": "3 arrollados primavera.",
-      "image_url": "assets/arrollados-primavera.svg",
+      "image_url": "assets/arrollados-primavera.jpg",
       "display_group": "Arrollados primavera"
     },
     {
@@ -901,7 +901,7 @@
       "name": "6 arrollados",
       "price_clp": 3000,
       "description": "6 arrollados primavera.",
-      "image_url": "assets/arrollados-primavera.svg",
+      "image_url": "assets/arrollados-primavera.jpg",
       "display_group": "Arrollados primavera"
     },
     {
@@ -909,7 +909,7 @@
       "name": "6 nuggets",
       "price_clp": 2000,
       "description": "6 nuggets de pollo.",
-      "image_url": "assets/nuggets-pollo.svg",
+      "image_url": "assets/nuggets-pollo.jpg",
       "display_group": "Nuggets de pollo"
     },
     {
@@ -917,7 +917,7 @@
       "name": "12 nuggets",
       "price_clp": 4000,
       "description": "12 nuggets de pollo.",
-      "image_url": "assets/nuggets-pollo.svg",
+      "image_url": "assets/nuggets-pollo.jpg",
       "display_group": "Nuggets de pollo"
     },
     {
@@ -925,7 +925,7 @@
       "name": "Papas fritas · Pequeña",
       "price_clp": 3000,
       "description": "Porción pequeña de papas fritas.",
-      "image_url": "assets/papas-fritas.svg",
+      "image_url": "assets/papas-fritas.jpg",
       "display_group": "Papas fritas",
       "display_label": "Pequeña"
     },
@@ -934,7 +934,7 @@
       "name": "Papas fritas · Mediana",
       "price_clp": 5000,
       "description": "Porción mediana de papas fritas.",
-      "image_url": "assets/papas-fritas.svg",
+      "image_url": "assets/papas-fritas.jpg",
       "display_group": "Papas fritas",
       "display_label": "Mediana"
     },
@@ -943,7 +943,7 @@
       "name": "Papas fritas · Familiar",
       "price_clp": 8500,
       "description": "Porción familiar de papas fritas.",
-      "image_url": "assets/papas-fritas.svg",
+      "image_url": "assets/papas-fritas.jpg",
       "display_group": "Papas fritas",
       "display_label": "Familiar"
     },
@@ -952,7 +952,7 @@
       "name": "Salchipapas · Pequeña",
       "price_clp": 3500,
       "description": "Porción pequeña de salchipapas.",
-      "image_url": "assets/salchipapas.svg",
+      "image_url": "assets/salchipapas.jpg",
       "display_group": "Salchipapas",
       "display_label": "Pequeña"
     },
@@ -961,7 +961,7 @@
       "name": "Salchipapas · Mediana",
       "price_clp": 6000,
       "description": "Porción mediana de salchipapas.",
-      "image_url": "assets/salchipapas.svg",
+      "image_url": "assets/salchipapas.jpg",
       "display_group": "Salchipapas",
       "display_label": "Mediana"
     },
@@ -970,7 +970,7 @@
       "name": "Salchipapas · Familiar",
       "price_clp": 10000,
       "description": "Porción familiar de salchipapas.",
-      "image_url": "assets/salchipapas.svg",
+      "image_url": "assets/salchipapas.jpg",
       "display_group": "Salchipapas",
       "display_label": "Familiar"
     },
@@ -979,7 +979,7 @@
       "name": "5 pollos crispy + papas + salsa BBQ",
       "price_clp": 5900,
       "description": "5 pollos crispy con papas fritas y salsa BBQ.",
-      "image_url": "assets/pollos-crispy.svg",
+      "image_url": "assets/pollo-crispy.jpg",
       "display_group": "Pollos crispy"
     },
     {
@@ -987,7 +987,7 @@
       "name": "10 pollos crispy + papas + salsa BBQ",
       "price_clp": 10990,
       "description": "10 pollos crispy con papas fritas y salsa BBQ.",
-      "image_url": "assets/pollos-crispy.svg",
+      "image_url": "assets/pollo-crispy.jpg",
       "display_group": "Pollos crispy"
     },
     {
