@@ -758,7 +758,55 @@ html.native-app-ui #appNativeWhatsAppCta:active,html.native-app-ui .app-native-c
 </main>
 <script>
 /* En la tienda de joyas se ocultan las categorías del menú de comida. */
-document.head.insertAdjacentHTML("beforeend", '<style id="jewelry-view-layout">body.jewelry-view .category-sidebar{display:none!important}body.jewelry-view .layout{grid-template-columns:minmax(0,1fr) 350px!important}body.jewelry-view .menu-column{grid-column:1}body.jewelry-view .cart{grid-column:2}@media(max-width:1050px){body.jewelry-view .layout{grid-template-columns:minmax(0,1fr) 320px!important}}@media(max-width:700px){body.jewelry-view .layout{grid-template-columns:1fr!important}body.jewelry-view .menu-column,body.jewelry-view .cart{grid-column:1!important}}</style>');
+document.head.insertAdjacentHTML("beforeend", '<style id="jewelry-view-layout">body.jewelry-view .category-sidebar{display:none!important}body.jewelry-view .layout{grid-template-columns:minmax(0,1fr) 350px!important}body.jewelry-view .menu-column{grid-column:1}body.jewelry-view .cart{grid-column:2}@media(max-width:1050px){body.jewelry-view .layout{grid-template-columns:minmax(0,1fr) 320px!important}}@media(max-width:700px){body.jewelry-view .layout{grid-template-columns:1fr!important}body.jewelry-view .menu-column,body.jewelry-view .cart{grid-column:1!important}}
+/* ===== APK Android: pantalla compacta y compra directa ===== */
+html.native-app-ui #launchCountdown,html.native-app-ui .playstore-announcement{display:none!important}
+html.native-app-ui .app-native-topbar{height:60px!important}
+html.native-app-ui .app-native-logo img{height:54px!important;width:min(58vw,220px)!important}
+html.native-app-ui #appNativeHome{margin:0 0 10px!important}
+html.native-app-ui .app-native-hero{aspect-ratio:16/5!important;max-height:142px!important;border-radius:14px!important}
+html.native-app-ui .app-native-hero-copy{left:13px!important;font-size:clamp(18px,5.5vw,29px)!important}
+html.native-app-ui .app-native-dots{height:16px!important;gap:6px!important}
+html.native-app-ui .app-native-dots i{width:7px!important;height:7px!important}
+html.native-app-ui .app-native-categories{gap:7px!important;margin:4px 0 9px!important}
+html.native-app-ui .app-native-category{border-width:1px!important;border-radius:13px!important;padding:3px 3px 5px!important}
+html.native-app-ui .app-native-category-image{height:clamp(58px,18vw,82px)!important;border-radius:9px!important}
+html.native-app-ui .app-native-category-image b{font-size:25px!important}
+html.native-app-ui .app-native-category strong{font-size:clamp(10px,2.9vw,13px)!important;padding-top:4px!important}
+html.native-app-ui .app-native-whatsapp{width:min(86%,390px)!important;min-height:46px!important;margin:3px auto 8px!important;padding:7px 12px!important;font-size:12px!important;border-width:1px!important}
+html.native-app-ui .app-native-wa-icon{font-size:21px!important}
+html.native-app-ui .app-native-whatsapp b{font-size:27px!important}
+html.native-app-ui .menu-column>.section-title{font-size:18px!important;margin:8px 0!important;scroll-margin-top:12px}
+html.native-app-ui #menu article.item{cursor:pointer}
+html.native-app-ui .grid{gap:8px!important}
+html.native-app-ui .item{padding:8px!important;gap:6px!important;border-radius:12px!important}
+html.native-app-ui .food-art{height:clamp(78px,23vw,104px)!important;min-height:0!important}
+html.native-app-ui .item h3{font-size:13px!important}
+html.native-app-ui .desc{font-size:10px!important}
+html.native-app-ui .price{font-size:16px!important}
+html.native-app-ui .add{min-height:40px!important;font-size:11px!important;padding:8px 6px!important}
+html.native-app-ui #musicToggle{bottom:calc(78px + env(safe-area-inset-bottom))!important;right:10px!important;left:auto!important;padding:8px 10px!important;font-size:10px!important;min-height:38px!important;min-width:0!important}
+html.native-app-ui #appNativeCartBar{position:fixed;left:10px;right:10px;bottom:calc(9px + env(safe-area-inset-bottom));z-index:11980;display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:58px;padding:9px 14px;border:1px solid #e2ad42;border-radius:16px;background:linear-gradient(100deg,#b51f1c,#68110f);color:#fff;box-shadow:0 7px 24px #000b;text-align:left}
+html.native-app-ui #appNativeCartBar[hidden]{display:none!important}
+html.native-app-ui #appNativeCartBar .native-cart-label{display:flex;flex-direction:column;gap:2px}
+html.native-app-ui #appNativeCartBar .native-cart-label small{font-size:10px;color:#ffe0c2;font-weight:600}
+html.native-app-ui #appNativeCartBar [data-native-cart-total]{font-size:16px;font-weight:950;white-space:nowrap}
+html.native-app-ui #appNativeCartBar .native-cart-arrow{font-size:25px;font-weight:950}
+html.native-app-ui #nativeProductDetail{position:fixed;inset:0;z-index:13000;display:none;align-items:flex-end;justify-content:center;padding:14px;background:#000b}
+html.native-app-ui #nativeProductDetail.open{display:flex}
+html.native-app-ui #nativeProductDetail .native-detail-sheet{position:relative;width:min(100%,520px);max-height:88dvh;overflow:auto;padding:18px 14px 16px;border:1px solid #9a642c;border-radius:22px;background:linear-gradient(155deg,#25170e,#090807);box-shadow:0 18px 55px #000d}
+html.native-app-ui #nativeProductDetail .native-detail-close{position:absolute;right:12px;top:12px;z-index:2;width:38px;height:38px;min-height:38px;padding:0;border-radius:50%;background:#33251b;color:#fff;font-size:23px}
+html.native-app-ui #nativeProductDetail .native-detail-content{padding-top:24px}
+html.native-app-ui #nativeProductDetail .native-detail-content .item{border:0!important;background:transparent!important;box-shadow:none!important;padding:0!important;cursor:default!important}
+html.native-app-ui #nativeProductDetail .native-detail-content .food-art{height:clamp(180px,48vw,260px)!important;border-radius:14px!important}
+html.native-app-ui #nativeProductDetail .native-detail-content .item h3{font-size:21px!important}
+html.native-app-ui #nativeProductDetail .native-detail-content .desc{font-size:13px!important}
+html.native-app-ui #nativeProductDetail .native-detail-content .price{font-size:23px!important}
+html.native-app-ui #nativeProductDetail .native-detail-content .add{min-height:48px!important;font-size:14px!important;margin-top:8px}
+html.native-app-ui #nativeProductDetail .native-detail-content .product-count-badge{display:none!important}
+@media(max-width:380px){html.native-app-ui .app-native-categories{gap:6px!important}html.native-app-ui .app-native-category-image{height:56px!important}html.native-app-ui .app-native-whatsapp{min-height:42px!important}}
+
+</style>');
 function showStoreSection(section){
  const food=section==="food";
  const jewelry=section==="jewelry";
@@ -979,7 +1027,7 @@ function renderNativeHome(){
    const safeSrc=String(src).replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;");
    return '<button type="button" class="app-native-category" data-app-category="'+g.key.replace(/&/g,"&amp;").replace(/"/g,"&quot;")+'"><span class="app-native-category-image">'+(safeSrc?'<img src="'+safeSrc+'" alt="" loading="lazy" onerror="this.style.display=\'none\'">':'')+'<b>'+g.icon+'</b></span><strong>'+g.label+'</strong></button>';
   }).join("");
-  grid.querySelectorAll("[data-app-category]").forEach(btn=>btn.addEventListener("click",()=>{const key=btn.dataset.appCategory;if(key==="Joyas & Detalles"){showStoreSection("jewelry");return;}active=key;render();window.scrollTo({top:0,behavior:"smooth"});}));
+  grid.querySelectorAll("[data-app-category]").forEach(btn=>btn.addEventListener("click",()=>{const key=btn.dataset.appCategory;if(key==="Joyas & Detalles"){showStoreSection("jewelry");return;}active=key;render();setTimeout(()=>document.querySelector(".menu-column .section-title")?.scrollIntoView({behavior:"smooth",block:"start"}),40);}));
   grid.dataset.ready="1";
  }
 }
@@ -990,7 +1038,7 @@ function render(){
  const nativeGroups=APP_CATEGORY_GROUPS;
  const navItems=NATIVE_APP_MODE?nativeGroups:cats.map(c=>({label:c,key:c,icon:icons[c]||"🍽️"}));
  document.getElementById("tabs").innerHTML=navItems.map(g=>'<button type="button" class="'+(g.key===active||((g.key==="Joyas & Detalles")&&active==="Joyas & Detalles")?'on':'')+'" data-category="'+g.key.replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;")+'">'+(g.icon||"🍽️")+' '+g.label+'</button>').join("");
- document.getElementById("tabs").querySelectorAll("button[data-category]").forEach(btn=>btn.addEventListener("click",()=>{const key=btn.dataset.category;if(NATIVE_APP_MODE&&key==="Joyas & Detalles"){showStoreSection("jewelry");closeAppDrawer();return;}active=key;render();if(NATIVE_APP_MODE)closeAppDrawer();}));
+ document.getElementById("tabs").querySelectorAll("button[data-category]").forEach(btn=>btn.addEventListener("click",()=>{const key=btn.dataset.category;if(NATIVE_APP_MODE&&key==="Joyas & Detalles"){showStoreSection("jewelry");closeAppDrawer();return;}active=key;render();if(NATIVE_APP_MODE){closeAppDrawer();if(key!=="Todos")setTimeout(()=>document.querySelector(".menu-column .section-title")?.scrollIntoView({behavior:"smooth",block:"start"}),40);else window.scrollTo({top:0,behavior:"smooth"});}}));
  let arr=P.filter(p=>{if(active==="Todos")return !NATIVE_APP_MODE&&p[0]!=="Joyas & Detalles";if(NATIVE_APP_MODE){const group=APP_CATEGORY_GROUPS.find(g=>g.key===active);return group?group.categories.includes(p[0]):p[0]===active;}return p[0]===active;}),out="",last="",seenGroups=new Set();
  arr.forEach((p,i)=>{
   if(p[0]!==last){out+='<h2 class="section-title">'+(icons[p[0]]||"🍽️")+' '+p[0]+'</h2><div class="grid">';last=p[0]}
@@ -1000,9 +1048,9 @@ function render(){
    const variants=arr.filter(v=>v[6]===p[6]);
    const id='fritos-'+i;
    const opts=variants.map(v=>'<option value="'+v[1]+'" data-price="'+v[2]+'">'+(v[7]||v[1])+' · '+fmt(v[2])+'</option>').join("");
-   out+='<article class="item fritos-variant"><span class="product-count-badge" data-count-group="'+p[6]+'"></span><div class="food-art"><img src="'+(p[4]||photos[p[0]]||photos["Bebidas"])+'" alt="'+p[6]+'" loading="'+(i<4?'eager':'lazy')+'" decoding="async" fetchpriority="'+(i<2?'high':'auto')+'" onerror="this.classList.add(\'image-failed\');this.parentElement.classList.add(\'no-image\')"></div><h3>'+p[6]+'</h3><div class="desc">Selecciona tu cantidad o tamaño</div><select class="product-option variant-select" onchange="this.closest(\'.item\').querySelector(\'.price\').textContent=fmt(Number(this.selectedOptions[0].dataset.price))">'+opts+'</select><div class="price">'+fmt(variants[0][2])+'</div><button class="add" onclick="add(this.closest(\'.item\').querySelector(\'.variant-select\').value,0)">＋ Agregar al pedido</button></article>';
+   out+='<article class="item fritos-variant" data-product-index="'+i+'"><span class="product-count-badge" data-count-group="'+p[6]+'"></span><div class="food-art"><img src="'+(p[4]||photos[p[0]]||photos["Bebidas"])+'" alt="'+p[6]+'" loading="'+(i<4?'eager':'lazy')+'" decoding="async" fetchpriority="'+(i<2?'high':'auto')+'" onerror="this.classList.add(\'image-failed\');this.parentElement.classList.add(\'no-image\')"></div><h3>'+p[6]+'</h3><div class="desc">Selecciona tu cantidad o tamaño</div><select class="product-option variant-select" onchange="this.closest(\'.item\').querySelector(\'.price\').textContent=fmt(Number(this.selectedOptions[0].dataset.price))">'+opts+'</select><div class="price">'+fmt(variants[0][2])+'</div><button class="add" onclick="add(this.closest(\'.item\').querySelector(\'.variant-select\').value,0)">＋ Agregar al pedido</button></article>';
   }else{
-   out+='<article class="item"><span class="product-count-badge" data-count-product="'+p[1]+'"></span><div class="food-art '+(["Bebidas","Jugos naturales","Néctares","Aguas","Energéticas"].includes(p[0])?"drink-art":"")+'"><img src="'+(p[4]||photos[p[0]]||photos["Bebidas"])+'" alt="'+p[0]+' - '+p[1]+'" loading="'+(i<4?'eager':'lazy')+'" decoding="async" fetchpriority="'+(i<2?'high':'auto')+'" onerror="this.classList.add(\'image-failed\');this.parentElement.classList.add(\'no-image\')"></div><h3>'+p[1]+'</h3><div class="desc">'+p[3]+'</div><div class="price">'+(p[2]>0?fmt(p[2]):"Precio por confirmar")+'</div>'+optionSelector(p[1],i,p[5])+(p[2]>0?'<button type="button" class="add" onclick="add('+JSON.stringify(p[1]).replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;").replace(/>/g,"&gt;")+','+i+')">＋ Agregar · '+fmt(p[2])+'</button>':'<button class="add" disabled style="opacity:.55;cursor:not-allowed">Precio por confirmar</button>')+'</article>';
+   out+='<article class="item" data-product-index="'+i+'"><span class="product-count-badge" data-count-product="'+p[1]+'"></span><div class="food-art '+(["Bebidas","Jugos naturales","Néctares","Aguas","Energéticas"].includes(p[0])?"drink-art":"")+'"><img src="'+(p[4]||photos[p[0]]||photos["Bebidas"])+'" alt="'+p[0]+' - '+p[1]+'" loading="'+(i<4?'eager':'lazy')+'" decoding="async" fetchpriority="'+(i<2?'high':'auto')+'" onerror="this.classList.add(\'image-failed\');this.parentElement.classList.add(\'no-image\')"></div><h3>'+p[1]+'</h3><div class="desc">'+p[3]+'</div><div class="price">'+(p[2]>0?fmt(p[2]):"Precio por confirmar")+'</div>'+optionSelector(p[1],i,p[5])+(p[2]>0?'<button type="button" class="add" onclick="add('+JSON.stringify(p[1]).replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;").replace(/>/g,"&gt;")+','+i+')">＋ Agregar · '+fmt(p[2])+'</button>':'<button class="add" disabled style="opacity:.55;cursor:not-allowed">Precio por confirmar</button>')+'</article>';
   }
   if(i===arr.length-1||arr[i+1][0]!==last)out+="</div>";
  });
@@ -1042,7 +1090,7 @@ function add(n,i){
  cart[n]=(cart[n]||0)+1;
  drawCart();
  const total=document.getElementById("total");
- if(total&&window.matchMedia("(max-width: 900px)").matches)total.scrollIntoView({behavior:"smooth",block:"nearest"});
+ if(total&&window.matchMedia("(max-width: 900px)").matches&&!NATIVE_APP_MODE)total.scrollIntoView({behavior:"smooth",block:"nearest"});
 }
 function qty(n,d){if(!cart[n])return;cart[n]+=d;if(cart[n]<=0)delete cart[n];drawCart();}
 function drawCart(){
@@ -1089,6 +1137,14 @@ function drawCart(){
  if(methodEl&&methodEl.value==="Delivery"){
   const fees={"Linares":1990,"Longaví":3500,"Yerbas Buenas":3000,"Colbún":12000,"Villa Alegre":4000,"San Javier":5000,"Palmilla":5000};
   fee=Number(fees[localityEl?localityEl.value:""])||0;
+ }
+ const nativeCartBar=document.getElementById("appNativeCartBar");
+ if(nativeCartBar){
+  nativeCartBar.hidden=!(NATIVE_APP_MODE&&count>0);
+  const nativeCount=nativeCartBar.querySelector("[data-native-cart-count]");
+  const nativeTotal=nativeCartBar.querySelector("[data-native-cart-total]");
+  if(nativeCount)nativeCount.textContent=String(count);
+  if(nativeTotal)nativeTotal.textContent=fmt(subtotal+fee);
  }
  if(totalEl){
   totalEl.innerHTML='<div class="total-row"><span>🍽️ Productos</span><strong>'+fmt(subtotal)+'</strong></div><div class="total-row"><span>🚗 Despacho</span><strong>'+(fee===0?"Gratis":fmt(fee))+'</strong></div><div class="total-grand"><span>Total a pagar</span><span>'+fmt(subtotal+fee)+'</span></div>';
@@ -1319,6 +1375,61 @@ function enableKetchupDragging(){
  });
 }
 
+
+function initNativeProductDetails(){
+ if(!NATIVE_APP_MODE)return;
+ const cartBar=document.createElement("button");
+ cartBar.type="button";cartBar.id="appNativeCartBar";cartBar.hidden=true;
+ cartBar.innerHTML='<span class="native-cart-label"><b>🛒 <span data-native-cart-count>0</span> productos</b><small>Ver tu pedido</small></span><strong data-native-cart-total>$0</strong><span class="native-cart-arrow">›</span>';
+ cartBar.addEventListener("click",()=>document.querySelector(".layout>.cart")?.scrollIntoView({behavior:"smooth",block:"start"}));
+ document.body.appendChild(cartBar);
+ const overlay=document.createElement("div");
+ overlay.id="nativeProductDetail";
+ overlay.innerHTML='<div class="native-detail-sheet" role="dialog" aria-modal="true" aria-label="Detalle del producto"><button type="button" class="native-detail-close" aria-label="Cerrar">×</button><div class="native-detail-content"></div></div>';
+ document.body.appendChild(overlay);
+ const sheet=overlay.querySelector(".native-detail-sheet");
+ const content=overlay.querySelector(".native-detail-content");
+ const close=()=>{overlay.classList.remove("open");content.replaceChildren();};
+ overlay.addEventListener("click",event=>{if(event.target===overlay)close();});
+ overlay.querySelector(".native-detail-close").addEventListener("click",close);
+ document.addEventListener("keydown",event=>{if(event.key==="Escape"&&overlay.classList.contains("open"))close();});
+ const menu=document.getElementById("menu");
+ menu.addEventListener("click",event=>{
+  if(event.target.closest("button.add,select,input,textarea,a"))return;
+  const card=event.target.closest("article.item[data-product-index]");
+  if(!card)return;
+  const index=Number(card.dataset.productIndex);
+  const product=P[index];
+  if(!product)return;
+  const detail=card.cloneNode(true);
+  detail.querySelectorAll(".product-count-badge").forEach(node=>node.remove());
+  const addButton=detail.querySelector("button.add");
+  if(addButton){
+   addButton.removeAttribute("onclick");
+   addButton.textContent="Agregar al pedido";
+   addButton.addEventListener("click",()=>{
+    const original=menu.querySelector('article.item[data-product-index="'+index+'"]');
+    if(!original)return;
+    const originalSelects=original.querySelectorAll("select");
+    detail.querySelectorAll("select").forEach((select,selectIndex)=>{
+     if(originalSelects[selectIndex])originalSelects[selectIndex].value=select.value;
+    });
+    if(detail.classList.contains("fritos-variant")){
+     const selected=detail.querySelector(".variant-select");
+     if(selected&&selected.value)add(selected.value,0);
+    }else{
+     add(product[1],index);
+    }
+    close();
+   });
+  }
+  content.replaceChildren(detail);
+  overlay.classList.add("open");
+  sheet.scrollTop=0;
+ });
+}
+
 async function loadSharedMenu(){const r=await fetch("/menu.json?v="+Date.now(),{cache:"no-store"});if(!r.ok)throw Error("No se pudo cargar la carta compartida.");const d=await r.json();if(!Array.isArray(d.products)||!d.products.length)throw Error("La carta compartida está vacía.");P=d.products.map(x=>[x.category,x.name,Number(x.price_clp),x.description||"",x.image_url||"",x.option_groups||[],x.display_group||"",x.display_label||""]);menuPhotos=d.photos||{};cats=["Todos",...(d.categories||[...new Set(P.map(x=>x[0]))]).filter(c=>c!=="Joyas & Detalles")];}loadSharedMenu().then(()=>{render();toggleAddress();enableStaffTestMode().then(()=>applySchedule());showPaymentResult();}).catch(e=>{document.getElementById("menu").textContent="No se pudo cargar el menú. Revisa tu conexión a Internet y actualiza.";console.error(e);});updateLaunchCountdown();setInterval(updateLaunchCountdown,1000);setInterval(applySchedule,60000);
 enableKetchupDragging();
+initNativeProductDetails();
 </script></html>
