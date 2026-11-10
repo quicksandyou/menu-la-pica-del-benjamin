@@ -610,56 +610,72 @@
       "name": "Chorrillana Tradicional · 2 personas",
       "price_clp": 5990,
       "description": "Carne de churrasco, cebolla caramelizada, papas fritas y huevos fritos.",
-      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/chorrillanas.jpg"
+      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/chorrillanas.jpg",
+      "display_group": "Chorrillana Tradicional",
+      "display_label": "Para 2 personas"
     },
     {
       "category": "Chorrillanas",
       "name": "Chorrillana Tradicional · 3 personas",
       "price_clp": 6990,
       "description": "Carne de churrasco, cebolla caramelizada, papas fritas y huevos fritos.",
-      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/chorrillanas.jpg"
+      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/chorrillanas.jpg",
+      "display_group": "Chorrillana Tradicional",
+      "display_label": "Para 3 personas"
     },
     {
       "category": "Chorrillanas",
       "name": "Chorrillana Carne mechada · 2 personas",
       "price_clp": 5990,
       "description": "Carne mechada, papas fritas, cebolla caramelizada y huevos fritos.",
-      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/chorrillanas.jpg"
+      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/chorrillanas.jpg",
+      "display_group": "Chorrillana de carne mechada",
+      "display_label": "Para 2 personas"
     },
     {
       "category": "Chorrillanas",
       "name": "Chorrillana Carne mechada · 3 personas",
       "price_clp": 7990,
       "description": "Carne mechada, papas fritas, cebolla caramelizada y huevos fritos.",
-      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/chorrillanas.jpg"
+      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/chorrillanas.jpg",
+      "display_group": "Chorrillana de carne mechada",
+      "display_label": "Para 3 personas"
     },
     {
       "category": "Chorrillanas",
       "name": "Chorrillana Pollo champiñón · 2 personas",
       "price_clp": 5990,
       "description": "Pollo, champiñones, papas fritas, cebolla caramelizada y huevos fritos.",
-      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/chorrillanas.jpg"
+      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/chorrillanas.jpg",
+      "display_group": "Chorrillana pollo champiñón",
+      "display_label": "Para 2 personas"
     },
     {
       "category": "Chorrillanas",
       "name": "Chorrillana Pollo champiñón · 3 personas",
       "price_clp": 7990,
       "description": "Pollo, champiñones, papas fritas, cebolla caramelizada y huevos fritos.",
-      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/chorrillanas.jpg"
+      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/chorrillanas.jpg",
+      "display_group": "Chorrillana pollo champiñón",
+      "display_label": "Para 3 personas"
     },
     {
       "category": "Chorrillanas",
       "name": "Chorrillana Carnes mixtas · 2 personas",
       "price_clp": 6490,
       "description": "Carne mechada, pollo, churrasco, cebolla caramelizada y huevos fritos.",
-      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/chorrillanas.jpg"
+      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/chorrillanas.jpg",
+      "display_group": "Chorrillana carnes mixtas",
+      "display_label": "Para 2 personas"
     },
     {
       "category": "Chorrillanas",
       "name": "Chorrillana Carnes mixtas · 3 personas",
       "price_clp": 8490,
       "description": "Carne mechada, pollo, churrasco, cebolla caramelizada y huevos fritos.",
-      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/chorrillanas.jpg"
+      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/chorrillanas.jpg",
+      "display_group": "Chorrillana carnes mixtas",
+      "display_label": "Para 3 personas"
     },
     {
       "category": "Chorrillanas",
@@ -675,7 +691,9 @@
             "Sin ciboulette"
           ]
         }
-      ]
+      ],
+      "display_group": "Papas mechadas con queso",
+      "display_label": "Chica"
     },
     {
       "category": "Chorrillanas",
@@ -691,7 +709,9 @@
             "Sin ciboulette"
           ]
         }
-      ]
+      ],
+      "display_group": "Papas mechadas con queso",
+      "display_label": "Grande"
     },
     {
       "category": "Chorrillanas",
