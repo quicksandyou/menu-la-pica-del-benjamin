@@ -51,15 +51,12 @@ jobs:
             }
             const anydpi = path.join('android/app/src/main/res','mipmap-anydpi-v26');
             fs.mkdirSync(anydpi,{recursive:true});
-            const adaptive = name => `<?xml version="1.0" encoding="utf-8"?>\n<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">\n    <background android:drawable="@color/ic_launcher_background"/>\n    <foreground android:drawable="@mipmap/ic_launcher_foreground"/>\n</adaptive-icon>\n`;
+            const adaptive = name => `<?xml version="1.0" encoding="utf-8"?>\n<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">\n    <background android:drawable="@color/pica_launcher_background_v2"/>\n    <foreground android:drawable="@mipmap/ic_launcher_foreground"/>\n</adaptive-icon>\n`;
             fs.writeFileSync(path.join(anydpi,'ic_launcher.xml'),adaptive());
             fs.writeFileSync(path.join(anydpi,'ic_launcher_round.xml'),adaptive());
             const values = path.join('android/app/src/main/res','values');
             fs.mkdirSync(values,{recursive:true});
-            const colorsFile=path.join(values,'colors.xml');
-            let colors=fs.existsSync(colorsFile)?fs.readFileSync(colorsFile,'utf8'):'<?xml version="1.0" encoding="utf-8"?>\n<resources>\n</resources>\n';
-            if(!/name="ic_launcher_background"/.test(colors)) colors=colors.replace('</resources>','    <color name="ic_launcher_background">#080808</color>\n</resources>');
-            fs.writeFileSync(colorsFile,colors);
+            fs.writeFileSync(path.join(values,'pica_launcher_colors.xml'),'<?xml version="1.0" encoding="utf-8"?>\n<resources>\n    <color name="pica_launcher_background_v2">#080808</color>\n</resources>\n');
           })().catch(e=>{console.error(e);process.exit(1)});
           NODE
       - name: Construir APK de prueba
