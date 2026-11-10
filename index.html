@@ -783,6 +783,8 @@ function captureDeliveryLocation(){
  },{enableHighAccuracy:true,timeout:12000,maximumAge:0});
 }
 
+let paymentAttemptKey=null;
+let paymentAttemptFingerprint="";
 async function payOnline(){
  if(!isOrderingOpen()){applySchedule();return alert("Estamos fuera de horario. Muchas gracias por preferir La Picá del Benjamín.");}
  let items=Object.entries(cart);
@@ -795,10 +797,12 @@ async function payOnline(){
  let products=items.map(([n,q])=>{let p=P.find(x=>x[1]===n.split(" | ")[0]);return {name:n.replace(" | "," · "),quantity:q,unit_price:p[2]}});
  let subtotal=products.reduce((s,p)=>s+p.quantity*p.unit_price,0);let locality=document.getElementById("locality").value;let fee=method==="Delivery"?deliveryFee():0;if(fee===null)return alert("Selecciona una localidad válida para calcular el despacho.");let total=subtotal+fee;
  const button=document.querySelector(".online-pay");
+ const paymentFingerprint=JSON.stringify({name,email:document.getElementById("email").value.trim(),phone:document.getElementById("phone").value.trim(),method,address,locality,notes:document.getElementById("notes").value.trim(),products,total});
+ if(!paymentAttemptKey||paymentAttemptFingerprint!==paymentFingerprint){paymentAttemptKey=crypto.randomUUID();paymentAttemptFingerprint=paymentFingerprint;}
  button.disabled=true;button.textContent="Creando orden de pago...";
  try{
    // El Access Token debe permanecer en el servidor, nunca en este HTML.
-   const response=await fetch(`${PAYMENT_API_BASE_URL}/api/crear-orden`,{method:"POST",credentials:"include",headers:{"Content-Type":"application/json"},body:JSON.stringify({
+   const response=await fetch(`${PAYMENT_API_BASE_URL}/api/crear-orden`,{method:"POST",credentials:"include",headers:{"Content-Type":"application/json","Idempotency-Key":paymentAttemptKey},body:JSON.stringify({
      restaurant:"La Picá del Benjamín",customer:{name,email:document.getElementById("email").value.trim(),phone:document.getElementById("phone").value.trim()},
      delivery:{method,address:method==="Delivery"?address:"",locality,fee_clp:fee,latitude:method==="Delivery"?(document.getElementById("deliveryLat").value||null):null,longitude:method==="Delivery"?(document.getElementById("deliveryLng").value||null):null},notes:document.getElementById("notes").value.trim(),
      items:products,total_clp:total
