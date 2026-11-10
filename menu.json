@@ -251,13 +251,13 @@
       "category": "Bebidas",
       "name": "Bebida lata 350 cc",
       "price_clp": 1500,
-      "description": "Elige tu sabor: Coca-Cola, Fanta, Sprite, Kem Piña, Bilz, Pap o Limón Soda."
+      "description": "Elige tu sabor: Coca-Cola, Fanta, Sprite, Kem Piña, Limón Soda, Bilz, Pap."
     },
     {
       "category": "Bebidas",
       "name": "Bebida botella 1,5 litros",
       "price_clp": 2500,
-      "description": "Variedades según disponibilidad."
+      "description": "Elige tu sabor: Coca-Cola, Fanta, Sprite, Kem Piña, Limón Soda, Bilz, Pap."
     },
     {
       "category": "Jugos naturales",
