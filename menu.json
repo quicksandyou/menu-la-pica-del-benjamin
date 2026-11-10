@@ -210,43 +210,50 @@
       "category": "Churrascos",
       "name": "Sándwich del chef",
       "price_clp": 5990,
-      "description": "Carne, verduras salteadas, aros de cebolla, lechuga y salsa de la casa."
+      "description": "Carne, verduras salteadas, aros de cebolla, lechuga y salsa de la casa.",
+      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/churrascos/sandwich-del-chef.jpg"
     },
     {
       "category": "Churrascos",
       "name": "A lo pobre",
       "price_clp": 5990,
-      "description": "Carne, cebolla caramelizada, huevo y papas al hilo."
+      "description": "Carne, cebolla caramelizada, huevo y papas al hilo.",
+      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/churrascos/sandwich-a-lo-pobre.jpg"
     },
     {
       "category": "Churrascos",
       "name": "Vegetariano",
       "price_clp": 6490,
-      "description": "Champiñones, lechuga, poroto verde, tomate, choclo y mayonesa."
+      "description": "Champiñones, lechuga, poroto verde, tomate, choclo y mayonesa.",
+      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/churrascos/sandwich-vegetariano.jpg"
     },
     {
       "category": "Churrascos",
       "name": "Mexicano",
       "price_clp": 5990,
-      "description": "Carne, tomate, aros de cebolla, lechuga y ají verde."
+      "description": "Carne, tomate, aros de cebolla, lechuga y ají verde.",
+      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/churrascos/sandwich-mexicano.jpg"
     },
     {
       "category": "Churrascos",
       "name": "Chileno",
       "price_clp": 5990,
-      "description": "Carne, tomate, salsa verde y mayonesa."
+      "description": "Carne, tomate, salsa verde y mayonesa.",
+      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/churrascos/sandwich-chileno.jpg"
     },
     {
       "category": "Churrascos",
       "name": "Cheese Cream",
       "price_clp": 6890,
-      "description": "Carne, salame, queso crema, cebolla caramelizada y BBQ."
+      "description": "Carne, salame, queso crema, cebolla caramelizada y BBQ.",
+      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/churrascos/sandwich-cheese-cream.jpg"
     },
     {
       "category": "Churrascos",
       "name": "Chicken",
       "price_clp": 6990,
-      "description": "Pollo apanado, queso fundido y champiñón salteado."
+      "description": "Pollo apanado, queso fundido y champiñón salteado.",
+      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/churrascos/sandwich-chicken.jpg"
     },
     {
       "category": "Bebidas",
