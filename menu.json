@@ -128,55 +128,64 @@
       "category": "Pizzas",
       "name": "Napolitana",
       "price_clp": 7990,
-      "description": "Queso, jamón, tomate y orégano."
+      "description": "Queso, jamón, tomate y orégano.",
+      "image_url": "assets/pizzas/01-pizza-napolitana.jpg"
     },
     {
       "category": "Pizzas",
       "name": "Pollo champiñón",
       "price_clp": 8990,
-      "description": "Queso, pollo, champiñón, salame y orégano."
+      "description": "Queso, pollo, champiñón, salame y orégano.",
+      "image_url": "assets/pizzas/02-pizza-pollo-champinon.jpg"
     },
     {
       "category": "Pizzas",
       "name": "Cuatro estaciones",
       "price_clp": 8990,
-      "description": "Queso, tocino, champiñón, salame, jamón, tomate y orégano."
+      "description": "Queso, tocino, champiñón, salame, jamón, tomate y orégano.",
+      "image_url": "assets/pizzas/03-pizza-cuatro-estaciones.jpg"
     },
     {
       "category": "Pizzas",
       "name": "Peperoni",
       "price_clp": 7990,
-      "description": "Queso, peperoni y orégano."
+      "description": "Queso, peperoni y orégano.",
+      "image_url": "assets/pizzas/04-pizza-peperoni.jpg"
     },
     {
       "category": "Pizzas",
       "name": "Especial carne",
       "price_clp": 8990,
-      "description": "Queso, carne de vacuno, salame, aceituna, champiñón y orégano."
+      "description": "Queso, carne de vacuno, salame, aceituna, champiñón y orégano.",
+      "image_url": "assets/pizzas/05-pizza-especial-carne.jpg"
     },
     {
       "category": "Pizzas",
       "name": "Mexicana",
       "price_clp": 8990,
-      "description": "Queso, pimentón, tomate, cebolla, carne y ají Tabasco."
+      "description": "Queso, pimentón, tomate, cebolla, carne y ají Tabasco.",
+      "image_url": "assets/pizzas/06-pizza-mexicana.jpg"
     },
     {
       "category": "Pizzas",
       "name": "Mediterránea",
       "price_clp": 9990,
-      "description": "Queso, champiñón, camarones, aceitunas y orégano."
+      "description": "Queso, champiñón, camarones, aceitunas y orégano.",
+      "image_url": "assets/pizzas/07-pizza-mediterranea.jpg"
     },
     {
       "category": "Pizzas",
       "name": "Mechada choclo",
       "price_clp": 8990,
-      "description": "Queso, mechada, choclo, salame y orégano."
+      "description": "Queso, mechada, choclo, salame y orégano.",
+      "image_url": "assets/pizzas/08-pizza-mechada-choclo.jpg"
     },
     {
       "category": "Pizzas",
       "name": "Carnes mixtas",
       "price_clp": 8990,
-      "description": "Queso, vacuno, pollo, mechada, salame y orégano."
+      "description": "Queso, vacuno, pollo, mechada, salame y orégano.",
+      "image_url": "assets/pizzas/09-pizza-carnes-mixtas.jpg"
     },
     {
       "category": "Churrascos",
