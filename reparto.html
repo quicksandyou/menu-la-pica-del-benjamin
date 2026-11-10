@@ -340,20 +340,31 @@ async function searchManualAddress(){
  const typed=$("mAddress").value.trim();
  const locality=$("mLocality").value.trim()||"Linares";
  const box=$("manualMapSuggestions");
- if(typed.length<4){box.replaceChildren();box.classList.add("hidden");$("manualMapStatus").textContent="Escribe al menos 4 caracteres para buscar direcciones.";return}
+ if(typed.length<3){box.replaceChildren();box.classList.add("hidden");$("manualMapStatus").textContent="Escribe al menos 3 caracteres para buscar direcciones.";return}
  if(manualSearchController)manualSearchController.abort();
  manualSearchController=new AbortController();
  const sequence=++manualSearchSequence;
- $("manualMapStatus").textContent="Buscando direcciones…";
+ $("manualMapStatus").textContent="Buscando direcciones en Chile…";
  try{
-  const q=[typed,locality,"Chile"].filter(Boolean).join(", ");
-  const url="https://photon.komoot.io/api/?q="+encodeURIComponent(q)+"&lat=-35.846&lon=-71.593&limit=7&lang=es";
-  const response=await fetch(url,{signal:manualSearchController.signal});
-  if(!response.ok)throw new Error("No se pudo consultar el buscador de direcciones.");
-  const data=await response.json();
+  // Buscar el texto tal como lo escribe el usuario y limitar resultados a Chile.
+  // Las coordenadas solo priorizan Linares; no se muestran ni se guardan en el pedido.
+  const params=new URLSearchParams({q:typed,countrycode:"CL",lat:"-35.846",lon:"-71.593",zoom:"10",limit:"12",lang:"es"});
+  let response=await fetch("https://photon.komoot.io/api/?"+params.toString(),{signal:manualSearchController.signal});
+  if(!response.ok)throw new Error("El buscador no respondió.");
+  let data=await response.json();
   if(sequence!==manualSearchSequence)return;
+  let features=data.features||[];
+  // Si no hay resultados cercanos, repetir incluyendo la comuna indicada.
+  if(!features.length&&locality){
+   const retry=new URLSearchParams({q:typed+" "+locality,countrycode:"CL",limit:"12",lang:"es"});
+   response=await fetch("https://photon.komoot.io/api/?"+retry.toString(),{signal:manualSearchController.signal});
+   if(!response.ok)throw new Error("El buscador no respondió.");
+   data=await response.json();
+   if(sequence!==manualSearchSequence)return;
+   features=data.features||[];
+  }
   box.replaceChildren();
-  (data.features||[]).forEach(feature=>{
+  features.forEach(feature=>{
    const p=feature.properties||{},address=formatManualAddress(p);
    if(!address.street&&!address.locality)return;
    const button=document.createElement("button");
@@ -369,18 +380,18 @@ async function searchManualAddress(){
    };
    box.append(button);
   });
-  box.classList.toggle("hidden",!data.features?.length);
-  $("manualMapStatus").textContent=data.features?.length?"Selecciona una de las direcciones encontradas.":"No encontramos coincidencias. Prueba agregando calle, número o localidad.";
+  box.classList.toggle("hidden",!box.childElementCount);
+  $("manualMapStatus").textContent=box.childElementCount?"Selecciona una de las direcciones encontradas.":"No encontramos esa dirección en Chile. Prueba con el nombre de la calle y la comuna.";
  }catch(error){
   if(error.name==="AbortError")return;
   box.classList.add("hidden");
-  $("manualMapStatus").textContent="No se pudo consultar el buscador. Puedes completar la dirección manualmente.";
+  $("manualMapStatus").textContent="No se pudo conectar al buscador de direcciones. Puedes completar la dirección manualmente.";
  }
 }
 $("mAddress").addEventListener("input",()=>{
  clearTimeout(manualSearchTimer);
  $("manualMapSuggestions").classList.add("hidden");
- manualSearchTimer=setTimeout(searchManualAddress,350);
+ manualSearchTimer=setTimeout(searchManualAddress,600);
 });
 $("mLocality").addEventListener("change",()=>{
  clearTimeout(manualSearchTimer);
