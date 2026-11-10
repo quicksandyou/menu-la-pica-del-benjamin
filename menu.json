@@ -28,14 +28,14 @@
       "name": "Acevichado (10 cortes)",
       "price_clp": 2990,
       "description": "10 cortes de sushi acevichado.",
-      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/promos/promociones-sushi-limpio.jpg"
+      "image_url": "assets/promos/promociones-sushi-limpio.jpg"
     },
     {
       "category": "Promociones sushi",
       "name": "Ceviche chico (camarón y salmón)",
       "price_clp": 3890,
       "description": "Ceviche pequeño de camarón y salmón.",
-      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/promos/promociones-sushi-limpio.jpg"
+      "image_url": "assets/promos/promociones-sushi-limpio.jpg"
     },
     {
       "category": "Rolls fríos",
@@ -54,63 +54,63 @@
       "name": "Mix 40 cortes",
       "price_clp": 13990,
       "description": "Mix surtido de 40 cortes.",
-      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/promos/promociones-sushi-limpio.jpg"
+      "image_url": "assets/promos/promociones-sushi-limpio.jpg"
     },
     {
       "category": "Promociones sushi",
       "name": "Mix 100 cortes",
       "price_clp": 40990,
       "description": "Mix surtido de 100 cortes.",
-      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/promos/promociones-sushi-limpio.jpg"
+      "image_url": "assets/promos/promociones-sushi-limpio.jpg"
     },
     {
       "category": "Promociones sushi",
       "name": "30 cortes fríos",
       "price_clp": 7990,
       "description": "Promoción de 30 piezas de sushi frío.",
-      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/promos/promociones-sushi-limpio.jpg"
+      "image_url": "assets/promos/promociones-sushi-limpio.jpg"
     },
     {
       "category": "Promociones sushi",
       "name": "30 cortes fritos",
       "price_clp": 8490,
       "description": "Promoción de 30 piezas de sushi frito.",
-      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/promos/promociones-sushi-limpio.jpg"
+      "image_url": "assets/promos/promociones-sushi-limpio.jpg"
     },
     {
       "category": "Promociones sushi",
       "name": "Mix 20 cortes",
       "price_clp": 6490,
       "description": "Mix surtido de 20 piezas.",
-      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/promos/promociones-sushi-limpio.jpg"
+      "image_url": "assets/promos/promociones-sushi-limpio.jpg"
     },
     {
       "category": "Promociones sushi",
       "name": "Mix 30 cortes",
       "price_clp": 10990,
       "description": "Mix surtido de 30 piezas.",
-      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/promos/promociones-sushi-limpio.jpg"
+      "image_url": "assets/promos/promociones-sushi-limpio.jpg"
     },
     {
       "category": "Promociones sushi",
       "name": "Mix 50 cortes",
       "price_clp": 15990,
       "description": "Mix surtido de 50 piezas.",
-      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/promos/promociones-sushi-limpio.jpg"
+      "image_url": "assets/promos/promociones-sushi-limpio.jpg"
     },
     {
       "category": "Promociones sushi",
       "name": "Mix 70 cortes",
       "price_clp": 23900,
       "description": "Mix surtido de 70 piezas.",
-      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/promos/promociones-sushi-limpio.jpg"
+      "image_url": "assets/promos/promociones-sushi-limpio.jpg"
     },
     {
       "category": "Promociones sushi",
       "name": "Mix 90 cortes",
       "price_clp": 33900,
       "description": "Mix surtido de 90 piezas.",
-      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/promos/promociones-sushi-limpio.jpg"
+      "image_url": "assets/promos/promociones-sushi-limpio.jpg"
     },
     {
       "category": "Ceviches",
@@ -183,28 +183,28 @@
       "name": "Clásico de la casa",
       "price_clp": 4990,
       "description": "Carne, tomate, palta y mayonesa casera.",
-      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/churrascos/churrasco-clasico.jpg"
+      "image_url": "assets/churrascos/churrasco-clasico.jpg"
     },
     {
       "category": "Churrascos",
       "name": "Chacarero",
       "price_clp": 4990,
       "description": "Carne, tomate, poroto verde, ají verde y mayonesa.",
-      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/churrascos/churrasco-chacarero.jpg"
+      "image_url": "assets/churrascos/churrasco-chacarero.jpg"
     },
     {
       "category": "Churrascos",
       "name": "Barros Luco",
       "price_clp": 4990,
       "description": "Carne y queso fundido.",
-      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/churrascos/churrasco-barros-luco.jpg"
+      "image_url": "assets/churrascos/churrasco-barros-luco.jpg"
     },
     {
       "category": "Churrascos",
       "name": "Benjita",
       "price_clp": 6490,
       "description": "Carne, champiñón, lechuga, tomate, papas al hilo y salsa golf.",
-      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/churrascos/churrasco-benjita.jpg"
+      "image_url": "assets/churrascos/churrasco-benjita.jpg"
     },
     {
       "category": "Churrascos",
@@ -317,7 +317,7 @@
       "name": "Promo 4 · 3 churrascos o hamburguesas + papas + bebida 1,5 L",
       "price_clp": 14500,
       "description": "3 churrascos o hamburguesas a elección, papas fritas medianas y bebida de 1,5 litros. Puedes combinar Chacarero, Italiano, Luco o hamburguesa.",
-      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/promos/promo-4.jpg",
+      "image_url": "assets/promos/promo-4.jpg",
       "option_groups": [
         {
           "label": "Elige cada churrasco o hamburguesa",
@@ -348,7 +348,7 @@
       "name": "Sushi Burger",
       "price_clp": 4990,
       "description": "Sushi Burger a elección entre 5 variedades: pollo, camarón, kanikama, mechada o vegetariana.",
-      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/promos/sushi-burger.jpg",
+      "image_url": "assets/promos/sushi-burger.jpg",
       "option_groups": [
         {
           "label": "Elige variedad",
@@ -367,7 +367,7 @@
       "name": "3 Hanrolls",
       "price_clp": 6490,
       "description": "3 hand rolls fritos con queso y palta. Elige para cada uno: pollo, camarón o kanikama.",
-      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/promos/3-hanrolls.jpg",
+      "image_url": "assets/promos/3-hanrolls.jpg",
       "option_groups": [
         {
           "label": "Elige relleno",
@@ -385,7 +385,7 @@
       "name": "Promo churrasco italiano + hand roll frito + bebida lata",
       "price_clp": 6990,
       "description": "1 churrasco italiano + 1 hand roll frito (pollo, camarón o kanikama) + 1 bebida en lata.",
-      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/promos/promo-italiano-handroll.jpg",
+      "image_url": "assets/promos/promo-italiano-handroll.jpg",
       "option_groups": [
         {
           "label": "Hand roll",
@@ -414,7 +414,7 @@
       "name": "Combo Sushi + Pizza · 20 piezas",
       "price_clp": 16490,
       "description": "20 piezas de sushi mixtas o fritas + una pizza a elección + Coca-Cola de 1,5 litros.",
-      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/promos/combo-sushi-pizza.jpg",
+      "image_url": "assets/promos/combo-sushi-pizza.jpg",
       "option_groups": [
         {
           "label": "Tipo de sushi",
@@ -456,7 +456,7 @@
       "name": "Combo Sushi + Pizza · 40 piezas",
       "price_clp": 22990,
       "description": "40 piezas de sushi mixtas o fritas + una pizza a elección + Coca-Cola de 1,5 litros.",
-      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/promos/combo-sushi-pizza.jpg",
+      "image_url": "assets/promos/combo-sushi-pizza.jpg",
       "option_groups": [
         {
           "label": "Tipo de sushi",
@@ -617,7 +617,7 @@
       "name": "Chorrillana Tradicional · 2 personas",
       "price_clp": 5990,
       "description": "Carne de churrasco, cebolla caramelizada, papas fritas y huevos fritos.",
-      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/chorrillanas.jpg",
+      "image_url": "assets/chorrillanas.jpg",
       "display_group": "Chorrillana Tradicional",
       "display_label": "Para 2 personas"
     },
@@ -626,7 +626,7 @@
       "name": "Chorrillana Tradicional · 3 personas",
       "price_clp": 6990,
       "description": "Carne de churrasco, cebolla caramelizada, papas fritas y huevos fritos.",
-      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/chorrillanas.jpg",
+      "image_url": "assets/chorrillanas.jpg",
       "display_group": "Chorrillana Tradicional",
       "display_label": "Para 3 personas"
     },
@@ -635,7 +635,7 @@
       "name": "Chorrillana Carne mechada · 2 personas",
       "price_clp": 5990,
       "description": "Carne mechada, papas fritas, cebolla caramelizada y huevos fritos.",
-      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/chorrillanas.jpg",
+      "image_url": "assets/chorrillanas.jpg",
       "display_group": "Chorrillana de carne mechada",
       "display_label": "Para 2 personas"
     },
@@ -644,7 +644,7 @@
       "name": "Chorrillana Carne mechada · 3 personas",
       "price_clp": 7990,
       "description": "Carne mechada, papas fritas, cebolla caramelizada y huevos fritos.",
-      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/chorrillanas.jpg",
+      "image_url": "assets/chorrillanas.jpg",
       "display_group": "Chorrillana de carne mechada",
       "display_label": "Para 3 personas"
     },
@@ -653,7 +653,7 @@
       "name": "Chorrillana Pollo champiñón · 2 personas",
       "price_clp": 5990,
       "description": "Pollo, champiñones, papas fritas, cebolla caramelizada y huevos fritos.",
-      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/chorrillanas.jpg",
+      "image_url": "assets/chorrillanas.jpg",
       "display_group": "Chorrillana pollo champiñón",
       "display_label": "Para 2 personas"
     },
@@ -662,7 +662,7 @@
       "name": "Chorrillana Pollo champiñón · 3 personas",
       "price_clp": 7990,
       "description": "Pollo, champiñones, papas fritas, cebolla caramelizada y huevos fritos.",
-      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/chorrillanas.jpg",
+      "image_url": "assets/chorrillanas.jpg",
       "display_group": "Chorrillana pollo champiñón",
       "display_label": "Para 3 personas"
     },
@@ -671,7 +671,7 @@
       "name": "Chorrillana Carnes mixtas · 2 personas",
       "price_clp": 6490,
       "description": "Carne mechada, pollo, churrasco, cebolla caramelizada y huevos fritos.",
-      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/chorrillanas.jpg",
+      "image_url": "assets/chorrillanas.jpg",
       "display_group": "Chorrillana carnes mixtas",
       "display_label": "Para 2 personas"
     },
@@ -680,7 +680,7 @@
       "name": "Chorrillana Carnes mixtas · 3 personas",
       "price_clp": 8490,
       "description": "Carne mechada, pollo, churrasco, cebolla caramelizada y huevos fritos.",
-      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/chorrillanas.jpg",
+      "image_url": "assets/chorrillanas.jpg",
       "display_group": "Chorrillana carnes mixtas",
       "display_label": "Para 3 personas"
     },
@@ -689,7 +689,7 @@
       "name": "Papas mechadas con queso · Chica",
       "price_clp": 6990,
       "description": "Papas fritas con carne mechada, queso y ciboulette a elección.",
-      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/chorrillanas.jpg",
+      "image_url": "assets/chorrillanas.jpg",
       "option_groups": [
         {
           "label": "Ciboulette",
@@ -707,7 +707,7 @@
       "name": "Papas mechadas con queso · Grande",
       "price_clp": 8990,
       "description": "Papas fritas con carne mechada, queso y ciboulette a elección.",
-      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/chorrillanas.jpg",
+      "image_url": "assets/chorrillanas.jpg",
       "option_groups": [
         {
           "label": "Ciboulette",
@@ -725,14 +725,14 @@
       "name": "Chorrillana grande · Promo",
       "price_clp": 9990,
       "description": "Chorrillana grande de variedades, según disponibilidad del local.",
-      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/chorrillana-grande.jpg"
+      "image_url": "assets/chorrillana-grande.jpg"
     },
     {
       "category": "Completos",
       "name": "2 Completos · Clásico o Italiano",
       "price_clp": 3000,
       "description": "Dos completos a elección: clásico o italiano.",
-      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/completos.jpg",
+      "image_url": "assets/completos.jpg",
       "option_groups": [
         {
           "label": "Completo",
@@ -749,7 +749,7 @@
       "name": "Hanroll pollo · queso y palta",
       "price_clp": 2490,
       "description": "Hanroll de pollo, queso y palta.",
-      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/hanrolls.jpg",
+      "image_url": "assets/hanrolls.jpg",
       "display_group": "Hanrolls a elección",
       "display_label": "Pollo, queso y palta"
     },
@@ -758,7 +758,7 @@
       "name": "Hanroll camarón · queso y palta",
       "price_clp": 2490,
       "description": "Hanroll de camarón, queso y palta.",
-      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/hanrolls.jpg",
+      "image_url": "assets/hanrolls.jpg",
       "display_group": "Hanrolls a elección",
       "display_label": "Camarón, queso y palta"
     },
@@ -767,7 +767,7 @@
       "name": "Hanroll kanikama · queso y palta",
       "price_clp": 1990,
       "description": "Hanroll de kanikama, queso y palta.",
-      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/hanrolls.jpg",
+      "image_url": "assets/hanrolls.jpg",
       "display_group": "Hanrolls a elección",
       "display_label": "Kanikama, queso y palta"
     },
@@ -776,7 +776,7 @@
       "name": "Hanroll mechada · queso y palta",
       "price_clp": 2990,
       "description": "Hanroll de mechada, queso y palta.",
-      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/hanrolls.jpg",
+      "image_url": "assets/hanrolls.jpg",
       "display_group": "Hanrolls a elección",
       "display_label": "Mechada, queso y palta"
     },
@@ -785,14 +785,14 @@
       "name": "Promo Picoteo",
       "price_clp": 3990,
       "description": "5 nuggets + 5 empanadas + 5 arrolladitos primavera.",
-      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/promos/promo-picoteo.jpg"
+      "image_url": "assets/promos/promo-picoteo.jpg"
     },
     {
       "category": "Promociones",
       "name": "Promo 1 · 4 ASS normales + bebida 1,5 L",
       "price_clp": 12490,
       "description": "4 ASS normales y bebida de 1,5 litros. Disponible en pollo, cerdo o vacuno.",
-      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/promos/promo-1-ass.jpg",
+      "image_url": "assets/promos/promo-1-ass.jpg",
       "option_groups": [
         {
           "label": "ASS",
@@ -822,7 +822,7 @@
       "name": "Promo 2 · Churrasco o hamburguesa + papas + lata",
       "price_clp": 7490,
       "description": "1 churrasco o hamburguesa + papas medianas + bebida en lata.",
-      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/promos/promo-2-churrasco.jpg",
+      "image_url": "assets/promos/promo-2-churrasco.jpg",
       "option_groups": [
         {
           "label": "Elige tu sándwich",
@@ -852,7 +852,7 @@
       "name": "6 empanadas",
       "price_clp": 2000,
       "description": "6 empanadas doradas.",
-      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/empanadas.svg",
+      "image_url": "assets/empanadas.svg",
       "display_group": "Empanadas"
     },
     {
@@ -860,7 +860,7 @@
       "name": "12 empanadas",
       "price_clp": 4000,
       "description": "12 empanadas doradas.",
-      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/empanadas.svg",
+      "image_url": "assets/empanadas.svg",
       "display_group": "Empanadas"
     },
     {
@@ -868,7 +868,7 @@
       "name": "6 aros",
       "price_clp": 2000,
       "description": "6 aros de cebolla crujientes.",
-      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/aros-cebolla.svg",
+      "image_url": "assets/aros-cebolla.svg",
       "display_group": "Aros de cebolla"
     },
     {
@@ -876,7 +876,7 @@
       "name": "12 aros",
       "price_clp": 4000,
       "description": "12 aros de cebolla crujientes.",
-      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/aros-cebolla.svg",
+      "image_url": "assets/aros-cebolla.svg",
       "display_group": "Aros de cebolla"
     },
     {
@@ -884,7 +884,7 @@
       "name": "3 arrollados",
       "price_clp": 1500,
       "description": "3 arrollados primavera.",
-      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/arrollados-primavera.svg",
+      "image_url": "assets/arrollados-primavera.svg",
       "display_group": "Arrollados primavera"
     },
     {
@@ -892,7 +892,7 @@
       "name": "6 arrollados",
       "price_clp": 3000,
       "description": "6 arrollados primavera.",
-      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/arrollados-primavera.svg",
+      "image_url": "assets/arrollados-primavera.svg",
       "display_group": "Arrollados primavera"
     },
     {
@@ -900,7 +900,7 @@
       "name": "6 nuggets",
       "price_clp": 2000,
       "description": "6 nuggets de pollo.",
-      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/nuggets-pollo.svg",
+      "image_url": "assets/nuggets-pollo.svg",
       "display_group": "Nuggets de pollo"
     },
     {
@@ -908,7 +908,7 @@
       "name": "12 nuggets",
       "price_clp": 4000,
       "description": "12 nuggets de pollo.",
-      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/nuggets-pollo.svg",
+      "image_url": "assets/nuggets-pollo.svg",
       "display_group": "Nuggets de pollo"
     },
     {
@@ -916,7 +916,7 @@
       "name": "Papas fritas · Pequeña",
       "price_clp": 3000,
       "description": "Porción pequeña de papas fritas.",
-      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/papas-fritas.svg",
+      "image_url": "assets/papas-fritas.svg",
       "display_group": "Papas fritas",
       "display_label": "Pequeña"
     },
@@ -925,7 +925,7 @@
       "name": "Papas fritas · Mediana",
       "price_clp": 5000,
       "description": "Porción mediana de papas fritas.",
-      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/papas-fritas.svg",
+      "image_url": "assets/papas-fritas.svg",
       "display_group": "Papas fritas",
       "display_label": "Mediana"
     },
@@ -934,7 +934,7 @@
       "name": "Papas fritas · Familiar",
       "price_clp": 8500,
       "description": "Porción familiar de papas fritas.",
-      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/papas-fritas.svg",
+      "image_url": "assets/papas-fritas.svg",
       "display_group": "Papas fritas",
       "display_label": "Familiar"
     },
@@ -943,7 +943,7 @@
       "name": "Salchipapas · Pequeña",
       "price_clp": 3500,
       "description": "Porción pequeña de salchipapas.",
-      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/salchipapas.svg",
+      "image_url": "assets/salchipapas.svg",
       "display_group": "Salchipapas",
       "display_label": "Pequeña"
     },
@@ -952,7 +952,7 @@
       "name": "Salchipapas · Mediana",
       "price_clp": 6000,
       "description": "Porción mediana de salchipapas.",
-      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/salchipapas.svg",
+      "image_url": "assets/salchipapas.svg",
       "display_group": "Salchipapas",
       "display_label": "Mediana"
     },
@@ -961,7 +961,7 @@
       "name": "Salchipapas · Familiar",
       "price_clp": 10000,
       "description": "Porción familiar de salchipapas.",
-      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/salchipapas.svg",
+      "image_url": "assets/salchipapas.svg",
       "display_group": "Salchipapas",
       "display_label": "Familiar"
     },
@@ -970,7 +970,7 @@
       "name": "5 pollos crispy + papas + salsa BBQ",
       "price_clp": 5900,
       "description": "5 pollos crispy con papas fritas y salsa BBQ.",
-      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/pollos-crispy.svg",
+      "image_url": "assets/pollos-crispy.svg",
       "display_group": "Pollos crispy"
     },
     {
@@ -978,7 +978,7 @@
       "name": "10 pollos crispy + papas + salsa BBQ",
       "price_clp": 10990,
       "description": "10 pollos crispy con papas fritas y salsa BBQ.",
-      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/pollos-crispy.svg",
+      "image_url": "assets/pollos-crispy.svg",
       "display_group": "Pollos crispy"
     },
     {
@@ -1026,9 +1026,9 @@
   ],
   "photos": {
     "Rolls": "https://cdn-media.choiceqr.com/prod-eat-samuraisushirolls/thumbnail_elJjXmL-SjbDCNS-qIdpJtT_C-E-m.jpeg",
-    "Rolls fríos": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/roll-palta-camaron.png.png",
+    "Rolls fríos": "assets/roll-palta-camaron.png.png",
     "Rolls fritos": "https://images.bolt.eu/store/2023/2023-10-18/be13cbfe-8104-4dba-b5b3-9167f317b952.jpeg",
-    "Promociones sushi": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/promos/promociones-sushi.jpg",
+    "Promociones sushi": "assets/promos/promociones-sushi.jpg",
     "Ceviches": "https://images.unsplash.com/photo-1535399831218-d5bd36d1a6b3?auto=format&fit=crop&w=700&q=80",
     "Gohan": "assets/gohan/gohan-pollo-apanado.jpg",
     "Pizzas": "https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=700&q=80",
