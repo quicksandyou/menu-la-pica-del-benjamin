@@ -159,7 +159,7 @@ const products = {
   "Bebida lata 350 cc": 1500, "Bebida botella 1,5 litros": 2500,
   "Jugo natural 350 cc": 2500, "Jugo natural 1 litro": 3990,
   "Néctar 1,5 litros": 2500, "Agua mineral 600 ml": 1000,
-  "Red Bull 250 cc": 2500
+  "Red Bull 250 cc": 2500,
   "Aros bote plata 925": 7990,
   "Aros Minnie plata 925": 12990,
   "Pulsera de plata 925 · diseños surtidos": 8990,
