@@ -30,7 +30,7 @@ jobs:
           npm install --no-save @capacitor/core@^7 @capacitor/cli@^7 @capacitor/android@^7 sharp
           npx cap add android
           npx cap sync android
-      - name: Aplicar icono oficial de La Picá del Benjamín
+      - name: Aplicar icono oficial normal y adaptativo de Android
         run: |
           node <<'NODE'
           const sharp = require('sharp');
@@ -38,15 +38,28 @@ jobs:
           const path = require('path');
           const source = 'icons/La Picá del Benjamín_ Sabor a domicilio (1).png';
           if (!fs.existsSync(source)) throw new Error('No se encontró la imagen oficial: ' + source);
-          const sizes = { mdpi:48, hdpi:72, xhdpi:96, xxhdpi:144, xxxhdpi:192 };
+          const densities = { mdpi:1, hdpi:1.5, xhdpi:2, xxhdpi:3, xxxhdpi:4 };
           (async()=>{
-            for (const [density,size] of Object.entries(sizes)) {
+            for (const [density,scale] of Object.entries(densities)) {
               const dir = path.join('android/app/src/main/res', 'mipmap-' + density);
               fs.mkdirSync(dir,{recursive:true});
-              const icon = sharp(source).resize(size,size,{fit:'contain',background:'#080808'}).png();
-              await icon.toFile(path.join(dir,'ic_launcher.png'));
+              const size = Math.round(48*scale);
+              await sharp(source).resize(size,size,{fit:'contain',background:'#080808'}).png().toFile(path.join(dir,'ic_launcher.png'));
               await sharp(source).resize(size,size,{fit:'contain',background:'#080808'}).png().toFile(path.join(dir,'ic_launcher_round.png'));
+              const adaptiveSize = Math.round(108*scale);
+              await sharp(source).resize({width:Math.round(adaptiveSize*0.78),height:Math.round(adaptiveSize*0.78),fit:'contain',background:{r:0,g:0,b:0,alpha:0}}).extend({top:Math.round(adaptiveSize*0.11),bottom:adaptiveSize-Math.round(adaptiveSize*0.89),left:Math.round(adaptiveSize*0.11),right:adaptiveSize-Math.round(adaptiveSize*0.89),background:{r:0,g:0,b:0,alpha:0}}).png().toFile(path.join(dir,'ic_launcher_foreground.png'));
             }
+            const anydpi = path.join('android/app/src/main/res','mipmap-anydpi-v26');
+            fs.mkdirSync(anydpi,{recursive:true});
+            const adaptive = name => `<?xml version="1.0" encoding="utf-8"?>\n<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">\n    <background android:drawable="@color/ic_launcher_background"/>\n    <foreground android:drawable="@mipmap/ic_launcher_foreground"/>\n</adaptive-icon>\n`;
+            fs.writeFileSync(path.join(anydpi,'ic_launcher.xml'),adaptive());
+            fs.writeFileSync(path.join(anydpi,'ic_launcher_round.xml'),adaptive());
+            const values = path.join('android/app/src/main/res','values');
+            fs.mkdirSync(values,{recursive:true});
+            const colorsFile=path.join(values,'colors.xml');
+            let colors=fs.existsSync(colorsFile)?fs.readFileSync(colorsFile,'utf8'):'<?xml version="1.0" encoding="utf-8"?>\n<resources>\n</resources>\n';
+            if(!/name="ic_launcher_background"/.test(colors)) colors=colors.replace('</resources>','    <color name="ic_launcher_background">#080808</color>\n</resources>');
+            fs.writeFileSync(colorsFile,colors);
           })().catch(e=>{console.error(e);process.exit(1)});
           NODE
       - name: Construir APK de prueba
