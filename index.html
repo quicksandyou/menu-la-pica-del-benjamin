@@ -598,7 +598,7 @@ function showStoreSection(section){
  const jewelry=section==="jewelry";
  const contests=section==="contests";
  document.getElementById("foodSection").style.display=(food||jewelry)?"block":"none";
- document.getElementById("jewelrySection").style.display="none";
+ document.getElementById("jewelrySection").style.display=jewelry?"block":"none";
  document.getElementById("contestsSection").style.display=contests?"block":"none";
  active=jewelry?"Joyas & Detalles":"Todos";
  const heading=document.getElementById("menuHeading");
