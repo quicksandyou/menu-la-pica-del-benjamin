@@ -18,6 +18,13 @@
 <main id="app" class="wrap"><div class="notice">POS local de acceso directo, sin contraseña. El historial permanente de ventas será incorporado en la siguiente etapa.</div><div class="layout"><section><div class="tools"><input id="search" placeholder="Buscar producto..." oninput="renderProducts()"><button type="button" class="add" onclick="loadSharedMenu().catch(e=>alert(e.message))">↻ Actualizar carta</button><select id="mode"><option>Consumo en local</option><option>Retiro en el local</option></select></div><div id="menuSyncStatus" class="muted" aria-live="polite">Conectando con la carta web…</div><div class="tabbar"><button class="tab-arrow" id="catPrev" type="button" aria-label="Ver categorías anteriores">‹</button><nav class="tabs" id="tabs" aria-label="Categorías de productos"></nav><button class="tab-arrow" id="catNext" type="button" aria-label="Ver más categorías">›</button></div><div class="products" id="products"></div></section><aside class="cart"><h2>🧾 Pedido actual</h2><div id="cartLines">Agrega productos para comenzar.</div><div class="total" id="total">$0</div><div class="field"><label>Cliente (opcional)</label><input id="customer" placeholder="Nombre del cliente"></div><div class="field"><label>Forma de pago</label><select id="payment"><option>Efectivo</option><option>Transferencia</option><option>Tarjeta</option><option>Pendiente</option></select></div><div class="field"><label>Observaciones para cocina</label><textarea id="notes" rows="2" placeholder="Sin cebolla, término, etc."></textarea></div><button class="action primary" onclick="printReceipt()">Imprimir comanda</button><button class="action" onclick="newOrder()">Nuevo pedido / limpiar</button><p class="muted">La impresión abre el diálogo de Windows.</p></aside></div></main><section id="receipt" class="receipt"></section>
 <script>
 let P=[],cats=[];
+const MENU_ORIGIN="https://menu-la-pica-del-benjamin.onrender.com/";
+function resolveMenuImage(value){
+ if(!value)return "";
+ const src=String(value).trim();
+ if(src.startsWith("data:")||src.startsWith("blob:"))return src;
+ try{return new URL(src,MENU_ORIGIN).href;}catch(_){return "";}
+}
 
 let category='Todos',cart={};
 const money=n=>'$'+Number(n||0).toLocaleString('es-CL');
@@ -55,7 +62,7 @@ function renderProducts(){
  const q=document.getElementById('search').value.trim().toLocaleLowerCase('es-CL');
  const list=P.map((p,index)=>({p,index})).filter(({p})=>(category==='Todos'||p[0]===category)&&[p[1],p[3]].join(' ').toLocaleLowerCase('es-CL').includes(q));
  const products=document.getElementById('products');
- products.innerHTML=list.map(({p,index})=>{const available=p[2]!==null&&Number.isFinite(p[2])&&p[2]>0;return '<article class="product '+(["Promociones","Promociones sushi"].includes(p[0])?"promo-product":"")+'">'+(p[4]?'<img class="product-image" src="'+escapeHTML(p[4])+'" alt="'+escapeHTML(p[1])+'" loading="lazy" onerror="this.hidden=true">':'')+'<strong>'+escapeHTML(p[1])+'</strong><span class="sub">'+escapeHTML(p[0])+'</span>'+(p[3]?'<span class="product-desc">'+escapeHTML(p[3])+'</span>':'')+optionGroupsHTML(p,index)+'<span class="price">'+(available?money(p[2]):'Precio por confirmar')+'</span><button type="button" class="add" data-add-index="'+index+'" '+(available?'':'disabled')+'>'+(available?'＋ Agregar':'No disponible por ahora')+'</button></article>'}).join('');
+ products.innerHTML=list.map(({p,index})=>{const available=p[2]!==null&&Number.isFinite(p[2])&&p[2]>0;return '<article class="product '+(["Promociones","Promociones sushi"].includes(p[0])?"promo-product":"")+'">'+(p[4]?'<img class="product-image" src="'+escapeHTML(p[4])+'" alt="'+escapeHTML(p[1])+'" loading="lazy" decoding="async" onerror="this.hidden=true">':'')+'<strong>'+escapeHTML(p[1])+'</strong><span class="sub">'+escapeHTML(p[0])+'</span>'+(p[3]?'<span class="product-desc">'+escapeHTML(p[3])+'</span>':'')+optionGroupsHTML(p,index)+'<span class="price">'+(available?money(p[2]):'Precio por confirmar')+'</span><button type="button" class="add" data-add-index="'+index+'" '+(available?'':'disabled')+'>'+(available?'＋ Agregar':'No disponible por ahora')+'</button></article>'}).join('');
  if(!list.length)products.innerHTML='<p class="muted">No hay productos en esta categoría.</p>';
 }
 function optionGroupsHTML(p,index){const groups=p[5]||[];return groups.map((g,gi)=>Array.from({length:g.quantity||1},(_,k)=>{const id='pos-option-'+index+'-'+gi+'-'+k;return '<label class="muted" for="'+id+'">'+escapeHTML(g.label)+(g.quantity>1?' '+(k+1):'')+'</label><select class="product-option" id="'+id+'"><option value="">Seleccionar opción</option>'+g.choices.map(v=>'<option value="'+escapeHTML(v)+'">'+escapeHTML(v)+'</option>').join('')+'</select>'}).join('');}
@@ -113,7 +120,7 @@ async function loadSharedMenu(){
  if(!r.ok)throw Error("No se pudo cargar la carta online.");
  const d=await r.json();
  if(!Array.isArray(d.products)||!d.products.length)throw Error("La carta online está vacía.");
- P=d.products.map(x=>[x.category,x.name,x.price_clp===null||x.price_clp===undefined?null:Number(x.price_clp),x.description||"",x.image_url||d.photos?.[x.category]||"",x.option_groups||[]]);
+ P=d.products.map(x=>[x.category,x.name,x.price_clp===null||x.price_clp===undefined?null:Number(x.price_clp),x.description||"",resolveMenuImage(x.image_url||d.photos?.[x.category]||""),x.option_groups||[]]);
  cats=["Todos",...(d.categories||[...new Set(P.map(x=>x[0]))])];
  if(status)status.textContent='Carta sincronizada: '+P.length+' productos · '+new Date().toLocaleTimeString('es-CL');
  renderTabs();renderProducts();drawCart();
