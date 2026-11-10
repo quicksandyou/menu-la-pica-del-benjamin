@@ -301,7 +301,26 @@ $("totals").textContent=closing.totals.map(x=>x.display_name+": $"+x.delivery_to
 window.closingData=closing;
 $("message").textContent="Pedidos actualizados."; }catch(e){$("message").textContent=e.message}}
 function updateBatchCount(){const n=document.querySelectorAll(".batch-pick:checked").length;$("batchCount").textContent=n+" seleccionados"}
-$("selectRouteOrders").onclick=()=>{document.querySelectorAll(".route-pick").forEach(x=>{x.checked=true;x.dispatchEvent(new Event("change"))})};$("clearRouteOrders").onclick=()=>{routeOrders=[];document.querySelectorAll(".route-pick").forEach(x=>x.checked=false);$("routeCount").textContent="0 destinos seleccionados";$("routeResult").textContent="Selección limpiada."};$("buildRoute").onclick=async()=>{if(!routeOrders.length){$("routeResult").textContent="Selecciona al menos un pedido.";return}try{$("buildRoute").disabled=true;$("routeResult").textContent="Consultando GPS…";const origin=await currentGps(),selected=[...routeOrders],withGps=selected.map(o=>({o,p:orderPoint(o)})).filter(x=>x.p),withoutGps=selected.filter(o=>!orderPoint(o));let remaining=[...withGps],ordered=[],pos=origin;const dist=(a,b)=>{const rad=x=>x*Math.PI/180,R=6371,d1=rad(b.lat-a.lat),d2=rad(b.lng-a.lng),q=Math.sin(d1/2)**2+Math.cos(rad(a.lat))*Math.cos(rad(b.lat))*Math.sin(d2/2)**2;return 2*R*Math.asin(Math.sqrt(q))};while(remaining.length){remaining.sort((a,b)=>dist(pos,a.p)-dist(pos,b.p));const n=remaining.shift();ordered.push(n);pos=n.p}const addresses=[...ordered.map(x=>orderDestination(x.o)),...withoutGps.map(orderDestination)],dest=addresses.pop(),params=new URLSearchParams({api:"1",origin:origin.lat+","+origin.lng,destination:dest,travelmode:"driving"});if(addresses.length)params.set("waypoints","optimize:true|"+addresses.join("|"));$("routeResult").textContent="Ruta de "+selected.length+" paradas. "+(withoutGps.length?withoutGps.length+" dirección(es) se resolverán por texto. ":"")+"Se abrirá Google Maps en modo automóvil.";location.href="https://www.google.com/maps/dir/?"+params.toString()}catch(e){$("routeResult").textContent=e.message}finally{$("buildRoute").disabled=false}};
+$("selectRouteOrders").onclick=()=>{document.querySelectorAll(".route-pick").forEach(x=>{x.checked=true;x.dispatchEvent(new Event("change"))})};$("clearRouteOrders").onclick=()=>{routeOrders=[];document.querySelectorAll(".route-pick").forEach(x=>x.checked=false);$("routeCount").textContent="0 destinos seleccionados";$("routeResult").textContent="Selección limpiada."};$("buildRoute").onclick=async()=>{
+ const button=$("buildRoute"),status=$("routeResult");
+ if(!routeOrders.length){status.textContent="Selecciona al menos un pedido antes de calcular la ruta.";return}
+ button.disabled=true;button.textContent="Preparando ruta…";status.textContent="Comprobando direcciones y ubicación…";
+ try{
+  const selected=[...routeOrders];
+  const stops=selected.map(o=>({order:o,destination:orderDestination(o)})).filter(x=>x.destination&&x.destination!=="Chile");
+  if(!stops.length)throw new Error("Los pedidos seleccionados no tienen direcciones de entrega. Revisa la dirección y localidad.");
+  let origin="La Picá del Benjamín, Linares, Maule, Chile";
+  try{const gps=await Promise.race([currentGps(),new Promise((_,reject)=>setTimeout(()=>reject(Error("GPS no disponible")),7000))]);origin=gps.lat+","+gps.lng;}
+  catch(e){status.textContent="No se pudo obtener GPS. Se usará La Picá del Benjamín, Linares como punto de partida.";}
+  const destination=stops[stops.length-1].destination;
+  const params=new URLSearchParams({api:"1",origin,destination,travelmode:"driving"});
+  if(stops.length>1)params.set("waypoints",stops.slice(0,-1).map(x=>x.destination).join("|"));
+  const url="https://www.google.com/maps/dir/?"+params.toString();
+  status.textContent="Ruta lista: "+stops.length+" destino(s). Abriendo Google Maps…";
+  window.location.assign(url);
+ }catch(e){status.textContent=e.message||"No se pudo calcular la ruta."}
+ finally{button.disabled=false;button.textContent="📍 Calcular y abrir ruta en Google Maps"}
+};
 function updateRejectCount(){$("rejectCount").textContent=document.querySelectorAll(".pending-reject-pick:checked").length+" seleccionados"}
 $("selectPendingReject").onclick=()=>{document.querySelectorAll(".pending-reject-pick").forEach(x=>x.checked=true);updateRejectCount()};
 $("clearPendingReject").onclick=()=>{document.querySelectorAll(".pending-reject-pick:checked").forEach(x=>x.checked=false);updateRejectCount()};
