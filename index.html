@@ -615,6 +615,14 @@ html.native-app-ui .cart{order:3!important;position:static!important}
 html.native-app-ui #appNativeWhatsAppCta:active,html.native-app-ui .app-native-category:active{transform:scale(.97)}
 @media(max-width:380px){html.native-app-ui .app-native-categories{gap:7px}html.native-app-ui .app-native-category{border-radius:15px!important}.app-native-category-image{height:72px}}
 @media(min-width:701px){html.native-app-ui .app-native-categories{max-width:700px;margin-left:auto;margin-right:auto}}
+
+.launch-countdown{padding:15px 18px;background:linear-gradient(105deg,#351605,#120b07 58%,#291307);border-bottom:2px solid #bd711c;box-shadow:0 7px 22px #0008}
+.launch-countdown-inner{max-width:1400px;margin:auto;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:12px 24px}
+.launch-copy strong{display:block;color:#ffd34d;font-size:clamp(18px,2.4vw,25px);line-height:1.2}.launch-copy p{margin:5px 0 0;color:#f1dfc7;font-size:13px}.launch-kicker{display:block;color:#ffb23d;font-size:11px;font-weight:950;letter-spacing:1.2px;margin-bottom:4px}
+.launch-clock{display:flex;gap:7px}.launch-clock div{min-width:57px;padding:8px 6px;border:1px solid #a45c20;border-radius:10px;background:#080604;text-align:center;box-shadow:inset 0 0 12px #ffb52a12}.launch-clock b{display:block;color:#fff;font-size:clamp(21px,3vw,30px);font-variant-numeric:tabular-nums;line-height:1.1}.launch-clock small{display:block;color:#ffc45b;font-size:9px;font-weight:900;margin-top:4px;letter-spacing:.7px}
+.launch-status{grid-column:1/-1;color:#ffdf9c;font-size:12px;font-weight:800;text-align:center;padding-top:8px;border-top:1px solid #8b4d1d}
+.online-pay:disabled{opacity:.58;cursor:not-allowed;filter:grayscale(.35);box-shadow:none;transform:none}
+@media(max-width:650px){.launch-countdown{padding:12px 10px}.launch-countdown-inner{grid-template-columns:1fr;gap:10px}.launch-copy{text-align:center}.launch-clock{justify-content:center}.launch-clock div{min-width:0;flex:1;max-width:75px;padding:8px 3px}.launch-status{grid-column:auto}}
 </style><button type="button" class="app-drawer-toggle" id="appDrawerToggle" aria-label="Abrir menú" style="display:none">☰</button><div class="app-drawer-overlay" id="appDrawerOverlay" style="display:none"></div><audio id="siteMusic" src="./soundtrack.mp3.mpeg" loop preload="none"></audio><button id="musicToggle" type="button" aria-pressed="false" onclick="toggleMusic()">🎵 Activar música</button><a class="delivery-help" href="https://wa.me/56962662078?text=Hola%2C%20quisiera%20hacer%20una%20consulta%20sobre%20mi%20pedido%20de%20La%20Pic%C3%A1%20del%20Benjam%C3%ADn." target="_blank" rel="noopener noreferrer" aria-label="Consultar pedido con el encargado de delivery por WhatsApp"><span class="wa-icon">🟢</span><span>Consultar mi pedido</span></a><button type="button" class="ketchup-side left" aria-label="¡Aprieta para lanzar kétchup!" title="¡Toca para lanzar kétchup!" onclick="splashKetchup(event)"><span class="ketchup-splash">〰</span><span class="ketchup-bottle"></span></button><button type="button" class="ketchup-side right" aria-label="¡Aprieta para lanzar kétchup!" title="¡Toca para lanzar kétchup!" onclick="splashKetchup(event)"><span class="ketchup-splash">〰</span><span class="ketchup-bottle"></span></button><header class="site-header"><div class="app-native-topbar"><div class="app-native-logo"><img src="/logo_picada.jpg" alt="La Picá del Benjamín"></div><button id="appCartShortcut" type="button" aria-label="Ver carrito">🛒<span id="appCartCount">0</span></button></div><div class="head-inner"><div><div class="brand">La Picá del Benjamín</div><div class="tagline">Sabor que enamora, porciones que impresionan</div>
 <a class="instagram-link" href="https://www.instagram.com/la_pica_de_benjamin?mdxt=MXdnZ3BwcHhncHFpdw==" target="_blank" rel="noopener noreferrer" aria-label="Visitar Instagram de La Picá del Benjamín">
 <span class="instagram-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="18" cy="6" r="1" fill="currentColor" stroke="none"/></svg></span>
@@ -624,6 +632,15 @@ html.native-app-ui #appNativeWhatsAppCta:active,html.native-app-ui .app-native-c
 <span class="facebook-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13.5 21v-8h2.7l.4-3.1h-3.1V8c0-.9.3-1.5 1.6-1.5h1.7V3.7c-.3 0-1.3-.1-2.5-.1-2.5 0-4.2 1.5-4.2 4.3v2H7.3V13h2.8v8h3.4z"/></svg></span>
 <span>Síguenos en Facebook</span>
 </a></div><div class="header-info"><div class="info-chip">📍 <b>Pje. Hermano Claudio Ortíz #1229</b><br>Linares · <a href="https://maps.app.goo.gl/zV6W4sxRxqezmYtb7" target="_blank" rel="noopener">Ver ubicación real ↗</a></div><div class="info-chip">🕒 <b>Horario de atención</b><br>Martes a sábado · 17:30 a 02:00 AM</div></div></div></header>
+<section id="launchCountdown" class="launch-countdown" role="status" aria-live="polite">
+ <div class="launch-countdown-inner">
+  <div class="launch-copy"><span class="launch-kicker">🚀 CUENTA REGRESIVA OFICIAL</span><strong>¡Se acerca el estreno de la tienda online!</strong><p>Estamos preparando la web y la APK definitiva. Los pagos online estarán habilitados al terminar esta cuenta regresiva.</p></div>
+  <div class="launch-clock" aria-label="Tiempo restante para habilitar pagos">
+   <div><b id="launchDays">04</b><small>DÍAS</small></div><div><b id="launchHours">00</b><small>HORAS</small></div><div><b id="launchMinutes">00</b><small>MIN</small></div><div><b id="launchSeconds">00</b><small>SEG</small></div>
+  </div>
+  <div id="launchStatus" class="launch-status">🔒 Pagos online temporalmente bloqueados</div>
+ </div>
+</section>
 <main class="wrap">
 <div class="store-switch" role="tablist" aria-label="Seleccionar tienda">
 <button id="foodStoreTab" class="active" type="button" role="tab" aria-selected="true" onclick="showStoreSection('food')">🍔 La Picá del Benjamín · Comida</button>
@@ -802,12 +819,27 @@ function isOrderingOpen(){
  if(hour<2) day=(day+6)%7;
  return day>=2&&day<=6&&(hour<2||(hour>17||(hour===17&&minute>=30)));
 }
+const LAUNCH_PAYMENTS_UNLOCK_AT=1794687621111;
+function isLaunchPaymentLocked(){return Date.now()<LAUNCH_PAYMENTS_UNLOCK_AT;}
+function updateLaunchCountdown(){
+ const remaining=Math.max(0,LAUNCH_PAYMENTS_UNLOCK_AT-Date.now());
+ const days=Math.floor(remaining/86400000),hours=Math.floor(remaining%86400000/3600000),minutes=Math.floor(remaining%3600000/60000),seconds=Math.floor(remaining%60000/1000);
+ const set=(id,value)=>{const el=document.getElementById(id);if(el)el.textContent=String(value).padStart(2,"0");};
+ set("launchDays",days);set("launchHours",hours);set("launchMinutes",minutes);set("launchSeconds",seconds);
+ const status=document.getElementById("launchStatus"),copy=document.querySelector(".launch-copy p");
+ if(remaining<=0){if(status)status.textContent="🟢 ¡Llegó el estreno! Los pagos online ya están habilitados.";if(copy)copy.textContent="La tienda online está lista para recibir tus compras.";applySchedule();}
+ else {if(status)status.textContent="🔒 Pagos online temporalmente bloqueados · Se habilitarán automáticamente al finalizar la cuenta regresiva.";}
+}
 function applySchedule(){
  const open=isOrderingOpen();
+ const launchLocked=isLaunchPaymentLocked();
  const notice=document.getElementById("closedNotice");
  notice.style.display=open?"none":"block";
  document.querySelector(".fields").style.display=open?"grid":"none";
- document.querySelector(".online-pay").style.display=open?"block":"none";
+ const payButton=document.querySelector(".online-pay");
+ payButton.style.display=open?"block":"none";
+ payButton.disabled=launchLocked;
+ payButton.textContent=launchLocked?"🔒 Pagos habilitados en breve":"💳 Pagar por Internet";
  document.getElementById("whatsappButton").style.display=open&&document.getElementById("method").value==="Retiro en el local"?"block":"none";
  document.querySelector(".clear").style.display=open?"block":"none";
 }
@@ -1009,6 +1041,7 @@ function captureDeliveryLocation(){
 let paymentAttemptKey=null;
 let paymentAttemptFingerprint="";
 async function payOnline(){
+ if(isLaunchPaymentLocked()){updateLaunchCountdown();return alert("Los pagos online están temporalmente bloqueados mientras preparamos el estreno de la tienda. Se habilitarán automáticamente al terminar la cuenta regresiva.");}
  if(!isOrderingOpen()){applySchedule();return alert("Estamos fuera de horario. Muchas gracias por preferir La Picá del Benjamín.");}
  let items=Object.entries(cart);
  if(!items.length)return alert("Agrega al menos un producto.");
@@ -1196,6 +1229,6 @@ function enableKetchupDragging(){
  });
 }
 
-async function loadSharedMenu(){const r=await fetch("/menu.json?v="+Date.now(),{cache:"no-store"});if(!r.ok)throw Error("No se pudo cargar la carta compartida.");const d=await r.json();if(!Array.isArray(d.products)||!d.products.length)throw Error("La carta compartida está vacía.");P=d.products.map(x=>[x.category,x.name,Number(x.price_clp),x.description||"",x.image_url||"",x.option_groups||[],x.display_group||"",x.display_label||""]);menuPhotos=d.photos||{};cats=["Todos",...(d.categories||[...new Set(P.map(x=>x[0]))]).filter(c=>c!=="Joyas & Detalles")];}loadSharedMenu().then(()=>{render();toggleAddress();enableStaffTestMode().then(()=>applySchedule());showPaymentResult();}).catch(e=>{document.getElementById("menu").textContent="No se pudo cargar el menú. Revisa tu conexión a Internet y actualiza.";console.error(e);});setInterval(applySchedule,60000);
+async function loadSharedMenu(){const r=await fetch("/menu.json?v="+Date.now(),{cache:"no-store"});if(!r.ok)throw Error("No se pudo cargar la carta compartida.");const d=await r.json();if(!Array.isArray(d.products)||!d.products.length)throw Error("La carta compartida está vacía.");P=d.products.map(x=>[x.category,x.name,Number(x.price_clp),x.description||"",x.image_url||"",x.option_groups||[],x.display_group||"",x.display_label||""]);menuPhotos=d.photos||{};cats=["Todos",...(d.categories||[...new Set(P.map(x=>x[0]))]).filter(c=>c!=="Joyas & Detalles")];}loadSharedMenu().then(()=>{render();toggleAddress();enableStaffTestMode().then(()=>applySchedule());showPaymentResult();}).catch(e=>{document.getElementById("menu").textContent="No se pudo cargar el menú. Revisa tu conexión a Internet y actualiza.";console.error(e);});updateLaunchCountdown();setInterval(updateLaunchCountdown,1000);setInterval(applySchedule,60000);
 enableKetchupDragging();
 </script></html>
