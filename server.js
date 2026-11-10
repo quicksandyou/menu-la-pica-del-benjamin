@@ -192,6 +192,8 @@ const requestBuckets = new Map();
 // Protección adicional del buzón de sugerencias: pausa entre envíos y cupos por hora/día.
 // Se mantiene en memoria del servidor y no modifica los límites de pagos.
 const suggestionBuckets = new Map();
+const addressSearchCache = new Map();
+let lastNominatimRequestAt = 0;
 function isSuggestionRateLimited(req) {
   const ip = req.socket.remoteAddress || "unknown";
   const now = Date.now();
@@ -270,6 +272,83 @@ const server = http.createServer(async (req, res) => {
   }
 
   const requestPath = new URL(req.url, "http://localhost").pathname;
+
+  // Autocompletado de direcciones: el navegador consulta este servidor y no proveedores externos directamente.
+  if (req.method === "GET" && requestPath === "/api/direcciones") {
+    if (isRateLimited(req, 30, 60_000)) return send(res, 429, { error: "Demasiadas búsquedas. Espera un momento." });
+    const params = new URL(req.url, "http://localhost").searchParams;
+    const typed = String(params.get("q") || "").trim().slice(0, 120);
+    const locality = String(params.get("locality") || "Linares").trim().slice(0, 80);
+    if (typed.length < 3) return send(res, 200, { features: [] });
+    const query = [typed, locality, "Chile"].filter(Boolean).join(", ");
+    const cacheKey = query.toLowerCase();
+    const cached = addressSearchCache.get(cacheKey);
+    if (cached && Date.now() - cached.at < 15 * 60_000) return send(res, 200, { features: cached.features, provider: cached.provider, cached: true });
+    try {
+      let features = [];
+      let provider = "photon";
+      try {
+        const photonUrl = new URL("https://photon.komoot.io/api/");
+        photonUrl.searchParams.set("q", query);
+        photonUrl.searchParams.set("lat", "-35.846");
+        photonUrl.searchParams.set("lon", "-71.593");
+        photonUrl.searchParams.set("limit", "10");
+        photonUrl.searchParams.set("lang", "es");
+        const response = await fetch(photonUrl, { headers: { "User-Agent": "LaPicaDelBenjamin/1.0 address-autocomplete" }, signal: AbortSignal.timeout(6500) });
+        if (!response.ok) throw new Error("Photon HTTP " + response.status);
+        const data = await response.json();
+        features = (data.features || []).filter(item => {
+          const country = String(item.properties?.country || "").toLowerCase();
+          return !country || country.includes("chile");
+        });
+      } catch (error) {
+        console.warn("Photon address search unavailable:", error.message);
+      }
+      if (!features.length) {
+        provider = "nominatim";
+        // Nominatim exige uso moderado: limitar a una consulta por segundo y cachear resultados.
+        const wait = Math.max(0, 1100 - (Date.now() - lastNominatimRequestAt));
+        if (wait) await new Promise(resolve => setTimeout(resolve, wait));
+        lastNominatimRequestAt = Date.now();
+        const nominatimUrl = new URL("https://nominatim.openstreetmap.org/search");
+        nominatimUrl.searchParams.set("q", query);
+        nominatimUrl.searchParams.set("countrycodes", "cl");
+        nominatimUrl.searchParams.set("format", "jsonv2");
+        nominatimUrl.searchParams.set("addressdetails", "1");
+        nominatimUrl.searchParams.set("limit", "10");
+        const response = await fetch(nominatimUrl, {
+          headers: { "User-Agent": "LaPicaDelBenjamin/1.0 (address autocomplete)" },
+          signal: AbortSignal.timeout(8500)
+        });
+        if (!response.ok) throw new Error("Nominatim HTTP " + response.status);
+        const results = await response.json();
+        features = results.map(item => {
+          const a = item.address || {};
+          const street = a.road || a.pedestrian || a.residential || a.footway || item.name || "";
+          return {
+            type: "Feature",
+            properties: {
+              name: street,
+              street,
+              housenumber: a.house_number || "",
+              city: a.city || a.town || a.village || a.municipality || a.county || locality,
+              state: a.state || "",
+              country: "Chile"
+            },
+            geometry: item.lon && item.lat ? { type: "Point", coordinates: [Number(item.lon), Number(item.lat)] } : null
+          };
+        });
+      }
+      addressSearchCache.set(cacheKey, { at: Date.now(), features, provider });
+      if (addressSearchCache.size > 500) {
+        for (const [key, value] of addressSearchCache) if (Date.now() - value.at > 15 * 60_000) addressSearchCache.delete(key);
+      }
+      return send(res, 200, { features, provider });
+    } catch (error) {
+      console.error("Address search failed:", error.message);
+      return send(res, 502, { error: "No fue posible consultar los proveedores de direcciones." });
+    }
+  }
 
 
 
