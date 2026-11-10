@@ -840,9 +840,21 @@ function drawCart(){
   subtotal+=lineTotal;
   count+=qtyValue;
   const safeName=String(name).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
-  lines.push('<div class="line"><span>'+safeName.replace(" | "," · ")+' · '+fmt(price)+'</span><span class="qty"><button type="button" onclick="qty('+JSON.stringify(name)+',-1)" aria-label="Quitar uno">−</button> '+qtyValue+' <button type="button" onclick="qty('+JSON.stringify(name)+',1)" aria-label="Agregar uno">＋</button></span><b>'+fmt(lineTotal)+'</b></div>');
+  lines.push('<div class="line"><span>'+safeName.replace(" | "," · ")+' · '+fmt(price)+'</span><span class="qty"><button type="button" data-cart-index="'+entries.findIndex(entry=>entry[0]===name)+'" data-cart-delta="-1" aria-label="Quitar uno">−</button> <strong>'+qtyValue+'</strong> <button type="button" data-cart-index="'+entries.findIndex(entry=>entry[0]===name)+'" data-cart-delta="1" aria-label="Agregar uno">＋</button></span><b>'+fmt(lineTotal)+'</b></div>');
  });
  if(linesEl)linesEl.innerHTML=lines.length?lines.join(""):"Todavía no agregas productos.";
+ if(linesEl){
+  linesEl.onclick=function(event){
+   const button=event.target.closest("button[data-cart-index][data-cart-delta]");
+   if(!button)return;
+   event.preventDefault();
+   event.stopPropagation();
+   const index=Number(button.dataset.cartIndex);
+   const key=Object.keys(cart||{})[index];
+   const delta=Number(button.dataset.cartDelta);
+   if(key!==undefined&&(delta===1||delta===-1))qty(key,delta);
+  };
+ }
  if(countEl)countEl.textContent='('+count+' productos)';
  const methodEl=document.getElementById("method");
  const localityEl=document.getElementById("locality");
