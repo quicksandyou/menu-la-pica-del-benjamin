@@ -701,11 +701,12 @@
       "image_url": "assets/chorrillanas.jpg",
       "option_groups": [
         {
-          "label": "Ciboulette",
+          "label": "¿Deseas ciboulette? (opcional)",
           "choices": [
             "Con ciboulette",
             "Sin ciboulette"
-          ]
+          ],
+          "optional": true
         }
       ],
       "display_group": "Papas mechadas con queso",
@@ -719,11 +720,12 @@
       "image_url": "assets/chorrillanas.jpg",
       "option_groups": [
         {
-          "label": "Ciboulette",
+          "label": "¿Deseas ciboulette? (opcional)",
           "choices": [
             "Con ciboulette",
             "Sin ciboulette"
-          ]
+          ],
+          "optional": true
         }
       ],
       "display_group": "Papas mechadas con queso",
