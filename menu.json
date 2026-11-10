@@ -59,49 +59,49 @@
       "name": "30 cortes fríos",
       "price_clp": 7990,
       "description": "Promoción de 30 piezas de sushi frío.",
-      "image_url": "https://images.bolt.eu/store/2022/2022-06-30/a935b7bb-a0ed-42fd-bf97-5b5b402982a6.jpeg"
+      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/promos/promociones-sushi.jpg"
     },
     {
       "category": "Promociones sushi",
       "name": "30 cortes fritos",
       "price_clp": 8490,
       "description": "Promoción de 30 piezas de sushi frito.",
-      "image_url": "https://images.bolt.eu/store/2022/2022-06-30/a935b7bb-a0ed-42fd-bf97-5b5b402982a6.jpeg"
+      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/promos/promociones-sushi.jpg"
     },
     {
       "category": "Promociones sushi",
       "name": "Mix 20 cortes",
       "price_clp": 6490,
       "description": "Mix surtido de 20 piezas.",
-      "image_url": "https://images.bolt.eu/store/2022/2022-06-30/a935b7bb-a0ed-42fd-bf97-5b5b402982a6.jpeg"
+      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/promos/promociones-sushi.jpg"
     },
     {
       "category": "Promociones sushi",
       "name": "Mix 30 cortes",
       "price_clp": 10990,
       "description": "Mix surtido de 30 piezas.",
-      "image_url": "https://images.bolt.eu/store/2022/2022-06-30/a935b7bb-a0ed-42fd-bf97-5b5b402982a6.jpeg"
+      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/promos/promociones-sushi.jpg"
     },
     {
       "category": "Promociones sushi",
       "name": "Mix 50 cortes",
       "price_clp": 15990,
       "description": "Mix surtido de 50 piezas.",
-      "image_url": "https://images.bolt.eu/store/2022/2022-06-30/a935b7bb-a0ed-42fd-bf97-5b5b402982a6.jpeg"
+      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/promos/promociones-sushi.jpg"
     },
     {
       "category": "Promociones sushi",
       "name": "Mix 70 cortes",
       "price_clp": 23900,
       "description": "Mix surtido de 70 piezas.",
-      "image_url": "https://images.bolt.eu/store/2022/2022-06-30/a935b7bb-a0ed-42fd-bf97-5b5b402982a6.jpeg"
+      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/promos/promociones-sushi.jpg"
     },
     {
       "category": "Promociones sushi",
       "name": "Mix 90 cortes",
       "price_clp": 33900,
       "description": "Mix surtido de 90 piezas.",
-      "image_url": "https://images.bolt.eu/store/2022/2022-06-30/a935b7bb-a0ed-42fd-bf97-5b5b402982a6.jpeg"
+      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/promos/promociones-sushi.jpg"
     },
     {
       "category": "Ceviches",
@@ -303,7 +303,7 @@
       "name": "Promo 4 · 3 churrascos o hamburguesas + papas + bebida 1,5 L",
       "price_clp": 14500,
       "description": "3 churrascos o hamburguesas a elección, papas fritas medianas y bebida de 1,5 litros. Puedes combinar Chacarero, Italiano y Luco.",
-      "image_url": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=700&q=80",
+      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/promos/promo-4.jpg",
       "option_groups": [
         {
           "label": "Elige tu sándwich",
@@ -330,7 +330,7 @@
       "name": "Sushi Burger",
       "price_clp": 4990,
       "description": "Sushi Burger a elección. 5 variedades disponibles.",
-      "image_url": "https://images.bolt.eu/store/2023/2023-10-18/be13cbfe-8104-4dba-b5b3-9167f317b952.jpeg",
+      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/promos/sushi-burger.jpg",
       "option_groups": [
         {
           "label": "Elige variedad",
@@ -349,7 +349,7 @@
       "name": "3 Hanrolls",
       "price_clp": 6490,
       "description": "3 hand rolls fritos con queso y palta. Elige cada uno: pollo, camarón o kanikama.",
-      "image_url": "https://images.bolt.eu/store/2023/2023-10-18/be13cbfe-8104-4dba-b5b3-9167f317b952.jpeg",
+      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/promos/3-hanrolls.jpg",
       "option_groups": [
         {
           "label": "Elige relleno",
@@ -367,7 +367,7 @@
       "name": "Promo churrasco italiano + hand roll frito + bebida lata",
       "price_clp": 6990,
       "description": "1 churrasco italiano + 1 hand roll frito + 1 bebida en lata.",
-      "image_url": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=700&q=80",
+      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/promos/promo-italiano-handroll.jpg",
       "option_groups": [
         {
           "label": "Hand roll",
@@ -396,7 +396,7 @@
       "name": "Combo Sushi + Pizza · 20 piezas",
       "price_clp": 16490,
       "description": "20 piezas de sushi mixtas o fritas + una pizza a elección + bebida Coca-Cola 1,5 L.",
-      "image_url": "https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=700&q=80",
+      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/promos/combo-sushi-pizza.jpg",
       "option_groups": [
         {
           "label": "Tipo de sushi",
@@ -426,7 +426,7 @@
       "name": "Combo Sushi + Pizza · 40 piezas",
       "price_clp": 22990,
       "description": "40 piezas de sushi mixtas o fritas + una pizza a elección + bebida Coca-Cola 1,5 L.",
-      "image_url": "https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=700&q=80",
+      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/promos/combo-sushi-pizza.jpg",
       "option_groups": [
         {
           "label": "Tipo de sushi",
