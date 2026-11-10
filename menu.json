@@ -13,7 +13,8 @@
     "Néctares",
     "Aguas",
     "Salsas",
-    "Energéticas"
+    "Energéticas",
+    "Joyas & Detalles"
   ],
   "products": [
     {
@@ -287,6 +288,62 @@
       "price_clp": 500,
       "description": "Porción individual para acompañar sushi y otros platos.",
       "image_url": "https://tofuu.getjusto.com/orioneat-local/resized2/Mruur6nHh2mZNyq7J-2400-x.webp"
+    },
+    {
+      "category": "Joyas & Detalles",
+      "name": "Aros bote plata 925",
+      "price_clp": 7990,
+      "description": "Aros tipo bote en plata 925.",
+      "image_url": "/joyas/argollas-plata-8990.jpg"
+    },
+    {
+      "category": "Joyas & Detalles",
+      "name": "Aros Minnie plata 925",
+      "price_clp": 12990,
+      "description": "Aros Minnie en plata 925.",
+      "image_url": "/joyas/minnie-plata-12990.jpg"
+    },
+    {
+      "category": "Joyas & Detalles",
+      "name": "Pulsera de plata 925 · diseños surtidos",
+      "price_clp": 8990,
+      "description": "Diseños delicados en plata 925.",
+      "image_url": "/joyas/pulseras-plata-8990.jpg"
+    },
+    {
+      "category": "Joyas & Detalles",
+      "name": "Pulsera de plata 925 · colección",
+      "price_clp": 8990,
+      "description": "Distintos modelos de pulseras en plata 925.",
+      "image_url": "/joyas/pulseras-dijes-8990.jpg"
+    },
+    {
+      "category": "Joyas & Detalles",
+      "name": "Cadena plata 925 Amor",
+      "price_clp": 10990,
+      "description": "Cadena de plata 925 con dije Amor.",
+      "image_url": "/joyas/cadena-amor-10990.jpg"
+    },
+    {
+      "category": "Joyas & Detalles",
+      "name": "Cadena de plata 925 con dije",
+      "price_clp": 9990,
+      "description": "Cadena de plata 925 con dije.",
+      "image_url": "/joyas/cadena-plata-9990.jpg"
+    },
+    {
+      "category": "Joyas & Detalles",
+      "name": "Cadena de plata 925 mariposa",
+      "price_clp": 8990,
+      "description": "Cadena de plata 925 con dije de mariposa.",
+      "image_url": "/joyas/cadena-mariposa-8990.jpg"
+    },
+    {
+      "category": "Joyas & Detalles",
+      "name": "Rosario de plata 925",
+      "price_clp": null,
+      "description": "Rosario de plata 925. Precio por confirmar; no disponible para agregar al carrito todavía.",
+      "image_url": "/joyas/rosario-plata-por-confirmar.jpg"
     }
   ],
   "photos": {
