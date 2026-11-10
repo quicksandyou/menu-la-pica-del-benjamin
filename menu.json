@@ -302,16 +302,17 @@
       "category": "Promociones",
       "name": "Promo 4 · 3 churrascos o hamburguesas + papas + bebida 1,5 L",
       "price_clp": 14500,
-      "description": "3 churrascos o hamburguesas a elección, papas fritas medianas y bebida de 1,5 litros. Puedes combinar Chacarero, Italiano y Luco.",
+      "description": "3 churrascos o hamburguesas a elección, papas fritas medianas y bebida de 1,5 litros. Puedes combinar Chacarero, Italiano, Luco o hamburguesa.",
       "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/promos/promo-4.jpg",
       "option_groups": [
         {
-          "label": "Elige tu sándwich",
+          "label": "Elige cada churrasco o hamburguesa",
           "quantity": 3,
           "choices": [
             "Chacarero",
             "Italiano",
-            "Luco"
+            "Luco",
+            "Hamburguesa"
           ]
         },
         {
@@ -329,7 +330,7 @@
       "category": "Promociones",
       "name": "Sushi Burger",
       "price_clp": 4990,
-      "description": "Sushi Burger a elección. 5 variedades disponibles.",
+      "description": "Sushi Burger a elección entre 5 variedades: pollo, camarón, kanikama, mechada o vegetariana.",
       "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/promos/sushi-burger.jpg",
       "option_groups": [
         {
@@ -348,7 +349,7 @@
       "category": "Promociones",
       "name": "3 Hanrolls",
       "price_clp": 6490,
-      "description": "3 hand rolls fritos con queso y palta. Elige cada uno: pollo, camarón o kanikama.",
+      "description": "3 hand rolls fritos con queso y palta. Elige para cada uno: pollo, camarón o kanikama.",
       "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/promos/3-hanrolls.jpg",
       "option_groups": [
         {
@@ -366,7 +367,7 @@
       "category": "Promociones",
       "name": "Promo churrasco italiano + hand roll frito + bebida lata",
       "price_clp": 6990,
-      "description": "1 churrasco italiano + 1 hand roll frito + 1 bebida en lata.",
+      "description": "1 churrasco italiano + 1 hand roll frito (pollo, camarón o kanikama) + 1 bebida en lata.",
       "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/promos/promo-italiano-handroll.jpg",
       "option_groups": [
         {
@@ -395,7 +396,7 @@
       "category": "Promociones",
       "name": "Combo Sushi + Pizza · 20 piezas",
       "price_clp": 16490,
-      "description": "20 piezas de sushi mixtas o fritas + una pizza a elección + bebida Coca-Cola 1,5 L.",
+      "description": "20 piezas de sushi mixtas o fritas + una pizza a elección + Coca-Cola de 1,5 litros.",
       "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/promos/combo-sushi-pizza.jpg",
       "option_groups": [
         {
@@ -425,7 +426,7 @@
       "category": "Promociones",
       "name": "Combo Sushi + Pizza · 40 piezas",
       "price_clp": 22990,
-      "description": "40 piezas de sushi mixtas o fritas + una pizza a elección + bebida Coca-Cola 1,5 L.",
+      "description": "40 piezas de sushi mixtas o fritas + una pizza a elección + Coca-Cola de 1,5 litros.",
       "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/promos/combo-sushi-pizza.jpg",
       "option_groups": [
         {
