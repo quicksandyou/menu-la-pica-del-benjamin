@@ -9,8 +9,11 @@
     "Rolls fritos",
     "Ceviches",
     "Gohan",
+    "Chorrillanas",
     "Pizzas",
+    "Completos",
     "Sándwiches",
+    "Fritos",
     "Bebidas",
     "Jugos naturales",
     "Néctares",
@@ -603,6 +606,332 @@
       "price_clp": 14990,
       "description": "Conjunto de cadena con colgante y aros de plata 925.",
       "image_url": "/joyas/14-conjunto-cadena-aros-plata-925-14990.jpg"
+    },
+    {
+      "category": "Chorrillanas",
+      "name": "Chorrillana Tradicional · 2 personas",
+      "price_clp": 5990,
+      "description": "Carne de churrasco, cebolla caramelizada, papas fritas y huevos fritos.",
+      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/chorrillanas.jpg"
+    },
+    {
+      "category": "Chorrillanas",
+      "name": "Chorrillana Tradicional · 3 personas",
+      "price_clp": 6990,
+      "description": "Carne de churrasco, cebolla caramelizada, papas fritas y huevos fritos.",
+      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/chorrillanas.jpg"
+    },
+    {
+      "category": "Chorrillanas",
+      "name": "Chorrillana Carne mechada · 2 personas",
+      "price_clp": 5990,
+      "description": "Carne mechada, papas fritas, cebolla caramelizada y huevos fritos.",
+      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/chorrillanas.jpg"
+    },
+    {
+      "category": "Chorrillanas",
+      "name": "Chorrillana Carne mechada · 3 personas",
+      "price_clp": 7990,
+      "description": "Carne mechada, papas fritas, cebolla caramelizada y huevos fritos.",
+      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/chorrillanas.jpg"
+    },
+    {
+      "category": "Chorrillanas",
+      "name": "Chorrillana Pollo champiñón · 2 personas",
+      "price_clp": 5990,
+      "description": "Pollo, champiñones, papas fritas, cebolla caramelizada y huevos fritos.",
+      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/chorrillanas.jpg"
+    },
+    {
+      "category": "Chorrillanas",
+      "name": "Chorrillana Pollo champiñón · 3 personas",
+      "price_clp": 7990,
+      "description": "Pollo, champiñones, papas fritas, cebolla caramelizada y huevos fritos.",
+      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/chorrillanas.jpg"
+    },
+    {
+      "category": "Chorrillanas",
+      "name": "Chorrillana Carnes mixtas · 2 personas",
+      "price_clp": 6490,
+      "description": "Carne mechada, pollo, churrasco, cebolla caramelizada y huevos fritos.",
+      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/chorrillanas.jpg"
+    },
+    {
+      "category": "Chorrillanas",
+      "name": "Chorrillana Carnes mixtas · 3 personas",
+      "price_clp": 8490,
+      "description": "Carne mechada, pollo, churrasco, cebolla caramelizada y huevos fritos.",
+      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/chorrillanas.jpg"
+    },
+    {
+      "category": "Chorrillanas",
+      "name": "Papas mechadas con queso · Chica",
+      "price_clp": 6990,
+      "description": "Papas fritas con carne mechada, queso y ciboulette a elección.",
+      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/chorrillanas.jpg",
+      "option_groups": [
+        {
+          "label": "Ciboulette",
+          "choices": [
+            "Con ciboulette",
+            "Sin ciboulette"
+          ]
+        }
+      ]
+    },
+    {
+      "category": "Chorrillanas",
+      "name": "Papas mechadas con queso · Grande",
+      "price_clp": 8990,
+      "description": "Papas fritas con carne mechada, queso y ciboulette a elección.",
+      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/chorrillanas.jpg",
+      "option_groups": [
+        {
+          "label": "Ciboulette",
+          "choices": [
+            "Con ciboulette",
+            "Sin ciboulette"
+          ]
+        }
+      ]
+    },
+    {
+      "category": "Chorrillanas",
+      "name": "Chorrillana grande · Promo",
+      "price_clp": 9990,
+      "description": "Chorrillana grande de variedades, según disponibilidad del local.",
+      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/chorrillana-grande.jpg"
+    },
+    {
+      "category": "Completos",
+      "name": "2 Completos · Clásico o Italiano",
+      "price_clp": 3000,
+      "description": "Dos completos a elección: clásico o italiano.",
+      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/completos.jpg",
+      "option_groups": [
+        {
+          "label": "Completo",
+          "quantity": 2,
+          "choices": [
+            "Clásico",
+            "Italiano"
+          ]
+        }
+      ]
+    },
+    {
+      "category": "Fritos",
+      "name": "Empanadas · 6 unidades",
+      "price_clp": 2000,
+      "description": "6 unidades.",
+      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/fritos.jpg"
+    },
+    {
+      "category": "Fritos",
+      "name": "Empanadas · 12 unidades",
+      "price_clp": 4000,
+      "description": "12 unidades.",
+      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/fritos.jpg"
+    },
+    {
+      "category": "Fritos",
+      "name": "Aros de cebolla · 6 unidades",
+      "price_clp": 2000,
+      "description": "6 unidades.",
+      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/fritos.jpg"
+    },
+    {
+      "category": "Fritos",
+      "name": "Aros de cebolla · 12 unidades",
+      "price_clp": 4000,
+      "description": "12 unidades.",
+      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/fritos.jpg"
+    },
+    {
+      "category": "Fritos",
+      "name": "Arrollados primavera · 3 unidades",
+      "price_clp": 1500,
+      "description": "3 unidades.",
+      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/fritos.jpg"
+    },
+    {
+      "category": "Fritos",
+      "name": "Arrollados primavera · 6 unidades",
+      "price_clp": 3000,
+      "description": "6 unidades.",
+      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/fritos.jpg"
+    },
+    {
+      "category": "Fritos",
+      "name": "Nuggets de pollo · 6 unidades",
+      "price_clp": 2000,
+      "description": "6 unidades.",
+      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/fritos.jpg"
+    },
+    {
+      "category": "Fritos",
+      "name": "Nuggets de pollo · 12 unidades",
+      "price_clp": 4000,
+      "description": "12 unidades.",
+      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/fritos.jpg"
+    },
+    {
+      "category": "Fritos",
+      "name": "Papas fritas · Pequeña",
+      "price_clp": 3000,
+      "description": "Porción según tamaño seleccionado.",
+      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/fritos.jpg"
+    },
+    {
+      "category": "Fritos",
+      "name": "Papas fritas · Mediana",
+      "price_clp": 5000,
+      "description": "Porción según tamaño seleccionado.",
+      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/fritos.jpg"
+    },
+    {
+      "category": "Fritos",
+      "name": "Papas fritas · Familiar",
+      "price_clp": 8500,
+      "description": "Porción según tamaño seleccionado.",
+      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/fritos.jpg"
+    },
+    {
+      "category": "Fritos",
+      "name": "Salchipapas · Pequeña",
+      "price_clp": 3500,
+      "description": "Porción según tamaño seleccionado.",
+      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/fritos.jpg"
+    },
+    {
+      "category": "Fritos",
+      "name": "Salchipapas · Mediana",
+      "price_clp": 6000,
+      "description": "Porción según tamaño seleccionado.",
+      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/fritos.jpg"
+    },
+    {
+      "category": "Fritos",
+      "name": "Salchipapas · Familiar",
+      "price_clp": 10000,
+      "description": "Porción según tamaño seleccionado.",
+      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/fritos.jpg"
+    },
+    {
+      "category": "Fritos",
+      "name": "Trío Box",
+      "price_clp": 3990,
+      "description": "Papas fritas + 3 empanadas de queso.",
+      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/trio-box.jpg"
+    },
+    {
+      "category": "Fritos",
+      "name": "5 Pollos Crispy + papas + salsa BBQ",
+      "price_clp": 5900,
+      "description": "5 pollos crispy con papas fritas y salsa BBQ.",
+      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/fritos.jpg"
+    },
+    {
+      "category": "Fritos",
+      "name": "10 Pollos Crispy + papas + salsa BBQ",
+      "price_clp": 10990,
+      "description": "10 pollos crispy con papas fritas y salsa BBQ.",
+      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/fritos.jpg"
+    },
+    {
+      "category": "Hanrolls",
+      "name": "Hanroll pollo · queso y palta",
+      "price_clp": 2490,
+      "description": "Hanroll de pollo, queso y palta.",
+      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/hanrolls.jpg"
+    },
+    {
+      "category": "Hanrolls",
+      "name": "Hanroll camarón · queso y palta",
+      "price_clp": 2490,
+      "description": "Hanroll de camarón, queso y palta.",
+      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/hanrolls.jpg"
+    },
+    {
+      "category": "Hanrolls",
+      "name": "Hanroll kanikama · queso y palta",
+      "price_clp": 1990,
+      "description": "Hanroll de kanikama, queso y palta.",
+      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/hanrolls.jpg"
+    },
+    {
+      "category": "Hanrolls",
+      "name": "Hanroll mechada · queso y palta",
+      "price_clp": 2990,
+      "description": "Hanroll de mechada, queso y palta.",
+      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/hanrolls.jpg"
+    },
+    {
+      "category": "Promociones",
+      "name": "Promo Picoteo",
+      "price_clp": 3990,
+      "description": "5 nuggets + 5 empanadas + 5 arrolladitos primavera.",
+      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/promos/promo-picoteo.jpg"
+    },
+    {
+      "category": "Promociones",
+      "name": "Promo 1 · 4 ASS normales + bebida 1,5 L",
+      "price_clp": 12490,
+      "description": "4 ASS normales y bebida de 1,5 litros. Disponible en pollo, cerdo o vacuno.",
+      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/promos/promo-1-ass.jpg",
+      "option_groups": [
+        {
+          "label": "ASS",
+          "quantity": 4,
+          "choices": [
+            "Pollo",
+            "Cerdo",
+            "Vacuno"
+          ]
+        },
+        {
+          "label": "Bebida 1,5 L",
+          "choices": [
+            "Coca-Cola",
+            "Fanta",
+            "Sprite",
+            "Kem Piña",
+            "Limón Soda",
+            "Bilz",
+            "Pap"
+          ]
+        }
+      ]
+    },
+    {
+      "category": "Promociones",
+      "name": "Promo 2 · Churrasco o hamburguesa + papas + lata",
+      "price_clp": 7490,
+      "description": "1 churrasco o hamburguesa + papas medianas + bebida en lata.",
+      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/promos/promo-2-churrasco.jpg",
+      "option_groups": [
+        {
+          "label": "Elige tu sándwich",
+          "choices": [
+            "Churrasco",
+            "Hamburguesa",
+            "Completo italiano",
+            "Chacarero"
+          ]
+        },
+        {
+          "label": "Bebida lata",
+          "choices": [
+            "Coca-Cola",
+            "Fanta",
+            "Sprite",
+            "Kem Piña",
+            "Limón Soda",
+            "Bilz",
+            "Pap"
+          ]
+        }
+      ]
     }
   ],
   "photos": {
