@@ -1,0 +1,1 @@
+Sube aquí las 10 fotografías JPG incluidas en joyas_fotos_catalogo.zip. Conserva exactamente los nombres de archivo. La página joyas.html utiliza estas rutas.
