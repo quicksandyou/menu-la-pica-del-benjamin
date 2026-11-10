@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#25102c">
+<meta name="description" content="Colección de joyas y accesorios de La Picá del Benjamín. Cadenas, collares, pulseras y argollas.">
+<title>Joyas | La Picá del Benjamín</title>
+<style>
+:root{--plum:#32143b;--plum2:#180d20;--gold:#d7ad65;--cream:#fff8ef;--muted:#786b79}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(145deg,#f9f1e8,#f3e8f1);color:#26182a;font:15px system-ui,Arial}
+header{background:radial-gradient(circle at 80% 0,#754b78,#32143b 52%,#180d20);color:#fff;padding:30px 18px 26px;text-align:center;border-bottom:4px solid var(--gold)}
+header a{color:#f6dba8;text-decoration:none;font-weight:700}
+h1{font-family:Georgia,serif;font-size:clamp(34px,6vw,56px);font-weight:500;margin:14px 0 5px;color:#f4d69d}
+header p{margin:8px auto 0;color:#f2e4ef;max-width:650px}
+.wrap{max-width:1180px;margin:auto;padding:20px}
+.tools{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between;margin:8px 0 20px}
+.filters{display:flex;gap:8px;flex-wrap:wrap}
+button,select{border:1px solid #c8a9c5;border-radius:999px;padding:10px 15px;background:#fff;color:#42234a;font-weight:700;cursor:pointer}
+button.active{background:var(--plum);color:#fff;border-color:var(--plum)}
+select{border-radius:12px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:17px}
+.card{background:#fff;border:1px solid #e4d6e1;border-radius:18px;overflow:hidden;box-shadow:0 8px 22px #3a1b3714;display:flex;flex-direction:column}
+.card img{width:100%;height:290px;object-fit:cover;background:#f4edf3;display:block}
+.info{padding:14px 15px 16px;display:flex;flex-direction:column;gap:7px;flex:1}
+h2{font:600 19px Georgia,serif;color:#48254e;margin:0}
+.tag{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#96779a}
+.price{font-size:23px;font-weight:850;color:#8a5720}
+.price.consult{font-size:16px;color:#6d5b6e}
+.note{font-size:12px;color:#766b78;line-height:1.45;margin-top:auto}
+footer{text-align:center;padding:26px;color:#715d70}
+@media(max-width:520px){.wrap{padding:13px}.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.card img{height:205px}.info{padding:10px}.card h2{font-size:16px}.price{font-size:19px}.note{font-size:11px}}
+</style>
+</head>
+<body>
+<header>
+  <a href="/">← Volver a La Picá del Benjamín</a>
+  <h1>Joyas & Detalles</h1>
+  <p>Una colección para regalar, combinar y brillar todos los días.</p>
+</header>
+<main class="wrap">
+  <div class="tools">
+    <div class="filters" id="filters" aria-label="Filtrar productos">
+      <button class="active" data-cat="Todos">Todos</button>
+      <button data-cat="Cadenas">Cadenas</button>
+      <button data-cat="Collares">Collares</button>
+      <button data-cat="Pulseras">Pulseras</button>
+      <button data-cat="Argollas">Argollas</button>
+    </div>
+    <select id="sort" aria-label="Ordenar productos">
+      <option value="featured">Orden recomendado</option>
+      <option value="low">Precio: menor a mayor</option>
+      <option value="high">Precio: mayor a menor</option>
+      <option value="name">Nombre A–Z</option>
+    </select>
+  </div>
+  <section class="grid" id="products" aria-live="polite"></section>
+</main>
+<footer>La Picá del Benjamín · Linares</footer>
+<script>
+const products=[
+ {name:"Cadena con dijes",category:"Cadenas",price:9990,image:"/joyas/cadena-dijes-9990.jpg",note:"Diseños delicados para todos los estilos."},
+ {name:"Cadena de corazones",category:"Cadenas",price:null,image:"/joyas/cadena-corazones-consultar.jpg",note:"Consulta disponibilidad y valor."},
+ {name:"Colección de collares",category:"Collares",price:null,image:"/joyas/coleccion-collares-a-consultar.jpg",note:"Varios diseños y dijes."},
+ {name:"Collares colección exclusiva",category:"Collares",price:null,image:"/joyas/coleccion-collares-b-consultar.jpg",note:"Consulta por modelos disponibles."},
+ {name:"Collares de plata 925",category:"Collares",price:null,image:"/joyas/coleccion-exclusiva-consultar.jpg",note:"Consulta disponibilidad y valor."},
+ {name:"Pulseras de plata",category:"Pulseras",price:8990,image:"/joyas/pulseras-plata-8990.jpg",note:"Diseños delicados."},
+ {name:"Cadena de plata",category:"Cadenas",price:9990,image:"/joyas/cadena-plata-9990.jpg",note:"Modelo con dijes."},
+ {name:"Pulseras con dijes",category:"Pulseras",price:8990,image:"/joyas/pulseras-dijes-8990.jpg",note:"Consulta por diseños disponibles."},
+ {name:"Pulsera con cruz",category:"Pulseras",price:8990,image:"/joyas/pulsera-cruz-8990.jpg",note:"Diseño con cruz."},
+ {name:"Argollas de plata 925",category:"Argollas",price:8990,image:"/joyas/argollas-plata-8990.jpg",note:"Par de argollas."}
+];
+let category="Todos";
+const grid=document.getElementById("products");
+const fmt=n=>"$"+n.toLocaleString("es-CL");
+function render(){
+ let list=products.filter(p=>category==="Todos"||p.category===category);
+ const s=document.getElementById("sort").value;
+ if(s==="low")list.sort((a,b)=>(a.price??Infinity)-(b.price??Infinity));
+ if(s==="high")list.sort((a,b)=>(b.price??-Infinity)-(a.price??-Infinity));
+ if(s==="name")list.sort((a,b)=>a.name.localeCompare(b.name,"es"));
+ grid.innerHTML=list.map(p=>`<article class="card"><img src="${p.image}" alt="${p.name}" loading="lazy"><div class="info"><span class="tag">${p.category}</span><h2>${p.name}</h2><div class="price ${p.price===null?"consult":""}">${p.price===null?"Consultar precio":fmt(p.price)}</div><div class="note">${p.note}</div></div></article>`).join("");
+}
+document.getElementById("filters").addEventListener("click",e=>{const b=e.target.closest("button[data-cat]");if(!b)return;category=b.dataset.cat;document.querySelectorAll("#filters button").forEach(x=>x.classList.toggle("active",x===b));render()});
+document.getElementById("sort").addEventListener("change",render);
+render();
+</script>
+</body>
+</html>
