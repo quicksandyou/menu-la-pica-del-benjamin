@@ -1027,7 +1027,7 @@ function renderNativeHome(){
    const safeSrc=String(src).replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;");
    return '<button type="button" class="app-native-category" data-app-category="'+g.key.replace(/&/g,"&amp;").replace(/"/g,"&quot;")+'"><span class="app-native-category-image">'+(safeSrc?'<img src="'+safeSrc+'" alt="" loading="lazy" onerror="this.style.display=\'none\'">':'')+'<b>'+g.icon+'</b></span><strong>'+g.label+'</strong></button>';
   }).join("");
-  grid.querySelectorAll("[data-app-category]").forEach(btn=>btn.addEventListener("click",()=>{const key=btn.dataset.appCategory;if(key==="Joyas & Detalles"){showStoreSection("jewelry");return;}active=key;render();setTimeout(()=>document.querySelector(".menu-column .section-title")?.scrollIntoView({behavior:"smooth",block:"start"}),40);}));
+  grid.querySelectorAll("[data-app-category]").forEach(btn=>btn.addEventListener("click",()=>{const key=btn.dataset.appCategory;if(key==="Joyas & Detalles"){showStoreSection("jewelry");return;}active=key;render();window.scrollTo({top:0,behavior:"smooth"});}));
   grid.dataset.ready="1";
  }
 }
@@ -1038,7 +1038,7 @@ function render(){
  const nativeGroups=APP_CATEGORY_GROUPS;
  const navItems=NATIVE_APP_MODE?nativeGroups:cats.map(c=>({label:c,key:c,icon:icons[c]||"🍽️"}));
  document.getElementById("tabs").innerHTML=navItems.map(g=>'<button type="button" class="'+(g.key===active||((g.key==="Joyas & Detalles")&&active==="Joyas & Detalles")?'on':'')+'" data-category="'+g.key.replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;")+'">'+(g.icon||"🍽️")+' '+g.label+'</button>').join("");
- document.getElementById("tabs").querySelectorAll("button[data-category]").forEach(btn=>btn.addEventListener("click",()=>{const key=btn.dataset.category;if(NATIVE_APP_MODE&&key==="Joyas & Detalles"){showStoreSection("jewelry");closeAppDrawer();return;}active=key;render();if(NATIVE_APP_MODE){closeAppDrawer();if(key!=="Todos")setTimeout(()=>document.querySelector(".menu-column .section-title")?.scrollIntoView({behavior:"smooth",block:"start"}),40);else window.scrollTo({top:0,behavior:"smooth"});}}));
+ document.getElementById("tabs").querySelectorAll("button[data-category]").forEach(btn=>btn.addEventListener("click",()=>{const key=btn.dataset.category;if(NATIVE_APP_MODE&&key==="Joyas & Detalles"){showStoreSection("jewelry");closeAppDrawer();return;}active=key;render();if(NATIVE_APP_MODE){closeAppDrawer();window.scrollTo({top:0,behavior:"smooth"});}}));
  let arr=P.filter(p=>{if(active==="Todos")return !NATIVE_APP_MODE&&p[0]!=="Joyas & Detalles";if(NATIVE_APP_MODE){const group=APP_CATEGORY_GROUPS.find(g=>g.key===active);return group?group.categories.includes(p[0]):p[0]===active;}return p[0]===active;}),out="",last="",seenGroups=new Set();
  arr.forEach((p,i)=>{
   if(p[0]!==last){out+='<h2 class="section-title">'+(icons[p[0]]||"🍽️")+' '+p[0]+'</h2><div class="grid">';last=p[0]}
