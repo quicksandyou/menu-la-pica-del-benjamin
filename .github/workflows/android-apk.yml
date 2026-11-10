@@ -30,19 +30,22 @@ jobs:
           npm install --no-save @capacitor/core@^7 @capacitor/cli@^7 @capacitor/android@^7 sharp
           npx cap add android
           npx cap sync android
-      - name: Aplicar icono 3D de la aplicación Android
+      - name: Aplicar icono oficial de La Picá del Benjamín
         run: |
           node <<'NODE'
           const sharp = require('sharp');
           const fs = require('fs');
           const path = require('path');
-          const svg = fs.readFileSync('icons/icon.svg');
+          const source = 'icons/La Picá del Benjamín_ Sabor a domicilio (1).png';
+          if (!fs.existsSync(source)) throw new Error('No se encontró la imagen oficial: ' + source);
           const sizes = { mdpi:48, hdpi:72, xhdpi:96, xxhdpi:144, xxxhdpi:192 };
           (async()=>{
             for (const [density,size] of Object.entries(sizes)) {
               const dir = path.join('android/app/src/main/res', 'mipmap-' + density);
               fs.mkdirSync(dir,{recursive:true});
-              await sharp(svg).resize(size,size).png().toFile(path.join(dir,'ic_launcher.png'));
+              const icon = sharp(source).resize(size,size,{fit:'contain',background:'#080808'}).png();
+              await icon.toFile(path.join(dir,'ic_launcher.png'));
+              await sharp(source).resize(size,size,{fit:'contain',background:'#080808'}).png().toFile(path.join(dir,'ic_launcher_round.png'));
             }
           })().catch(e=>{console.error(e);process.exit(1)});
           NODE
