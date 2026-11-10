@@ -24,13 +24,15 @@
       "category": "Promociones sushi",
       "name": "Acevichado (10 cortes)",
       "price_clp": 2990,
-      "description": "10 cortes de sushi acevichado."
+      "description": "10 cortes de sushi acevichado.",
+      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/promos/promociones-sushi.jpg"
     },
     {
       "category": "Promociones sushi",
       "name": "Ceviche chico (camarón y salmón)",
       "price_clp": 3890,
-      "description": "Ceviche pequeño de camarón y salmón."
+      "description": "Ceviche pequeño de camarón y salmón.",
+      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/promos/promociones-sushi.jpg"
     },
     {
       "category": "Rolls fríos",
@@ -48,13 +50,15 @@
       "category": "Promociones sushi",
       "name": "Mix 40 cortes",
       "price_clp": 13990,
-      "description": "Mix surtido de 40 cortes."
+      "description": "Mix surtido de 40 cortes.",
+      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/promos/promociones-sushi.jpg"
     },
     {
       "category": "Promociones sushi",
       "name": "Mix 100 cortes",
       "price_clp": 40990,
-      "description": "Mix surtido de 100 cortes."
+      "description": "Mix surtido de 100 cortes.",
+      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/promos/promociones-sushi.jpg"
     },
     {
       "category": "Promociones sushi",
@@ -578,7 +582,7 @@
     "Rolls": "https://cdn-media.choiceqr.com/prod-eat-samuraisushirolls/thumbnail_elJjXmL-SjbDCNS-qIdpJtT_C-E-m.jpeg",
     "Rolls fríos": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/roll-palta-camaron.png.png",
     "Rolls fritos": "https://images.bolt.eu/store/2023/2023-10-18/be13cbfe-8104-4dba-b5b3-9167f317b952.jpeg",
-    "Promociones sushi": "https://images.bolt.eu/store/2022/2022-06-30/a935b7bb-a0ed-42fd-bf97-5b5b402982a6.jpeg",
+    "Promociones sushi": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/promos/promociones-sushi.jpg",
     "Ceviches": "https://images.unsplash.com/photo-1535399831218-d5bd36d1a6b3?auto=format&fit=crop&w=700&q=80",
     "Gohan": "https://images.unsplash.com/photo-1512058564366-18510be2db19?auto=format&fit=crop&w=700&q=80",
     "Pizzas": "https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=700&q=80",
