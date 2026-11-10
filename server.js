@@ -507,7 +507,7 @@ La Picá del Benjamín`,
       const managerView = ["manager","superadmin"].includes(staff.role);
       const result = await dbPool.query(
         "SELECT o.id,o.order_number,o.customer_name,o.customer_phone,o.delivery_address,o.locality,o.delivery_latitude,o.delivery_longitude,o.delivery_method,o.total_clp,o.payment_status,o.delivery_status,o.approval_status,o.approval_note,o.items_json,o.notes,o.source,o.created_at,a.id AS assignment_id,a.status AS assignment_status,a.delivered_at,d.display_name AS driver_name FROM orders o LEFT JOIN LATERAL (SELECT da.* FROM delivery_assignments da WHERE da.order_id=o.id ORDER BY da.assigned_at DESC LIMIT 1) a ON TRUE LEFT JOIN drivers d ON d.id=a.driver_id WHERE (o.created_at AT TIME ZONE 'America/Santiago')::date=$1::date " +
-        (managerView ? "" : "AND o.approval_status='approved' AND LOWER(COALESCE(o.payment_status,'')) IN ('approved','paid') AND LOWER(COALESCE(o.delivery_method,'')) IN ('delivery','despacho') ") +
+        (managerView ? "" : "AND o.approval_status='approved' AND LOWER(COALESCE(o.delivery_method,'')) IN ('delivery','despacho') AND (LOWER(COALESCE(o.payment_status,'')) IN ('approved','paid') OR (o.source IN ('cash','whatsapp','in_person') AND a.status IN ('assigned','picked_up'))) ") +
         (staff.role === "driver" ? "AND d.app_user_id=$2 " : "") +
         "ORDER BY o.created_at DESC LIMIT 500", params);
       return send(res,200,{orders:result.rows,role:staff.role,date:selectedDate});
@@ -587,6 +587,7 @@ La Picá del Benjamín`,
 
     if (requestPath === "/api/reparto/orden-manual" && req.method === "POST") {
       if (!canManageOrders(staff)) return send(res,403,{error:"No tienes permisos para registrar pedidos manuales."});
+      let client;
       try {
         const d=await readJson(req);
         const name=String(d.customer_name||"").trim(), phone=String(d.customer_phone||"").trim();
@@ -594,18 +595,33 @@ La Picá del Benjamín`,
         const method=String(d.delivery_method||"Delivery");
         const total=Number(d.total_clp), zone=d.delivery_zone==="far"?"far":"normal";
         const source=["cash","whatsapp","in_person"].includes(d.source)?d.source:"cash";
-        if(!name||!Number.isInteger(total)||total<0||total>1000000||!["Delivery","Retiro en el local"].includes(method)) return send(res,400,{error:"Datos de pedido inválidos."});
-        if(method==="Delivery"&&(!address||!locality)) return send(res,400,{error:"Falta dirección o localidad."});
+        const username=String(d.driver_username||"");
+        if(!name||!Number.isInteger(total)||total<=0||total>1000000||!["Delivery","Retiro en el local"].includes(method)) return send(res,400,{error:"Datos de pedido inválidos."});
+        if(method==="Delivery"&&(!address||!locality||!["maximo","claudio"].includes(username))) return send(res,400,{error:"Falta dirección, localidad o repartidor asignado."});
         const driverFee=method==="Delivery"?(zone==="far"?3000:2000):0;
         const items=Array.isArray(d.items)?d.items:[];
-        const saved=await dbPool.query(
-          "INSERT INTO orders(source,customer_name,customer_phone,delivery_address,locality,delivery_method,total_clp,payment_status,delivery_status,items_json,notes,driver_fee_clp,delivery_zone,delivery_latitude,delivery_longitude,approval_status,approved_by,approved_at) VALUES($1,$2,$3,$4,$5,$6,$7,'pending','pending',$8::jsonb,$9,$10,$11,$12,$13,'approved',$14,NOW()) RETURNING id",
-          [source,name,phone||null,address||null,locality||null,method,total,JSON.stringify(items),String(d.notes||""),driverFee,zone,null,null,staff.id]
+        client=await dbPool.connect();
+        await client.query("BEGIN");
+        let driver=null;
+        if(method==="Delivery"){
+          const found=await client.query("SELECT id,display_name FROM drivers WHERE username=$1 AND active=TRUE FOR UPDATE",[username]);
+          if(!found.rowCount) throw new Error("El repartidor seleccionado no está disponible.");
+          driver=found.rows[0];
+        }
+        const saved=await client.query(
+          "INSERT INTO orders(source,customer_name,customer_phone,delivery_address,locality,delivery_method,total_clp,payment_status,delivery_status,items_json,notes,driver_fee_clp,delivery_zone,delivery_latitude,delivery_longitude,approval_status,approved_by,approved_at) VALUES($1,$2,$3,$4,$5,$6,$7,'pending',$8,$9::jsonb,$10,$11,$12,$13,$14,'approved',$15,NOW()) RETURNING id",
+          [source,name,phone||null,address||null,locality||null,method,total,method==="Delivery"?"assigned":"pending",JSON.stringify(items),String(d.notes||""),driverFee,zone,null,null,staff.id]
         );
         const id=saved.rows[0].id, number="PB-"+String(id).padStart(6,"0");
-        await dbPool.query("UPDATE orders SET order_number=$1 WHERE id=$2",[number,id]);
-        return send(res,201,{ok:true,order_number:number,driver_fee_clp:driverFee});
-      } catch(e) { console.error("Manual order:",e.message); return send(res,400,{error:"No se pudo registrar el pedido."}); }
+        await client.query("UPDATE orders SET order_number=$1 WHERE id=$2",[number,id]);
+        if(driver) await client.query("INSERT INTO delivery_assignments(order_id,driver_id,status) VALUES($1,$2,'assigned')",[id,driver.id]);
+        await client.query("COMMIT");
+        return send(res,201,{ok:true,order_number:number,driver_fee_clp:driverFee,driver_name:driver?.display_name||null});
+      } catch(e) {
+        if(client) await client.query("ROLLBACK").catch(()=>{});
+        console.error("Manual order:",e.message);
+        return send(res,400,{error:e.message||"No se pudo registrar el pedido."});
+      } finally { if(client) client.release(); }
     }
     if (requestPath === "/api/reparto/extras" && req.method === "GET") {
       const q=["superadmin","manager"].includes(staff.role)
