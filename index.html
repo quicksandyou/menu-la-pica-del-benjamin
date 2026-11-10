@@ -762,7 +762,7 @@ const DELIVERY_FEES={"Linares":1990,"Longaví":3500,"Yerbas Buenas":3000,"Colbú
 function deliveryFee(){return document.getElementById("method").value==="Delivery"?(DELIVERY_FEES[document.getElementById("locality").value]??null):0;}
 let active="Todos",cart={},payment="Efectivo";const fmt=n=>"$"+n.toLocaleString("es-CL");
 function render(){
- const icons={"Rolls":"🍣","Rolls fríos":"🍣","Rolls fritos":"🍤","Promociones sushi":"🔥🍣","Ceviches":"🍤","Gohan":"🍱","Pizzas":"🍕","Sándwiches":"🥪","Bebidas":"🥤","Jugos naturales":"🧃","Néctares":"🧃","Aguas":"💧","Energéticas":"⚡","Salsas":"🥣","Fritos":"🍟"};
+ const icons={"Rolls":"🍣","Rolls fríos":"🍣","Rolls fritos":"🍤","Promociones sushi":"🔥🍣","Ceviches":"🍤","Gohan":"🍱","Pizzas":"🍕","Churrascos":"🥩","Bebidas":"🥤","Jugos naturales":"🧃","Néctares":"🧃","Aguas":"💧","Energéticas":"⚡","Salsas":"🥣","Fritos":"🍟"};
  const photos=menuPhotos;
  document.getElementById("tabs").innerHTML=cats.map(c=>'<button type="button" class="'+(c===active?'on':'')+'" data-category="'+c.replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;")+'">'+(icons[c]||"🍽️")+' '+c+'</button>').join("");
  document.getElementById("tabs").querySelectorAll("button[data-category]").forEach(btn=>btn.addEventListener("click",()=>{active=btn.dataset.category;render()}));
