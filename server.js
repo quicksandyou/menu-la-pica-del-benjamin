@@ -118,6 +118,7 @@ async function initializeDatabase() {
       extra_total_clp INTEGER NOT NULL DEFAULT 0, grand_total_clp INTEGER NOT NULL DEFAULT 0,
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     );
+    CREATE UNIQUE INDEX IF NOT EXISTS idx_orders_external_payment_id ON orders(external_payment_id) WHERE external_payment_id IS NOT NULL;
     CREATE INDEX IF NOT EXISTS idx_orders_created_at ON orders(created_at);
     CREATE INDEX IF NOT EXISTS idx_orders_delivery_status ON orders(delivery_status);
     CREATE INDEX IF NOT EXISTS idx_assignments_driver ON delivery_assignments(driver_id);
@@ -198,6 +199,11 @@ function send(res, status, body) {
 // Límite básico por IP para reducir consultas automatizadas.
 // Se usa la IP de la conexión directa y no cabeceras reenviadas por el cliente.
 const requestBuckets = new Map();
+let activePaymentCreations = 0;
+const MAX_CONCURRENT_PAYMENT_CREATIONS = 5;
+let paymentWindowStartedAt = Date.now();
+let paymentWindowCount = 0;
+const MAX_PAYMENT_CREATIONS_PER_MINUTE = 60;
 // Protección adicional del buzón de sugerencias: pausa entre envíos y cupos por hora/día.
 // Se mantiene en memoria del servidor y no modifica los límites de pagos.
 const suggestionBuckets = new Map();
@@ -272,7 +278,7 @@ const server = http.createServer(async (req, res) => {
   }
   res.setHeader("Vary", "Origin");
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Idempotency-Key");
   res.setHeader("Access-Control-Allow-Credentials", "true");
 
   if (req.method === "OPTIONS") {
@@ -895,9 +901,13 @@ La Picá del Benjamín`,
     return send(res, 404, { error: "No encontrado" });
   }
 
-  if (isRateLimited(req, 10, 60_000)) {
-    return send(res, 429, { error: "Recibimos demasiados intentos. Espera un minuto e inténtalo nuevamente." });
-  }
+  const now = Date.now();
+  if (now - paymentWindowStartedAt >= 60_000) { paymentWindowStartedAt = now; paymentWindowCount = 0; }
+  if (paymentWindowCount >= MAX_PAYMENT_CREATIONS_PER_MINUTE) { res.setHeader("Retry-After","60"); return send(res,429,{error:"Hay mucha demanda de pagos. Espera un minuto e inténtalo nuevamente."}); }
+  if (activePaymentCreations >= MAX_CONCURRENT_PAYMENT_CREATIONS) { res.setHeader("Retry-After","5"); return send(res,503,{error:"Estamos procesando varios pagos. Tu pedido no se ha cobrado; espera unos segundos e inténtalo nuevamente."}); }
+  const idempotencyKey = String(req.headers["idempotency-key"] || "");
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(idempotencyKey)) return send(res,400,{error:"No se pudo validar el intento de pago. Actualiza la página e inténtalo nuevamente."});
+  paymentWindowCount++; activePaymentCreations++;
 
   try {
     if (!FRONTEND_URL) throw new Error("Falta configurar FRONTEND_URL en Render con la URL pública de tu menú.");
@@ -962,7 +972,7 @@ La Picá del Benjamín`,
     };
     const response = await mpRequest("/v1/orders", {
       method: "POST",
-      headers: { "X-Idempotency-Key": randomUUID() },
+      headers: { "X-Idempotency-Key": idempotencyKey },
       body: JSON.stringify(payload)
     });
 
@@ -1002,17 +1012,20 @@ console.log("MP country:", result?.country_code);
     if (!result.checkout_url || !result.id) throw new Error("Mercado Pago no devolvió checkout_url o el ID de la orden.");
     if (dbPool) {
       const saved = await dbPool.query(
-        "INSERT INTO orders (source,external_payment_id,external_reference,customer_name,customer_phone,customer_email,delivery_address,locality,delivery_method,total_clp,payment_status,delivery_status,items_json,notes,delivery_fee_clp,delivery_latitude,delivery_longitude) VALUES ('online',$1,$2,$3,$4,$5,$6,$7,$8,$9,'pending','pending',$10::jsonb,$11,$12,$13,$14) RETURNING id",
+        "INSERT INTO orders (source,external_payment_id,external_reference,customer_name,customer_phone,customer_email,delivery_address,locality,delivery_method,total_clp,payment_status,delivery_status,items_json,notes,delivery_fee_clp,delivery_latitude,delivery_longitude) VALUES ('online',$1,$2,$3,$4,$5,$6,$7,$8,$9,'pending','pending',$10::jsonb,$11,$12,$13,$14) ON CONFLICT DO NOTHING RETURNING id",
         [String(result.id),payload.external_reference,customerName,String(data.customer?.phone||"").trim(),customerEmail,method==="Delivery"?address:null,method==="Delivery"?locality:null,method,total,JSON.stringify(data.items),String(data.notes||""),deliveryFee,method==="Delivery"&&data.delivery?.latitude!==null&&data.delivery?.latitude!==undefined&&data.delivery?.latitude!==""&&Number.isFinite(Number(data.delivery.latitude))?Number(data.delivery.latitude):null,method==="Delivery"&&data.delivery?.longitude!==null&&data.delivery?.longitude!==undefined&&data.delivery?.longitude!==""&&Number.isFinite(Number(data.delivery.longitude))?Number(data.delivery.longitude):null]
       );
-      const orderNumber = "PB-" + String(saved.rows[0].id).padStart(6,"0");
-      await dbPool.query("UPDATE orders SET order_number=$1 WHERE id=$2",[orderNumber,saved.rows[0].id]);
+      let savedOrderId = saved.rows[0]?.id;
+      if (!savedOrderId) { const existing = await dbPool.query("SELECT id FROM orders WHERE external_payment_id=$1 LIMIT 1",[String(result.id)]); savedOrderId = existing.rows[0]?.id; }
+      if (savedOrderId) { const orderNumber = "PB-" + String(savedOrderId).padStart(6,"0"); await dbPool.query("UPDATE orders SET order_number=COALESCE(order_number,$1) WHERE id=$2",[orderNumber,savedOrderId]); }
     }
 
     return send(res, 200, { checkout_url: result.checkout_url, order_id: result.id });
   } catch (error) {
     console.error(error);
     return send(res, 400, { error: error.message || "No fue posible crear la orden." });
+  } finally {
+    activePaymentCreations = Math.max(0, activePaymentCreations - 1);
   }
 });
 
