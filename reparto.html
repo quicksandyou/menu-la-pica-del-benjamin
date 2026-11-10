@@ -118,7 +118,7 @@ function checkNewOrders(orders){const ids=orders.map(o=>String(o.id));if(knownOr
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();installPrompt=e;$('installApp').hidden=false});
 $('installApp').onclick=async()=>{if(!installPrompt){$('alertState').textContent='En iPhone: Compartir → Añadir a pantalla de inicio. En Android: menú ⋮ → Instalar aplicación.';return;}installPrompt.prompt();await installPrompt.userChoice;installPrompt=null;$('installApp').hidden=true};
 if('serviceWorker'in navigator)navigator.serviceWorker.register('/sw.js').catch(()=>{});
-async function call(path,body){const r=await fetch(API+path,{method:body?"POST":"GET",credentials:"include",headers:{"Content-Type":"application/json"},...(body?{body:JSON.stringify(body)}:{})});const d=await r.json();if(!r.ok)throw Error(d.error||"Error");return d}
+async function call(path,body){const controller=new AbortController();const timer=setTimeout(()=>controller.abort(),10000);try{const r=await fetch(API+path,{method:body?"POST":"GET",credentials:"include",headers:{"Content-Type":"application/json"},signal:controller.signal,...(body?{body:JSON.stringify(body)}:{})});const d=await r.json().catch(()=>({}));if(!r.ok)throw Error(d.error||"Error "+r.status);return d}catch(e){if(e.name==="AbortError")throw Error("El servidor tardó demasiado. Intenta nuevamente.");throw e}finally{clearTimeout(timer)}}
 let managerCurrentTab="pageOrders";
 function setupManagerHome(role){
  const nav=$("managerNav"),driverNav=$("driverNav");
@@ -380,5 +380,5 @@ $("closeCsv").onclick=async()=>{
  }
 };
 
-$("ordersDate").value=chileToday();$("showDate").onclick=load;$("todayDate").onclick=()=>{$("ordersDate").value=chileToday();load()};$("refresh").onclick=load;$("logout").onclick=async()=>{try{await call("/api/personal/logout",{})}finally{location.href="/personal.html"}};load();setInterval(()=>{if(!document.hidden)load()},12000);
+let loggingOut=false; $("ordersDate").value=chileToday();$("showDate").onclick=load;$("todayDate").onclick=()=>{$("ordersDate").value=chileToday();load()};$("refresh").onclick=()=>{if(loggingOut)return;const b=$("refresh");b.disabled=true;b.textContent="Actualizando…";Promise.resolve(load()).finally(()=>{b.disabled=false;b.textContent="Actualizar"})};$("logout").onclick=()=>{if(loggingOut)return;loggingOut=true;$("logout").disabled=true;$("logout").textContent="Cerrando…";location.replace("/personal.html");call("/api/personal/logout",{}).catch(()=>{});};load();setInterval(()=>{if(!document.hidden&&!loggingOut)load()},12000);
 </script></body></html>
