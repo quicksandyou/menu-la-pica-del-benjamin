@@ -167,6 +167,8 @@ const products = {
   "Cadena plata 925 Amor": 10990,
   "Cadena de plata 925 con dije": 9990,
   "Cadena de plata 925 mariposa": 8990,
+  "Argollas plata 925": 8990,
+  "Pulsera plata 925 con cruz": 8990,
 };
 
 function isOrderingOpen(){
