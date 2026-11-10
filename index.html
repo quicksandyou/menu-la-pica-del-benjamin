@@ -1048,9 +1048,9 @@ function render(){
    const variants=arr.filter(v=>v[6]===p[6]);
    const id='fritos-'+i;
    const opts=variants.map(v=>'<option value="'+v[1]+'" data-price="'+v[2]+'">'+(v[7]||v[1])+' · '+fmt(v[2])+'</option>').join("");
-   out+='<article class="item fritos-variant" data-product-index="'+i+'"><span class="product-count-badge" data-count-group="'+p[6]+'"></span><div class="food-art"><img src="'+(p[4]||photos[p[0]]||photos["Bebidas"])+'" alt="'+p[6]+'" loading="'+(i<4?'eager':'lazy')+'" decoding="async" fetchpriority="'+(i<2?'high':'auto')+'" onerror="this.classList.add(\'image-failed\');this.parentElement.classList.add(\'no-image\')"></div><h3>'+p[6]+'</h3><div class="desc">Selecciona tu cantidad o tamaño</div><select class="product-option variant-select" onchange="this.closest(\'.item\').querySelector(\'.price\').textContent=fmt(Number(this.selectedOptions[0].dataset.price))">'+opts+'</select><div class="price">'+fmt(variants[0][2])+'</div><button class="add" onclick="add(this.closest(\'.item\').querySelector(\'.variant-select\').value,0)">＋ Agregar al pedido</button></article>';
+   out+='<article class="item fritos-variant" data-product-index="'+P.indexOf(p)+'" data-option-index="'+i+'"><span class="product-count-badge" data-count-group="'+p[6]+'"></span><div class="food-art"><img src="'+(p[4]||photos[p[0]]||photos["Bebidas"])+'" alt="'+p[6]+'" loading="'+(i<4?'eager':'lazy')+'" decoding="async" fetchpriority="'+(i<2?'high':'auto')+'" onerror="this.classList.add(\'image-failed\');this.parentElement.classList.add(\'no-image\')"></div><h3>'+p[6]+'</h3><div class="desc">Selecciona tu cantidad o tamaño</div><select class="product-option variant-select" onchange="this.closest(\'.item\').querySelector(\'.price\').textContent=fmt(Number(this.selectedOptions[0].dataset.price))">'+opts+'</select><div class="price">'+fmt(variants[0][2])+'</div><button class="add" onclick="add(this.closest(\'.item\').querySelector(\'.variant-select\').value,0)">＋ Agregar al pedido</button></article>';
   }else{
-   out+='<article class="item" data-product-index="'+i+'"><span class="product-count-badge" data-count-product="'+p[1]+'"></span><div class="food-art '+(["Bebidas","Jugos naturales","Néctares","Aguas","Energéticas"].includes(p[0])?"drink-art":"")+'"><img src="'+(p[4]||photos[p[0]]||photos["Bebidas"])+'" alt="'+p[0]+' - '+p[1]+'" loading="'+(i<4?'eager':'lazy')+'" decoding="async" fetchpriority="'+(i<2?'high':'auto')+'" onerror="this.classList.add(\'image-failed\');this.parentElement.classList.add(\'no-image\')"></div><h3>'+p[1]+'</h3><div class="desc">'+p[3]+'</div><div class="price">'+(p[2]>0?fmt(p[2]):"Precio por confirmar")+'</div>'+optionSelector(p[1],i,p[5])+(p[2]>0?'<button type="button" class="add" onclick="add('+JSON.stringify(p[1]).replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;").replace(/>/g,"&gt;")+','+i+')">＋ Agregar · '+fmt(p[2])+'</button>':'<button class="add" disabled style="opacity:.55;cursor:not-allowed">Precio por confirmar</button>')+'</article>';
+   out+='<article class="item" data-product-index="'+P.indexOf(p)+'" data-option-index="'+i+'"><span class="product-count-badge" data-count-product="'+p[1]+'"></span><div class="food-art '+(["Bebidas","Jugos naturales","Néctares","Aguas","Energéticas"].includes(p[0])?"drink-art":"")+'"><img src="'+(p[4]||photos[p[0]]||photos["Bebidas"])+'" alt="'+p[0]+' - '+p[1]+'" loading="'+(i<4?'eager':'lazy')+'" decoding="async" fetchpriority="'+(i<2?'high':'auto')+'" onerror="this.classList.add(\'image-failed\');this.parentElement.classList.add(\'no-image\')"></div><h3>'+p[1]+'</h3><div class="desc">'+p[3]+'</div><div class="price">'+(p[2]>0?fmt(p[2]):"Precio por confirmar")+'</div>'+optionSelector(p[1],i,p[5])+(p[2]>0?'<button type="button" class="add" onclick="add('+JSON.stringify(p[1]).replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;").replace(/>/g,"&gt;")+','+i+')">＋ Agregar · '+fmt(p[2])+'</button>':'<button class="add" disabled style="opacity:.55;cursor:not-allowed">Precio por confirmar</button>')+'</article>';
   }
   if(i===arr.length-1||arr[i+1][0]!==last)out+="</div>";
  });
@@ -1399,6 +1399,7 @@ function initNativeProductDetails(){
   const card=event.target.closest("article.item[data-product-index]");
   if(!card)return;
   const index=Number(card.dataset.productIndex);
+  const optionIndex=Number(card.dataset.optionIndex);
   const product=P[index];
   if(!product)return;
   const detail=card.cloneNode(true);
@@ -1418,7 +1419,7 @@ function initNativeProductDetails(){
      const selected=detail.querySelector(".variant-select");
      if(selected&&selected.value)add(selected.value,0);
     }else{
-     add(product[1],index);
+     add(product[1],optionIndex);
     }
     close();
    });
