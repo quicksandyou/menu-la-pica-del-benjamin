@@ -9,6 +9,7 @@ on:
       - "www/**"
       - "index.html"
       - "menu.json"
+      - "assets/**"
 jobs:
   build:
     runs-on: ubuntu-latest
