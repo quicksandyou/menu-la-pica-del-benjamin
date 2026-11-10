@@ -294,56 +294,91 @@
       "name": "Aros bote plata 925",
       "price_clp": 7990,
       "description": "Aros tipo bote en plata 925.",
-      "image_url": "/joyas/argollas-plata-8990.jpg"
+      "image_url": "/joyas/aros bote 7990.jpeg"
     },
     {
       "category": "Joyas & Detalles",
       "name": "Aros Minnie plata 925",
       "price_clp": 12990,
       "description": "Aros Minnie en plata 925.",
-      "image_url": "/joyas/minnie-plata-12990.jpg"
+      "image_url": "/joyas/aros de plata 925 minnie 12.990.jpeg"
     },
     {
       "category": "Joyas & Detalles",
       "name": "Pulsera de plata 925 · diseños surtidos",
       "price_clp": 8990,
-      "description": "Diseños delicados en plata 925.",
-      "image_url": "/joyas/pulseras-plata-8990.jpg"
+      "description": "Diseños surtidos en plata 925. Los modelos marcados con una X en la fotografía no están disponibles por ahora.",
+      "image_url": "/joyas/06-pulseras-plata-8990-modelos-algunos-no-disponibles.jpg"
     },
     {
       "category": "Joyas & Detalles",
       "name": "Pulsera de plata 925 · colección",
       "price_clp": 8990,
-      "description": "Distintos modelos de pulseras en plata 925.",
-      "image_url": "/joyas/pulseras-dijes-8990.jpg"
+      "description": "Colección de pulseras en plata 925. Los modelos marcados con una X en la fotografía no están disponibles por ahora.",
+      "image_url": "/joyas/08-pulseras-plata-8990-modelos-algunos-no-disponibles.jpg"
     },
     {
       "category": "Joyas & Detalles",
       "name": "Cadena plata 925 Amor",
       "price_clp": 10990,
       "description": "Cadena de plata 925 con dije Amor.",
-      "image_url": "/joyas/cadena-amor-10990.jpg"
+      "image_url": "/joyas/cadena de plata 925 10.990.jpeg"
     },
     {
       "category": "Joyas & Detalles",
       "name": "Cadena de plata 925 con dije",
       "price_clp": 9990,
-      "description": "Cadena de plata 925 con dije.",
-      "image_url": "/joyas/cadena-plata-9990.jpg"
+      "description": "Cadenas de plata 925 con distintos dijes. Los modelos marcados con una X en la fotografía no están disponibles por ahora.",
+      "image_url": "/joyas/01-cadenas-plata-925-modelos-9990.jpg"
     },
     {
       "category": "Joyas & Detalles",
       "name": "Cadena de plata 925 mariposa",
       "price_clp": 8990,
       "description": "Cadena de plata 925 con dije de mariposa.",
-      "image_url": "/joyas/cadena-mariposa-8990.jpg"
+      "image_url": "/joyas/03-coleccion-collares-disenos-surtidos.jpg"
     },
     {
       "category": "Joyas & Detalles",
       "name": "Rosario de plata 925",
       "price_clp": null,
       "description": "Rosario de plata 925. Precio por confirmar; no disponible para agregar al carrito todavía.",
-      "image_url": "/joyas/rosario-plata-por-confirmar.jpg"
+      "image_url": "/joyas/rosario de plata 925 .jpeg"
+    },
+    {
+      "category": "Joyas & Detalles",
+      "name": "Cadena de corazones plata 925",
+      "price_clp": null,
+      "description": "Cadena de corazones en plata 925. No disponible para compra hasta confirmar precio.",
+      "image_url": "/joyas/02-cadena-corazones-plata-925.jpg"
+    },
+    {
+      "category": "Joyas & Detalles",
+      "name": "Colección de collares plata 925",
+      "price_clp": null,
+      "description": "Diseños surtidos de collares en plata 925. Precio por confirmar.",
+      "image_url": "/joyas/04-collares-plata-925-disenos.jpg"
+    },
+    {
+      "category": "Joyas & Detalles",
+      "name": "Colección exclusiva de collares plata 925",
+      "price_clp": null,
+      "description": "Colección de diseños exclusivos en plata 925. Precio por confirmar.",
+      "image_url": "/joyas/05-coleccion-exclusiva-collares.jpg"
+    },
+    {
+      "category": "Joyas & Detalles",
+      "name": "Argollas plata 925",
+      "price_clp": 8990,
+      "description": "Argollas de plata 925.",
+      "image_url": "/joyas/10-argollas-plata-925-8990.jpg"
+    },
+    {
+      "category": "Joyas & Detalles",
+      "name": "Pulsera plata 925 con cruz",
+      "price_clp": 8990,
+      "description": "Pulsera de plata 925 con cruz.",
+      "image_url": "/joyas/09-cadena-plata-925-pulsera-cruz.jpg"
     }
   ],
   "photos": {
