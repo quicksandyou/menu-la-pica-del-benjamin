@@ -21,7 +21,7 @@ button.active{background:var(--plum);color:#fff;border-color:var(--plum)}
 select{border-radius:12px}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:17px}
 .card{background:#fff;border:1px solid #e4d6e1;border-radius:18px;overflow:hidden;box-shadow:0 8px 22px #3a1b3714;display:flex;flex-direction:column}
-.card img{width:100%;height:290px;object-fit:cover;background:#f4edf3;display:block}
+.card img{width:100%;height:320px;object-fit:contain;background:#171219;display:block}
 .info{padding:14px 15px 16px;display:flex;flex-direction:column;gap:7px;flex:1}
 h2{font:600 19px Georgia,serif;color:#48254e;margin:0}
 .tag{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#96779a}
@@ -29,7 +29,7 @@ h2{font:600 19px Georgia,serif;color:#48254e;margin:0}
 .price.consult{font-size:16px;color:#6d5b6e}
 .note{font-size:12px;color:#766b78;line-height:1.45;margin-top:auto}
 footer{text-align:center;padding:26px;color:#715d70}
-@media(max-width:520px){.wrap{padding:13px}.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.card img{height:205px}.info{padding:10px}.card h2{font-size:16px}.price{font-size:19px}.note{font-size:11px}}
+@media(max-width:520px){.wrap{padding:13px}.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.card img{height:230px}.info{padding:10px}.card h2{font-size:16px}.price{font-size:19px}.note{font-size:11px}}
 </style>
 </head>
 <body>
@@ -46,6 +46,7 @@ footer{text-align:center;padding:26px;color:#715d70}
       <button data-cat="Collares">Collares</button>
       <button data-cat="Pulseras">Pulseras</button>
       <button data-cat="Argollas">Argollas</button>
+      <button data-cat="Conjuntos">Conjuntos</button>
     </div>
     <select id="sort" aria-label="Ordenar productos">
       <option value="featured">Orden recomendado</option>
@@ -68,7 +69,11 @@ const products=[
  {name:"Cadena de plata",category:"Cadenas",price:9990,image:"/joyas/cadena-plata-9990.jpg",note:"Modelo con dijes."},
  {name:"Pulseras con dijes",category:"Pulseras",price:8990,image:"/joyas/pulseras-dijes-8990.jpg",note:"Consulta por diseños disponibles."},
  {name:"Pulsera con cruz",category:"Pulseras",price:8990,image:"/joyas/pulsera-cruz-8990.jpg",note:"Diseño con cruz."},
- {name:"Argollas de plata 925",category:"Argollas",price:8990,image:"/joyas/argollas-plata-8990.jpg",note:"Par de argollas."}
+ {name:"Argollas de plata 925",category:"Argollas",price:8990,image:"/joyas/argollas-plata-8990.jpg",note:"Par de argollas."},
+ {name:"Pulseras gruesas de plata 925",category:"Pulseras",price:24990,image:"/joyas/11-pulseras-plata-925-gruesas-24990.jpg",note:"Diseños gruesos y elegantes para hombre."},
+ {name:"Pulseras de plata para hombre",category:"Pulseras",price:14990,image:"/joyas/12-pulseras-plata-hombre-14990.jpg",note:"Varios modelos de estilo masculino."},
+ {name:"Conjunto cadena + pulsera torbillón",category:"Conjuntos",price:29990,image:"/joyas/13-conjunto-cadena-pulsera-torbillon-29990.jpg",note:"Conjunto de cadena y pulsera."},
+ {name:"Conjunto cadena + aros plata 925",category:"Conjuntos",price:14990,image:"/joyas/14-conjunto-cadena-aros-plata-925-14990.jpg",note:"Conjunto de cadena con colgante y aros."}
 ];
 let category="Todos";
 const grid=document.getElementById("products");
