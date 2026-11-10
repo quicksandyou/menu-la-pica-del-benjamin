@@ -1,4 +1,4 @@
-const CACHE_NAME = "pica-benjamin-shell-v16";
+const CACHE_NAME = "pica-benjamin-shell-v17";
 const APP_SHELL = ["/", "/manifest.json", "/icons/icon.svg", "/logo_picada.jpg"];
 self.addEventListener("install", event => {
   event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(APP_SHELL)));
