@@ -1,6 +1,8 @@
 {
   "version": 1,
   "categories": [
+    "Sushi Burger",
+    "Hanrolls",
     "Promociones",
     "Promociones sushi",
     "Rolls fríos",
@@ -327,7 +329,7 @@
       ]
     },
     {
-      "category": "Promociones",
+      "category": "Sushi Burger",
       "name": "Sushi Burger",
       "price_clp": 4990,
       "description": "Sushi Burger a elección entre 5 variedades: pollo, camarón, kanikama, mechada o vegetariana.",
@@ -346,7 +348,7 @@
       ]
     },
     {
-      "category": "Promociones",
+      "category": "Hanrolls",
       "name": "3 Hanrolls",
       "price_clp": 6490,
       "description": "3 hand rolls fritos con queso y palta. Elige para cada uno: pollo, camarón o kanikama.",
