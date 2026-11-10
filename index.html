@@ -821,22 +821,53 @@ function add(n,i){
 }
 function qty(n,d){if(!cart[n])return;cart[n]+=d;if(cart[n]<=0)delete cart[n];drawCart();}
 function drawCart(){
- let sum=0,count=0,lines="";
- Object.entries(cart).forEach(([n,q])=>{
-  const baseName=n.split(" | ")[0],p=P.find(x=>x[1]===baseName);
-  if(!p||!Number.isFinite(p[2])){console.warn("Producto sin precio en el carrito:",n);return;}
-  const lineTotal=p[2]*q;sum+=lineTotal;count+=q;
-  const safeName=n.replace(" | "," · ").replace(/</g,"&lt;").replace(/>/g,"&gt;");
-  lines+='<div class="line"><span>'+safeName+' · '+fmt(p[2])+'</span><span class="qty"><button type="button" onclick="qty('+JSON.stringify(n)+',-1)">−</button> '+q+' <button type="button" onclick="qty('+JSON.stringify(n)+',1)">＋</button></span><b>'+fmt(lineTotal)+'</b></div>';
+ const linesEl=document.getElementById("lines");
+ const countEl=document.getElementById("count");
+ const totalEl=document.getElementById("total");
+ let subtotal=0,count=0;
+ const lines=[];
+ const entries=Object.entries(cart||{});
+ entries.forEach(([name,quantity])=>{
+  const baseName=String(name).split(" | ")[0];
+  const product=P.find(item=>item[1]===baseName);
+  const price=product?Number(product[2]):NaN;
+  const qtyValue=Math.max(0,Number(quantity)||0);
+  if(!product||!Number.isFinite(price)||price<=0||qtyValue<=0){
+   console.warn("No se pudo calcular el producto del carrito:",name,product);
+   return;
+  }
+  const lineTotal=price*qtyValue;
+  subtotal+=lineTotal;
+  count+=qtyValue;
+  const safeName=String(name).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+  lines.push('<div class="line"><span>'+safeName.replace(" | "," · ")+' · '+fmt(price)+'</span><span class="qty"><button type="button" onclick="qty('+JSON.stringify(name)+',-1)" aria-label="Quitar uno">−</button> '+qtyValue+' <button type="button" onclick="qty('+JSON.stringify(name)+',1)" aria-label="Agregar uno">＋</button></span><b>'+fmt(lineTotal)+'</b></div>');
  });
- const linesEl=document.getElementById("lines"),countEl=document.getElementById("count"),totalEl=document.getElementById("total");
- if(linesEl)linesEl.innerHTML=lines||"Todavía no agregas productos.";
+ if(linesEl)linesEl.innerHTML=lines.length?lines.join(""):"Todavía no agregas productos.";
  if(countEl)countEl.textContent='('+count+' productos)';
- const fee=deliveryFee()||0;
- 
- document.querySelectorAll('[data-count-product]').forEach(badge=>{const name=badge.getAttribute('data-count-product');const quantity=Object.entries(cart).reduce((total,[key,value])=>total+(key.split(' | ')[0]===name?value:0),0);badge.textContent=quantity>10?'10+':String(quantity);badge.classList.toggle('visible',quantity>0);});
- document.querySelectorAll('[data-count-group]').forEach(badge=>{const group=badge.getAttribute('data-count-group');const names=P.filter(product=>product[6]===group).map(product=>product[1]);const quantity=Object.entries(cart).reduce((total,[key,value])=>total+(names.includes(key.split(' | ')[0])?value:0),0);badge.textContent=quantity>10?'10+':String(quantity);badge.classList.toggle('visible',quantity>0);});
-if(totalEl)totalEl.innerHTML='<div class="total-row"><span>🍽️ Productos</span><strong>'+fmt(sum)+'</strong></div><div class="total-row"><span>🚗 Despacho</span><strong>'+(fee===0?"Gratis":fmt(fee))+'</strong></div><div class="total-grand"><span>Total a pagar</span><span>'+fmt(sum+fee)+'</span></div>';
+ const methodEl=document.getElementById("method");
+ const localityEl=document.getElementById("locality");
+ let fee=0;
+ if(methodEl&&methodEl.value==="Delivery"){
+  const fees={"Linares":1990,"Longaví":3500,"Yerbas Buenas":3000,"Colbún":12000,"Villa Alegre":4000,"San Javier":5000,"Palmilla":5000};
+  fee=Number(fees[localityEl?localityEl.value:""])||0;
+ }
+ if(totalEl){
+  totalEl.innerHTML='<div class="total-row"><span>🍽️ Productos</span><strong>'+fmt(subtotal)+'</strong></div><div class="total-row"><span>🚗 Despacho</span><strong>'+(fee===0?"Gratis":fmt(fee))+'</strong></div><div class="total-grand"><span>Total a pagar</span><span>'+fmt(subtotal+fee)+'</span></div>';
+  totalEl.setAttribute("aria-live","polite");
+ }
+ document.querySelectorAll('[data-count-product]').forEach(badge=>{
+  const name=badge.getAttribute('data-count-product');
+  const quantity=entries.reduce((sum,[key,value])=>sum+(key.split(' | ')[0]===name?(Number(value)||0):0),0);
+  badge.textContent=quantity>10?'10+':String(quantity);
+  badge.classList.toggle('visible',quantity>0);
+ });
+ document.querySelectorAll('[data-count-group]').forEach(badge=>{
+  const group=badge.getAttribute('data-count-group');
+  const names=P.filter(product=>product[6]===group).map(product=>product[1]);
+  const quantity=entries.reduce((sum,[key,value])=>sum+(names.includes(key.split(' | ')[0])?(Number(value)||0):0),0);
+  badge.textContent=quantity>10?'10+':String(quantity);
+  badge.classList.toggle('visible',quantity>0);
+ });
 }
 function toggleAddress(){const delivery=document.getElementById("method").value==="Delivery";document.getElementById("address").style.display=delivery?"block":"none";document.getElementById("locality").style.display=delivery?"block":"none";document.getElementById("whatsappButton").style.display=delivery?"none":"block";drawCart();applySchedule()}
 function sendOrder(){if(!isOrderingOpen()){applySchedule();return alert("Estamos fuera de horario. Muchas gracias por preferir La Picá del Benjamín.");}let items=Object.entries(cart);if(!items.length)return alert("Agrega al menos un producto.");let name=document.getElementById("name").value.trim(),method=document.getElementById("method").value,address=document.getElementById("address").value.trim();if(method!=="Retiro en el local")return alert("WhatsApp está disponible solamente para pedidos con retiro en el local. Para delivery, utiliza Pagar por Internet.");if(!name)return alert("Escribe tu nombre.");let sum=0,detail=items.map(([n,q])=>{let p=P.find(x=>x[1]===n.split(" | ")[0]);sum+=p[2]*q;return `• ${q} x ${n.replace(" | "," · ")} — ${fmt(p[2]*q)}`}).join("\n");let msg=`*NUEVA COMANDA - LA PICÁ DEL BENJAMÍN*\n━━━━━━━━━━━━━━━━━━\n*Fecha:* ${new Date().toLocaleString("es-CL")}\n*Cliente:* ${name}\n*Teléfono:* ${document.getElementById("phone").value.trim()||"No indicado"}\n*Modalidad:* RETIRO EN EL LOCAL\n━━━━━━━━━━━━━━━━━━\n*DETALLE DEL PEDIDO*\n${detail}\n━━━━━━━━━━━━━━━━━━\n*TOTAL: ${fmt(sum)}*\n*Pago:* Efectivo o coordinación en el local\n*Observaciones:* ${document.getElementById("notes").value.trim()||"Sin observaciones"}\n━━━━━━━━━━━━━━━━━━\n_Pedido enviado desde el menú web._`;window.open("https://wa.me/56999064818?text="+encodeURIComponent(msg),"_blank")}
