@@ -761,7 +761,8 @@ let active="Todos",cart={},payment="Efectivo";const fmt=n=>"$"+n.toLocaleString(
 function render(){
  const icons={"Rolls":"🍣","Rolls fríos":"🍣","Rolls fritos":"🍤","Promociones sushi":"🔥🍣","Ceviches":"🍤","Gohan":"🍱","Pizzas":"🍕","Sándwiches":"🥪","Bebidas":"🥤","Jugos naturales":"🧃","Néctares":"🧃","Aguas":"💧","Energéticas":"⚡","Salsas":"🥣","Fritos":"🍟"};
  const photos=menuPhotos;
- document.getElementById("tabs").innerHTML=cats.map(c=>'<button class="'+(c===active?'on':'')+'" onclick="active='+JSON.stringify(c)+';render()">'+(icons[c]||"🍽️")+' '+c+'</button>').join("");
+ document.getElementById("tabs").innerHTML=cats.map(c=>'<button type="button" class="'+(c===active?'on':'')+'" data-category="'+c.replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;")+'">'+(icons[c]||"🍽️")+' '+c+'</button>').join("");
+ document.getElementById("tabs").querySelectorAll("button[data-category]").forEach(btn=>btn.addEventListener("click",()=>{active=btn.dataset.category;render()}));
  let arr=P.filter(p=>active==="Todos"?p[0]!=="Joyas & Detalles":p[0]===active),out="",last="",seenGroups=new Set();
  arr.forEach((p,i)=>{
   if(p[0]!==last){out+='<h2 class="section-title">'+(icons[p[0]]||"🍽️")+' '+p[0]+'</h2><div class="grid">';last=p[0]}
