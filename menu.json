@@ -720,125 +720,6 @@
       ]
     },
     {
-      "category": "Fritos",
-      "name": "Empanadas · 6 unidades",
-      "price_clp": 2000,
-      "description": "6 unidades.",
-      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/fritos.jpg"
-    },
-    {
-      "category": "Fritos",
-      "name": "Empanadas · 12 unidades",
-      "price_clp": 4000,
-      "description": "12 unidades.",
-      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/fritos.jpg"
-    },
-    {
-      "category": "Fritos",
-      "name": "Aros de cebolla · 6 unidades",
-      "price_clp": 2000,
-      "description": "6 unidades.",
-      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/fritos.jpg"
-    },
-    {
-      "category": "Fritos",
-      "name": "Aros de cebolla · 12 unidades",
-      "price_clp": 4000,
-      "description": "12 unidades.",
-      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/fritos.jpg"
-    },
-    {
-      "category": "Fritos",
-      "name": "Arrollados primavera · 3 unidades",
-      "price_clp": 1500,
-      "description": "3 unidades.",
-      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/fritos.jpg"
-    },
-    {
-      "category": "Fritos",
-      "name": "Arrollados primavera · 6 unidades",
-      "price_clp": 3000,
-      "description": "6 unidades.",
-      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/fritos.jpg"
-    },
-    {
-      "category": "Fritos",
-      "name": "Nuggets de pollo · 6 unidades",
-      "price_clp": 2000,
-      "description": "6 unidades.",
-      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/fritos.jpg"
-    },
-    {
-      "category": "Fritos",
-      "name": "Nuggets de pollo · 12 unidades",
-      "price_clp": 4000,
-      "description": "12 unidades.",
-      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/fritos.jpg"
-    },
-    {
-      "category": "Fritos",
-      "name": "Papas fritas · Pequeña",
-      "price_clp": 3000,
-      "description": "Porción según tamaño seleccionado.",
-      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/fritos.jpg"
-    },
-    {
-      "category": "Fritos",
-      "name": "Papas fritas · Mediana",
-      "price_clp": 5000,
-      "description": "Porción según tamaño seleccionado.",
-      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/fritos.jpg"
-    },
-    {
-      "category": "Fritos",
-      "name": "Papas fritas · Familiar",
-      "price_clp": 8500,
-      "description": "Porción según tamaño seleccionado.",
-      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/fritos.jpg"
-    },
-    {
-      "category": "Fritos",
-      "name": "Salchipapas · Pequeña",
-      "price_clp": 3500,
-      "description": "Porción según tamaño seleccionado.",
-      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/fritos.jpg"
-    },
-    {
-      "category": "Fritos",
-      "name": "Salchipapas · Mediana",
-      "price_clp": 6000,
-      "description": "Porción según tamaño seleccionado.",
-      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/fritos.jpg"
-    },
-    {
-      "category": "Fritos",
-      "name": "Salchipapas · Familiar",
-      "price_clp": 10000,
-      "description": "Porción según tamaño seleccionado.",
-      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/fritos.jpg"
-    },
-    {
-      "category": "Fritos",
-      "name": "Trío Box",
-      "price_clp": 3990,
-      "description": "Papas fritas + 3 empanadas de queso.",
-      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/trio-box.jpg"
-    },
-    {
-      "category": "Fritos",
-      "name": "5 Pollos Crispy + papas + salsa BBQ",
-      "price_clp": 5900,
-      "description": "5 pollos crispy con papas fritas y salsa BBQ.",
-      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/fritos.jpg"
-    },
-    {
-      "category": "Fritos",
-      "name": "10 Pollos Crispy + papas + salsa BBQ",
-      "price_clp": 10990,
-      "description": "10 pollos crispy con papas fritas y salsa BBQ.",
-      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/fritos.jpg"
-    },
-    {
       "category": "Hanrolls",
       "name": "Hanroll pollo · queso y palta",
       "price_clp": 2490,
@@ -932,6 +813,134 @@
           ]
         }
       ]
+    },
+    {
+      "category": "Fritos",
+      "name": "6 empanadas",
+      "price_clp": 2000,
+      "description": "6 empanadas doradas.",
+      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/empanadas.svg",
+      "display_group": "Empanadas"
+    },
+    {
+      "category": "Fritos",
+      "name": "12 empanadas",
+      "price_clp": 4000,
+      "description": "12 empanadas doradas.",
+      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/empanadas.svg",
+      "display_group": "Empanadas"
+    },
+    {
+      "category": "Fritos",
+      "name": "6 aros",
+      "price_clp": 2000,
+      "description": "6 aros de cebolla crujientes.",
+      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/aros-cebolla.svg",
+      "display_group": "Aros de cebolla"
+    },
+    {
+      "category": "Fritos",
+      "name": "12 aros",
+      "price_clp": 4000,
+      "description": "12 aros de cebolla crujientes.",
+      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/aros-cebolla.svg",
+      "display_group": "Aros de cebolla"
+    },
+    {
+      "category": "Fritos",
+      "name": "3 arrollados",
+      "price_clp": 1500,
+      "description": "3 arrollados primavera.",
+      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/arrollados-primavera.svg",
+      "display_group": "Arrollados primavera"
+    },
+    {
+      "category": "Fritos",
+      "name": "6 arrollados",
+      "price_clp": 3000,
+      "description": "6 arrollados primavera.",
+      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/arrollados-primavera.svg",
+      "display_group": "Arrollados primavera"
+    },
+    {
+      "category": "Fritos",
+      "name": "6 nuggets",
+      "price_clp": 2000,
+      "description": "6 nuggets de pollo.",
+      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/nuggets-pollo.svg",
+      "display_group": "Nuggets de pollo"
+    },
+    {
+      "category": "Fritos",
+      "name": "12 nuggets",
+      "price_clp": 4000,
+      "description": "12 nuggets de pollo.",
+      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/nuggets-pollo.svg",
+      "display_group": "Nuggets de pollo"
+    },
+    {
+      "category": "Fritos",
+      "name": "Pequeña",
+      "price_clp": 3000,
+      "description": "Porción pequeña de papas fritas.",
+      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/papas-fritas.svg",
+      "display_group": "Papas fritas"
+    },
+    {
+      "category": "Fritos",
+      "name": "Mediana",
+      "price_clp": 5000,
+      "description": "Porción mediana de papas fritas.",
+      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/papas-fritas.svg",
+      "display_group": "Papas fritas"
+    },
+    {
+      "category": "Fritos",
+      "name": "Familiar",
+      "price_clp": 8500,
+      "description": "Porción familiar de papas fritas.",
+      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/papas-fritas.svg",
+      "display_group": "Papas fritas"
+    },
+    {
+      "category": "Fritos",
+      "name": "Pequeña",
+      "price_clp": 3500,
+      "description": "Porción pequeña de salchipapas.",
+      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/salchipapas.svg",
+      "display_group": "Salchipapas"
+    },
+    {
+      "category": "Fritos",
+      "name": "Mediana",
+      "price_clp": 6000,
+      "description": "Porción mediana de salchipapas.",
+      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/salchipapas.svg",
+      "display_group": "Salchipapas"
+    },
+    {
+      "category": "Fritos",
+      "name": "Familiar",
+      "price_clp": 10000,
+      "description": "Porción familiar de salchipapas.",
+      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/salchipapas.svg",
+      "display_group": "Salchipapas"
+    },
+    {
+      "category": "Fritos",
+      "name": "5 pollos crispy + papas + salsa BBQ",
+      "price_clp": 5900,
+      "description": "5 pollos crispy con papas fritas y salsa BBQ.",
+      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/pollos-crispy.svg",
+      "display_group": "Pollos crispy"
+    },
+    {
+      "category": "Fritos",
+      "name": "10 pollos crispy + papas + salsa BBQ",
+      "price_clp": 10990,
+      "description": "10 pollos crispy con papas fritas y salsa BBQ.",
+      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/pollos-crispy.svg",
+      "display_group": "Pollos crispy"
     }
   ],
   "photos": {
