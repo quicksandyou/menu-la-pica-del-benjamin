@@ -1031,6 +1031,23 @@
       "price_clp": 5490,
       "description": "Base de arroz, queso, palta y cebollín. Proteína según variedad.",
       "image_url": "assets/gohan/gohan-kanikama.jpg"
+    },
+    {
+      "category": "Completos",
+      "name": "Completo individual",
+      "price_clp": 2000,
+      "description": "Elige tu variedad. Puedes agregar más de uno al pedido, incluso combinando sabores.",
+      "image_url": "assets/completos.jpg",
+      "option_groups": [
+        {
+          "label": "Variedad",
+          "quantity": 1,
+          "choices": [
+            "Clásico",
+            "Italiano"
+          ]
+        }
+      ]
     }
   ],
   "photos": {
