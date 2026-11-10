@@ -379,6 +379,34 @@
       "price_clp": 8990,
       "description": "Pulsera de plata 925 con cruz.",
       "image_url": "/joyas/pulsera de plata 8.990.jpeg"
+    },
+    {
+      "category": "Joyas & Detalles",
+      "name": "Pulseras gruesas de plata 925",
+      "price_clp": 24990,
+      "description": "Pulseras gruesas de plata 925, diseños masculinos.",
+      "image_url": "/joyas/11-pulseras-plata-925-gruesas-24990.jpg"
+    },
+    {
+      "category": "Joyas & Detalles",
+      "name": "Pulseras de plata para hombre",
+      "price_clp": 14990,
+      "description": "Colección de pulseras de plata para hombre.",
+      "image_url": "/joyas/12-pulseras-plata-hombre-14990.jpg"
+    },
+    {
+      "category": "Joyas & Detalles",
+      "name": "Conjunto cadena + pulsera torbillón",
+      "price_clp": 29990,
+      "description": "Conjunto de cadena y pulsera torbillón en plata.",
+      "image_url": "/joyas/13-conjunto-cadena-pulsera-torbillon-29990.jpg"
+    },
+    {
+      "category": "Joyas & Detalles",
+      "name": "Conjunto cadena + aros plata 925",
+      "price_clp": 14990,
+      "description": "Conjunto de cadena con colgante y aros de plata 925.",
+      "image_url": "/joyas/14-conjunto-cadena-aros-plata-925-14990.jpg"
     }
   ],
   "photos": {
