@@ -346,25 +346,15 @@ async function searchManualAddress(){
  const sequence=++manualSearchSequence;
  $("manualMapStatus").textContent="Buscando direcciones en Chile…";
  try{
-  // Buscar el texto tal como lo escribe el usuario y limitar resultados a Chile.
-  // Las coordenadas solo priorizan Linares; no se muestran ni se guardan en el pedido.
-  const params=new URLSearchParams({q:typed,countrycode:"CL",lat:"-35.846",lon:"-71.593",zoom:"10",limit:"12",lang:"es"});
-  let response=await fetch("https://photon.komoot.io/api/?"+params.toString(),{signal:manualSearchController.signal});
-  if(!response.ok)throw new Error("El buscador no respondió.");
-  let data=await response.json();
+  const params=new URLSearchParams({q:typed,locality});
+  const response=await fetch(API+"/api/direcciones?"+params.toString(),{
+   credentials:"include",signal:manualSearchController.signal,headers:{"Accept":"application/json"}
+  });
+  const data=await response.json().catch(()=>({}));
+  if(!response.ok)throw new Error(data.error||"El servidor no pudo buscar la dirección.");
   if(sequence!==manualSearchSequence)return;
-  let features=data.features||[];
-  // Si no hay resultados cercanos, repetir incluyendo la comuna indicada.
-  if(!features.length&&locality){
-   const retry=new URLSearchParams({q:typed+" "+locality,countrycode:"CL",limit:"12",lang:"es"});
-   response=await fetch("https://photon.komoot.io/api/?"+retry.toString(),{signal:manualSearchController.signal});
-   if(!response.ok)throw new Error("El buscador no respondió.");
-   data=await response.json();
-   if(sequence!==manualSearchSequence)return;
-   features=data.features||[];
-  }
   box.replaceChildren();
-  features.forEach(feature=>{
+  (data.features||[]).forEach(feature=>{
    const p=feature.properties||{},address=formatManualAddress(p);
    if(!address.street&&!address.locality)return;
    const button=document.createElement("button");
@@ -381,11 +371,11 @@ async function searchManualAddress(){
    box.append(button);
   });
   box.classList.toggle("hidden",!box.childElementCount);
-  $("manualMapStatus").textContent=box.childElementCount?"Selecciona una de las direcciones encontradas.":"No encontramos esa dirección en Chile. Prueba con el nombre de la calle y la comuna.";
+  $("manualMapStatus").textContent=box.childElementCount?"Selecciona una de las direcciones encontradas.":"No encontramos coincidencias en Chile. Prueba con otra forma de escribir la calle o agrega la comuna.";
  }catch(error){
   if(error.name==="AbortError")return;
   box.classList.add("hidden");
-  $("manualMapStatus").textContent="No se pudo conectar al buscador de direcciones. Puedes completar la dirección manualmente.";
+  $("manualMapStatus").textContent="No se pudo conectar al buscador del servidor. Puedes completar la dirección manualmente.";
  }
 }
 $("mAddress").addEventListener("input",()=>{
