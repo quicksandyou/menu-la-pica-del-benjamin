@@ -555,16 +555,18 @@ body{
 
 
 .item{position:relative}.product-count-badge{position:absolute;top:10px;right:10px;z-index:3;min-width:30px;height:30px;padding:0 8px;border-radius:999px;display:none;align-items:center;justify-content:center;background:#ffd34d;color:#241306;border:2px solid #fff1bd;font-size:14px;font-weight:1000;box-shadow:0 3px 10px #0009}.product-count-badge.visible{display:flex}
+/* Elementos añadidos para APK ocultos por defecto en la web */
+.app-drawer-extra,.sidebar-close{display:none}
 /* APK-only slide-out navigation */
 html.native-app-ui .app-drawer-toggle{display:flex!important;position:fixed;left:13px;top:calc(12px + env(safe-area-inset-top));z-index:12002;width:46px;height:46px;align-items:center;justify-content:center;border:1px solid #9b2925;border-radius:14px;background:#151010;color:#fff;font-size:25px;box-shadow:0 5px 18px #0009}
 html.native-app-ui .app-drawer-overlay{display:block!important;position:fixed;inset:0;z-index:12000;background:#000a;opacity:0;visibility:hidden;transition:opacity .25s,visibility .25s}
 html.native-app-ui .site-header{padding-left:64px!important}html.native-app-ui .category-sidebar{position:fixed!important;z-index:12001!important;left:0!important;top:0!important;bottom:0!important;width:min(84vw,330px)!important;height:100dvh!important;max-height:100dvh!important;overflow-y:auto!important;margin:0!important;padding:calc(18px + env(safe-area-inset-top)) 14px calc(22px + env(safe-area-inset-bottom))!important;border:0!important;border-right:1px solid #8f2925!important;border-radius:0 20px 20px 0!important;background:linear-gradient(160deg,#171717,#050505 75%)!important;box-shadow:16px 0 45px #000b!important;transform:translateX(-110%);transition:transform .28s!important;visibility:hidden}
 html.native-app-ui .sidebar-brand{display:flex!important;align-items:center;justify-content:space-between;color:#fff!important;text-align:left!important;padding:12px 4px 18px!important;border-bottom:1px solid #612321!important}
-html.native-app-ui .sidebar-close{width:38px;height:38px;border:0;border-radius:50%;background:#292929;color:#fff;font-size:24px}
+html.native-app-ui .sidebar-close{display:flex!important;align-items:center;justify-content:center;width:38px;height:38px;border:0;border-radius:50%;background:#292929;color:#fff;font-size:24px}
 html.native-app-ui .category-sidebar nav{display:flex!important;flex-direction:column!important;overflow:visible!important;gap:5px!important;padding:14px 0!important;background:transparent!important}
 html.native-app-ui .category-sidebar nav button{width:100%!important;min-height:53px!important;text-align:left!important;white-space:normal!important;border:0!important;border-bottom:1px solid #ffffff12!important;border-radius:10px!important;background:transparent!important;color:#f8f4ef!important;font-size:15px!important}
 html.native-app-ui .category-sidebar nav button.on{background:linear-gradient(100deg,#bd211e,#48100f)!important;color:#fff!important}
-html.native-app-ui .app-drawer-extra{display:grid;gap:5px;padding:10px 0;border-top:1px solid #612321}
+html.native-app-ui .app-drawer-extra{display:grid!important;gap:5px;padding:10px 0;border-top:1px solid #612321}
 html.native-app-ui .app-drawer-extra button{width:100%;min-height:48px;text-align:left;padding:10px 12px;border:0;border-radius:10px;background:transparent;color:#fff;font-weight:750}
 html.native-app-ui .sidebar-foot{display:block!important;text-align:left!important;color:#c7b7b1!important;border-top:1px solid #612321!important}
 html.native-app-ui.app-menu-open .category-sidebar{transform:translateX(0)!important;visibility:visible}
