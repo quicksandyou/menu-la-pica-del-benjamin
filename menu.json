@@ -880,51 +880,57 @@
     },
     {
       "category": "Fritos",
-      "name": "Pequeña",
+      "name": "Papas fritas · Pequeña",
       "price_clp": 3000,
       "description": "Porción pequeña de papas fritas.",
       "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/papas-fritas.svg",
-      "display_group": "Papas fritas"
+      "display_group": "Papas fritas",
+      "display_label": "Pequeña"
     },
     {
       "category": "Fritos",
-      "name": "Mediana",
+      "name": "Papas fritas · Mediana",
       "price_clp": 5000,
       "description": "Porción mediana de papas fritas.",
       "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/papas-fritas.svg",
-      "display_group": "Papas fritas"
+      "display_group": "Papas fritas",
+      "display_label": "Mediana"
     },
     {
       "category": "Fritos",
-      "name": "Familiar",
+      "name": "Papas fritas · Familiar",
       "price_clp": 8500,
       "description": "Porción familiar de papas fritas.",
       "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/papas-fritas.svg",
-      "display_group": "Papas fritas"
+      "display_group": "Papas fritas",
+      "display_label": "Familiar"
     },
     {
       "category": "Fritos",
-      "name": "Pequeña",
+      "name": "Salchipapas · Pequeña",
       "price_clp": 3500,
       "description": "Porción pequeña de salchipapas.",
       "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/salchipapas.svg",
-      "display_group": "Salchipapas"
+      "display_group": "Salchipapas",
+      "display_label": "Pequeña"
     },
     {
       "category": "Fritos",
-      "name": "Mediana",
+      "name": "Salchipapas · Mediana",
       "price_clp": 6000,
       "description": "Porción mediana de salchipapas.",
       "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/salchipapas.svg",
-      "display_group": "Salchipapas"
+      "display_group": "Salchipapas",
+      "display_label": "Mediana"
     },
     {
       "category": "Fritos",
-      "name": "Familiar",
+      "name": "Salchipapas · Familiar",
       "price_clp": 10000,
       "description": "Porción familiar de salchipapas.",
       "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/salchipapas.svg",
-      "display_group": "Salchipapas"
+      "display_group": "Salchipapas",
+      "display_label": "Familiar"
     },
     {
       "category": "Fritos",
