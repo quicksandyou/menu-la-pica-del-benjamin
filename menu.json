@@ -718,28 +718,36 @@
       "name": "Hanroll pollo · queso y palta",
       "price_clp": 2490,
       "description": "Hanroll de pollo, queso y palta.",
-      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/hanrolls.jpg"
+      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/hanrolls.jpg",
+      "display_group": "Hanrolls a elección",
+      "display_label": "Pollo, queso y palta"
     },
     {
       "category": "Hanrolls",
       "name": "Hanroll camarón · queso y palta",
       "price_clp": 2490,
       "description": "Hanroll de camarón, queso y palta.",
-      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/hanrolls.jpg"
+      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/hanrolls.jpg",
+      "display_group": "Hanrolls a elección",
+      "display_label": "Camarón, queso y palta"
     },
     {
       "category": "Hanrolls",
       "name": "Hanroll kanikama · queso y palta",
       "price_clp": 1990,
       "description": "Hanroll de kanikama, queso y palta.",
-      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/hanrolls.jpg"
+      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/hanrolls.jpg",
+      "display_group": "Hanrolls a elección",
+      "display_label": "Kanikama, queso y palta"
     },
     {
       "category": "Hanrolls",
       "name": "Hanroll mechada · queso y palta",
       "price_clp": 2990,
       "description": "Hanroll de mechada, queso y palta.",
-      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/hanrolls.jpg"
+      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/assets/hanrolls.jpg",
+      "display_group": "Hanrolls a elección",
+      "display_label": "Mechada, queso y palta"
     },
     {
       "category": "Promociones",
