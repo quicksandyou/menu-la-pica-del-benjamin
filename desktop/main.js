@@ -1,8 +1,10 @@
-const {app,BrowserWindow,shell,dialog}=require("electron");
+const {app,BrowserWindow,shell,dialog,ipcMain,net}=require("electron");
 const {autoUpdater}=require("electron-updater");
 const path=require("path");
 let win;
 let updatePromptOpen=false;
+ipcMain.handle("pos:load-menu",async()=>{ const url="https://menu-la-pica-del-benjamin.onrender.com/menu.json?v="+Date.now(); const response=await net.fetch(url,{signal:AbortSignal.timeout(20000)}); if(!response.ok) throw new Error("La tienda respondió HTTP "+response.status); const data=await response.json(); if(!Array.isArray(data.products)||!data.products.length) throw new Error("La carta online no contiene productos."); return data; });
+
 
 function configureAutoUpdates(){
   if(!app.isPackaged || process.platform!=="win32") return;
