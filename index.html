@@ -939,7 +939,7 @@ function splashKetchup(event){
 
 
 let staffTestMode=false;
-async async function enableStaffTestMode(){
+async function enableStaffTestMode(){
  if(new URLSearchParams(location.search).get("modoPrueba")!=="1")return;
  try{const r=await fetch(`${PAYMENT_API_BASE_URL}/api/personal/test-mode`,{credentials:"include"});const d=await r.json();if(r.ok&&d.allowed){staffTestMode=true;document.getElementById("testModeNotice").style.display="block";}}
  catch(e){console.warn("No se pudo validar el modo de prueba",e)}
