@@ -27,6 +27,7 @@ function resolveMenuImage(value){
 }
 
 let category='Todos',cart={};
+cats=['Todos'];
 const money=n=>'$'+Number(n||0).toLocaleString('es-CL');
 function iniciarPOS(){
  renderTabs();renderProducts();drawCart();
@@ -43,7 +44,7 @@ function iniciarPOS(){
    if(!btn)return;
    const product=P[Number(btn.dataset.addIndex)];
    if(!product)return;
-   add(product[1]);
+   add(product[1],Number(btn.dataset.addIndex));
  });
  document.getElementById('cartLines').addEventListener('click',e=>{
    const btn=e.target.closest('button[data-change]');
@@ -67,7 +68,7 @@ function renderProducts(){
 }
 function optionGroupsHTML(p,index){const groups=p[5]||[];return groups.map((g,gi)=>Array.from({length:g.quantity||1},(_,k)=>{const id='pos-option-'+index+'-'+gi+'-'+k;return '<label class="muted" for="'+id+'">'+escapeHTML(g.label)+(g.quantity>1?' '+(k+1):'')+'</label><select class="product-option" id="'+id+'"><option value="">'+(g.optional?"No agregar ciboulette":"Seleccionar opción")+'</option>'+g.choices.map(v=>'<option value="'+escapeHTML(v)+'">'+escapeHTML(v)+'</option>').join('')+'</select>'}).join('');}
 function add(n,index){
- const product=P.find(p=>p[1]===n);
+ const product=P[index];
  if(!product)return;
  if(product[2]===null||!Number.isFinite(product[2])||product[2]<=0){alert("Este producto no está disponible por ahora.");return;}
  const groups=product[5]||[];const selected=[];
@@ -105,7 +106,7 @@ function printReceipt(){
  if(!entries.length)return alert('Agrega al menos un producto.');
  let sum=0;
  const detail=entries.map(([n,q])=>{
-   const p=P.find(x=>x[1]===n);
+   const p=P.find(x=>x[1]===n.split(' | ')[0]);
    if(!p)return '';
    const lineTotal=Number(p[2])*Number(q);sum+=lineTotal;
    return '<div class="rline"><span>'+q+' x '+n+'</span><b>'+money(lineTotal)+'</b></div>';
@@ -125,7 +126,8 @@ async function loadSharedMenu(){
  if(status)status.textContent='Carta sincronizada: '+P.length+' productos · '+new Date().toLocaleTimeString('es-CL');
  renderTabs();renderProducts();drawCart();
 }
-loadSharedMenu().then(()=>iniciarPOS()).catch(e=>{
+iniciarPOS();
+loadSharedMenu().catch(e=>{
  const status=document.getElementById('menuSyncStatus');if(status)status.textContent='No se pudo actualizar la carta. Revisa Internet y vuelve a intentar.';
  document.getElementById("products").textContent="No se pudo cargar la carta. Verifica Internet y vuelve a intentar.";console.error(e);
 });
