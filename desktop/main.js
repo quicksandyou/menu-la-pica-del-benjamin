@@ -4,31 +4,17 @@ const path=require("path");
 const fs=require("fs");
 let win;
 let updatePromptOpen=false;
+function validateMenu(data){
+ if(!data||!Array.isArray(data.products)||!data.products.length||!Array.isArray(data.categories)||!data.categories.length)throw new Error("Carta incompleta.");
+ const categories=new Set(data.categories),seen=new Set();
+ for(const p of data.products){if(!p||typeof p.category!=="string"||!p.category.trim()||typeof p.name!=="string"||!p.name.trim())throw new Error("Producto sin nombre o categoría.");if(!categories.has(p.category))throw new Error("Categoría no declarada: "+p.category);if(p.price_clp!==null&&(!Number.isFinite(Number(p.price_clp))||Number(p.price_clp)<0))throw new Error("Precio inválido: "+p.name);const k=p.category+"::"+p.name;if(seen.has(k))throw new Error("Producto duplicado: "+p.name);seen.add(k);}
+ return data;
+}
 ipcMain.handle("pos:load-menu",async()=>{
-  const sources=[
-    "https://menu-la-pica-del-benjamin.onrender.com/menu.json?v="+Date.now(),
-    "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/menu.json"
-  ];
-  const errors=[];
-  for(const url of sources){
-    const controller=new AbortController();
-    const timeout=setTimeout(()=>controller.abort(),12000);
-    try{
-      const response=await net.fetch(url,{signal:controller.signal});
-      if(!response.ok)throw new Error("HTTP "+response.status);
-      const data=await response.json();
-      if(!Array.isArray(data.products)||!data.products.length)throw new Error("JSON sin productos");
-      data._menuSource=url.includes("raw.githubusercontent.com")?"github":"online";
-      return data;
-    }catch(error){errors.push(url+": "+error.message);}
-    finally{clearTimeout(timeout);}
-  }
-  try{
-    const localPath=path.join(__dirname,"app","menu.json");
-    const data=JSON.parse(fs.readFileSync(localPath,"utf8"));
-    if(!Array.isArray(data.products)||!data.products.length)throw new Error("copia local vacía");
-    data._menuSource="local";data._menuWarning=errors.join(" | ");return data;
-  }catch(error){throw new Error("No se pudo leer la carta. "+errors.join(" | ")+" | Respaldo local: "+error.message);}
+ const sources=["https://menu-la-pica-del-benjamin.onrender.com/menu.json?v="+Date.now(),"https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/menu.json"];
+ const errors=[];
+ for(const url of sources){const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),10000);try{const response=await net.fetch(url,{signal:controller.signal});if(!response.ok)throw new Error("HTTP "+response.status);const data=validateMenu(await response.json());data._menuSource=url.includes("raw.githubusercontent.com")?"github":"web";return data;}catch(e){errors.push(e.message);}finally{clearTimeout(timeout);}}
+ try{const data=validateMenu(JSON.parse(fs.readFileSync(path.join(__dirname,"app","menu.json"),"utf8")));data._menuSource="local-instalado";data._menuWarning=errors.join(" | ");return data;}catch(e){throw new Error("No se pudo cargar una carta válida. "+errors.join(" | ")+" | copia local: "+e.message);}
 });
 
 function configureAutoUpdates(){
