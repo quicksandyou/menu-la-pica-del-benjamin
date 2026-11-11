@@ -931,7 +931,7 @@ La Picá del Benjamín`,
 }
     if (method === "Delivery" && !address) throw new Error("Falta la dirección de despacho.");
     if (method === "Delivery" && !Object.prototype.hasOwnProperty.call(deliveryFees, locality)) throw new Error("Selecciona una localidad de despacho válida.");
-    if (method !== "Delivery" && method !== "Retiro en el local") throw new Error("Método de entrega inválido.");
+    if (method !== "Delivery") throw new Error("La tienda online acepta exclusivamente pedidos con delivery.");
 
     let total = 0;
     const items = data.items.map(item => {
