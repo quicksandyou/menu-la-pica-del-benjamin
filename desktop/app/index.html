@@ -116,9 +116,7 @@ function printReceipt(){
 async function loadSharedMenu(){
  const status=document.getElementById('menuSyncStatus');
  if(status)status.textContent='Actualizando carta desde la tienda web…';
- const r=await fetch("https://menu-la-pica-del-benjamin.onrender.com/menu.json?v="+Date.now(),{cache:"no-store"});
- if(!r.ok)throw Error("No se pudo cargar la carta online.");
- const d=await r.json();
+ const d=window.posBridge&&typeof window.posBridge.loadMenu==="function" ? await window.posBridge.loadMenu() : await (async()=>{const r=await fetch("https://menu-la-pica-del-benjamin.onrender.com/menu.json?v="+Date.now(),{cache:"no-store"});if(!r.ok)throw Error("No se pudo cargar la carta online (HTTP "+r.status+").");return r.json();})();
  if(!Array.isArray(d.products)||!d.products.length)throw Error("La carta online está vacía.");
  P=d.products.map(x=>[x.category,x.name,x.price_clp===null||x.price_clp===undefined?null:Number(x.price_clp),x.description||"",resolveMenuImage(x.image_url||d.photos?.[x.category]||""),x.option_groups||[]]);
  cats=["Todos",...(d.categories||[...new Set(P.map(x=>x[0]))])];
@@ -126,8 +124,8 @@ async function loadSharedMenu(){
  renderTabs();renderProducts();drawCart();
 }
 loadSharedMenu().then(()=>iniciarPOS()).catch(e=>{
- const status=document.getElementById('menuSyncStatus');if(status)status.textContent='No se pudo actualizar la carta. Revisa Internet y vuelve a intentar.';
- document.getElementById("products").textContent="No se pudo cargar la carta. Verifica Internet y vuelve a intentar.";console.error(e);
+ const status=document.getElementById('menuSyncStatus');if(status)status.textContent='Error al conectar con la carta: '+(e.message||'sin conexión');
+ document.getElementById("products").textContent="No se pudo cargar la carta. Pulsa Actualizar carta para reintentar.";console.error('Error sincronizando menú POS:',e);
 });
 </script><section id="staffEmbedded" class="staff-overlay" style="display:none" aria-label="Panel de repartidor y jefatura">
 <div class="staff-toolbar"><div><strong>🚴 Repartidor / Jefatura</strong><small>Panel de gestión interna</small></div><button type="button" class="staff-back" onclick="closeStaffPanel()">← Volver al POS</button></div>
