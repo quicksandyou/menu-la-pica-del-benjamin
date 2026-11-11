@@ -274,7 +274,8 @@
       "category": "Bebidas",
       "name": "Bebida botella 1,5 litros",
       "price_clp": 2500,
-      "description": "Elige tu sabor: Coca-Cola, Fanta, Sprite, Kem Piña, Limón Soda, Bilz, Pap."
+      "description": "Elige tu sabor: Coca-Cola, Fanta, Sprite, Kem Piña, Limón Soda, Bilz, Pap.",
+      "image_url": "assets/bebidas/bebida_15_litros_coca_cola.png"
     },
     {
       "category": "Jugos naturales",
