@@ -1,1 +1,3 @@
-"use strict"; // Sin APIs de Node expuestas a la interfaz local.
+"use strict";
+const {contextBridge,ipcRenderer}=require("electron");
+contextBridge.exposeInMainWorld("posBridge",{loadMenu:()=>ipcRenderer.invoke("pos:load-menu")});
