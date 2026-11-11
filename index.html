@@ -1472,8 +1472,8 @@ async function loadSharedMenu(){
   catch(error){lastError=error;}finally{clearTimeout(timer);}
  }
  if(!data)throw new Error("No se pudo cargar la carta desde la web ni desde GitHub. "+(lastError?.message||"Sin conexión"));
- const imageUrl=value=>{if(!value)return "";const v=String(value).trim();if(/^https?:|^data:|^blob:/i.test(v))return v;return new URL(v,"https://menu-la-pica-del-benjamin.onrender.com/").href;};
- P=data.products.map(x=>[x.category,x.name,Number(x.price_clp),x.description||"",imageUrl(x.image_url||""),x.option_groups||[],x.display_group||"",x.display_label||""]);
+ const imageUrl=value=>{if(!value)return "";const v=String(value).trim();if(/^https?:|^data:|^blob:/i.test(v))return v;return new URL(v,(NATIVE_APP_MODE?location.origin:"https://menu-la-pica-del-benjamin.onrender.com")+"/").href;};
+ P=data.products.map(x=>[x.category,x.name,x.price_clp===null||x.price_clp===undefined?null:Number(x.price_clp),x.description||"",imageUrl(x.image_url||""),x.option_groups||[],x.display_group||"",x.display_label||""]);
  menuPhotos=Object.fromEntries(Object.entries(data.photos||{}).map(([k,v])=>[k,imageUrl(v)]));
  cats=["Todos",...(data.categories||[...new Set(P.map(x=>x[0]))]).filter(c=>c!=="Joyas & Detalles")];
  if(status)status.textContent="Carta cargada: "+P.length+" productos · origen "+(source==="github"?"respaldo GitHub":"web")+" · "+new Date().toLocaleTimeString("es-CL");
