@@ -1212,9 +1212,23 @@ async function payOnline(){
  if(paymentMethod==="transfer"){
   const email=document.getElementById("email").value.trim();
   if(!email)return alert("Escribe tu correo electrónico.");
-  const lines=products.map(p=>`• ${p.quantity} x ${p.name}: ${fmt(p.quantity*p.unit_price)}`);
-  const message=["Hola, quiero realizar un pedido en La Picá del Benjamín.","",`Nombre: ${name}`,`Teléfono: ${document.getElementById("phone").value.trim()||"No indicado"}`,`Modalidad: ${method}`,`Localidad: ${locality}`,`Dirección: ${method==="Delivery"?address:"Retiro en el local"}`,"","Pedido:",...lines,"",`Subtotal: ${fmt(subtotal)}`,`Despacho: ${fmt(fee)}`,`TOTAL: ${fmt(total)}`,`Correo: ${email}`,`Notas: ${document.getElementById("notes").value.trim()||"Sin notas"}`,"","Realizaré la transferencia a la cuenta Mercado Pago indicada en la página y enviaré aquí el comprobante. Por favor confirmar recepción antes de preparar el pedido."].join("\n");
-  window.open("https://wa.me/56999064818?text="+encodeURIComponent(message),"_blank","noopener,noreferrer");
+  const email=document.getElementById("email").value.trim();
+  if(!email)return alert("Escribe tu correo electrónico.");
+  button.disabled=true;button.textContent="Registrando pedido…";
+  try{
+   const response=await fetch(`${PAYMENT_API_BASE_URL}/api/crear-transferencia`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({
+    customer:{name,email,phone:document.getElementById("phone").value.trim()},
+    delivery:{method,address:method==="Delivery"?address:"",locality,fee_clp:fee,latitude:method==="Delivery"?(document.getElementById("deliveryLat").value||null):null,longitude:method==="Delivery"?(document.getElementById("deliveryLng").value||null):null},
+    notes:document.getElementById("notes").value.trim(),items:products,total_clp:total
+   })});
+   const data=await response.json();
+   if(!response.ok)throw new Error(data.error||"No se pudo registrar el pedido.");
+   const lines=products.map(p=>`• ${p.quantity} x ${p.name}: ${fmt(p.quantity*p.unit_price)}`);
+   const message=["Hola, registré un pedido por transferencia en La Picá del Benjamín.",`Número de pedido: ${data.order_number}`,"",`Nombre: ${name}`,`Teléfono: ${document.getElementById("phone").value.trim()||"No indicado"}`,`Modalidad: ${method}`,`Localidad: ${locality}`,`Dirección: ${method==="Delivery"?address:"Retiro en el local"}`,"","Pedido:",...lines,"",`Subtotal: ${fmt(subtotal)}`,`Despacho: ${fmt(fee)}`,`TOTAL: ${fmt(total)}`,`Correo: ${email}`,`Notas: ${document.getElementById("notes").value.trim()||"Sin notas"}`,"","Adjuntaré el comprobante de transferencia. Entiendo que el pedido queda pendiente hasta verificar el abono."].join("\n");
+   window.open("https://wa.me/56999064818?text="+encodeURIComponent(message),"_blank","noopener,noreferrer");
+   alert("Pedido "+data.order_number+" registrado. Ahora envía el comprobante por WhatsApp. Prepararemos el pedido cuando confirmemos el abono.");
+   button.textContent="📲 Pedido registrado · Enviar comprobante por WhatsApp";
+  }catch(error){alert(error.message||"No fue posible registrar el pedido.");button.disabled=false;updatePaymentMethod()}
   return;
  }
  const paymentFingerprint=JSON.stringify({name,email:document.getElementById("email").value.trim(),phone:document.getElementById("phone").value.trim(),method,address,locality,notes:document.getElementById("notes").value.trim(),products,total});
