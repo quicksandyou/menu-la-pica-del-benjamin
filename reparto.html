@@ -294,7 +294,6 @@ if(d.role==="manager"&&o.payment_status==="transfer_pending"){
    const message="Hola "+(o.customer_name||"")+" 😊 Confirmamos la recepción de tu transferencia para el pedido "+(o.order_number||"")+" de La Picá del Benjamín. Total: $"+Number(o.total_clp||0).toLocaleString("es-CL")+". Tu pedido queda confirmado. ¡Muchas gracias!";
    $("message").textContent="Pago confirmado. Ahora puedes enviar la confirmación al cliente por WhatsApp.";
    if(waNumber){const link=el("a","btn","📲 Avisar al cliente por WhatsApp");link.href="https://wa.me/"+waNumber+"?text="+encodeURIComponent(message);link.target="_blank";link.rel="noopener noreferrer";payBox.append(link)}
-   load();
   }catch(e){$("message").textContent=e.message;confirmPay.disabled=false;confirmPay.textContent="✅ Confirmar pago recibido"}
  };
  payBox.append(confirmPay);card.append(payBox);
