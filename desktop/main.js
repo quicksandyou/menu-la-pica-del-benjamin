@@ -5,31 +5,31 @@ const fs=require("fs");
 let win;
 let updatePromptOpen=false;
 ipcMain.handle("pos:load-menu",async()=>{
-  let onlineError=null;
-  try {
+  const sources=[
+    "https://menu-la-pica-del-benjamin.onrender.com/menu.json?v="+Date.now(),
+    "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/menu.json"
+  ];
+  const errors=[];
+  for(const url of sources){
     const controller=new AbortController();
-    const timeout=setTimeout(()=>controller.abort(),15000);
-    try {
-      const response=await net.fetch("https://menu-la-pica-del-benjamin.onrender.com/menu.json?v="+Date.now(),{signal:controller.signal});
-      if(!response.ok) throw new Error("La tienda respondió HTTP "+response.status);
+    const timeout=setTimeout(()=>controller.abort(),12000);
+    try{
+      const response=await net.fetch(url,{signal:controller.signal});
+      if(!response.ok)throw new Error("HTTP "+response.status);
       const data=await response.json();
-      if(!Array.isArray(data.products)||!data.products.length) throw new Error("La carta online no contiene productos.");
-      data._menuSource="online";
+      if(!Array.isArray(data.products)||!data.products.length)throw new Error("JSON sin productos");
+      data._menuSource=url.includes("raw.githubusercontent.com")?"github":"online";
       return data;
-    } finally { clearTimeout(timeout); }
-  } catch(error) { onlineError=error; }
-  try {
+    }catch(error){errors.push(url+": "+error.message);}
+    finally{clearTimeout(timeout);}
+  }
+  try{
     const localPath=path.join(__dirname,"app","menu.json");
     const data=JSON.parse(fs.readFileSync(localPath,"utf8"));
-    if(!Array.isArray(data.products)||!data.products.length) throw new Error("La copia local de la carta está vacía.");
-    data._menuSource="local";
-    data._menuWarning=onlineError?onlineError.message:"Sin conexión con la tienda";
-    return data;
-  } catch(localError) {
-    throw new Error("No se pudo cargar la carta online ni la copia local. Online: "+(onlineError?onlineError.message:"error")+"; local: "+localError.message);
-  }
+    if(!Array.isArray(data.products)||!data.products.length)throw new Error("copia local vacía");
+    data._menuSource="local";data._menuWarning=errors.join(" | ");return data;
+  }catch(error){throw new Error("No se pudo leer la carta. "+errors.join(" | ")+" | Respaldo local: "+error.message);}
 });
-
 
 function configureAutoUpdates(){
   if(!app.isPackaged || process.platform!=="win32") return;
