@@ -1462,7 +1462,24 @@ function initNativeProductDetails(){
  });
 }
 
-async function loadSharedMenu(){const r=await fetch("/menu.json?v="+Date.now(),{cache:"no-store"});if(!r.ok)throw Error("No se pudo cargar la carta compartida.");const d=await r.json();if(!Array.isArray(d.products)||!d.products.length)throw Error("La carta compartida está vacía.");P=d.products.map(x=>[x.category,x.name,Number(x.price_clp),x.description||"",x.image_url||"",x.option_groups||[],x.display_group||"",x.display_label||""]);menuPhotos=d.photos||{};cats=["Todos",...(d.categories||[...new Set(P.map(x=>x[0]))]).filter(c=>c!=="Joyas & Detalles")];}loadSharedMenu().then(()=>{render();toggleAddress();enableStaffTestMode().then(()=>applySchedule());showPaymentResult();}).catch(e=>{document.getElementById("menu").textContent="No se pudo cargar el menú. Revisa tu conexión a Internet y actualiza.";console.error(e);});updateLaunchCountdown();setInterval(updateLaunchCountdown,1000);setInterval(applySchedule,60000);
+async function loadSharedMenu(){
+ const status=document.getElementById("menuSyncStatus");
+ const sources=["/menu.json?v="+Date.now(),"https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/menu.json"];
+ let data=null,lastError=null,source="";
+ for(const url of sources){
+  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),12000);
+  try{const response=await fetch(url,{cache:"no-store",signal:controller.signal});if(!response.ok)throw new Error("HTTP "+response.status);const parsed=await response.json();if(!Array.isArray(parsed.products)||!parsed.products.length)throw new Error("La carta no contiene productos");data=parsed;source=url.startsWith("/")?"web":"github";break;}
+  catch(error){lastError=error;}finally{clearTimeout(timer);}
+ }
+ if(!data)throw new Error("No se pudo cargar la carta desde la web ni desde GitHub. "+(lastError?.message||"Sin conexión"));
+ const imageUrl=value=>{if(!value)return "";const v=String(value).trim();if(/^https?:|^data:|^blob:/i.test(v))return v;return new URL(v,"https://menu-la-pica-del-benjamin.onrender.com/").href;};
+ P=data.products.map(x=>[x.category,x.name,Number(x.price_clp),x.description||"",imageUrl(x.image_url||""),x.option_groups||[],x.display_group||"",x.display_label||""]);
+ menuPhotos=Object.fromEntries(Object.entries(data.photos||{}).map(([k,v])=>[k,imageUrl(v)]));
+ cats=["Todos",...(data.categories||[...new Set(P.map(x=>x[0]))]).filter(c=>c!=="Joyas & Detalles")];
+ if(status)status.textContent="Carta cargada: "+P.length+" productos · origen "+(source==="github"?"respaldo GitHub":"web")+" · "+new Date().toLocaleTimeString("es-CL");
+}
+loadSharedMenu().then(()=>{render();toggleAddress();enableStaffTestMode().then(()=>applySchedule());showPaymentResult();}).catch(e=>{const menu=document.getElementById("menu");if(menu)menu.textContent="No se pudo cargar la carta. "+e.message;console.error("Error cargando carta compartida:",e);});
+updateLaunchCountdown();setInterval(updateLaunchCountdown,1000);setInterval(applySchedule,60000);
 enableKetchupDragging();
 initNativeProductDetails();
 </script></html>
