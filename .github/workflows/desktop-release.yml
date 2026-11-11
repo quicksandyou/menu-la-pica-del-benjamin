@@ -18,6 +18,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+      - name: Validate master menu
+        run: node scripts/validate-menu.js
       - name: Install desktop dependencies
         working-directory: desktop
         run: npm install
