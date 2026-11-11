@@ -1213,8 +1213,6 @@ async function payOnline(){
  if(paymentMethod==="transfer"){
   const email=document.getElementById("email").value.trim();
   if(!email)return alert("Escribe tu correo electrónico.");
-  const email=document.getElementById("email").value.trim();
-  if(!email)return alert("Escribe tu correo electrónico.");
   button.disabled=true;button.textContent="Registrando pedido…";
   try{
    const response=await fetch(`${PAYMENT_API_BASE_URL}/api/crear-transferencia`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({
