@@ -1,0 +1,24 @@
+name: Validar web, APK y POS
+on:
+  push:
+    branches: [main]
+    paths:
+      - "index.html"
+      - "menu.json"
+      - "desktop/**"
+      - "reparto.html"
+      - "scripts/**"
+      - ".github/workflows/**"
+  workflow_dispatch:
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Validar sintaxis JavaScript, menú, navegación APK y eventos POS
+        run: |
+          node scripts/check-javascript.js
+          node scripts/validate-menu.js
