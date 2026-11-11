@@ -1,0 +1,1072 @@
+{
+  "version": 1,
+  "categories": [
+    "Sushi Burger",
+    "Hanrolls",
+    "Promociones",
+    "Promociones sushi",
+    "Rolls fríos",
+    "Rolls fritos",
+    "Ceviches",
+    "Gohan",
+    "Chorrillanas",
+    "Pizzas",
+    "Completos",
+    "Churrascos",
+    "Fritos",
+    "Bebidas",
+    "Jugos naturales",
+    "Néctares",
+    "Aguas",
+    "Salsas",
+    "Energéticas",
+    "Joyas & Detalles"
+  ],
+  "products": [
+    {
+      "category": "Promociones sushi",
+      "name": "Acevichado (10 cortes)",
+      "price_clp": 2990,
+      "description": "10 cortes de sushi acevichado.",
+      "image_url": "assets/promos/01-acevichado-10-cortes.jpg"
+    },
+    {
+      "category": "Promociones sushi",
+      "name": "Ceviche chico (camarón y salmón)",
+      "price_clp": 3890,
+      "description": "Ceviche pequeño de camarón y salmón.",
+      "image_url": "assets/promos/02-ceviche-chico-camaron-y-salmon.jpg"
+    },
+    {
+      "category": "Rolls fríos",
+      "name": "Roll en palta (10 cortes)",
+      "price_clp": 3990,
+      "description": "Envuelto en palta, relleno de camarón o pollo con queso Philadelphia. Sin salmón."
+    },
+    {
+      "category": "Rolls fritos",
+      "name": "Roll frito relleno (10 cortes)",
+      "price_clp": 3990,
+      "description": "Elige el relleno: camarón, pollo, mechada, kanikama o champiñón; con queso y palta. Precio provisorio para revisión."
+    },
+    {
+      "category": "Promociones sushi",
+      "name": "Mix 40 cortes",
+      "price_clp": 13990,
+      "description": "Mix surtido de 40 cortes.",
+      "image_url": "assets/promos/03-mix-40-cortes.jpg"
+    },
+    {
+      "category": "Promociones sushi",
+      "name": "Mix 100 cortes",
+      "price_clp": 40990,
+      "description": "Mix surtido de 100 cortes.",
+      "image_url": "assets/promos/04-mix-100-cortes.jpg"
+    },
+    {
+      "category": "Promociones sushi",
+      "name": "30 cortes fríos",
+      "price_clp": 7990,
+      "description": "Promoción de 30 piezas de sushi frío.",
+      "image_url": "assets/promos/06-30-cortes-frios.jpg"
+    },
+    {
+      "category": "Promociones sushi",
+      "name": "30 cortes fritos",
+      "price_clp": 8490,
+      "description": "Promoción de 30 piezas de sushi frito.",
+      "image_url": "assets/promos/05-30-cortes-fritos.jpg"
+    },
+    {
+      "category": "Promociones sushi",
+      "name": "Mix 20 cortes",
+      "price_clp": 6490,
+      "description": "Mix surtido de 20 piezas.",
+      "image_url": "assets/promos/07-mix-20-cortes.jpg"
+    },
+    {
+      "category": "Promociones sushi",
+      "name": "Mix 30 cortes",
+      "price_clp": 10990,
+      "description": "Mix surtido de 30 piezas.",
+      "image_url": "assets/promos/08-mix-30-cortes.jpg"
+    },
+    {
+      "category": "Promociones sushi",
+      "name": "Mix 50 cortes",
+      "price_clp": 15990,
+      "description": "Mix surtido de 50 piezas.",
+      "image_url": "assets/promos/09-mix-50-cortes.jpg"
+    },
+    {
+      "category": "Promociones sushi",
+      "name": "Mix 70 cortes",
+      "price_clp": 23900,
+      "description": "Mix surtido de 70 piezas.",
+      "image_url": "assets/promos/10-mix-70-cortes.jpg"
+    },
+    {
+      "category": "Promociones sushi",
+      "name": "Mix 90 cortes",
+      "price_clp": 33900,
+      "description": "Mix surtido de 90 piezas.",
+      "image_url": "assets/promos/11-mix-90-cortes.jpg"
+    },
+    {
+      "category": "Ceviches",
+      "name": "Ceviche camarón-salmón",
+      "price_clp": 7990,
+      "description": "Salmón, camarón, cebolla morada, cilantro y pimentón."
+    },
+    {
+      "category": "Ceviches",
+      "name": "Ceviche mixto",
+      "price_clp": 9490,
+      "description": "Salmón, camarones, palta, choclo, cebolla morada y pimentón."
+    },
+    {
+      "category": "Pizzas",
+      "name": "Napolitana",
+      "price_clp": 7990,
+      "description": "Queso, jamón, tomate y orégano.",
+      "image_url": "assets/pizzas/01-pizza-napolitana.jpg"
+    },
+    {
+      "category": "Pizzas",
+      "name": "Pollo champiñón",
+      "price_clp": 8990,
+      "description": "Queso, pollo, champiñón, salame y orégano.",
+      "image_url": "assets/pizzas/02-pizza-pollo-champinon.jpg"
+    },
+    {
+      "category": "Pizzas",
+      "name": "Cuatro estaciones",
+      "price_clp": 8990,
+      "description": "Queso, tocino, champiñón, salame, jamón, tomate y orégano.",
+      "image_url": "assets/pizzas/03-pizza-cuatro-estaciones.jpg"
+    },
+    {
+      "category": "Pizzas",
+      "name": "Peperoni",
+      "price_clp": 7990,
+      "description": "Queso, peperoni y orégano.",
+      "image_url": "assets/pizzas/04-pizza-peperoni.jpg"
+    },
+    {
+      "category": "Pizzas",
+      "name": "Especial carne",
+      "price_clp": 8990,
+      "description": "Queso, carne de vacuno, salame, aceituna, champiñón y orégano.",
+      "image_url": "assets/pizzas/05-pizza-especial-carne.jpg"
+    },
+    {
+      "category": "Pizzas",
+      "name": "Mexicana",
+      "price_clp": 8990,
+      "description": "Queso, pimentón, tomate, cebolla, carne y ají Tabasco.",
+      "image_url": "assets/pizzas/06-pizza-mexicana.jpg"
+    },
+    {
+      "category": "Pizzas",
+      "name": "Mediterránea",
+      "price_clp": 9990,
+      "description": "Queso, champiñón, camarones, aceitunas y orégano.",
+      "image_url": "assets/pizzas/07-pizza-mediterranea.jpg"
+    },
+    {
+      "category": "Pizzas",
+      "name": "Mechada choclo",
+      "price_clp": 8990,
+      "description": "Queso, mechada, choclo, salame y orégano.",
+      "image_url": "assets/pizzas/08-pizza-mechada-choclo.jpg"
+    },
+    {
+      "category": "Pizzas",
+      "name": "Carnes mixtas",
+      "price_clp": 8990,
+      "description": "Queso, vacuno, pollo, mechada, salame y orégano.",
+      "image_url": "assets/pizzas/09-pizza-carnes-mixtas.jpg"
+    },
+    {
+      "category": "Churrascos",
+      "name": "Clásico de la casa",
+      "price_clp": 4990,
+      "description": "Carne, tomate, palta y mayonesa casera.",
+      "image_url": "assets/churrascos/churrasco-clasico.jpg"
+    },
+    {
+      "category": "Churrascos",
+      "name": "Chacarero",
+      "price_clp": 4990,
+      "description": "Carne, tomate, poroto verde, ají verde y mayonesa.",
+      "image_url": "assets/churrascos/churrasco-chacarero.jpg"
+    },
+    {
+      "category": "Churrascos",
+      "name": "Barros Luco",
+      "price_clp": 4990,
+      "description": "Carne y queso fundido.",
+      "image_url": "assets/churrascos/churrasco-barros-luco.jpg"
+    },
+    {
+      "category": "Churrascos",
+      "name": "Benjita",
+      "price_clp": 6490,
+      "description": "Carne, champiñón, lechuga, tomate, papas al hilo y salsa golf.",
+      "image_url": "assets/churrascos/churrasco-benjita.jpg"
+    },
+    {
+      "category": "Churrascos",
+      "name": "Sándwich del chef",
+      "price_clp": 5990,
+      "description": "Carne, verduras salteadas, aros de cebolla, lechuga y salsa de la casa.",
+      "image_url": "assets/churrascos/sandwich-del-chef.jpg"
+    },
+    {
+      "category": "Churrascos",
+      "name": "A lo pobre",
+      "price_clp": 5990,
+      "description": "Carne, cebolla caramelizada, huevo y papas al hilo.",
+      "image_url": "assets/churrascos/sandwich-a-lo-pobre.jpg"
+    },
+    {
+      "category": "Churrascos",
+      "name": "Vegetariano",
+      "price_clp": 6490,
+      "description": "Champiñones, lechuga, poroto verde, tomate, choclo y mayonesa.",
+      "image_url": "assets/churrascos/sandwich-vegetariano.jpg"
+    },
+    {
+      "category": "Churrascos",
+      "name": "Mexicano",
+      "price_clp": 5990,
+      "description": "Carne, tomate, aros de cebolla, lechuga y ají verde.",
+      "image_url": "assets/churrascos/sandwich-mexicano.jpg"
+    },
+    {
+      "category": "Churrascos",
+      "name": "Chileno",
+      "price_clp": 5990,
+      "description": "Carne, tomate, salsa verde y mayonesa.",
+      "image_url": "assets/churrascos/sandwich-chileno.jpg"
+    },
+    {
+      "category": "Churrascos",
+      "name": "Cheese Cream",
+      "price_clp": 6890,
+      "description": "Carne, salame, queso crema, cebolla caramelizada y BBQ.",
+      "image_url": "assets/churrascos/sandwich-cheese-cream.jpg"
+    },
+    {
+      "category": "Churrascos",
+      "name": "Chicken",
+      "price_clp": 6990,
+      "description": "Pollo apanado, queso fundido y champiñón salteado.",
+      "image_url": "assets/churrascos/sandwich-chicken.jpg"
+    },
+    {
+      "category": "Bebidas",
+      "name": "Bebida lata 350 cc",
+      "price_clp": 1500,
+      "description": "Elige tu sabor: Coca-Cola, Fanta, Sprite, Kem Piña, Limón Soda, Bilz, Pap."
+    },
+    {
+      "category": "Bebidas",
+      "name": "Bebida botella 1,5 litros",
+      "price_clp": 2500,
+      "description": "Elige tu sabor: Coca-Cola, Fanta, Sprite, Kem Piña, Limón Soda, Bilz, Pap.",
+      "image_url": "assets/bebidas/bebida_15_litros_coca_cola.png"
+    },
+    {
+      "category": "Jugos naturales",
+      "name": "Jugo natural 350 cc",
+      "price_clp": 2500,
+      "description": "Frambuesa, piña, frutilla o mango."
+    },
+    {
+      "category": "Jugos naturales",
+      "name": "Jugo natural 1 litro",
+      "price_clp": 3990,
+      "description": "Frambuesa, piña, frutilla o mango."
+    },
+    {
+      "category": "Néctares",
+      "name": "Néctar 1,5 litros",
+      "price_clp": 2500,
+      "description": "Durazno, piña o naranja."
+    },
+    {
+      "category": "Aguas",
+      "name": "Agua mineral 600 ml",
+      "price_clp": 1000,
+      "description": "Con o sin gas."
+    },
+    {
+      "category": "Energéticas",
+      "name": "Red Bull 250 cc",
+      "price_clp": 2500,
+      "description": "Bebida energética. Imagen: DYVER / Wikimedia Commons (CC BY-SA 4.0).",
+      "image_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/bf/Redbull_Dose.jpg/960px-Redbull_Dose.jpg?utm_campaign=index&utm_content=thumbnail&utm_source=commons.wikimedia.org"
+    },
+    {
+      "category": "Salsas",
+      "name": "Salsa teriyaki (adicional)",
+      "price_clp": 500,
+      "description": "Porción individual para acompañar sushi y otros platos.",
+      "image_url": "https://d2j6dbq0eux0bg.cloudfront.net/images/64910856/2715282945.jpg"
+    },
+    {
+      "category": "Salsas",
+      "name": "Salsa cevichera (adicional)",
+      "price_clp": 500,
+      "description": "Porción individual para acompañar sushi y otros platos.",
+      "image_url": "https://tofuu.getjusto.com/orioneat-local/resized2/Mruur6nHh2mZNyq7J-2400-x.webp"
+    },
+    {
+      "category": "Promociones",
+      "name": "Promo 4 · 3 churrascos o hamburguesas + papas + bebida 1,5 L",
+      "price_clp": 14500,
+      "description": "3 churrascos o hamburguesas a elección, papas fritas medianas y bebida de 1,5 litros. Puedes combinar Chacarero, Italiano, Luco o hamburguesa.",
+      "image_url": "assets/promos/promo-4.jpg",
+      "option_groups": [
+        {
+          "label": "Elige cada churrasco o hamburguesa",
+          "quantity": 3,
+          "choices": [
+            "Chacarero",
+            "Italiano",
+            "Luco",
+            "Hamburguesa"
+          ]
+        },
+        {
+          "label": "Bebida 1,5 L",
+          "choices": [
+            "Coca-Cola",
+            "Fanta",
+            "Sprite",
+            "Kem Piña",
+            "Limón Soda",
+            "Bilz",
+            "Pap"
+          ]
+        }
+      ]
+    },
+    {
+      "category": "Sushi Burger",
+      "name": "Sushi Burger",
+      "price_clp": 4990,
+      "description": "Sushi Burger a elección entre 5 variedades: pollo, camarón, kanikama, mechada o vegetariana.",
+      "image_url": "assets/promos/sushi-burger.jpg",
+      "option_groups": [
+        {
+          "label": "Elige variedad",
+          "choices": [
+            "Pollo",
+            "Camarón",
+            "Kanikama",
+            "Mechada",
+            "Vegetariana"
+          ]
+        }
+      ]
+    },
+    {
+      "category": "Hanrolls",
+      "name": "3 Hanrolls",
+      "price_clp": 6490,
+      "description": "3 hand rolls fritos con queso y palta. Elige para cada uno: pollo, camarón o kanikama.",
+      "image_url": "assets/promos/3-hanrolls.jpg",
+      "option_groups": [
+        {
+          "label": "Elige relleno",
+          "quantity": 3,
+          "choices": [
+            "Pollo",
+            "Camarón",
+            "Kanikama"
+          ]
+        }
+      ]
+    },
+    {
+      "category": "Promociones",
+      "name": "Promo churrasco italiano + hand roll frito + bebida lata",
+      "price_clp": 6990,
+      "description": "1 churrasco italiano + 1 hand roll frito (pollo, camarón o kanikama) + 1 bebida en lata.",
+      "image_url": "assets/promos/promo-italiano-handroll.jpg",
+      "option_groups": [
+        {
+          "label": "Hand roll",
+          "choices": [
+            "Pollo · queso y palta",
+            "Camarón · queso y palta",
+            "Kanikama · queso y palta"
+          ]
+        },
+        {
+          "label": "Bebida lata",
+          "choices": [
+            "Coca-Cola",
+            "Fanta",
+            "Sprite",
+            "Kem Piña",
+            "Limón Soda",
+            "Bilz",
+            "Pap"
+          ]
+        }
+      ]
+    },
+    {
+      "category": "Promociones",
+      "name": "Combo Sushi + Pizza · 20 piezas",
+      "price_clp": 16490,
+      "description": "20 piezas de sushi mixtas o fritas + una pizza a elección + Coca-Cola de 1,5 litros.",
+      "image_url": "assets/promos/combo-sushi-pizza.jpg",
+      "option_groups": [
+        {
+          "label": "Tipo de sushi",
+          "choices": [
+            "Mixtas",
+            "Fritas"
+          ]
+        },
+        {
+          "label": "Elige tu pizza",
+          "choices": [
+            "Napolitana",
+            "Pollo champiñón",
+            "Cuatro estaciones",
+            "Peperoni",
+            "Especial carne",
+            "Mexicana",
+            "Mediterránea",
+            "Mechada choclo",
+            "Carnes mixtas"
+          ]
+        },
+        {
+          "label": "Elige tu bebida 1,5 L",
+          "choices": [
+            "Coca-Cola",
+            "Fanta",
+            "Sprite",
+            "Kem Piña",
+            "Limón Soda",
+            "Bilz",
+            "Pap"
+          ]
+        }
+      ]
+    },
+    {
+      "category": "Promociones",
+      "name": "Combo Sushi + Pizza · 40 piezas",
+      "price_clp": 22990,
+      "description": "40 piezas de sushi mixtas o fritas + una pizza a elección + Coca-Cola de 1,5 litros.",
+      "image_url": "assets/promos/combo-sushi-pizza.jpg",
+      "option_groups": [
+        {
+          "label": "Tipo de sushi",
+          "choices": [
+            "Mixtas",
+            "Fritas"
+          ]
+        },
+        {
+          "label": "Elige tu pizza",
+          "choices": [
+            "Napolitana",
+            "Pollo champiñón",
+            "Cuatro estaciones",
+            "Peperoni",
+            "Especial carne",
+            "Mexicana",
+            "Mediterránea",
+            "Mechada choclo",
+            "Carnes mixtas"
+          ]
+        },
+        {
+          "label": "Elige tu bebida 1,5 L",
+          "choices": [
+            "Coca-Cola",
+            "Fanta",
+            "Sprite",
+            "Kem Piña",
+            "Limón Soda",
+            "Bilz",
+            "Pap"
+          ]
+        }
+      ]
+    },
+    {
+      "category": "Joyas & Detalles",
+      "name": "Aros bote plata 925",
+      "price_clp": 7990,
+      "description": "Aros tipo bote en plata 925.",
+      "image_url": "/joyas/aros bote 7990.jpeg"
+    },
+    {
+      "category": "Joyas & Detalles",
+      "name": "Aros Minnie plata 925",
+      "price_clp": 12990,
+      "description": "Aros Minnie en plata 925.",
+      "image_url": "/joyas/aros de plata 925 minnie 12.990.jpeg"
+    },
+    {
+      "category": "Joyas & Detalles",
+      "name": "Pulsera de plata 925 · diseños surtidos",
+      "price_clp": 8990,
+      "description": "Diseños surtidos en plata 925. Los modelos marcados con una X en la fotografía no están disponibles por ahora.",
+      "image_url": "/joyas/06-pulseras-plata-8990-modelos-algunos-no-disponibles.jpg"
+    },
+    {
+      "category": "Joyas & Detalles",
+      "name": "Pulsera de plata 925 · colección",
+      "price_clp": 8990,
+      "description": "Colección de pulseras en plata 925. Los modelos marcados con una X en la fotografía no están disponibles por ahora.",
+      "image_url": "/joyas/08-pulseras-plata-8990-modelos-algunos-no-disponibles.jpg"
+    },
+    {
+      "category": "Joyas & Detalles",
+      "name": "Cadena plata 925 Amor",
+      "price_clp": 10990,
+      "description": "Cadena de plata 925 con dije Amor.",
+      "image_url": "/joyas/cadena de plata 925 10.990.jpeg"
+    },
+    {
+      "category": "Joyas & Detalles",
+      "name": "Cadena de plata 925 con dije",
+      "price_clp": 9990,
+      "description": "Cadenas de plata 925 con distintos dijes. Los modelos marcados con una X en la fotografía no están disponibles por ahora.",
+      "image_url": "/joyas/01-cadenas-plata-925-modelos-9990.jpg"
+    },
+    {
+      "category": "Joyas & Detalles",
+      "name": "Cadena de plata 925 mariposa",
+      "price_clp": 8990,
+      "description": "Cadena de plata 925 con dije de mariposa.",
+      "image_url": "/joyas/03-coleccion-collares-disenos-surtidos.jpg"
+    },
+    {
+      "category": "Joyas & Detalles",
+      "name": "Rosario de plata 925",
+      "price_clp": null,
+      "description": "Rosario de plata 925. Precio por confirmar; no disponible para agregar al carrito todavía.",
+      "image_url": "/joyas/rosario de plata 925 .jpeg"
+    },
+    {
+      "category": "Joyas & Detalles",
+      "name": "Cadena de corazones plata 925",
+      "price_clp": null,
+      "description": "Cadena de corazones en plata 925. No disponible para compra hasta confirmar precio.",
+      "image_url": "/joyas/02-cadena-corazones-plata-925.jpg"
+    },
+    {
+      "category": "Joyas & Detalles",
+      "name": "Colección de collares plata 925",
+      "price_clp": null,
+      "description": "Diseños surtidos de collares en plata 925. Precio por confirmar.",
+      "image_url": "/joyas/04-collares-plata-925-disenos.jpg"
+    },
+    {
+      "category": "Joyas & Detalles",
+      "name": "Colección exclusiva de collares plata 925",
+      "price_clp": null,
+      "description": "Colección de diseños exclusivos en plata 925. Precio por confirmar.",
+      "image_url": "/joyas/05-coleccion-exclusiva-collares.jpg"
+    },
+    {
+      "category": "Joyas & Detalles",
+      "name": "Argollas plata 925",
+      "price_clp": 8990,
+      "description": "Argollas de plata 925.",
+      "image_url": "/joyas/10-argollas-plata-925-8990.jpg"
+    },
+    {
+      "category": "Joyas & Detalles",
+      "name": "Pulsera plata 925 con cruz",
+      "price_clp": 8990,
+      "description": "Pulsera de plata 925 con cruz.",
+      "image_url": "/joyas/pulsera de plata 8.990.jpeg"
+    },
+    {
+      "category": "Joyas & Detalles",
+      "name": "Pulseras gruesas de plata 925",
+      "price_clp": 24990,
+      "description": "Pulseras gruesas de plata 925, diseños masculinos.",
+      "image_url": "/joyas/11-pulseras-plata-925-gruesas-24990.jpg"
+    },
+    {
+      "category": "Joyas & Detalles",
+      "name": "Pulseras de plata para hombre",
+      "price_clp": 14990,
+      "description": "Colección de pulseras de plata para hombre.",
+      "image_url": "/joyas/12-pulseras-plata-hombre-14990.jpg"
+    },
+    {
+      "category": "Joyas & Detalles",
+      "name": "Conjunto cadena + pulsera torbillón",
+      "price_clp": 29990,
+      "description": "Conjunto de cadena y pulsera torbillón en plata.",
+      "image_url": "/joyas/13-conjunto-cadena-pulsera-torbillon-29990.jpg"
+    },
+    {
+      "category": "Joyas & Detalles",
+      "name": "Conjunto cadena + aros plata 925",
+      "price_clp": 14990,
+      "description": "Conjunto de cadena con colgante y aros de plata 925.",
+      "image_url": "/joyas/14-conjunto-cadena-aros-plata-925-14990.jpg"
+    },
+    {
+      "category": "Chorrillanas",
+      "name": "Chorrillana Tradicional · 2 personas",
+      "price_clp": 5990,
+      "description": "Carne de churrasco, cebolla caramelizada, papas fritas y huevos fritos.",
+      "image_url": "assets/chorrillanas.jpg",
+      "display_group": "Chorrillana Tradicional",
+      "display_label": "Para 2 personas"
+    },
+    {
+      "category": "Chorrillanas",
+      "name": "Chorrillana Tradicional · 3 personas",
+      "price_clp": 6990,
+      "description": "Carne de churrasco, cebolla caramelizada, papas fritas y huevos fritos.",
+      "image_url": "assets/chorrillanas.jpg",
+      "display_group": "Chorrillana Tradicional",
+      "display_label": "Para 3 personas"
+    },
+    {
+      "category": "Chorrillanas",
+      "name": "Chorrillana Carne mechada · 2 personas",
+      "price_clp": 5990,
+      "description": "Carne mechada, papas fritas, cebolla caramelizada y huevos fritos.",
+      "image_url": "assets/chorrillanas.jpg",
+      "display_group": "Chorrillana de carne mechada",
+      "display_label": "Para 2 personas"
+    },
+    {
+      "category": "Chorrillanas",
+      "name": "Chorrillana Carne mechada · 3 personas",
+      "price_clp": 7990,
+      "description": "Carne mechada, papas fritas, cebolla caramelizada y huevos fritos.",
+      "image_url": "assets/chorrillanas.jpg",
+      "display_group": "Chorrillana de carne mechada",
+      "display_label": "Para 3 personas"
+    },
+    {
+      "category": "Chorrillanas",
+      "name": "Chorrillana Pollo champiñón · 2 personas",
+      "price_clp": 5990,
+      "description": "Pollo, champiñones, papas fritas, cebolla caramelizada y huevos fritos.",
+      "image_url": "assets/chorrillanas.jpg",
+      "display_group": "Chorrillana pollo champiñón",
+      "display_label": "Para 2 personas"
+    },
+    {
+      "category": "Chorrillanas",
+      "name": "Chorrillana Pollo champiñón · 3 personas",
+      "price_clp": 7990,
+      "description": "Pollo, champiñones, papas fritas, cebolla caramelizada y huevos fritos.",
+      "image_url": "assets/chorrillanas.jpg",
+      "display_group": "Chorrillana pollo champiñón",
+      "display_label": "Para 3 personas"
+    },
+    {
+      "category": "Chorrillanas",
+      "name": "Chorrillana Carnes mixtas · 2 personas",
+      "price_clp": 6490,
+      "description": "Carne mechada, pollo, churrasco, cebolla caramelizada y huevos fritos.",
+      "image_url": "assets/chorrillanas.jpg",
+      "display_group": "Chorrillana carnes mixtas",
+      "display_label": "Para 2 personas"
+    },
+    {
+      "category": "Chorrillanas",
+      "name": "Chorrillana Carnes mixtas · 3 personas",
+      "price_clp": 8490,
+      "description": "Carne mechada, pollo, churrasco, cebolla caramelizada y huevos fritos.",
+      "image_url": "assets/chorrillanas.jpg",
+      "display_group": "Chorrillana carnes mixtas",
+      "display_label": "Para 3 personas"
+    },
+    {
+      "category": "Chorrillanas",
+      "name": "Papas mechadas con queso · Chica",
+      "price_clp": 6990,
+      "description": "Papas fritas con carne mechada, queso y ciboulette a elección.",
+      "image_url": "assets/chorrillanas.jpg",
+      "option_groups": [
+        {
+          "label": "¿Deseas ciboulette? (opcional)",
+          "choices": [
+            "Con ciboulette",
+            "Sin ciboulette"
+          ],
+          "optional": true
+        }
+      ],
+      "display_group": "Papas mechadas con queso",
+      "display_label": "Chica"
+    },
+    {
+      "category": "Chorrillanas",
+      "name": "Papas mechadas con queso · Grande",
+      "price_clp": 8990,
+      "description": "Papas fritas con carne mechada, queso y ciboulette a elección.",
+      "image_url": "assets/chorrillanas.jpg",
+      "option_groups": [
+        {
+          "label": "¿Deseas ciboulette? (opcional)",
+          "choices": [
+            "Con ciboulette",
+            "Sin ciboulette"
+          ],
+          "optional": true
+        }
+      ],
+      "display_group": "Papas mechadas con queso",
+      "display_label": "Grande"
+    },
+    {
+      "category": "Chorrillanas",
+      "name": "Chorrillana grande · Promo",
+      "price_clp": 9990,
+      "description": "Chorrillana grande de variedades, según disponibilidad del local.",
+      "image_url": "assets/chorrillana-grande.jpg"
+    },
+    {
+      "category": "Completos",
+      "name": "2 Completos · Clásico o Italiano",
+      "price_clp": 3000,
+      "description": "Dos completos a elección: clásico o italiano.",
+      "image_url": "assets/completos.jpg",
+      "option_groups": [
+        {
+          "label": "Completo",
+          "quantity": 2,
+          "choices": [
+            "Clásico",
+            "Italiano"
+          ]
+        }
+      ]
+    },
+    {
+      "category": "Hanrolls",
+      "name": "Hanroll pollo · queso y palta",
+      "price_clp": 2490,
+      "description": "Hanroll de pollo, queso y palta.",
+      "image_url": "assets/hanrolls.jpg",
+      "display_group": "Hanrolls a elección",
+      "display_label": "Pollo, queso y palta"
+    },
+    {
+      "category": "Hanrolls",
+      "name": "Hanroll camarón · queso y palta",
+      "price_clp": 2490,
+      "description": "Hanroll de camarón, queso y palta.",
+      "image_url": "assets/hanrolls.jpg",
+      "display_group": "Hanrolls a elección",
+      "display_label": "Camarón, queso y palta"
+    },
+    {
+      "category": "Hanrolls",
+      "name": "Hanroll kanikama · queso y palta",
+      "price_clp": 1990,
+      "description": "Hanroll de kanikama, queso y palta.",
+      "image_url": "assets/hanrolls.jpg",
+      "display_group": "Hanrolls a elección",
+      "display_label": "Kanikama, queso y palta"
+    },
+    {
+      "category": "Hanrolls",
+      "name": "Hanroll mechada · queso y palta",
+      "price_clp": 2990,
+      "description": "Hanroll de mechada, queso y palta.",
+      "image_url": "assets/hanrolls.jpg",
+      "display_group": "Hanrolls a elección",
+      "display_label": "Mechada, queso y palta"
+    },
+    {
+      "category": "Promociones",
+      "name": "Promo Picoteo",
+      "price_clp": 3990,
+      "description": "5 nuggets + 5 empanadas + 5 arrolladitos primavera.",
+      "image_url": "assets/promos/promo-picoteo.jpg"
+    },
+    {
+      "category": "Promociones",
+      "name": "Promo 1 · 4 ASS normales + bebida 1,5 L",
+      "price_clp": 12490,
+      "description": "4 ASS normales y bebida de 1,5 litros. Disponible en pollo, cerdo o vacuno.",
+      "image_url": "assets/promos/promo-1-ass.jpg",
+      "option_groups": [
+        {
+          "label": "ASS",
+          "quantity": 4,
+          "choices": [
+            "Pollo",
+            "Cerdo",
+            "Vacuno"
+          ]
+        },
+        {
+          "label": "Bebida 1,5 L",
+          "choices": [
+            "Coca-Cola",
+            "Fanta",
+            "Sprite",
+            "Kem Piña",
+            "Limón Soda",
+            "Bilz",
+            "Pap"
+          ]
+        }
+      ]
+    },
+    {
+      "category": "Promociones",
+      "name": "Promo 2 · Churrasco o hamburguesa + papas + lata",
+      "price_clp": 7490,
+      "description": "1 churrasco o hamburguesa + papas medianas + bebida en lata.",
+      "image_url": "assets/promos/promo-2-churrasco.jpg",
+      "option_groups": [
+        {
+          "label": "Elige tu sándwich",
+          "choices": [
+            "Churrasco",
+            "Hamburguesa",
+            "Completo italiano",
+            "Chacarero"
+          ]
+        },
+        {
+          "label": "Bebida lata",
+          "choices": [
+            "Coca-Cola",
+            "Fanta",
+            "Sprite",
+            "Kem Piña",
+            "Limón Soda",
+            "Bilz",
+            "Pap"
+          ]
+        }
+      ]
+    },
+    {
+      "category": "Fritos",
+      "name": "6 empanadas",
+      "price_clp": 2000,
+      "description": "6 empanadas doradas.",
+      "image_url": "assets/empanadas.jpg",
+      "display_group": "Empanadas"
+    },
+    {
+      "category": "Fritos",
+      "name": "12 empanadas",
+      "price_clp": 4000,
+      "description": "12 empanadas doradas.",
+      "image_url": "assets/empanadas.jpg",
+      "display_group": "Empanadas"
+    },
+    {
+      "category": "Fritos",
+      "name": "6 aros",
+      "price_clp": 2000,
+      "description": "6 aros de cebolla crujientes.",
+      "image_url": "assets/aros-cebolla.jpg",
+      "display_group": "Aros de cebolla"
+    },
+    {
+      "category": "Fritos",
+      "name": "12 aros",
+      "price_clp": 4000,
+      "description": "12 aros de cebolla crujientes.",
+      "image_url": "assets/aros-cebolla.jpg",
+      "display_group": "Aros de cebolla"
+    },
+    {
+      "category": "Fritos",
+      "name": "3 arrollados",
+      "price_clp": 1500,
+      "description": "3 arrollados primavera.",
+      "image_url": "assets/arrollados-primavera.jpg",
+      "display_group": "Arrollados primavera"
+    },
+    {
+      "category": "Fritos",
+      "name": "6 arrollados",
+      "price_clp": 3000,
+      "description": "6 arrollados primavera.",
+      "image_url": "assets/arrollados-primavera.jpg",
+      "display_group": "Arrollados primavera"
+    },
+    {
+      "category": "Fritos",
+      "name": "6 nuggets",
+      "price_clp": 2000,
+      "description": "6 nuggets de pollo.",
+      "image_url": "assets/nuggets-pollo.jpg",
+      "display_group": "Nuggets de pollo"
+    },
+    {
+      "category": "Fritos",
+      "name": "12 nuggets",
+      "price_clp": 4000,
+      "description": "12 nuggets de pollo.",
+      "image_url": "assets/nuggets-pollo.jpg",
+      "display_group": "Nuggets de pollo"
+    },
+    {
+      "category": "Fritos",
+      "name": "Papas fritas · Pequeña",
+      "price_clp": 3000,
+      "description": "Porción pequeña de papas fritas.",
+      "image_url": "assets/papas-fritas.jpg",
+      "display_group": "Papas fritas",
+      "display_label": "Pequeña"
+    },
+    {
+      "category": "Fritos",
+      "name": "Papas fritas · Mediana",
+      "price_clp": 5000,
+      "description": "Porción mediana de papas fritas.",
+      "image_url": "assets/papas-fritas.jpg",
+      "display_group": "Papas fritas",
+      "display_label": "Mediana"
+    },
+    {
+      "category": "Fritos",
+      "name": "Papas fritas · Familiar",
+      "price_clp": 8500,
+      "description": "Porción familiar de papas fritas.",
+      "image_url": "assets/papas-fritas.jpg",
+      "display_group": "Papas fritas",
+      "display_label": "Familiar"
+    },
+    {
+      "category": "Fritos",
+      "name": "Salchipapas · Pequeña",
+      "price_clp": 3500,
+      "description": "Porción pequeña de salchipapas.",
+      "image_url": "assets/salchipapas.jpg",
+      "display_group": "Salchipapas",
+      "display_label": "Pequeña"
+    },
+    {
+      "category": "Fritos",
+      "name": "Salchipapas · Mediana",
+      "price_clp": 6000,
+      "description": "Porción mediana de salchipapas.",
+      "image_url": "assets/salchipapas.jpg",
+      "display_group": "Salchipapas",
+      "display_label": "Mediana"
+    },
+    {
+      "category": "Fritos",
+      "name": "Salchipapas · Familiar",
+      "price_clp": 10000,
+      "description": "Porción familiar de salchipapas.",
+      "image_url": "assets/salchipapas.jpg",
+      "display_group": "Salchipapas",
+      "display_label": "Familiar"
+    },
+    {
+      "category": "Fritos",
+      "name": "5 pollos crispy + papas + salsa BBQ",
+      "price_clp": 5900,
+      "description": "5 pollos crispy con papas fritas y salsa BBQ.",
+      "image_url": "assets/pollo-crispy.jpg",
+      "display_group": "Pollos crispy"
+    },
+    {
+      "category": "Fritos",
+      "name": "10 pollos crispy + papas + salsa BBQ",
+      "price_clp": 10990,
+      "description": "10 pollos crispy con papas fritas y salsa BBQ.",
+      "image_url": "assets/pollo-crispy.jpg",
+      "display_group": "Pollos crispy"
+    },
+    {
+      "category": "Gohan",
+      "name": "Gohan Pollo Apanado",
+      "price_clp": 5490,
+      "description": "Base de arroz, queso, palta y cebollín. Proteína según variedad.",
+      "image_url": "assets/gohan/gohan-pollo-apanado.jpg"
+    },
+    {
+      "category": "Gohan",
+      "name": "Gohan Salmón y Camarón",
+      "price_clp": 5490,
+      "description": "Base de arroz, queso, palta y cebollín. Proteína según variedad.",
+      "image_url": "assets/gohan/gohan-salmon-camaron.jpg"
+    },
+    {
+      "category": "Gohan",
+      "name": "Gohan Camarón Apanado",
+      "price_clp": 5490,
+      "description": "Base de arroz, queso, palta y cebollín. Proteína según variedad.",
+      "image_url": "assets/gohan/gohan-camaron-apanado-ia.jpg.png"
+    },
+    {
+      "category": "Gohan",
+      "name": "Gohan Camarón Normal",
+      "price_clp": 5490,
+      "description": "Base de arroz, queso, palta y cebollín. Proteína según variedad.",
+      "image_url": "assets/gohan/gohan-camaron-normal.jpg"
+    },
+    {
+      "category": "Gohan",
+      "name": "Gohan Vegetariano",
+      "price_clp": 5490,
+      "description": "Base de arroz, queso, palta y cebollín. Proteína según variedad.",
+      "image_url": "assets/gohan/gohan-vegetariano.jpg"
+    },
+    {
+      "category": "Gohan",
+      "name": "Gohan Kanikama",
+      "price_clp": 5490,
+      "description": "Base de arroz, queso, palta y cebollín. Proteína según variedad.",
+      "image_url": "assets/gohan/gohan-kanikama.jpg"
+    },
+    {
+      "category": "Completos",
+      "name": "Completo individual",
+      "price_clp": 2000,
+      "description": "Elige tu variedad. Puedes agregar más de uno al pedido, incluso combinando sabores.",
+      "image_url": "assets/completos.jpg",
+      "option_groups": [
+        {
+          "label": "Variedad",
+          "quantity": 1,
+          "choices": [
+            "Clásico",
+            "Italiano"
+          ]
+        }
+      ]
+    }
+  ],
+  "photos": {
+    "Rolls": "https://cdn-media.choiceqr.com/prod-eat-samuraisushirolls/thumbnail_elJjXmL-SjbDCNS-qIdpJtT_C-E-m.jpeg",
+    "Rolls fríos": "assets/roll-palta-camaron.png.png",
+    "Rolls fritos": "https://images.bolt.eu/store/2023/2023-10-18/be13cbfe-8104-4dba-b5b3-9167f317b952.jpeg",
+    "Promociones sushi": "assets/promos/promociones-sushi.jpg",
+    "Ceviches": "https://images.unsplash.com/photo-1535399831218-d5bd36d1a6b3?auto=format&fit=crop&w=700&q=80",
+    "Gohan": "assets/gohan/gohan-pollo-apanado.jpg",
+    "Pizzas": "https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=700&q=80",
+    "Churrascos": "assets/churrascos/churrasco-clasico.jpg",
+    "Bebidas": "https://images.unsplash.com/photo-1554866585-cd94860890b7?auto=format&fit=crop&w=700&q=80",
+    "Jugos naturales": "https://images.unsplash.com/photo-1600271886742-f049cd451bba?auto=format&fit=crop&w=700&q=80",
+    "Néctares": "https://images.unsplash.com/photo-1600271886742-f049cd451bba?auto=format&fit=crop&w=700&q=80",
+    "Aguas": "https://images.unsplash.com/photo-1523362628745-0c100150b504?auto=format&fit=crop&w=700&q=80",
+    "Energéticas": "https://images.unsplash.com/photo-1622543925917-763c34d1a86e?auto=format&fit=crop&w=700&q=80",
+    "Salsas": "https://tofuu.getjusto.com/orioneat-local/resized2/Mruur6nHh2mZNyq7J-2400-x.webp"
+  }
+}
