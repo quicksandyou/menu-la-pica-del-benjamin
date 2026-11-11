@@ -954,7 +954,7 @@ function isOrderingOpen(){
  return day>=2&&day<=6&&(hour<2||(hour>17||(hour===17&&minute>=30)));
 }
 const LAUNCH_PAYMENTS_UNLOCK_AT=1794687621111;
-function isLaunchPaymentLocked(){return Date.now()<LAUNCH_PAYMENTS_UNLOCK_AT;}
+function isLaunchPaymentLocked(){return !staffTestMode && Date.now()<LAUNCH_PAYMENTS_UNLOCK_AT;}
 function updateLaunchCountdown(){
  const remaining=Math.max(0,LAUNCH_PAYMENTS_UNLOCK_AT-Date.now());
  const days=Math.floor(remaining/86400000),hours=Math.floor(remaining%86400000/3600000),minutes=Math.floor(remaining%3600000/60000),seconds=Math.floor(remaining%60000/1000);
