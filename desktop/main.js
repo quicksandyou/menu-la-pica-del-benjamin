@@ -1,9 +1,34 @@
 const {app,BrowserWindow,shell,dialog,ipcMain,net}=require("electron");
 const {autoUpdater}=require("electron-updater");
 const path=require("path");
+const fs=require("fs");
 let win;
 let updatePromptOpen=false;
-ipcMain.handle("pos:load-menu",async()=>{ const url="https://menu-la-pica-del-benjamin.onrender.com/menu.json?v="+Date.now(); const response=await net.fetch(url,{signal:AbortSignal.timeout(20000)}); if(!response.ok) throw new Error("La tienda respondió HTTP "+response.status); const data=await response.json(); if(!Array.isArray(data.products)||!data.products.length) throw new Error("La carta online no contiene productos."); return data; });
+ipcMain.handle("pos:load-menu",async()=>{
+  let onlineError=null;
+  try {
+    const controller=new AbortController();
+    const timeout=setTimeout(()=>controller.abort(),15000);
+    try {
+      const response=await net.fetch("https://menu-la-pica-del-benjamin.onrender.com/menu.json?v="+Date.now(),{signal:controller.signal});
+      if(!response.ok) throw new Error("La tienda respondió HTTP "+response.status);
+      const data=await response.json();
+      if(!Array.isArray(data.products)||!data.products.length) throw new Error("La carta online no contiene productos.");
+      data._menuSource="online";
+      return data;
+    } finally { clearTimeout(timeout); }
+  } catch(error) { onlineError=error; }
+  try {
+    const localPath=path.join(__dirname,"app","menu.json");
+    const data=JSON.parse(fs.readFileSync(localPath,"utf8"));
+    if(!Array.isArray(data.products)||!data.products.length) throw new Error("La copia local de la carta está vacía.");
+    data._menuSource="local";
+    data._menuWarning=onlineError?onlineError.message:"Sin conexión con la tienda";
+    return data;
+  } catch(localError) {
+    throw new Error("No se pudo cargar la carta online ni la copia local. Online: "+(onlineError?onlineError.message:"error")+"; local: "+localError.message);
+  }
+});
 
 
 function configureAutoUpdates(){
