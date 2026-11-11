@@ -592,6 +592,19 @@ La Picá del Benjamín`,
         return send(res,500,{error:"No se pudo enviar el mensaje."});
       }
     }
+    if (requestPath === "/api/reparto/confirmar-transferencia" && req.method === "POST") {
+      if (!["manager","superadmin"].includes(staff.role)) return send(res,403,{error:"Solo jefatura puede confirmar transferencias."});
+      try {
+        const data=await readJson(req), id=Number(data.order_id);
+        if(!Number.isInteger(id)||id<1) return send(res,400,{error:"Pedido inválido."});
+        const result=await dbPool.query(
+          "UPDATE orders SET payment_status='paid',updated_at=NOW() WHERE id=$1 AND source='online' AND payment_status='transfer_pending' RETURNING id,order_number,customer_name,customer_phone,customer_email,total_clp",
+          [id]
+        );
+        if(!result.rowCount) return send(res,409,{error:"El pedido no existe o la transferencia ya fue revisada."});
+        return send(res,200,{ok:true,order:result.rows[0]});
+      } catch(e) { console.error("Transfer confirmation:",e.message); return send(res,500,{error:"No se pudo confirmar la transferencia."}); }
+    }
     if (requestPath === "/api/reparto/pedidos" && req.method === "GET") {
       const params = [];
       const requestedDate = String(new URL(req.url,"http://localhost").searchParams.get("date") || "");
@@ -890,6 +903,44 @@ La Picá del Benjamín`,
     } catch (error) {
       console.error(error);
       return send(res, 500, { error: "No fue posible verificar el estado del pago." });
+    }
+  }
+
+  if (req.method === "POST" && new URL(req.url,"http://localhost").pathname === "/api/crear-transferencia") {
+    if (!dbPool) return send(res,503,{error:"Base de datos no disponible. Inténtalo más tarde."});
+    if (!isOrderingOpen() && !isSuperAdmin(await getStaffUser())) return send(res,403,{error:"Estamos fuera de horario. Los pedidos están disponibles de martes a sábado, de 17:30 a 02:00."});
+    if (isRateLimited(req,10,60000)) return send(res,429,{error:"Has enviado varios pedidos. Espera un minuto."});
+    try {
+      const data=await readJson(req);
+      if(!Array.isArray(data.items)||!data.items.length||data.items.length>50) return send(res,400,{error:"El carrito está vacío o contiene demasiados productos."});
+      const customerName=String(data.customer?.name||"").trim().slice(0,120);
+      const customerEmail=String(data.customer?.email||"").trim().toLowerCase().slice(0,254);
+      const customerPhone=String(data.customer?.phone||"").trim().slice(0,30);
+      const method=String(data.delivery?.method||"");
+      const address=String(data.delivery?.address||"").trim().slice(0,500);
+      const locality=String(data.delivery?.locality||"").trim().slice(0,80);
+      if(!customerName||!customerEmail||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customerEmail)) return send(res,400,{error:"Completa nombre y correo electrónico válido."});
+      if(!["Delivery","Retiro en el local"].includes(method)) return send(res,400,{error:"Selecciona delivery o retiro en el local."});
+      if(method==="Delivery"&&(!address||!Object.prototype.hasOwnProperty.call(deliveryFees,locality))) return send(res,400,{error:"Completa una dirección y localidad de despacho válida."});
+      let subtotal=0;
+      const items=data.items.map(item=>{
+        const name=String(item.name||"").trim(),quantity=Number(item.quantity),price=products[name];
+        if(!price||!Number.isInteger(quantity)||quantity<1||quantity>30||Number(item.unit_price)!==price) throw new Error("Producto, cantidad o precio inválido: "+name);
+        subtotal+=price*quantity;
+        return {name,quantity,unit_price:price};
+      });
+      const fee=method==="Delivery"?deliveryFees[locality]:0,total=subtotal+fee;
+      if(Number(data.total_clp)!==total||Number(data.delivery?.fee_clp||0)!==fee) return send(res,400,{error:"El total del pedido no coincide. Actualiza el menú e inténtalo nuevamente."});
+      const saved=await dbPool.query(
+        "INSERT INTO orders (source,customer_name,customer_phone,customer_email,delivery_address,locality,delivery_method,total_clp,payment_status,delivery_status,approval_status,items_json,notes,delivery_fee_clp,delivery_latitude,delivery_longitude) VALUES ('online',$1,$2,$3,$4,$5,$6,$7,'transfer_pending','pending','pending',$8::jsonb,$9,$10,$11,$12) RETURNING id",
+        [customerName,customerPhone,customerEmail,method==="Delivery"?address:null,method==="Delivery"?locality:null,method,total,JSON.stringify(items),String(data.notes||"").slice(0,1000),fee,method==="Delivery"&&Number.isFinite(Number(data.delivery?.latitude))?Number(data.delivery.latitude):null,method==="Delivery"&&Number.isFinite(Number(data.delivery?.longitude))?Number(data.delivery.longitude):null]
+      );
+      const id=saved.rows[0].id,orderNumber="PB-"+String(id).padStart(6,"0");
+      await dbPool.query("UPDATE orders SET order_number=$1 WHERE id=$2",[orderNumber,id]);
+      return send(res,201,{ok:true,order_id:id,order_number:orderNumber,payment_status:"transfer_pending"});
+    } catch(e) {
+      console.error("Transfer order creation:",e.message);
+      return send(res,400,{error:e.message||"No se pudo registrar el pedido por transferencia."});
     }
   }
 
