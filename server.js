@@ -893,7 +893,7 @@ La Picá del Benjamín`,
     }
   }
 
-  if (req.method === "POST" && new URL(req.url, "http://localhost").pathname === "/api/crear-orden" && Date.now() < 1794687621111) {
+  if (req.method === "POST" && new URL(req.url, "http://localhost").pathname === "/api/crear-orden" && Date.now() < 1794687621111 && !isSuperAdmin(await getStaffUser())) {
     return send(res, 423, { error: "Los pagos online de La Picá del Benjamín están temporalmente bloqueados por preparación de lanzamiento. Se habilitarán automáticamente al finalizar la cuenta regresiva de estreno." });
   }
 
