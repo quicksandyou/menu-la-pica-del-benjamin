@@ -10,6 +10,11 @@ on:
       - "index.html"
       - "menu.json"
       - "assets/**"
+      - "reparto.html"
+      - "manifest.json"
+      - "service-worker.js"
+      - "soundtrack.mp3.mpeg"
+      - "logo_picada.jpg"
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -25,6 +30,19 @@ jobs:
       - uses: android-actions/setup-android@v4
         with:
           packages: 'platform-tools'
+      - name: Preparar archivos locales de la aplicación
+        run: |
+          mkdir -p www
+          cp index.html www/index.html
+          cp menu.json www/menu.json
+          cp manifest.json www/manifest.json
+          cp service-worker.js www/service-worker.js
+          cp logo_picada.jpg www/logo_picada.jpg
+          cp soundtrack.mp3.mpeg www/soundtrack.mp3.mpeg
+          cp -R assets www/assets
+          cp -R icons www/icons
+          cp reparto.html www/reparto.html
+          if [ -f reparto-manifest.json ]; then cp reparto-manifest.json www/reparto-manifest.json; fi
       - name: Preparar Capacitor
         run: |
           npm install --no-save @capacitor/core@^7 @capacitor/cli@^7 @capacitor/android@^7 sharp
