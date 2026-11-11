@@ -273,7 +273,14 @@ async function mpRequest(path, options = {}) {
 
 const server = http.createServer(async (req, res) => {
   const origin = req.headers.origin;
-  if (origin && FRONTEND_URL && origin === new URL(FRONTEND_URL).origin) {
+  const allowedOrigins = new Set([
+    FRONTEND_URL ? new URL(FRONTEND_URL).origin : "",
+    "https://localhost",
+    "http://localhost",
+    "capacitor://localhost",
+    "ionic://localhost"
+  ].filter(Boolean));
+  if (origin && allowedOrigins.has(origin)) {
     res.setHeader("Access-Control-Allow-Origin", origin);
   }
   res.setHeader("Vary", "Origin");
