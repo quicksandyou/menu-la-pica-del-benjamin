@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "categories": [
     "Sushi Burger",
     "Hanrolls",
@@ -1068,5 +1068,7 @@
     "Aguas": "https://images.unsplash.com/photo-1523362628745-0c100150b504?auto=format&fit=crop&w=700&q=80",
     "Energéticas": "https://images.unsplash.com/photo-1622543925917-763c34d1a86e?auto=format&fit=crop&w=700&q=80",
     "Salsas": "https://tofuu.getjusto.com/orioneat-local/resized2/Mruur6nHh2mZNyq7J-2400-x.webp"
-  }
+  },
+  "revision": "2026-11-11.1",
+  "updated_at": "2026-11-11T16:10:00-03:00"
 }
