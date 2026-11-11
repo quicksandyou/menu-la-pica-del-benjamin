@@ -1224,9 +1224,28 @@ async function payOnline(){
    if(!response.ok)throw new Error(data.error||"No se pudo registrar el pedido.");
    const lines=products.map(p=>`• ${p.quantity} x ${p.name}: ${fmt(p.quantity*p.unit_price)}`);
    const message=["Hola, registré un pedido por transferencia en La Picá del Benjamín.",`Número de pedido: ${data.order_number}`,"",`Nombre: ${name}`,`Teléfono: ${document.getElementById("phone").value.trim()||"No indicado"}`,`Modalidad: ${method}`,`Localidad: ${locality}`,`Dirección: ${method==="Delivery"?address:"Retiro en el local"}`,"","Pedido:",...lines,"",`Subtotal: ${fmt(subtotal)}`,`Despacho: ${fmt(fee)}`,`TOTAL: ${fmt(total)}`,`Correo: ${email}`,`Notas: ${document.getElementById("notes").value.trim()||"Sin notas"}`,"","Adjuntaré el comprobante de transferencia. Entiendo que el pedido queda pendiente hasta verificar el abono."].join("\n");
-   window.open("https://wa.me/56999064818?text="+encodeURIComponent(message),"_blank","noopener,noreferrer");
-   alert("Pedido "+data.order_number+" registrado. Ahora envía el comprobante por WhatsApp. Prepararemos el pedido cuando confirmemos el abono.");
-   button.textContent="📲 Pedido registrado · Enviar comprobante por WhatsApp";
+  
+button.disabled=false;
+button.textContent="Pedido registrado correctamente";
+
+const result=document.createElement("div");
+result.style.cssText="margin-top:15px;padding:15px;border:1px solid #b58b45;border-radius:12px";
+result.innerHTML="<h3>¿Cómo deseas continuar?</h3><p>Tu pedido quedó registrado y está pendiente de verificar el abono.</p>";
+
+const wa=document.createElement("button");
+wa.textContent="📲 Enviar comprobante por WhatsApp";
+wa.className="add";
+wa.onclick=()=>window.open("https://wa.me/56999064818?text="+encodeURIComponent(message),"_blank");
+
+const later=document.createElement("button");
+later.textContent="Continuar sin enviar comprobante";
+later.className="add";
+later.style.marginTop="10px";
+later.onclick=()=>{result.innerHTML="<p>Pedido registrado. La jefa verificará el abono en Mercado Pago.</p>"};
+
+result.append(wa,later);
+button.parentNode.append(result);
+alert("Pedido "+data.order_number+" registrado. El pago queda pendiente de verificación.");
   }catch(error){alert(error.message||"No fue posible registrar el pedido.");button.disabled=false;updatePaymentMethod()}
   return;
  }
