@@ -120,7 +120,7 @@ async function loadSharedMenu(){
  if(!Array.isArray(d.products)||!d.products.length)throw Error("La carta online está vacía.");
  P=d.products.map(x=>[x.category,x.name,x.price_clp===null||x.price_clp===undefined?null:Number(x.price_clp),x.description||"",resolveMenuImage(x.image_url||d.photos?.[x.category]||""),x.option_groups||[]]);
  cats=["Todos",...(d.categories||[...new Set(P.map(x=>x[0]))])];
- if(status)status.textContent='Carta sincronizada: '+P.length+' productos · '+new Date().toLocaleTimeString('es-CL');
+ if(status)status.textContent='Carta segura v'+(d.version||1)+' · '+P.length+' productos · '+(d._menuSource||"web")+(d._menuWarning?" · respaldo activo":"") +' · '+new Date().toLocaleTimeString('es-CL');
  renderTabs();renderProducts();drawCart();
 }
 loadSharedMenu().then(()=>iniciarPOS()).catch(e=>{
