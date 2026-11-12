@@ -46,7 +46,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid 
 <script>
 const DESKTOP_POS=new URLSearchParams(location.search).get("desktopPos")==="1";
 const API="https://menu-la-pica-del-benjamin-pago.onrender.com";
-function enterDesktopPOS(){if(DESKTOP_POS)location.href="https://menu-la-pica-del-benjamin.onrender.com/?desktopPosReady=1";}
+async function enterDesktopPOS(){if(!DESKTOP_POS)return;try{if(window.posBridge&&typeof window.posBridge.openPOS==="function"){await window.posBridge.openPOS();}else{msg("No se detectó el módulo de escritorio. Cierra y vuelve a abrir el POS actualizado.");}}catch(e){msg("No se pudo abrir el POS: "+(e.message||"Error interno"));}}
 const $=id=>document.getElementById(id);
 function msg(t){$("status").textContent=t}
 async function api(path,body){let r;try{r=await fetch(API+path,{method:body?"POST":"GET",credentials:"include",headers:{"Content-Type":"application/json","Accept":"application/json"},...(body?{body:JSON.stringify(body)}:{})})}catch(e){throw new Error("No se pudo conectar con el servidor de personal. Revisa la conexión e intenta nuevamente.")}const raw=await r.text();let d={};if(raw){try{d=JSON.parse(raw)}catch{throw new Error("El servidor respondió con un formato inesperado (HTTP "+r.status+"). Revisa el servicio de Render.")}}if(!r.ok)throw new Error(d.error||("Error del servidor (HTTP "+r.status+")."));return d}
