@@ -14,7 +14,7 @@ ipcMain.handle("pos:poll-online-orders",async()=>{
  if(!win||win.isDestroyed())return {ok:false,orders:[]};
  try{
   const localDate=new Intl.DateTimeFormat("en-CA",{timeZone:"America/Santiago",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date());
-  const response=await win.webContents.session.fetch("https://menu-la-pica-del-benjamin.onrender.com/api/reparto/pedidos?date="+localDate,{headers:{"Accept":"application/json"}});
+  const response=await win.webContents.session.fetch("https://menu-la-pica-del-benjamin-pago.onrender.com/api/reparto/pedidos?date="+localDate,{headers:{"Accept":"application/json"}});
   if(!response.ok)return {ok:false,status:response.status,orders:[]};
   const data=await response.json(),orders=Array.isArray(data.orders)?data.orders:[];
   return {ok:true,orders:orders.filter(o=>String(o.source||"online").toLowerCase()==="online").map(o=>({id:o.id,order_number:o.order_number,customer_name:o.customer_name,delivery_method:o.delivery_method,total_clp:o.total_clp,payment_status:o.payment_status,created_at:o.created_at}))};
