@@ -1222,13 +1222,38 @@ function fallbackCopyTransferData(value){
  catch(e){alert("No se pudieron copiar los datos automáticamente. Puedes seleccionar y copiar los datos que aparecen en pantalla.");}
  field.remove();
 }
-function openSelectedBank(){
+const BANK_ANDROID_PACKAGES={
+ "BancoEstado":"net.veritran.becl.prod",
+ "Banco de Chile":"cl.bancochile.mi_banco",
+ "Santander":"cl.santander.smartphone",
+ "BCI":"cl.bci.app.personas",
+ "Banco Falabella":"cl.android",
+ "Scotiabank":"cl.scotiabank.go",
+ "Itaú":"com.konylabs.ItauMobileBank",
+ "Banco Ripley":"cl.bancoripley.appbanco",
+ "MACH":"cl.bci.sismo.mach",
+ "Tenpo":"com.krealo.tenpo",
+ "Mercado Pago":"com.mercadopago.wallet"
+};
+async function openSelectedBank(){
  const bank=document.getElementById("sourceBank")?.value||"BancoEstado";
  const url=BANK_PORTALS[bank]||BANK_PORTALS["Otro banco"];
- const isMobile=/Android|iPhone|iPad|iPod/i.test(navigator.userAgent||"");
- // Usar el enlace HTTPS oficial del banco: si el banco tiene configurado App Links/Universal Links,
- // el sistema puede abrir su app instalada; si no, continuará en el sitio web oficial.
- if(isMobile){
+ const packageName=BANK_ANDROID_PACKAGES[bank];
+ const isAndroid=/Android/i.test(navigator.userAgent||"");
+ const native=window.Capacitor?.isNativePlatform?.()===true;
+ const launcher=window.Capacitor?.Plugins?.AppLauncher;
+ // En la APK, AppLauncher intenta abrir la app instalada usando el package ID verificado.
+ if(isAndroid&&native&&launcher?.openUrl&&packageName){
+  try{
+   const result=await launcher.openUrl({url:packageName});
+   if(result?.completed!==false)return;
+  }catch(error){
+   console.warn("No se pudo abrir la app bancaria; se ofrecerá la web oficial.",error);
+  }
+  alert("No encontramos la aplicación instalada o no fue posible abrirla. Puedes continuar en la página oficial del banco.");
+ }
+ // En navegador móvil o escritorio se mantiene el acceso web oficial como alternativa.
+ if(isAndroid||/iPhone|iPad|iPod/i.test(navigator.userAgent||"")){
   window.location.assign(url);
  }else{
   window.open(url,"_blank","noopener,noreferrer");
