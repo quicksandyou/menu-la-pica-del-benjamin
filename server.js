@@ -295,7 +295,7 @@ const server = http.createServer(async (req, res) => {
       const relativeIconPath = decodeURIComponent(requestPath.slice("/icons/".length));
       const iconsRoot = path.resolve(__dirname, "icons");
       const iconPath = path.resolve(iconsRoot, relativeIconPath);
-      if (!iconPath.startsWith(iconsRoot + path.sep) || !/\\.(svg|png|jpe?g|webp|ico)$/i.test(iconPath)) {
+      if (!iconPath.startsWith(iconsRoot + path.sep) || !/\.(svg|png|jpe?g|webp|ico)$/i.test(iconPath)) {
         return send(res, 404, { error: "Recurso no encontrado." });
       }
       const icon = await fs.promises.readFile(iconPath);
