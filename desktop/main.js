@@ -6,7 +6,7 @@ let win;
 let updatePromptOpen=false;
 const serviceWindows=new Map();
 const SERVICE_CONFIG={
- gmail:{url:"https://mail.google.com/",title:"Gmail | La Picá del Benjamín",partition:"persist:lapica-gmail"},
+ gmail:{url:"https://mail.google.com/mail/u/?authuser=lapicadadelbenjamin%40gmail.com",title:"Gmail · lapicadadelbenjamin@gmail.com",partition:"persist:lapica-gmail"},
  whatsapp:{url:"https://web.whatsapp.com/",title:"WhatsApp | La Picá del Benjamín",partition:"persist:lapica-whatsapp"}
 };
 ipcMain.handle("pos:open-service",async(_event,service)=>{
