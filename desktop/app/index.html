@@ -29,13 +29,31 @@
 #staffFrame{width:100%;flex:1;min-height:0;border:1px solid #654626;border-radius:12px;background:#fff}
 @media(max-width:600px){.staff-overlay{padding:7px;gap:7px}.staff-toolbar{padding:10px}.staff-toolbar strong{font-size:14px}.staff-back{padding:10px 12px;font-size:13px}}
 
+.alert-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.alert-card{border-radius:12px;padding:13px 15px;min-height:78px;font-size:13px;line-height:1.4}
+.orders-alert{background:#182d3b;border:1px solid #3982a9;color:#e6f5ff}
+.payments-alert{background:#2c2410;border:1px solid #bd8c2c;color:#fff0c7}
+.alert-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px;font-size:13px;font-weight:950;letter-spacing:.2px}
+.alert-heading span{border-radius:999px;background:#ffffff20;padding:3px 9px;font-variant-numeric:tabular-nums}
+@media(max-width:700px){.alert-grid{grid-template-columns:1fr;gap:8px}.alert-card{min-height:65px;padding:11px}}
 .top-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .top-actions button{background:#2b1b0e;border:1px solid #9b6328;color:#ffe0a3;min-height:42px}
 .top-actions button:hover{background:#503016}
 @media(max-width:700px){.top{align-items:flex-start;gap:10px;flex-wrap:wrap}.top-actions{width:100%}.top-actions button{flex:1;padding:9px 8px;font-size:12px}}
 </style></head><body><header class="top"><div><div class="brand">🍔 LA PICÁ DEL BENJAMÍN</div><div class="sub">Punto de venta local · Uso interno</div></div><div class="top-actions"><button id="gmailShortcut" type="button" onclick="openPosService(&quot;gmail&quot;)">✉️ Gmail</button><button id="whatsappShortcut" type="button" onclick="openPosService(&quot;whatsapp&quot;)">💬 WhatsApp</button><button id="staffShortcut" type="button" onclick="openStaffPanel()">🚴 Repartidor / Jefatura</button></div></header>
 
-<main id="app" class="wrap"><div id="deliveryAlertNotice" class="notice hidden" role="status" aria-live="polite"></div><div class="notice">POS local de acceso directo, sin contraseña. El historial permanente de ventas será incorporado en la siguiente etapa.</div><div class="layout"><section><section class="search-panel" aria-label="Buscar productos"><label class="search-label" for="search">🔎 Buscar un producto</label><form class="search-row" onsubmit="searchProduct(event)"><input id="search" type="search" placeholder="Escribe el nombre del producto..." autocomplete="off" oninput="renderProducts()"><button class="search-button" type="submit">Buscar</button></form><div id="searchStatus" class="search-status" aria-live="polite">Puedes buscar por nombre, categoría o descripción.</div></section><div class="tools"><button type="button" class="add" onclick="loadSharedMenu().catch(e=>alert(e.message))">↻ Actualizar carta</button><select id="mode"><option>Consumo en local</option><option>Retiro en el local</option></select></div><div id="menuSyncStatus" class="muted" aria-live="polite">Conectando con la carta web…</div><div class="tabbar"><button class="tab-arrow" id="catPrev" type="button" aria-label="Ver categorías anteriores">‹</button><nav class="tabs" id="tabs" aria-label="Categorías de productos"></nav><button class="tab-arrow" id="catNext" type="button" aria-label="Ver más categorías">›</button></div><div class="products" id="products"></div></section><aside class="cart"><h2>🧾 Pedido actual</h2><div id="cartLines">Agrega productos para comenzar.</div><div class="total" id="total">$0</div><div class="field"><label>Cliente (opcional)</label><input id="customer" placeholder="Nombre del cliente"></div><div class="field"><label>Forma de pago</label><select id="payment"><option>Efectivo</option><option>Transferencia</option><option>Tarjeta</option><option>Pendiente</option></select></div><div class="field"><label>Observaciones para cocina</label><textarea id="notes" rows="2" placeholder="Sin cebolla, término, etc."></textarea></div><button class="action primary" onclick="printReceipt()">Imprimir comanda</button><button class="action" onclick="newOrder()">Nuevo pedido / limpiar</button><p class="muted">La impresión abre el diálogo de Windows.</p></aside></div></main><section id="receipt" class="receipt"></section>
+<main id="app" class="wrap">
+<div class="alert-grid" aria-label="Alertas independientes">
+ <section class="alert-card orders-alert" aria-live="polite">
+  <div class="alert-heading"><strong>🛎️ PEDIDOS NUEVOS DE LA WEB</strong><span id="ordersAlertCount">0</span></div>
+  <div id="ordersAlertMessage">Esperando nuevos pedidos web…</div>
+ </section>
+ <section class="alert-card payments-alert" aria-live="polite">
+  <div class="alert-heading"><strong>💳 PAGOS CONFIRMADOS</strong><span id="paymentsAlertCount">0</span></div>
+  <div id="paymentsAlertMessage">Mercado Pago y transferencias verificadas aparecerán aquí.</div>
+ </section>
+</div>
+<div class="notice">POS local de acceso directo, sin contraseña. Las alertas de pedidos y pagos se muestran por separado.</div><div class="layout"><section><section class="search-panel" aria-label="Buscar productos"><label class="search-label" for="search">🔎 Buscar un producto</label><form class="search-row" onsubmit="searchProduct(event)"><input id="search" type="search" placeholder="Escribe el nombre del producto..." autocomplete="off" oninput="renderProducts()"><button class="search-button" type="submit">Buscar</button></form><div id="searchStatus" class="search-status" aria-live="polite">Puedes buscar por nombre, categoría o descripción.</div></section><div class="tools"><button type="button" class="add" onclick="loadSharedMenu().catch(e=>alert(e.message))">↻ Actualizar carta</button><select id="mode"><option>Consumo en local</option><option>Retiro en el local</option></select></div><div id="menuSyncStatus" class="muted" aria-live="polite">Conectando con la carta web…</div><div class="tabbar"><button class="tab-arrow" id="catPrev" type="button" aria-label="Ver categorías anteriores">‹</button><nav class="tabs" id="tabs" aria-label="Categorías de productos"></nav><button class="tab-arrow" id="catNext" type="button" aria-label="Ver más categorías">›</button></div><div class="products" id="products"></div></section><aside class="cart"><h2>🧾 Pedido actual</h2><div id="cartLines">Agrega productos para comenzar.</div><div class="total" id="total">$0</div><div class="field"><label>Cliente (opcional)</label><input id="customer" placeholder="Nombre del cliente"></div><div class="field"><label>Forma de pago</label><select id="payment"><option>Efectivo</option><option>Transferencia</option><option>Tarjeta</option><option>Pendiente</option></select></div><div class="field"><label>Observaciones para cocina</label><textarea id="notes" rows="2" placeholder="Sin cebolla, término, etc."></textarea></div><button class="action primary" onclick="printReceipt()">Imprimir comanda</button><button class="action" onclick="newOrder()">Nuevo pedido / limpiar</button><p class="muted">La impresión abre el diálogo de Windows.</p></aside></div></main><section id="receipt" class="receipt"></section>
 <script>
 let P=[],cats=[];
 const MENU_ORIGIN="https://menu-la-pica-del-benjamin.onrender.com/";
@@ -168,43 +186,63 @@ loadSharedMenu().then(()=>{
 });
 
 
-let knownDeliveryOrderIds=null;
-let deliverySoundContext=null;
-function playDeliveryAlert(){
+let knownOnlineOrders=null;
+let knownPaymentStatuses=new Map();
+let alertSoundContext=null;
+let ordersAlertTotal=0,paymentsAlertTotal=0;
+function playAlertTone(kind){
  try{
-   const AudioCtx=window.AudioContext||window.webkitAudioContext;
-   if(!AudioCtx)return;
-   deliverySoundContext=deliverySoundContext||new AudioCtx();
-   if(deliverySoundContext.state==="suspended")deliverySoundContext.resume();
-   const ctx=deliverySoundContext;
-   [0,0.22,0.44].forEach((offset,i)=>{
-     const osc=ctx.createOscillator(),gain=ctx.createGain();
-     osc.type="sine";osc.frequency.value=i===1?1046:880;
-     gain.gain.setValueAtTime(0.0001,ctx.currentTime+offset);
-     gain.gain.exponentialRampToValueAtTime(0.22,ctx.currentTime+offset+0.02);
-     gain.gain.exponentialRampToValueAtTime(0.0001,ctx.currentTime+offset+0.16);
-     osc.connect(gain);gain.connect(ctx.destination);
-     osc.start(ctx.currentTime+offset);osc.stop(ctx.currentTime+offset+0.18);
-   });
+  const AudioCtx=window.AudioContext||window.webkitAudioContext;if(!AudioCtx)return;
+  alertSoundContext=alertSoundContext||new AudioCtx();
+  if(alertSoundContext.state==="suspended")alertSoundContext.resume();
+  const ctx=alertSoundContext;
+  const notes=kind==="payment"?[660,880,1175]:[880,1046,880];
+  notes.forEach((frequency,i)=>{
+   const offset=i*.19,osc=ctx.createOscillator(),gain=ctx.createGain();
+   osc.type=kind==="payment"?"triangle":"sine";osc.frequency.value=frequency;
+   gain.gain.setValueAtTime(.0001,ctx.currentTime+offset);
+   gain.gain.exponentialRampToValueAtTime(.20,ctx.currentTime+offset+.025);
+   gain.gain.exponentialRampToValueAtTime(.0001,ctx.currentTime+offset+.15);
+   osc.connect(gain);gain.connect(ctx.destination);osc.start(ctx.currentTime+offset);osc.stop(ctx.currentTime+offset+.17);
+  });
  }catch(e){console.warn("No se pudo reproducir alerta:",e);}
 }
-async function checkNewDeliveryOrders(){
- if(!window.posBridge||typeof window.posBridge.pollDeliveryOrders!=="function")return;
- try{
-   const result=await window.posBridge.pollDeliveryOrders();
-   if(!result||!result.ok)return;
-   const current=new Set((result.orders||[]).map(o=>String(o.id)));
-   if(knownDeliveryOrderIds===null){knownDeliveryOrderIds=current;return;}
-   const arrived=[...current].filter(id=>!knownDeliveryOrderIds.has(id));
-   knownDeliveryOrderIds=current;
-   if(arrived.length){
-     playDeliveryAlert();
-     const notice=document.getElementById("deliveryAlertNotice");
-     if(notice){notice.textContent="🔔 ¡Llegó "+arrived.length+" nuevo(s) pedido(s) Delivery desde la página!";notice.classList.remove("hidden");}
-   }
- }catch(e){console.warn("Aviso de pedidos delivery:",e);}
+function showAlertMessage(id,message,countId,count){
+ const el=document.getElementById(id),badge=document.getElementById(countId);
+ if(el)el.textContent=message;if(badge)badge.textContent=String(count);
 }
-setTimeout(()=>{checkNewDeliveryOrders();setInterval(checkNewDeliveryOrders,12000);},5000);
+async function checkOnlineOrderAlerts(){
+ if(!window.posBridge||typeof window.posBridge.pollOnlineOrders!=="function")return;
+ try{
+  const result=await window.posBridge.pollOnlineOrders();if(!result||!result.ok)return;
+  const orders=Array.isArray(result.orders)?result.orders:[];
+  const current=new Map(orders.map(o=>[String(o.id),o]));
+  if(knownOnlineOrders===null){knownOnlineOrders=current;knownPaymentStatuses=new Map(orders.map(o=>[String(o.id),String(o.payment_status||"pending").toLowerCase()]));return;}
+  const newOrders=[...current.keys()].filter(id=>!knownOnlineOrders.has(id));
+  const paidOrders=[];
+  for(const [id,o] of current){
+   const status=String(o.payment_status||"pending").toLowerCase();
+   const previous=knownPaymentStatuses.get(id);
+   const confirmed=["paid","approved","accredited"].includes(status);
+   const wasConfirmed=["paid","approved","accredited"].includes(previous||"");
+   if(previous!==undefined&&confirmed&&!wasConfirmed)paidOrders.push(o);
+   knownPaymentStatuses.set(id,status);
+  }
+  knownOnlineOrders=current;
+  if(newOrders.length){
+   ordersAlertTotal+=newOrders.length;playAlertTone("order");
+   const names=newOrders.map(id=>current.get(id)?.order_number||("#"+id)).slice(0,3).join(", ");
+   showAlertMessage("ordersAlertMessage","🔔 "+newOrders.length+" pedido(s) nuevo(s): "+names, "ordersAlertCount",ordersAlertTotal);
+  }
+  if(paidOrders.length){
+   paymentsAlertTotal+=paidOrders.length;playAlertTone("payment");
+   const names=paidOrders.map(o=>(o.order_number||("#"+o.id))+" · "+(String(o.payment_status).toLowerCase()==="paid"?"Transferencia verificada":"Mercado Pago confirmado")).slice(0,3).join(" | ");
+   showAlertMessage("paymentsAlertMessage","✅ "+paidOrders.length+" pago(s) confirmado(s): "+names,"paymentsAlertCount",paymentsAlertTotal);
+  }
+ }catch(e){console.warn("Avisos de pedidos y pagos:",e);}
+}
+setTimeout(()=>{checkOnlineOrderAlerts();setInterval(checkOnlineOrderAlerts,12000);},5000);
+
 async function openPosService(service){
  const labels={gmail:"Gmail",whatsapp:"WhatsApp"};
  try{
