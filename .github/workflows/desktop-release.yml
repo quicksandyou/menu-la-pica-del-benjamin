@@ -26,11 +26,12 @@ jobs:
       - name: Install desktop dependencies
         working-directory: desktop
         run: npm install
-      - name: Generate Windows icon from SVG
+      - name: Use uploaded golden emblem icon
         working-directory: desktop
+        shell: pwsh
         run: |
-          npm install --no-save sharp png-to-ico
-          node -e "const sharp=require('sharp'); const pngToIcoModule=require('png-to-ico'); const pngToIco=pngToIcoModule.default||pngToIcoModule; (async()=>{const png=await sharp('build/icon.svg').resize(256,256).png().toBuffer(); require('fs').writeFileSync('build/icon.ico',await pngToIco(png));})().catch(e=>{console.error(e);process.exit(1)})"
+          if (!(Test-Path "build/icon.ico.ico")) { throw "No se encontró desktop/build/icon.ico.ico" }
+          Copy-Item "build/icon.ico.ico" "build/icon.ico" -Force
       - name: Build Windows installer
         working-directory: desktop
         run: npx electron-builder --win nsis --publish never
