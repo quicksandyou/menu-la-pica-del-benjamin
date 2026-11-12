@@ -29,7 +29,10 @@ jobs:
       - name: Configurar Android SDK
         uses: android-actions/setup-android@v4
         with:
-          packages: 'platform-tools'
+          packages: |
+            platform-tools
+            platforms;android-36
+            build-tools;36.0.0
 
       - name: Instalar Capacitor
         run: |
@@ -40,29 +43,42 @@ jobs:
           npx cap add android
           npx cap sync android
 
-      - name: Establecer SDK mínimo 24 para Google Play
+      - name: Configurar SDK Android para Google Play
         run: |
           python3 <<'PY'
           from pathlib import Path
           import re
 
           p = Path("android/variables.gradle")
+
           if not p.exists():
               raise SystemExit("No existe android/variables.gradle")
 
           s = p.read_text()
-          s, count = re.subn(
-              r'(?m)^(\s*minSdkVersion\s*=\s*)\d+',
-              r'\g<1>24',
-              s,
-              count=1
-          )
 
-          if count != 1:
-              raise SystemExit("No se encontró minSdkVersion en variables.gradle")
+          values = {
+              "minSdkVersion": 24,
+              "compileSdkVersion": 36,
+              "targetSdkVersion": 36
+          }
+
+          for key, value in values.items():
+              pattern = rf'(?m)^(\s*{key}\s*=\s*)\d+'
+              s, count = re.subn(
+                  pattern,
+                  lambda m: m.group(1) + str(value),
+                  s,
+                  count=1
+              )
+
+              if count != 1:
+                  raise SystemExit(f"No se encontró {key} en variables.gradle")
 
           p.write_text(s)
-          print("minSdkVersion configurado en 24")
+
+          print("SDK mínimo: 24")
+          print("SDK compilación: 36")
+          print("SDK destino: 36")
           PY
 
       - name: Recuperar clave de firma
@@ -100,6 +116,7 @@ jobs:
               s = s.replace("android {", "android {" + signing, 1)
 
           pattern = r"(buildTypes\s*\{\s*release\s*\{)"
+
           s, count = re.subn(
               pattern,
               r"\1\n            signingConfig signingConfigs.release",
