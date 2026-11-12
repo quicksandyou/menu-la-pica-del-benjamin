@@ -113,7 +113,18 @@ function createWindow(){
       partition:"persist:lapica-local"
     }
   });
-  win.loadFile(path.join(__dirname,"app","index.html"));
+  const accessUrl="https://menu-la-pica-del-benjamin.onrender.com/personal.html?desktopPos=1";
+  win.webContents.on("will-navigate",(event,url)=>{
+    if(url==="https://menu-la-pica-del-benjamin.onrender.com/?desktopPosReady=1"){
+      event.preventDefault();
+      win.loadFile(path.join(__dirname,"app","index.html"));
+      return;
+    }
+    if(url.startsWith("https://menu-la-pica-del-benjamin.onrender.com/"))return;
+    if(url.startsWith("file://"))return;
+    event.preventDefault();
+  });
+  win.loadURL(accessUrl);
   win.webContents.setWindowOpenHandler(({url})=>{
     if(url.startsWith("https://menu-la-pica-del-benjamin.onrender.com/")||
        url.startsWith("https://menu-la-pica-del-benjamin-pago.onrender.com/")) win.loadURL(url);
