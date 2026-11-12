@@ -102,7 +102,7 @@ jobs:
         run: |
           cd android
           chmod +x gradlew
-          ./gradlew bundleRelease
+          ./gradlew bundleRelease --stacktrace --info
 
       - name: Guardar AAB
         uses: actions/upload-artifact@v4
