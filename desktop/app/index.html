@@ -252,7 +252,7 @@ async function openPosService(service){
 }
 </script><section id="staffEmbedded" class="staff-overlay" style="display:none" aria-label="Panel de repartidor y jefatura">
 <div class="staff-toolbar"><div><strong>🚴 Repartidor / Jefatura</strong><small>Panel de gestión interna</small></div><button type="button" class="staff-back" onclick="closeStaffPanel()">← Volver al POS</button></div>
-<iframe id="staffFrame" title="Panel de repartidor y jefatura" src="https://menu-la-pica-del-benjamin.onrender.com/reparto.html"></iframe></section>
+<iframe id="staffFrame" title="Panel de repartidor y jefatura" src="https://menu-la-pica-del-benjamin-pago.onrender.com/reparto.html"></iframe></section>
 <script>function openStaffPanel(){document.getElementById("staffEmbedded").style.display="flex";document.body.style.overflow="hidden";}
 function closeStaffPanel(){document.getElementById("staffEmbedded").style.display="none";document.body.style.overflow="";document.getElementById("staffShortcut").focus();}
 document.addEventListener("keydown",event=>{if(event.key==="Escape"&&document.getElementById("staffEmbedded").style.display!=="none")closeStaffPanel();});</script></body></html>
