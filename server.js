@@ -610,7 +610,7 @@ La Picá del Benjamín`,
         const data=await readJson(req), id=Number(data.order_id);
         if(!Number.isInteger(id)||id<1) return send(res,400,{error:"Pedido inválido."});
         const result=await dbPool.query(
-          "UPDATE orders SET payment_status='paid',updated_at=NOW() WHERE id=$1 AND source='online' AND payment_status='transfer_pending' RETURNING id,order_number,customer_name,customer_phone,customer_email,total_clp",
+          "UPDATE orders SET payment_status='paid',updated_at=NOW() WHERE id=$1 AND source='online' AND payment_status='transfer_pending' AND LOWER(COALESCE(approval_status,''))<>'rejected' AND LOWER(COALESCE(delivery_status,''))<>'rejected' AND NOT EXISTS (SELECT 1 FROM delivery_assignments da WHERE da.order_id=orders.id AND LOWER(COALESCE(da.status,''))='rejected') RETURNING id,order_number,customer_name,customer_phone,customer_email,total_clp",
           [id]
         );
         if(!result.rowCount) return send(res,409,{error:"El pedido no existe o la transferencia ya fue revisada."});
