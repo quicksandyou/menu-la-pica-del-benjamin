@@ -26,12 +26,21 @@ jobs:
       - name: Install desktop dependencies
         working-directory: desktop
         run: npm install
-      - name: Use uploaded golden emblem icon
+      - name: Generate 256px Windows icon from uploaded golden emblem
         working-directory: desktop
         shell: pwsh
         run: |
-          if (!(Test-Path "build/icon.ico.ico")) { throw "No se encontró desktop/build/icon.ico.ico" }
-          Copy-Item "build/icon.ico.ico" "build/icon.ico" -Force
+          python -m pip install --quiet Pillow
+          @'
+          from PIL import Image
+          source = Image.open("build/icon.ico.ico").convert("RGBA")
+          source = source.resize((256, 256), Image.Resampling.LANCZOS)
+          source.save("build/icon.ico", format="ICO", sizes=[(16,16),(24,24),(32,32),(48,48),(64,64),(128,128),(256,256)])
+          check = Image.open("build/icon.ico")
+          if check.size[0] < 256 or check.size[1] < 256:
+              raise SystemExit("El icono generado no alcanza 256x256")
+          print("Icono Windows generado:", check.size)
+          '@ | python -
       - name: Build Windows installer
         working-directory: desktop
         run: npx electron-builder --win nsis --publish never
