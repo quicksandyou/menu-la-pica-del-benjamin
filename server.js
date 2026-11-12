@@ -921,7 +921,8 @@ La Picá del Benjamín`,
       if(!customerName||!customerEmail||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customerEmail)) return send(res,400,{error:"Completa nombre y correo electrónico válido."});
       if(!["Delivery","Retiro en el local"].includes(method)) return send(res,400,{error:"Selecciona delivery o retiro en el local."});
       if(method==="Delivery"&&(!address||!Object.prototype.hasOwnProperty.call(deliveryFees,locality))) return send(res,400,{error:"Completa una dirección y localidad de despacho válida."});
-      let subtotal=0;
+      const menuProducts=getMenuProducts();
+       let subtotal=0;
       const items=data.items.map(item=>{
 const name=String(item.name||"").trim(),quantity=Number(item.quantity);
 const price=getMenuProductPrice(name,menuProducts);
