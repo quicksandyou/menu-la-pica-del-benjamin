@@ -9,6 +9,18 @@ const SERVICE_CONFIG={
  gmail:{url:"https://mail.google.com/mail/u/?authuser=lapicadadelbenjamin%40gmail.com",title:"Gmail · lapicadadelbenjamin@gmail.com",partition:"persist:lapica-gmail"},
  whatsapp:{url:"https://web.whatsapp.com/",title:"WhatsApp | La Picá del Benjamín",partition:"persist:lapica-whatsapp"}
 };
+
+ipcMain.handle("pos:poll-delivery-orders",async()=>{
+ if(!win||win.isDestroyed())return {ok:false,orders:[]};
+ try{
+   const localDate=new Intl.DateTimeFormat("en-CA",{timeZone:"America/Santiago",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date());
+   const response=await win.webContents.session.fetch("https://menu-la-pica-del-benjamin.onrender.com/api/reparto/pedidos?date="+localDate,{headers:{"Accept":"application/json"}});
+   if(!response.ok)return {ok:false,status:response.status,orders:[]};
+   const data=await response.json();
+   const orders=Array.isArray(data.orders)?data.orders:[];
+   return {ok:true,orders:orders.filter(o=>String(o.source||"online").toLowerCase()==="online"&&["delivery","despacho"].includes(String(o.delivery_method||"").toLowerCase())).map(o=>({id:o.id,order_number:o.order_number,customer_name:o.customer_name,created_at:o.created_at}))};
+ }catch(error){console.warn("No se pudieron consultar pedidos delivery:",error.message);return {ok:false,orders:[]};}
+});
 ipcMain.handle("pos:open-service",async(_event,service)=>{
  const config=SERVICE_CONFIG[service];
  if(!config)throw new Error("Servicio no permitido.");
