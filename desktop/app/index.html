@@ -35,7 +35,7 @@
 @media(max-width:700px){.top{align-items:flex-start;gap:10px;flex-wrap:wrap}.top-actions{width:100%}.top-actions button{flex:1;padding:9px 8px;font-size:12px}}
 </style></head><body><header class="top"><div><div class="brand">🍔 LA PICÁ DEL BENJAMÍN</div><div class="sub">Punto de venta local · Uso interno</div></div><div class="top-actions"><button id="gmailShortcut" type="button" onclick="openPosService(&quot;gmail&quot;)">✉️ Gmail</button><button id="whatsappShortcut" type="button" onclick="openPosService(&quot;whatsapp&quot;)">💬 WhatsApp</button><button id="staffShortcut" type="button" onclick="openStaffPanel()">🚴 Repartidor / Jefatura</button></div></header>
 
-<main id="app" class="wrap"><div class="notice">POS local de acceso directo, sin contraseña. El historial permanente de ventas será incorporado en la siguiente etapa.</div><div class="layout"><section><section class="search-panel" aria-label="Buscar productos"><label class="search-label" for="search">🔎 Buscar un producto</label><form class="search-row" onsubmit="searchProduct(event)"><input id="search" type="search" placeholder="Escribe el nombre del producto..." autocomplete="off" oninput="renderProducts()"><button class="search-button" type="submit">Buscar</button></form><div id="searchStatus" class="search-status" aria-live="polite">Puedes buscar por nombre, categoría o descripción.</div></section><div class="tools"><button type="button" class="add" onclick="loadSharedMenu().catch(e=>alert(e.message))">↻ Actualizar carta</button><select id="mode"><option>Consumo en local</option><option>Retiro en el local</option></select></div><div id="menuSyncStatus" class="muted" aria-live="polite">Conectando con la carta web…</div><div class="tabbar"><button class="tab-arrow" id="catPrev" type="button" aria-label="Ver categorías anteriores">‹</button><nav class="tabs" id="tabs" aria-label="Categorías de productos"></nav><button class="tab-arrow" id="catNext" type="button" aria-label="Ver más categorías">›</button></div><div class="products" id="products"></div></section><aside class="cart"><h2>🧾 Pedido actual</h2><div id="cartLines">Agrega productos para comenzar.</div><div class="total" id="total">$0</div><div class="field"><label>Cliente (opcional)</label><input id="customer" placeholder="Nombre del cliente"></div><div class="field"><label>Forma de pago</label><select id="payment"><option>Efectivo</option><option>Transferencia</option><option>Tarjeta</option><option>Pendiente</option></select></div><div class="field"><label>Observaciones para cocina</label><textarea id="notes" rows="2" placeholder="Sin cebolla, término, etc."></textarea></div><button class="action primary" onclick="printReceipt()">Imprimir comanda</button><button class="action" onclick="newOrder()">Nuevo pedido / limpiar</button><p class="muted">La impresión abre el diálogo de Windows.</p></aside></div></main><section id="receipt" class="receipt"></section>
+<main id="app" class="wrap"><div id="deliveryAlertNotice" class="notice hidden" role="status" aria-live="polite"></div><div class="notice">POS local de acceso directo, sin contraseña. El historial permanente de ventas será incorporado en la siguiente etapa.</div><div class="layout"><section><section class="search-panel" aria-label="Buscar productos"><label class="search-label" for="search">🔎 Buscar un producto</label><form class="search-row" onsubmit="searchProduct(event)"><input id="search" type="search" placeholder="Escribe el nombre del producto..." autocomplete="off" oninput="renderProducts()"><button class="search-button" type="submit">Buscar</button></form><div id="searchStatus" class="search-status" aria-live="polite">Puedes buscar por nombre, categoría o descripción.</div></section><div class="tools"><button type="button" class="add" onclick="loadSharedMenu().catch(e=>alert(e.message))">↻ Actualizar carta</button><select id="mode"><option>Consumo en local</option><option>Retiro en el local</option></select></div><div id="menuSyncStatus" class="muted" aria-live="polite">Conectando con la carta web…</div><div class="tabbar"><button class="tab-arrow" id="catPrev" type="button" aria-label="Ver categorías anteriores">‹</button><nav class="tabs" id="tabs" aria-label="Categorías de productos"></nav><button class="tab-arrow" id="catNext" type="button" aria-label="Ver más categorías">›</button></div><div class="products" id="products"></div></section><aside class="cart"><h2>🧾 Pedido actual</h2><div id="cartLines">Agrega productos para comenzar.</div><div class="total" id="total">$0</div><div class="field"><label>Cliente (opcional)</label><input id="customer" placeholder="Nombre del cliente"></div><div class="field"><label>Forma de pago</label><select id="payment"><option>Efectivo</option><option>Transferencia</option><option>Tarjeta</option><option>Pendiente</option></select></div><div class="field"><label>Observaciones para cocina</label><textarea id="notes" rows="2" placeholder="Sin cebolla, término, etc."></textarea></div><button class="action primary" onclick="printReceipt()">Imprimir comanda</button><button class="action" onclick="newOrder()">Nuevo pedido / limpiar</button><p class="muted">La impresión abre el diálogo de Windows.</p></aside></div></main><section id="receipt" class="receipt"></section>
 <script>
 let P=[],cats=[];
 const MENU_ORIGIN="https://menu-la-pica-del-benjamin.onrender.com/";
@@ -159,6 +159,44 @@ loadSharedMenu().then(()=>iniciarPOS()).catch(e=>{
  document.getElementById("products").textContent="No se pudo cargar la carta. Pulsa Actualizar carta para reintentar.";console.error('Error sincronizando menú POS:',e);
 });
 
+
+let knownDeliveryOrderIds=null;
+let deliverySoundContext=null;
+function playDeliveryAlert(){
+ try{
+   const AudioCtx=window.AudioContext||window.webkitAudioContext;
+   if(!AudioCtx)return;
+   deliverySoundContext=deliverySoundContext||new AudioCtx();
+   if(deliverySoundContext.state==="suspended")deliverySoundContext.resume();
+   const ctx=deliverySoundContext;
+   [0,0.22,0.44].forEach((offset,i)=>{
+     const osc=ctx.createOscillator(),gain=ctx.createGain();
+     osc.type="sine";osc.frequency.value=i===1?1046:880;
+     gain.gain.setValueAtTime(0.0001,ctx.currentTime+offset);
+     gain.gain.exponentialRampToValueAtTime(0.22,ctx.currentTime+offset+0.02);
+     gain.gain.exponentialRampToValueAtTime(0.0001,ctx.currentTime+offset+0.16);
+     osc.connect(gain);gain.connect(ctx.destination);
+     osc.start(ctx.currentTime+offset);osc.stop(ctx.currentTime+offset+0.18);
+   });
+ }catch(e){console.warn("No se pudo reproducir alerta:",e);}
+}
+async function checkNewDeliveryOrders(){
+ if(!window.posBridge||typeof window.posBridge.pollDeliveryOrders!=="function")return;
+ try{
+   const result=await window.posBridge.pollDeliveryOrders();
+   if(!result||!result.ok)return;
+   const current=new Set((result.orders||[]).map(o=>String(o.id)));
+   if(knownDeliveryOrderIds===null){knownDeliveryOrderIds=current;return;}
+   const arrived=[...current].filter(id=>!knownDeliveryOrderIds.has(id));
+   knownDeliveryOrderIds=current;
+   if(arrived.length){
+     playDeliveryAlert();
+     const notice=document.getElementById("deliveryAlertNotice");
+     if(notice){notice.textContent="🔔 ¡Llegó "+arrived.length+" nuevo(s) pedido(s) Delivery desde la página!";notice.classList.remove("hidden");}
+   }
+ }catch(e){console.warn("Aviso de pedidos delivery:",e);}
+}
+setTimeout(()=>{checkNewDeliveryOrders();setInterval(checkNewDeliveryOrders,12000);},5000);
 async function openPosService(service){
  const labels={gmail:"Gmail",whatsapp:"WhatsApp"};
  try{
