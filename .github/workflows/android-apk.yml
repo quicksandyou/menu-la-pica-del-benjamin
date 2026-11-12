@@ -62,16 +62,7 @@ jobs:
           if '<queries>' not in s:
               q = """    <queries>
                   <package android:name="net.veritran.becl.prod" />
-                  <package android:name="cl.bancochile.mi_banco" />
-                  <package android:name="cl.santander.smartphone" />
                   <package android:name="cl.bci.app.personas" />
-                  <package android:name="cl.android" />
-                  <package android:name="cl.scotiabank.go" />
-                  <package android:name="com.konylabs.ItauMobileBank" />
-                  <package android:name="cl.bancoripley.appbanco" />
-                  <package android:name="cl.bci.sismo.mach" />
-                  <package android:name="com.krealo.tenpo" />
-                  <package android:name="com.mercadopago.wallet" />
               </queries>
           """
               s = s.replace('<application', q + '    <application', 1)
