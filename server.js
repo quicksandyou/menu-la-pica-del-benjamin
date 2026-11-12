@@ -1,4 +1,6 @@
 const http = require("http");
+const fs = require("fs");
+const path = require("path");
 const { randomUUID, randomBytes, scryptSync, timingSafeEqual, createHash, createHmac } = require("crypto");
 const { Pool } = require("pg");
 
@@ -142,35 +144,25 @@ async function initializeDatabase() {
 
 const deliveryFees = { "Linares":1990, "Longaví":3500, "Yerbas Buenas":3000, "Colbún":12000, "Villa Alegre":4000, "San Javier":5000, "Palmilla":5000 };
 
-const products = {
-  "California Rolls": 4700, "Tempura o Panko": 4900, "Salmón": 5500,
-  "Avocado": 4900, "Hosomaki": 2350, "Chicken (10 cortes)": 5390,
-  "Fresh (10 cortes)": 4990, "Mechada Rolls (10 cortes)": 5490,
-"Tor Rolls (10 cortes)": 5550,
-"Nigiri (2 bocados)": 3300,
-"Sashimi 6 cortes": 5200, "Sashimi 9 cortes": 6900,
-  "Ceviche camarón-salmón": 7990, "Ceviche mixto": 9490, "Gohan a elección": 5990,
-  "Napolitana": 7990, "Pollo champiñón": 8990, "Cuatro estaciones": 8990,
-  "Peperoni": 7990, "Especial carne": 8990, "Mexicana": 8990,
-  "Mediterránea": 9990, "Mechada choclo": 8990, "Carnes mixtas": 8990,
-  "Clásico de la casa": 4990, "Chacarero": 4990, "Barros Luco": 4990,
-  "Benjita": 6490, "Sándwich del chef": 5990, "A lo pobre": 5990,
-  "Vegetariano": 6490, "Mexicano": 5990, "Chileno": 5990,
-  "Cheese Cream": 6890, "Chicken": 6990,
-  "Bebida lata 350 cc": 1500, "Bebida botella 1,5 litros": 2500,
-  "Jugo natural 350 cc": 2500, "Jugo natural 1 litro": 3990,
-  "Néctar 1,5 litros": 2500, "Agua mineral 600 ml": 1000,
-  "Red Bull 250 cc": 2500,
-  "Aros bote plata 925": 7990,
-  "Aros Minnie plata 925": 12990,
-  "Pulsera de plata 925 · diseños surtidos": 8990,
-  "Pulsera de plata 925 · colección": 8990,
-  "Cadena plata 925 Amor": 10990,
-  "Cadena de plata 925 con dije": 9990,
-  "Cadena de plata 925 mariposa": 8990,
-  "Argollas plata 925": 8990,
-  "Pulsera plata 925 con cruz": 8990,
-};
+// Usa el mismo catálogo que alimenta la web y la APK.
+function getMenuProducts() {
+  const menuPath = path.join(__dirname, "menu.json");
+  const menu = JSON.parse(fs.readFileSync(menuPath, "utf8"));
+  if (!menu || !Array.isArray(menu.products)) throw new Error("El catálogo compartido no está disponible.");
+  const catalog = Object.create(null);
+  for (const item of menu.products) {
+    if (!item || typeof item.name !== "string" || !item.name.trim()) continue;
+    const price = Number(item.price_clp);
+    if (Number.isSafeInteger(price) && price > 0) catalog[item.name.trim()] = price;
+  }
+  return catalog;
+}
+
+function getMenuProductPrice(name, catalog) {
+  const cleanName = String(name || "").trim();
+  const baseName = cleanName.split(" · ")[0].trim();
+  return catalog[cleanName] ?? catalog[baseName] ?? null;
+}
 
 function isOrderingOpen(){
   const parts = new Intl.DateTimeFormat("en-US", {
@@ -932,7 +924,7 @@ La Picá del Benjamín`,
       let subtotal=0;
       const items=data.items.map(item=>{
 const name=String(item.name||"").trim(),quantity=Number(item.quantity);
-const baseName=name.split(" · ")[0].trim(),price=products[name]||products[baseName];
+const price=getMenuProductPrice(name,menuProducts);
 if(!price||!Number.isInteger(quantity)||quantity<1||quantity>30||Number(item.unit_price)!==price) throw new Error("Producto, cantidad o precio inválido: "+name);
 
         subtotal+=price*quantity;
@@ -994,9 +986,10 @@ if(!price||!Number.isInteger(quantity)||quantity<1||quantity>30||Number(item.uni
     if (method !== "Delivery") throw new Error("La tienda online acepta exclusivamente pedidos con delivery.");
 
     let total = 0;
+    const menuProducts = getMenuProducts();
     const items = data.items.map(item => {
-      const price = products[item.name];
-      if (!price || !Number.isInteger(item.quantity) || item.quantity < 1 || item.quantity > 30 || item.unit_price !== price) {
+      const price = getMenuProductPrice(item.name, menuProducts);
+      if (!price || !Number.isInteger(item.quantity) || item.quantity < 1 || item.quantity > 30 || Number(item.unit_price) !== price) {
         throw new Error("Producto, cantidad o precio inválido.");
       }
       total += price * item.quantity;
