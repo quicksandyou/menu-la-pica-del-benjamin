@@ -10,6 +10,12 @@ const SERVICE_CONFIG={
  whatsapp:{url:"https://web.whatsapp.com/",title:"WhatsApp | La Picá del Benjamín",partition:"persist:lapica-whatsapp"}
 };
 
+ipcMain.handle("pos:open-dashboard",async()=>{
+ if(!win||win.isDestroyed())throw new Error("La ventana del POS no está disponible.");
+ await win.loadFile(path.join(__dirname,"app","index.html"));
+ return true;
+});
+
 ipcMain.handle("pos:poll-online-orders",async()=>{
  if(!win||win.isDestroyed())return {ok:false,orders:[]};
  try{
