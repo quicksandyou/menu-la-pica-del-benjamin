@@ -1226,14 +1226,7 @@ const BANK_ANDROID_PACKAGES={
  "BancoEstado":"net.veritran.becl.prod",
  "Banco de Chile":"cl.bancochile.mi_banco",
  "Santander":"cl.santander.smartphone",
- "BCI":"cl.bci.app.personas",
- "Banco Falabella":"cl.android",
- "Scotiabank":"cl.scotiabank.go",
- "Itaú":"com.konylabs.ItauMobileBank",
- "Banco Ripley":"cl.bancoripley.appbanco",
- "MACH":"cl.bci.sismo.mach",
- "Tenpo":"com.krealo.tenpo",
- "Mercado Pago":"com.mercadopago.wallet"
+ "BCI":"cl.bci.app.personas"
 };
 async function openSelectedBank(){
  const bank=document.getElementById("sourceBank")?.value||"BancoEstado";
@@ -1246,7 +1239,7 @@ async function openSelectedBank(){
  if(isAndroid&&native&&launcher?.openUrl&&packageName){
   try{
    const result=await launcher.openUrl({url:packageName});
-   if(result?.completed!==false)return;
+   if(result?.completed===true)return;
   }catch(error){
    console.warn("No se pudo abrir la app bancaria; se ofrecerá la web oficial.",error);
   }
