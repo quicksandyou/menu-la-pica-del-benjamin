@@ -37,7 +37,7 @@ jobs:
           mkdir -p www
           cat > www/index.html <<'HTML'
           <!doctype html>
-          <html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><meta name="theme-color" content="#100b07"><title>La Picá del Benjamín</title></head><body style="margin:0;background:#100b07;color:#ffd34d;font:16px system-ui;display:grid;min-height:100vh;place-items:center"><p>Conectando con La Picá del Benjamín…</p><script>window.location.replace("https://menu-la-pica-del-benjamin.onrender.com/?app=android");</script><noscript><a href="https://menu-la-pica-del-benjamin.onrender.com/?app=android">Abrir menú</a></noscript></body></html>
+          <html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><meta name="theme-color" content="#100b07"><title>La Picá del Benjamín</title></head><body style="margin:0;background:#100b07;color:#ffd34d;font:16px system-ui;display:grid;min-height:100vh;place-items:center"><p>Conectando con La Picá del Benjamín…</p><script>window.location.replace("https://menu-la-pica-del-benjamin.onrender.com/?app=1");</script><noscript><a href="https://menu-la-pica-del-benjamin.onrender.com/?app=android">Abrir menú</a></noscript></body></html>
           HTML
           cp menu.json www/menu.json
           cp manifest.json www/manifest.json
