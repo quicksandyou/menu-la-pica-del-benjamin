@@ -288,6 +288,18 @@ const server = http.createServer(async (req, res) => {
 
   const requestPath = new URL(req.url, "http://localhost").pathname;
 
+  // Servir el panel interno desde el mismo origen que la API para conservar la cookie de sesión.
+  if (req.method === "GET" && requestPath === "/reparto.html") {
+    try {
+      const page = await fs.promises.readFile(path.join(__dirname, "reparto.html"));
+      res.writeHead(200, { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff" });
+      return res.end(page);
+    } catch (error) {
+      console.error("No se pudo cargar reparto.html:", error.message);
+      return send(res, 503, { error: "El panel de reparto no está disponible en este momento." });
+    }
+  }
+
   // Autocompletado de direcciones: el navegador consulta este servidor y no proveedores externos directamente.
   if (req.method === "GET" && requestPath === "/api/direcciones") {
     if (isRateLimited(req, 30, 60_000)) return send(res, 429, { error: "Demasiadas búsquedas. Espera un momento." });
