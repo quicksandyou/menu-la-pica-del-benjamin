@@ -4,6 +4,42 @@ const path=require("path");
 const fs=require("fs");
 let win;
 let updatePromptOpen=false;
+const serviceWindows=new Map();
+const SERVICE_CONFIG={
+ gmail:{url:"https://mail.google.com/",title:"Gmail | La Picá del Benjamín",partition:"persist:lapica-gmail"},
+ whatsapp:{url:"https://web.whatsapp.com/",title:"WhatsApp | La Picá del Benjamín",partition:"persist:lapica-whatsapp"}
+};
+ipcMain.handle("pos:open-service",async(_event,service)=>{
+ const config=SERVICE_CONFIG[service];
+ if(!config)throw new Error("Servicio no permitido.");
+ let serviceWin=serviceWindows.get(service);
+ if(serviceWin&&!serviceWin.isDestroyed()){
+   if(serviceWin.isMinimized())serviceWin.restore();
+   serviceWin.focus();
+   return true;
+ }
+ serviceWin=new BrowserWindow({
+   width:1280,height:850,minWidth:900,minHeight:650,
+   title:config.title,backgroundColor:"#ffffff",autoHideMenuBar:true,
+   webPreferences:{
+     partition:config.partition,
+     contextIsolation:true,nodeIntegration:false,sandbox:true,
+     webSecurity:true
+   }
+ });
+ serviceWindows.set(service,serviceWin);
+ serviceWin.webContents.setWindowOpenHandler(({url})=>{
+   if(url.startsWith("https://")){shell.openExternal(url);return {action:"deny"};}
+   return {action:"deny"};
+ });
+ serviceWin.webContents.on("will-navigate",(event,url)=>{
+   if(!url.startsWith("https://"))event.preventDefault();
+ });
+ serviceWin.on("closed",()=>serviceWindows.delete(service));
+ await serviceWin.loadURL(config.url);
+ return true;
+});
+
 function validateMenu(data){
  if(!data||!Array.isArray(data.products)||!data.products.length||!Array.isArray(data.categories)||!data.categories.length)throw new Error("Carta incompleta.");
  const categories=new Set(data.categories),seen=new Set();
