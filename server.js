@@ -309,6 +309,18 @@ const server = http.createServer(async (req, res) => {
     }
   }
 
+  // Servir el portal de personal en el mismo origen: el cierre de sesión del panel de reparto vuelve aquí.
+  if (req.method === "GET" && requestPath === "/personal.html") {
+    try {
+      const page = await fs.promises.readFile(path.join(__dirname, "personal.html"));
+      res.writeHead(200, { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff" });
+      return res.end(page);
+    } catch (error) {
+      console.error("No se pudo cargar personal.html:", error.message);
+      return send(res, 503, { error: "El portal de personal no está disponible en este momento." });
+    }
+  }
+
   // Servir el panel interno desde el mismo origen que la API para conservar la cookie de sesión.
   if (req.method === "GET" && requestPath === "/reparto.html") {
     try {
