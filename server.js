@@ -267,6 +267,7 @@ const server = http.createServer(async (req, res) => {
   const origin = req.headers.origin;
   const allowedOrigins = new Set([
     FRONTEND_URL ? new URL(FRONTEND_URL).origin : "",
+    "https://menu-la-pica-del-benjamin.onrender.com",
     "https://localhost",
     "http://localhost",
     "capacitor://localhost",
