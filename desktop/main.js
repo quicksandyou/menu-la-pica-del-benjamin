@@ -12,6 +12,10 @@ const SERVICE_CONFIG={
 ipcMain.handle("pos:open-service",async(_event,service)=>{
  const config=SERVICE_CONFIG[service];
  if(!config)throw new Error("Servicio no permitido.");
+ if(service==="whatsapp"){
+   await shell.openExternal("https://web.whatsapp.com/");
+   return true;
+ }
  let serviceWin=serviceWindows.get(service);
  if(serviceWin&&!serviceWin.isDestroyed()){
    if(serviceWin.isMinimized())serviceWin.restore();
