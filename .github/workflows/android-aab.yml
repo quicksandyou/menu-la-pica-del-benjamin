@@ -43,6 +43,36 @@ jobs:
           npx cap add android
           npx cap sync android
 
+      - name: Configurar número de versión para Google Play
+        run: |
+          python3 <<'PY'
+          from pathlib import Path
+          import re
+
+          p = Path("android/app/build.gradle")
+          s = p.read_text()
+
+          s, count_code = re.subn(
+              r'(?m)^(\s*versionCode\s+)\d+',
+              r'\g<1>2',
+              s,
+              count=1
+          )
+
+          s, count_name = re.subn(
+              r"""(?m)^(\s*versionName\s+)(['"])[^'"]+\2""",
+              r'\g<1>"1.1"',
+              s,
+              count=1
+          )
+
+          if count_code != 1 or count_name != 1:
+              raise SystemExit("No se pudo configurar versionCode y versionName")
+
+          p.write_text(s)
+          print("Versión configurada: 2 (1.1)")
+          PY
+
       - name: Configurar SDK Android para Google Play
         run: |
           python3 <<'PY'
