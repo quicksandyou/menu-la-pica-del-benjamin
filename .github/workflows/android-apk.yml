@@ -50,9 +50,33 @@ jobs:
           if [ -f reparto-manifest.json ]; then cp reparto-manifest.json www/reparto-manifest.json; fi
       - name: Preparar Capacitor
         run: |
-          npm install --no-save @capacitor/core@^7 @capacitor/cli@^7 @capacitor/android@^7 sharp
+          npm install --no-save @capacitor/core@^7 @capacitor/cli@^7 @capacitor/android@^7 @capacitor/app-launcher@^7 sharp
           npx cap add android
           npx cap sync android
+      - name: Habilitar apertura de aplicaciones bancarias instaladas
+        run: |
+          python3 <<'PY'
+          from pathlib import Path
+          p = Path('android/app/src/main/AndroidManifest.xml')
+          s = p.read_text()
+          if '<queries>' not in s:
+              q = """    <queries>
+                  <package android:name="net.veritran.becl.prod" />
+                  <package android:name="cl.bancochile.mi_banco" />
+                  <package android:name="cl.santander.smartphone" />
+                  <package android:name="cl.bci.app.personas" />
+                  <package android:name="cl.android" />
+                  <package android:name="cl.scotiabank.go" />
+                  <package android:name="com.konylabs.ItauMobileBank" />
+                  <package android:name="cl.bancoripley.appbanco" />
+                  <package android:name="cl.bci.sismo.mach" />
+                  <package android:name="com.krealo.tenpo" />
+                  <package android:name="com.mercadopago.wallet" />
+              </queries>
+          """
+              s = s.replace('<application', q + '    <application', 1)
+              p.write_text(s)
+          PY
       - name: Aplicar icono oficial normal y adaptativo de Android
         run: |
           node <<'NODE'
