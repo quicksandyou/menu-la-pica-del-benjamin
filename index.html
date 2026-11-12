@@ -752,7 +752,7 @@ html.native-app-ui #appNativeWhatsAppCta:active,html.native-app-ui .app-native-c
 <p><b>Destinatario:</b> Michell de Las Mercedes Ibáñez Garrido</p><p><b>Banco receptor:</b> Mercado Pago · Cuenta Vista</p><p><b>Número de cuenta:</b> 1074254100</p><p><b>Correo:</b> michellibanez1234@gmail.com</p>
 </div>
 <button type="button" onclick="copyTransferData()" style="width:100%;margin-top:10px;padding:14px;background:#d99b35;color:#24180d;border:0;border-radius:10px;font-weight:bold;font-size:16px">📋 COPIAR DATOS DE MERCADO PAGO</button>
-<button type="button" onclick="openSelectedBank()" style="width:100%;margin-top:8px;padding:14px;background:#183f78;color:#fff;border:0;border-radius:10px;font-weight:bold;font-size:16px">🏦 ABRIR BANCO SELECCIONADO</button>
+<button type="button" onclick="openSelectedBank()" style="width:100%;margin-top:8px;padding:14px;background:#183f78;color:#fff;border:0;border-radius:10px;font-weight:bold;font-size:16px">📱 ABRIR APP O WEB DEL BANCO</button>
 <small style="display:block;margin-top:9px">Se abrirá el sitio oficial del banco seleccionado. Inicia sesión allí y pega los datos copiados para transferir. La transferencia queda pendiente hasta verificar el abono y enviar el comprobante.</small></div><input id="method" type="text" value="Delivery" readonly aria-label="Modalidad de entrega"><select id="locality" onchange="drawCart()"><option value="Linares">Linares</option><option value="Longaví">Longaví</option><option value="Yerbas Buenas">Yerbas Buenas</option><option value="Colbún">Colbún</option><option value="Villa Alegre">Villa Alegre</option><option value="San Javier">San Javier</option><option value="Palmilla">Palmilla</option></select><input id="address" placeholder="Dirección y referencia (delivery)"><button type="button" class="secondary" id="locationBtn" onclick="captureDeliveryLocation()">📍 Compartir ubicación exacta (opcional)</button><small id="locationStatus" aria-live="polite">Puedes escribir tu dirección normalmente o compartir tu ubicación GPS.</small><input type="hidden" id="deliveryLat"><input type="hidden" id="deliveryLng"><textarea id="notes" placeholder="Notas del pedido (opcional)"></textarea></div>
 <button class="online-pay" onclick="payOnline()">💳 Pagar por Internet</button><button class="clear" onclick="cart={};drawCart()">Vaciar carrito</button><p class="small">Delivery disponible en Linares ($1.990), Longaví ($3.500), Yerbas Buenas ($3.000), Colbún ($12.000), Villa Alegre ($4.000), San Javier y Palmilla ($5.000). Completa tu dirección y paga por Internet. WhatsApp queda disponible exclusivamente para consultas.</p></section></div>
 </div>
@@ -1225,7 +1225,14 @@ function fallbackCopyTransferData(value){
 function openSelectedBank(){
  const bank=document.getElementById("sourceBank")?.value||"BancoEstado";
  const url=BANK_PORTALS[bank]||BANK_PORTALS["Otro banco"];
- window.open(url,"_blank","noopener,noreferrer");
+ const isMobile=/Android|iPhone|iPad|iPod/i.test(navigator.userAgent||"");
+ // Usar el enlace HTTPS oficial del banco: si el banco tiene configurado App Links/Universal Links,
+ // el sistema puede abrir su app instalada; si no, continuará en el sitio web oficial.
+ if(isMobile){
+  window.location.assign(url);
+ }else{
+  window.open(url,"_blank","noopener,noreferrer");
+ }
 }
 function updatePaymentMethod(){
  const transfer=document.getElementById("paymentMethod")?.value==="transfer";
