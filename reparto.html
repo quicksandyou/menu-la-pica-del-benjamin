@@ -280,7 +280,7 @@ if(d.role==="manager"){
  if(contact.childNodes.length)card.append(contact);
  card.append(el("p","muted",[o.delivery_address,o.locality].filter(Boolean).join(", ")||o.delivery_method||"Sin dirección"));
 }const statusLabel={pending:"Pendiente",assigned:"Pedido confirmado",picked_up:"En camino",delivered:"Entregado"}[o.assignment_status||o.delivery_status]||o.delivery_status||"Pendiente";card.append(el("p","muted","Estado: "+statusLabel+" · Pago: "+(o.payment_status||"pendiente")));if(d.role==="manager")card.append(el("p","muted","Origen: Pedido por página · Modalidad: "+(o.delivery_method||"") +" · Pago: "+(o.payment_status||"pendiente")));
-if(d.role==="manager"&&o.payment_status==="transfer_pending"){
+if(d.role==="manager"&&o.payment_status==="transfer_pending"&&String(o.approval_status||"").toLowerCase()!=="rejected"&&String(o.delivery_status||"").toLowerCase()!=="rejected"&&String(o.assignment_status||"").toLowerCase()!=="rejected"){
  const payBox=el("div","status");payBox.append(el("strong","","🕒 Transferencia pendiente de verificar"));
  payBox.append(el("p","muted","Revisa el abono directamente en la cuenta Mercado Pago antes de confirmar."));
  const confirmPay=el("button","btn","✅ Confirmar pago recibido");
