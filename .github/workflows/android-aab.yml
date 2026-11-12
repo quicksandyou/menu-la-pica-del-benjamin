@@ -40,6 +40,31 @@ jobs:
           npx cap add android
           npx cap sync android
 
+      - name: Establecer SDK mínimo 24 para Google Play
+        run: |
+          python3 <<'PY'
+          from pathlib import Path
+          import re
+
+          p = Path("android/variables.gradle")
+          if not p.exists():
+              raise SystemExit("No existe android/variables.gradle")
+
+          s = p.read_text()
+          s, count = re.subn(
+              r'(?m)^(\s*minSdkVersion\s*=\s*)\d+',
+              r'\g<1>24',
+              s,
+              count=1
+          )
+
+          if count != 1:
+              raise SystemExit("No se encontró minSdkVersion en variables.gradle")
+
+          p.write_text(s)
+          print("minSdkVersion configurado en 24")
+          PY
+
       - name: Recuperar clave de firma
         env:
           KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
