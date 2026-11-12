@@ -99,6 +99,10 @@ jobs:
             -alias "$KEY_ALIAS"
 
       - name: Generar AAB firmado
+        env:
+          STORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
         run: |
           cd android
           chmod +x gradlew
