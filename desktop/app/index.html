@@ -154,7 +154,15 @@ async function loadSharedMenu(){
  if(status)status.textContent='Carta segura v'+(d.version||1)+' · '+P.length+' productos · '+(d._menuSource||"web")+(d._menuWarning?" · respaldo activo":"") +' · '+new Date().toLocaleTimeString('es-CL');
  renderTabs();renderProducts();drawCart();
 }
-loadSharedMenu().then(()=>iniciarPOS()).catch(e=>{
+loadSharedMenu().then(()=>{
+ iniciarPOS();
+ // Sincroniza la carta mientras el POS permanece abierto, sin borrar el pedido actual.
+ setInterval(()=>loadSharedMenu().catch(e=>{
+   const status=document.getElementById('menuSyncStatus');
+   if(status)status.textContent='No se pudo actualizar la carta; se mantiene la última versión disponible.';
+   console.warn('Actualización automática de carta POS:',e);
+ }),60000);
+}).catch(e=>{
  const status=document.getElementById('menuSyncStatus');if(status)status.textContent='Error al conectar con la carta: '+(e.message||'sin conexión');
  document.getElementById("products").textContent="No se pudo cargar la carta. Pulsa Actualizar carta para reintentar.";console.error('Error sincronizando menú POS:',e);
 });
