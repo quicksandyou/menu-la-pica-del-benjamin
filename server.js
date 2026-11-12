@@ -288,6 +288,27 @@ const server = http.createServer(async (req, res) => {
 
   const requestPath = new URL(req.url, "http://localhost").pathname;
 
+  // Servir recursos gráficos del panel de reparto desde la carpeta icons.
+  // Se restringe la ruta a /icons/ y se valida la ruta resuelta para impedir traversal.
+  if (req.method === "GET" && requestPath.startsWith("/icons/")) {
+    try {
+      const relativeIconPath = decodeURIComponent(requestPath.slice("/icons/".length));
+      const iconsRoot = path.resolve(__dirname, "icons");
+      const iconPath = path.resolve(iconsRoot, relativeIconPath);
+      if (!iconPath.startsWith(iconsRoot + path.sep) || !/\\.(svg|png|jpe?g|webp|ico)$/i.test(iconPath)) {
+        return send(res, 404, { error: "Recurso no encontrado." });
+      }
+      const icon = await fs.promises.readFile(iconPath);
+      const ext = path.extname(iconPath).toLowerCase();
+      const contentType = ({ ".svg": "image/svg+xml", ".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".webp": "image/webp", ".ico": "image/x-icon" })[ext];
+      res.writeHead(200, { "Content-Type": contentType, "Cache-Control": "public, max-age=3600", "X-Content-Type-Options": "nosniff" });
+      return res.end(icon);
+    } catch (error) {
+      if (error.code !== "ENOENT") console.error("No se pudo cargar recurso gráfico:", error.message);
+      return send(res, 404, { error: "Recurso no encontrado." });
+    }
+  }
+
   // Servir el panel interno desde el mismo origen que la API para conservar la cookie de sesión.
   if (req.method === "GET" && requestPath === "/reparto.html") {
     try {
