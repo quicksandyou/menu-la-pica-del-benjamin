@@ -1,0 +1,484 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#100b07"><link rel="manifest" href="/reparto-manifest.json"><title>Reparto | La Picá del Benjamín</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#100b07;color:#fff;font:15px system-ui;padding:18px}.wrap{max-width:900px;margin:auto}h1{color:#ffc34b}.card{background:#21180f;border:1px solid #68451f;border-radius:14px;padding:16px;margin:12px 0}.muted{color:#c9b99f}.btn{padding:11px 14px;border:0;border-radius:9px;background:#f4a623;font-weight:800;margin:5px 5px 5px 0;cursor:pointer}.secondary{background:#463321;color:white}select{padding:10px;background:#100b07;color:white;border:1px solid #8c632f;border-radius:8px}.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.status{background:#35291d;padding:10px;border-radius:8px;margin-top:8px}.hidden{display:none}
+
+#newOrderAlerts{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:10px 0;padding:12px;border:1px solid #94601f;border-radius:12px;background:#21180f}#newOrderAlerts button{padding:10px 13px;border:0;border-radius:9px;background:#f4a623;color:#211306;font-weight:850}#installApp{background:#315d3b!important;color:#fff!important}#alertState{color:#f3d9ae;font-size:13px}
+
+/* Rediseño panel de reparto: controles grandes para uso móvil */
+body{background:linear-gradient(180deg,#1d140c 0,#0b0907 260px);padding:12px;font-size:16px}
+.wrap{max-width:1040px}
+h1{font-size:clamp(24px,5vw,34px);line-height:1.15;margin:10px 0 16px}
+h2{font-size:21px;margin:4px 0 14px;color:#ffd078}
+.card{background:linear-gradient(145deg,#211a13,#15110d);border:1px solid #76552f;border-radius:19px;padding:clamp(14px,3vw,22px);margin:14px 0;box-shadow:0 9px 26px #0005}
+.btn,#newOrderAlerts button{min-height:50px;padding:13px 17px;border-radius:13px;font-size:15px;box-shadow:0 4px 13px #0004}
+.btn:not(.secondary),#newOrderAlerts button:not(#installApp){background:linear-gradient(110deg,#ffd36a,#ed8a22);color:#241506}
+.secondary{background:#403326;color:#fff;border:1px solid #765b3d}
+input,select,textarea{min-height:48px;padding:12px;border-radius:11px;border:1px solid #765b3d;font:inherit}
+.row{gap:10px}
+.status{padding:13px 15px;border:1px solid #654b30;background:#2a2118;border-radius:12px;line-height:1.5}
+.muted{color:#d3c4ae}
+#orders .card{background:#17130f}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid #ffe09a;outline-offset:3px}
+@media(max-width:600px){body{padding:9px}.wrap{width:100%}.card{padding:14px;margin:11px 0}.row>*{max-width:100%}.row input,.row select{flex:1 1 100%;min-width:0}.btn{flex:1 1 auto}.row .btn{min-width:120px}#newOrderAlerts{align-items:stretch}#newOrderAlerts button{width:100%}h2{font-size:19px}}
+
+ .brand-top{display:flex;align-items:center;gap:14px;margin:6px 0 14px;padding:12px 15px;border:1px solid #9b692d;border-radius:18px;background:linear-gradient(120deg,#2b190c,#100b07);box-shadow:0 8px 24px #0008}.brand-top img{width:76px;height:76px;object-fit:contain;filter:drop-shadow(0 5px 8px #0009)}.brand-top h1{margin:0;color:#ffd36a;font-size:clamp(22px,5vw,32px);text-shadow:0 2px 8px #e58a2033}.brand-top p{margin:4px 0 0;color:#e7d2b2;font-size:13px}@media(max-width:480px){.brand-top img{width:64px;height:64px}}
+.chat-messages{height:280px;overflow-y:auto;display:flex;flex-direction:column;gap:9px;padding:12px;background:#100b07;border:1px solid #654b30;border-radius:12px}.chat-bubble{max-width:85%;padding:10px 13px;border-radius:13px;background:#332519;border:1px solid #76552f;align-self:flex-start;overflow-wrap:anywhere}.chat-bubble.mine{align-self:flex-end;background:#573719;border-color:#c18a39}.chat-meta{font-size:11px;color:#e0c69f;margin-bottom:5px}.chat-text{white-space:pre-wrap;line-height:1.45}.chat-compose{display:flex;gap:9px;align-items:stretch;margin-top:10px}.chat-compose textarea{flex:1;min-width:0;background:#100b07;color:#fff;resize:vertical}.chat-compose button{align-self:stretch;margin:0}@media(max-width:600px){.chat-compose{flex-direction:column}.chat-compose button{width:100%}.chat-messages{height:240px}}
+.manager-only{display:block}.driver-mode #assign,.driver-mode #manual,.driver-mode #closingCard,.driver-mode #calendarCard,.driver-mode #newOrderAlerts{display:none!important}.driver-mode #extrasBox{display:block}.driver-mode #staffChat{border-color:#b47a2c}.driver-mode #routePanel{border-color:#b47a2c}#bulkRejectBar .row{align-items:center}#rejectSelected{background:linear-gradient(110deg,#ffb3a8,#dc5144);color:#2b0805}.pending-reject-line{display:flex;align-items:center;gap:9px;padding:8px 10px;margin:8px 0;background:#2b2118;border:1px solid #76552f;border-radius:10px}.pending-reject-line input{width:22px;height:22px;min-height:22px;accent-color:#f0a52e}.role-intro{padding:10px 14px;background:#2b2118;border:1px solid #76552f;border-radius:12px;margin:10px 0;color:#f7dfb8}.chat-sound-active{background:#315d3b!important;color:#fff!important}
+
+.driver-nav{display:flex;gap:8px;overflow-x:auto;padding:7px 2px 12px;margin:10px 0;scrollbar-width:thin;white-space:nowrap}
+.driver-tab{flex:0 0 auto;position:relative;border:1px solid #76552f;background:#2b2118;color:#f7dfb8;border-radius:12px;padding:12px 15px;font-weight:800;min-height:46px}
+.driver-tab.active{background:linear-gradient(110deg,#ffd36a,#ed8a22);color:#241506;border-color:#ffcf69}
+.chat-unread{display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:22px;padding:0 6px;margin-left:5px;border-radius:999px;background:#e32636;color:white;font-size:12px;font-weight:900;box-shadow:0 0 0 2px #2b2118}
+.chat-tab.has-unread{border-color:#f04452;box-shadow:0 0 0 2px #f0445244}
+.driver-mode #orders .driver-order-card{display:none}
+.driver-mode #orders .driver-order-card.driver-primary{display:block;border:2px solid #e9a52d;box-shadow:0 8px 28px #e9a52d22}
+.driver-mode #orders.driver-show-all .driver-order-card{display:block}
+.driver-mode .driver-panel-hidden{display:none!important}
+.driver-mode #driverWelcome{display:block}
+.driver-mode #orders .driver-order-card h3{font-size:23px;color:#ffd36a}
+.driver-mode #orders .driver-order-card .btn{min-height:54px;font-size:16px}
+@media(max-width:600px){.driver-nav{gap:6px}.driver-tab{padding:11px 12px;font-size:13px}}
+
+/* Vista de una sola sección para el repartidor: no apilar paneles */
+.driver-mode #newOrderAlerts,
+.driver-mode #manual,
+.driver-mode #assign,
+.driver-mode #bulkRejectBar,
+.driver-mode #closingCard,
+.driver-mode #calendarCard,
+.driver-mode #driverWelcome{display:none!important}
+.driver-mode #ordersHeading{display:block;margin:14px 0 10px;font-size:21px;color:#ffd36a}
+.driver-mode #orders.driver-panel-hidden,
+.driver-mode #staffChat.driver-panel-hidden,
+.driver-mode #routePanel.driver-panel-hidden,
+.driver-mode #extrasBox.driver-panel-hidden,
+.driver-mode #message.driver-panel-hidden{display:none!important}
+.driver-mode #orders .driver-order-card{display:none}
+.driver-mode #orders .driver-order-card.driver-primary{display:block}
+.driver-mode #orders.driver-show-all .driver-order-card{display:block}
+.driver-mode #ordersHeading.driver-heading-hidden{display:none!important}
+.driver-mode #orders .driver-order-card{margin-top:0}
+.driver-mode #staffChat,#routePanel,#extrasBox{margin-top:14px}
+
+/* Jefatura: menú siempre horizontal; permite desplazamiento lateral en ventanas estrechas */
+.manager-nav{display:flex!important;flex-direction:row!important;flex-wrap:nowrap!important;align-items:center;gap:8px;overflow-x:auto;overflow-y:hidden;white-space:nowrap;scrollbar-width:thin;width:100%;max-width:100%;padding:7px 2px 12px;position:relative;z-index:20;background:#100b07}
+.manager-nav .driver-tab{flex:0 0 auto;white-space:nowrap}
+.manager-mode #newOrderAlerts,.manager-mode #routePanel{display:none!important}.manager-mode #bulkRejectBar.manager-panel-hidden,.manager-mode #assign.manager-panel-hidden,.manager-mode #extrasBox.manager-panel-hidden,.manager-mode #closingCard.manager-panel-hidden,.manager-mode #calendarCard.manager-panel-hidden,.manager-mode #staffChat.manager-panel-hidden{display:none!important}
+.manager-mode #ordersHeading{display:block;color:#ffd36a;font-size:23px;margin:14px 0}
+.manager-mode .manager-panel-hidden{display:none!important}
+.manager-mode #orders .driver-order-card{display:block;margin:12px 0;border:1px solid #815624}
+.manager-mode #orders .driver-order-card .order-contact{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.manager-mode #orders .driver-order-card .order-contact a{color:#ffd36a;font-weight:800;text-decoration:none}
+.manager-mode #orders .driver-order-card .order-address{background:#2a1c11;padding:12px;border-radius:12px;border-left:4px solid #efa52e}
+.manager-mode #orders .driver-order-card .order-total{font-size:22px;color:#ffd36a;font-weight:900}
+.manager-mode #orders .driver-order-card .btn{min-height:44px}
+.manager-mode #adminOrders{margin-top:12px}
+.manager-mode #message{display:block}
+@media(max-width:650px){.manager-nav{margin:8px -2px}.manager-nav .driver-tab{padding:11px 13px;font-size:13px}}
+
+.driver-mode .order-contact{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin:8px 0}
+.driver-mode .order-contact a{display:inline-flex;align-items:center;gap:6px;padding:9px 12px;border-radius:10px;background:#173d2b;color:#d9ffe6;text-decoration:none;font-weight:800;border:1px solid #31744b}
+.driver-nav.hidden,.manager-nav.hidden{display:none!important}
+</style></head><body><main class="wrap"><header class="brand-top"><img src="/icons/repartidor.svg" alt="Mascota repartidor 3D de La Picá del Benjamín"><div><h1>La Picá del Benjamín</h1><p>Reparto · ¡Rápido, seguro y con sabor!</p></div></header><div class="row"><span id="identity" class="muted"></span><button class="btn secondary" id="refresh">Actualizar</button><button class="btn secondary" id="logout">Cerrar sesión</button></div>
+<nav id="driverNav" class="driver-nav hidden" aria-label="Menú del repartidor">
+ <button type="button" class="driver-tab active" data-driver-tab="delivery">🚚 Mi entrega</button>
+ <button type="button" class="driver-tab" data-driver-tab="orders">📦 Mis pedidos</button>
+ <button type="button" class="driver-tab" data-driver-tab="route">🧭 Ruta</button>
+ <button type="button" class="driver-tab" data-driver-tab="extras">➕ Carreras</button>
+</nav>
+<nav id="managerNav" class="driver-nav manager-nav hidden" aria-label="Menú de jefatura">
+ <button type="button" class="driver-tab active" data-manager-tab="pageOrders">🛒 Pedidos por la página</button>
+ <button type="button" class="driver-tab" data-manager-tab="manual">✍️ Pedido manual</button>
+ <button type="button" class="driver-tab" data-manager-tab="assign">📋 Asignar varios</button>
+ <button type="button" class="driver-tab" data-manager-tab="total">💰 Total</button>
+</nav>
+<div id="driverWelcome" class="role-intro hidden">Tu pantalla principal muestra primero la entrega que tienes que realizar. Usa las pestañas superiores para consultar el resto.</div><section id="newOrderAlerts" class="card hidden"><strong>📲 App de la jefa</strong><button id="enableSound">🔔 Activar sonido de pedidos</button><button id="installApp" hidden>Instalar aplicación</button><span id="alertState">Activa el sonido para recibir avisos de pedidos Delivery realizados desde la página web. Mantén el POS abierto.</span></section><section id="manual" class="card hidden manager-panel-hidden"><h2>Registrar pedido manual</h2><p class="muted">Completa los datos del cliente y escribe cada producto en una línea. Ejemplo: 2 x Churrasco italiano.</p><div class="row"><input id="mName" placeholder="Nombre del cliente" required><input id="mPhone" placeholder="Teléfono de contacto" required></div><div class="row"><div style="flex:1;min-width:240px;position:relative"><input id="mAddress" placeholder="Escribe la dirección de entrega" autocomplete="off" aria-label="Dirección de entrega" required><div id="manualMapSuggestions" class="status hidden" role="listbox" aria-label="Sugerencias de direcciones" style="position:absolute;top:100%;left:0;right:0;z-index:30;background:#21170f;border:1px solid #9a6b32;box-shadow:0 10px 24px #000b"></div></div><input id="mLocality" placeholder="Localidad" value="Linares" required></div><p id="manualMapStatus" class="muted">Escribe al menos 4 caracteres y selecciona una dirección sugerida.</p><label for="mItems">Pedido / productos y cantidades</label><textarea id="mItems" placeholder="1 x Churrasco italiano&#10;2 x Gohan pollo apanado" style="width:100%;min-height:110px;background:#100b07;color:white;margin-top:8px"></textarea><div class="row"><input id="mTotal" type="number" min="0" placeholder="Total del pedido ($)" required><select id="mSource"><option value="cash">Efectivo al recibir</option><option value="whatsapp">Pedido por WhatsApp</option><option value="in_person">Pedido presencial</option></select><select id="mZone"><option value="normal">Reparto normal $2.000</option><option value="far">Reparto lejano $3.000</option></select><select id="mDriver" aria-label="Asignar repartidor"><option value="maximo">Asignar a Máximo Palma</option><option value="claudio">Asignar a Claudio Scheid</option></select></div><div class="status" style="margin-top:10px"><strong>🧮 Calculadora del pedido</strong><div class="row"><input id="calcDisplay" inputmode="decimal" placeholder="Ej.: 4500+3200+2000" aria-label="Operación matemática"><button type="button" class="btn secondary" id="calcClear">Limpiar</button><button type="button" class="btn" id="calcEquals">Calcular</button><button type="button" class="btn" id="calcUse">Usar total</button></div><p id="calcResult" class="muted">Escribe una suma o cálculo y pulsa Calcular.</p></div><textarea id="mNotes" placeholder="Observaciones (opcional)" style="width:100%;min-height:65px;background:#100b07;color:white;margin-top:8px"></textarea><button class="btn" id="saveManual">Guardar pedido manual</button></section><section id="assign" class="card hidden"><h2>Asignar varios pedidos</h2><p class="muted">Marca uno o varios pedidos pagados y aprobados. Después elige el repartidor y envía todos los seleccionados juntos.</p><div class="row"><select id="batchDriver"><option value="maximo">Máximo Palma</option><option value="claudio">Claudio Scheid</option></select><button class="btn" id="assignBatch">🚚 Enviar pedidos seleccionados</button><button class="btn secondary" id="clearBatch">Limpiar selección</button><span id="batchCount" class="muted">0 seleccionados</span></div><div id="adminOrders"></div></section><section id="extrasBox" class="card"><h2>Carreras extra</h2><div id="extraForm" class="hidden"><input id="extraDesc" placeholder="Qué hay que hacer"><input id="extraDest" placeholder="Destino"><input id="extraAmount" type="number" placeholder="Monto solicitado CLP"><button class="btn" id="saveExtra">Solicitar carrera</button></div><div id="extras"></div></section><section id="closingCard" class="card manager-only"><h2>Cierre de turno</h2><button class="btn" id="closeCsv">Ver y descargar Excel (CSV)</button><div id="totals"></div><div id="closingPreview" class="status hidden" aria-live="polite"></div></section><section id="routePanel" class="card hidden"><h2>🧭 Ruta del repartidor</h2><p class="muted">Selecciona varios pedidos. La ruta comenzará desde el GPS actual del celular o equipo Android Auto.</p><div class="row"><button class="btn secondary" id="selectRouteOrders">Seleccionar pedidos activos</button><button class="btn secondary" id="clearRouteOrders">Limpiar selección</button><span id="routeCount" class="muted">0 destinos</span></div><button class="btn" id="buildRoute">📍 Calcular y abrir ruta en Google Maps</button><div id="routeResult" class="status">Permite el acceso al GPS para comenzar.</div></section><section id="calendarCard" class="card manager-only"><h2>📅 Calendario de pedidos</h2><p class="muted">Los pedidos se agrupan por el día en que el cliente los realizó. El historial conserva cuándo el repartidor los entregó.</p><div class="row"><label for="ordersDate">Fecha del pedido:</label><input id="ordersDate" type="date"><button class="btn" id="showDate">Ver pedidos</button><button class="btn secondary" id="todayDate">Hoy</button></div><div id="dateSummary" class="muted">Mostrando pedidos de hoy.</div></section><section id="staffChat" class="card hidden" aria-hidden="true">
+<h2>💬 Chat interno · Repartidor y jefatura</h2>
+<button type="button" class="btn secondary" id="enableChatSound">🔔 Activar sonido de mensajes</button>
+<p class="muted">Mensajes privados para coordinar pedidos y entregas.</p>
+<div id="chatMessages" class="chat-messages" aria-live="polite"><p class="muted">Cargando conversación…</p></div>
+<form id="chatForm" class="chat-compose">
+<textarea id="chatInput" maxlength="1000" rows="2" placeholder="Escribe un mensaje para el equipo…" required></textarea>
+<button class="btn" id="chatSend" type="submit">Enviar mensaje</button>
+</form>
+<p id="chatStatus" class="muted" aria-live="polite">La conversación se actualiza automáticamente.</p>
+</section>
+<section id="bulkRejectBar" class="card hidden">
+ <strong>Revisión rápida de pedidos</strong>
+ <p class="muted">Marca los pedidos pendientes que deseas rechazar.</p>
+ <div class="row"><button type="button" class="btn secondary" id="selectPendingReject">Seleccionar pendientes</button><button type="button" class="btn secondary" id="clearPendingReject">Limpiar</button><span id="rejectCount" class="muted">0 seleccionados</span><button type="button" class="btn" id="rejectSelected">❌ Rechazar seleccionados</button></div>
+</section>
+<h2 id="ordersHeading">Mi entrega</h2><div id="orders"></div><div id="message" class="status">Cargando…</div></main>
+<script>
+const API="https://menu-la-pica-del-benjamin-pago.onrender.com", $=id=>document.getElementById(id);
+let knownOrderIds=null, soundEnabled=false, audioCtx=null, installPrompt=null;
+function playNewOrderSound(){try{audioCtx=audioCtx||new(window.AudioContext||window.webkitAudioContext)();if(audioCtx.state==='suspended')audioCtx.resume();const now=audioCtx.currentTime;[0,0.22,0.44].forEach((offset,i)=>{const osc=audioCtx.createOscillator(),gain=audioCtx.createGain();osc.type='sine';osc.frequency.value=[880,1046,1318][i];gain.gain.setValueAtTime(.0001,now+offset);gain.gain.exponentialRampToValueAtTime(.22,now+offset+.025);gain.gain.exponentialRampToValueAtTime(.0001,now+offset+.18);osc.connect(gain);gain.connect(audioCtx.destination);osc.start(now+offset);osc.stop(now+offset+.2)});}catch(e){}}
+$('enableSound').onclick=async()=>{try{audioCtx=audioCtx||new(window.AudioContext||window.webkitAudioContext)();await audioCtx.resume();soundEnabled=true;playNewOrderSound();let p='granted';if('Notification'in window)p=await Notification.requestPermission();$('alertState').textContent=p==='granted'?'Sonido y notificaciones activados. Mantén la app abierta para vigilar pedidos.':'Sonido activado; notificaciones del sistema no autorizadas.';$('enableSound').textContent='🔔 Sonido activado';}catch(e){$('alertState').textContent='No se pudo activar el sonido.'}};
+function checkNewOrders(orders){const ids=orders.map(o=>String(o.id));if(knownOrderIds===null){knownOrderIds=new Set(ids);return;}const fresh=orders.filter(o=>!knownOrderIds.has(String(o.id)));ids.forEach(id=>knownOrderIds.add(id));if(fresh.length&&soundEnabled){playNewOrderSound();$('alertState').textContent='🔔 ¡'+fresh.length+' pedido(s) nuevo(s)!';if('Notification'in window&&Notification.permission==='granted'){const n=new Notification('¡Nuevo pedido pagado!',{body:fresh.map(o=>(o.order_number||'Pedido')+' · '+(o.customer_name||'Cliente')).join(', '),icon:'/icons/icon.svg'});n.onclick=()=>{window.focus();n.close()};}if('vibrate'in navigator)navigator.vibrate([250,100,250,100,500]);}}
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();installPrompt=e;$('installApp').hidden=false});
+$('installApp').onclick=async()=>{if(!installPrompt){$('alertState').textContent='En iPhone: Compartir → Añadir a pantalla de inicio. En Android: menú ⋮ → Instalar aplicación.';return;}installPrompt.prompt();await installPrompt.userChoice;installPrompt=null;$('installApp').hidden=true};
+if('serviceWorker'in navigator)navigator.serviceWorker.register('/sw.js').catch(()=>{});
+async function call(path,body){const controller=new AbortController();const timer=setTimeout(()=>controller.abort(),10000);try{const r=await fetch(API+path,{method:body?"POST":"GET",credentials:"include",headers:{"Content-Type":"application/json"},signal:controller.signal,...(body?{body:JSON.stringify(body)}:{})});const d=await r.json().catch(()=>({}));if(!r.ok)throw Error(d.error||"Error "+r.status);return d}catch(e){if(e.name==="AbortError")throw Error("El servidor tardó demasiado. Intenta nuevamente.");throw e}finally{clearTimeout(timer)}}
+let managerCurrentTab="pageOrders";
+function setupManagerHome(role){
+ const nav=$("managerNav"),driverNav=$("driverNav");
+ if(role!=="manager"){nav.classList.add("hidden");return;}
+ driverNav.classList.add("hidden");
+ nav.classList.remove("hidden");
+ openManagerTab(managerCurrentTab);
+}
+function openManagerTab(tab){
+ managerCurrentTab=tab;
+ document.querySelectorAll("[data-manager-tab]").forEach(b=>b.classList.toggle("active",b.dataset.managerTab===tab));
+ const ids={pageOrders:["orders","bulkRejectBar"],manual:["manual"],assign:["assign"],total:["closingCard"]};
+ Object.entries(ids).forEach(([key,list])=>list.forEach(id=>$(id).classList.toggle("manager-panel-hidden",key!==tab)));
+ $("ordersHeading").classList.toggle("driver-heading-hidden",tab!=="pageOrders");
+ $("ordersHeading").textContent="Pedidos recibidos por la página";
+ $("message").classList.toggle("manager-panel-hidden",tab!=="pageOrders"&&tab!=="assign"&&tab!=="manual");
+ if(tab==="chat"){setChatUnread(0);const box=$("chatMessages");box.scrollTop=box.scrollHeight;}
+ window.scrollTo({top:0,behavior:"smooth"});
+}
+document.querySelectorAll("[data-manager-tab]").forEach(b=>b.addEventListener("click",()=>openManagerTab(b.dataset.managerTab)));
+let driverCurrentTab="delivery",chatUnreadCount=0;
+function setChatUnread(count){
+ chatUnreadCount=Math.max(0,count);
+ const badge=$("chatUnread"),tab=document.querySelector('[data-driver-tab="chat"]');
+ badge.textContent=chatUnreadCount>9?"9+":String(chatUnreadCount);
+ badge.classList.toggle("hidden",chatUnreadCount===0);
+ tab.classList.toggle("has-unread",chatUnreadCount>0);
+}
+function openDriverTab(tabName){
+ driverCurrentTab=tabName;
+ document.querySelectorAll(".driver-tab").forEach(b=>b.classList.toggle("active",b.dataset.driverTab===tabName));
+ const orders=$("orders"),chat=$("staffChat"),route=$("routePanel"),extras=$("extrasBox"),heading=$("ordersHeading"),status=$("message");
+ const isOrders=["delivery","orders"].includes(tabName);
+ orders.classList.toggle("driver-panel-hidden",!isOrders);
+ orders.classList.toggle("driver-show-all",tabName==="orders");
+ chat.classList.toggle("driver-panel-hidden",tabName!=="chat");
+ route.classList.toggle("driver-panel-hidden",tabName!=="route");
+ extras.classList.toggle("driver-panel-hidden",tabName!=="extras");
+ heading.classList.toggle("driver-heading-hidden",!isOrders);
+ heading.textContent=tabName==="orders"?"Mis pedidos":"Mi entrega";
+ status.classList.toggle("driver-panel-hidden",!isOrders);
+ if(tabName==="chat"){setChatUnread(0);const box=$("chatMessages");box.scrollTop=box.scrollHeight;}
+ window.scrollTo({top:0,behavior:"smooth"});
+}
+document.querySelectorAll("[data-driver-tab]").forEach(b=>b.addEventListener("click",()=>openDriverTab(b.dataset.driverTab)));
+function setupDriverHome(role,orders){
+ const nav=$("driverNav"),managerNav=$("managerNav"),welcome=$("driverWelcome");
+ if(role!=="driver"){nav.classList.add("hidden");welcome.classList.add("hidden");return;}
+ managerNav.classList.add("hidden");
+ nav.classList.remove("hidden");
+ $("newOrderAlerts").classList.add("hidden");
+ $("manual").classList.add("hidden");
+ $("assign").classList.add("hidden");
+ $("bulkRejectBar").classList.add("hidden");
+ $("closingCard").classList.add("hidden");
+ $("calendarCard").classList.add("hidden");
+ const cards=[...document.querySelectorAll("#orders .driver-order-card")];
+ cards.forEach(c=>c.classList.remove("driver-primary"));
+ const active=orders.filter(o=>!["delivered","cancelled","rejected"].includes(String(o.assignment_status||o.delivery_status||"").toLowerCase())&&o.delivery_method!=="Retiro en el local");
+ const chosen=active.find(o=>o.assignment_status==="picked_up")||active.find(o=>o.assignment_status==="assigned")||active[0];
+ if(chosen){const primary=cards.find(c=>String(c.dataset.orderId)===String(chosen.id));if(primary)primary.classList.add("driver-primary");}
+ openDriverTab(driverCurrentTab);
+}
+let chatLastId=0,chatLoading=false,chatSoundEnabled=false,chatAudioContext=null;
+function playChatTone(){
+ try{
+  chatAudioContext=chatAudioContext||new(window.AudioContext||window.webkitAudioContext)();
+  if(chatAudioContext.state==="suspended")chatAudioContext.resume();
+  const t=chatAudioContext.currentTime;
+  // Tono corto original de dos notas, estilo aviso de mensajería clásica.
+  [784,1046].forEach((frequency,index)=>{
+   const osc=chatAudioContext.createOscillator(),gain=chatAudioContext.createGain(),start=t+index*.13;
+   osc.type="sine";osc.frequency.setValueAtTime(frequency,start);
+   gain.gain.setValueAtTime(.0001,start);gain.gain.exponentialRampToValueAtTime(.16,start+.018);gain.gain.exponentialRampToValueAtTime(.0001,start+.19);
+   osc.connect(gain);gain.connect(chatAudioContext.destination);osc.start(start);osc.stop(start+.2);
+  });
+ }catch(e){}
+}
+$("enableChatSound").onclick=async()=>{
+ try{chatAudioContext=chatAudioContext||new(window.AudioContext||window.webkitAudioContext)();await chatAudioContext.resume();chatSoundEnabled=true;playChatTone();$("enableChatSound").textContent="🔔 Sonido de mensajes activado";$("enableChatSound").classList.add("chat-sound-active");}
+ catch(e){$("chatStatus").textContent="No se pudo activar el sonido en este dispositivo."}
+};
+
+function renderChat(messages,currentId){
+ const box=$("chatMessages"),nearBottom=box.scrollHeight-box.scrollTop-box.clientHeight<70;
+ box.replaceChildren();
+ if(!messages.length){const empty=el("p","muted","Todavía no hay mensajes. ¡Saluda al equipo!");box.append(empty);return;}
+ for(const m of messages){
+  const bubble=el("article","chat-bubble"+(Number(m.sender_id)===Number(currentId)?" mine":""));
+  const when=m.created_at?new Intl.DateTimeFormat("es-CL",{hour:"2-digit",minute:"2-digit",day:"2-digit",month:"2-digit",timeZone:"America/Santiago"}).format(new Date(m.created_at)):"";
+  bubble.append(el("div","chat-meta",(m.sender_name||"Personal")+" · "+(m.sender_role==="manager"?"Jefatura":m.sender_role==="superadmin"?"Administración":"Repartidor")+" · "+when));
+  bubble.append(el("div","chat-text",m.message));
+  box.append(bubble);
+ }
+ if(nearBottom)box.scrollTop=box.scrollHeight;
+}
+async function loadChat(){
+ if(chatLoading||document.hidden)return;
+ chatLoading=true;
+ try{
+  const d=await call("/api/reparto/chat");
+  const incoming=(d.messages||[]).filter(m=>Number(m.id)>chatLastId&&Number(m.sender_id)!==Number(d.current_user_id));
+  if(chatLastId>0&&incoming.length){if(chatSoundEnabled)playChatTone();if(driverCurrentTab!=="chat")setChatUnread(chatUnreadCount+incoming.length);if(managerCurrentTab!=="chat"){document.querySelectorAll(".manager-chat-unread").forEach(b=>{b.textContent=String(Number(b.textContent||0)+incoming.length);b.classList.remove("hidden")})}}
+  renderChat(d.messages||[],d.current_user_id);
+  chatLastId=(d.messages||[]).length?Number(d.messages[d.messages.length-1].id):0;
+  $("chatStatus").textContent="Chat actualizado · "+(d.messages||[]).length+" mensajes recientes.";
+ }catch(e){$("chatStatus").textContent=e.message==="Inicia sesión para continuar."?"Inicia sesión para usar el chat.":"No se pudo actualizar el chat: "+e.message;}
+ finally{chatLoading=false;}
+}
+$("chatForm").addEventListener("submit",async event=>{
+ event.preventDefault();
+ const input=$("chatInput"),button=$("chatSend"),message=input.value.trim();
+ if(!message)return;
+ button.disabled=true;button.textContent="Enviando…";
+ try{
+  await call("/api/reparto/chat",{message});
+  input.value="";
+  await loadChat();
+  $("chatStatus").textContent="Mensaje enviado al equipo.";
+ }catch(e){$("chatStatus").textContent=e.message;}
+ finally{button.disabled=false;button.textContent="Enviar mensaje";input.focus();}
+});
+$("chatInput").addEventListener("keydown",event=>{
+ if(event.key==="Enter"&&!event.shiftKey){event.preventDefault();$("chatForm").requestSubmit();}
+});
+loadChat();setInterval(loadChat,5000);
+function el(tag,cls,txt){const n=document.createElement(tag);if(cls)n.className=cls;if(txt!==undefined)n.textContent=txt;return n}
+let routeOrders=[];function orderDestination(o){const gps=o.delivery_latitude!==null&&o.delivery_latitude!==undefined&&o.delivery_latitude!==""&&o.delivery_longitude!==null&&o.delivery_longitude!==undefined&&o.delivery_longitude!==""&&Number.isFinite(Number(o.delivery_latitude))&&Number.isFinite(Number(o.delivery_longitude));return gps?o.delivery_latitude+","+o.delivery_longitude:[o.delivery_address,o.locality,"Chile"].filter(Boolean).join(", ")}function orderPoint(o){const lat=Number(o.delivery_latitude),lng=Number(o.delivery_longitude);return o.delivery_latitude!==null&&o.delivery_longitude!==null&&o.delivery_latitude!==""&&o.delivery_longitude!==""&&Number.isFinite(lat)&&Number.isFinite(lng)?{lat,lng}:null}function toggleRouteOrder(o,on){routeOrders=routeOrders.filter(x=>String(x.id)!==String(o.id));if(on)routeOrders.push(o);$("routeCount").textContent=routeOrders.length+" destinos seleccionados"}function currentGps(){return new Promise((resolve,reject)=>{if(!navigator.geolocation)return reject(Error("GPS no disponible en este equipo."));navigator.geolocation.getCurrentPosition(p=>resolve({lat:p.coords.latitude,lng:p.coords.longitude}),e=>reject(Error(e.code===1?"Autoriza el GPS para la aplicación.":"No se pudo obtener GPS. Activa la ubicación y reintenta.")),{enableHighAccuracy:true,timeout:20000,maximumAge:10000})})}
+function mapLink(o){const hasGps=o.delivery_latitude!==null&&o.delivery_latitude!==undefined&&o.delivery_latitude!==""&&o.delivery_longitude!==null&&o.delivery_longitude!==undefined&&o.delivery_longitude!==""&&Number.isFinite(Number(o.delivery_latitude))&&Number.isFinite(Number(o.delivery_longitude));const destination=hasGps?String(o.delivery_latitude)+","+String(o.delivery_longitude):[o.delivery_address,o.locality,"Chile"].filter(Boolean).join(", ");return "geo:0,0?q="+encodeURIComponent(destination)}
+function chileToday(){return new Intl.DateTimeFormat("en-CA",{timeZone:"America/Santiago",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date())}function formatChileDate(v){if(!v)return "Sin registro";return new Intl.DateTimeFormat("es-CL",{dateStyle:"short",timeStyle:"short",timeZone:"America/Santiago"}).format(new Date(v))}async function load(){try{const selected=$("ordersDate").value||chileToday();const d=await call("/api/reparto/pedidos?date="+encodeURIComponent(selected));const managerDeliveryOrders=d.role==="manager"?d.orders.filter(o=>["delivery","despacho","retiro en el local","pickup"].includes(String(o.delivery_method||"").toLowerCase())):d.orders;
+const managerPageOrders=d.role==="manager"?managerDeliveryOrders.filter(o=>String(o.source||"").toLowerCase()==="online"):managerDeliveryOrders;$("dateSummary").textContent="Pedidos de delivery del "+new Date(selected+"T12:00:00-03:00").toLocaleDateString("es-CL",{timeZone:"America/Santiago"})+" · "+(d.role==="manager"?managerDeliveryOrders.length:d.orders.length)+" pedidos";$("identity").textContent=d.role==="superadmin"?"Administrador TI":d.role==="manager"?"Gestión de pedidos":"Repartidor";document.body.classList.toggle("driver-mode",d.role==="driver");document.body.classList.toggle("manager-mode",d.role==="manager");$("manual").classList.toggle("hidden",!["superadmin","manager"].includes(d.role));$("extraForm").classList.toggle("hidden",d.role!=="driver");$("assign").classList.toggle("hidden",!["superadmin","manager"].includes(d.role));$("newOrderAlerts").classList.toggle("hidden",!["superadmin","manager"].includes(d.role));$("extrasBox").classList.toggle("hidden",!["superadmin","manager","driver"].includes(d.role));$("bulkRejectBar").classList.toggle("hidden",d.role!=="manager");$("orders").replaceChildren();$("adminOrders").replaceChildren();$("routePanel").classList.toggle("hidden",!["driver","superadmin"].includes(d.role));if(["superadmin","manager"].includes(d.role)){const deliveryWebOrders=(d.role==="manager"?managerPageOrders:d.orders).filter(o=>String(o.source||"").toLowerCase()==="online"&&["delivery","despacho"].includes(String(o.delivery_method||"").toLowerCase()));checkNewOrders(deliveryWebOrders);}const displayOrders=d.role==="manager"?managerPageOrders:d.orders;if(!displayOrders.length){$("orders").append(el("div","card",d.role==="manager"?"No hay pedidos de la página pendientes para esta fecha.":"No hay pedidos registrados en la base de datos todavía."));}
+for(const o of displayOrders){const card=el("article","card driver-order-card");card.dataset.assignment=o.assignment_status||o.delivery_status||"pending";card.dataset.orderId=o.id;card.append(el("h3","",o.order_number||("Pedido #"+o.id)));card.append(el("p","",o.customer_name||"Cliente"));
+if(d.role==="manager"){
+ const contact=el("div","order-contact");
+ if(o.customer_phone){
+  const raw=String(o.customer_phone).replace(/[^0-9]/g,"");
+  const waNumber=raw.startsWith("56")?raw:(raw.startsWith("0")?"56"+raw.slice(1):"56"+raw);
+  const phone=el("a","","🟢 WhatsApp · "+o.customer_phone);
+  phone.href="https://wa.me/"+waNumber;phone.target="_blank";phone.rel="noopener noreferrer";
+  contact.append(phone);
+  const call=el("a","","📞 Llamar");call.href="tel:"+String(o.customer_phone).replace(/[^+0-9]/g,"");contact.append(call);
+ }
+ if(contact.childNodes.length)card.append(contact);
+ const address=el("div","order-address");
+ address.append(el("strong","","📍 Dirección de entrega"));
+ address.append(el("p","", [o.delivery_address,o.locality].filter(Boolean).join(", ")||"Falta dirección de entrega"));
+ card.append(address);
+ card.append(el("p","order-total","Total: $"+Number(o.total_clp||0).toLocaleString("es-CL")));
+} else {
+ const contact=el("div","order-contact");
+ if(o.customer_phone){
+  const raw=String(o.customer_phone).replace(/[^0-9]/g,"");
+  const waNumber=raw.startsWith("56")?raw:(raw.startsWith("0")? "56"+raw.slice(1):"56"+raw);
+  const wa=el("a","","🟢 Hablar por WhatsApp · "+o.customer_phone);
+  wa.href="https://wa.me/"+waNumber;
+  wa.target="_blank";wa.rel="noopener noreferrer";
+  contact.append(wa);
+ }
+ if(contact.childNodes.length)card.append(contact);
+ card.append(el("p","muted",[o.delivery_address,o.locality].filter(Boolean).join(", ")||o.delivery_method||"Sin dirección"));
+}const statusLabel={pending:"Pendiente",assigned:"Pedido confirmado",picked_up:"En camino",delivered:"Entregado"}[o.assignment_status||o.delivery_status]||o.delivery_status||"Pendiente";card.append(el("p","muted","Estado: "+statusLabel+" · Pago: "+(o.payment_status||"pendiente")));if(d.role==="manager")card.append(el("p","muted","Origen: Pedido por página · Modalidad: "+(o.delivery_method||"") +" · Pago: "+(o.payment_status||"pendiente")));
+if(d.role==="manager"&&o.payment_status==="transfer_pending"&&String(o.approval_status||"").toLowerCase()!=="rejected"&&String(o.delivery_status||"").toLowerCase()!=="rejected"&&String(o.assignment_status||"").toLowerCase()!=="rejected"){
+ const payBox=el("div","status");payBox.append(el("strong","","🕒 Transferencia pendiente de verificar"));
+ payBox.append(el("p","muted","Revisa el abono directamente en la cuenta Mercado Pago antes de confirmar."));
+ const confirmPay=el("button","btn","✅ Confirmar pago recibido");
+ confirmPay.onclick=async()=>{
+  if(!confirm("¿Verificaste el abono en Mercado Pago y confirmas el pago de "+(o.order_number||"este pedido")+" por $"+Number(o.total_clp||0).toLocaleString("es-CL")+"?"))return;
+  confirmPay.disabled=true;confirmPay.textContent="Confirmando…";
+  try{
+   await call("/api/reparto/confirmar-transferencia",{order_id:o.id});
+   const phone=String(o.customer_phone||"").replace(/[^0-9]/g,"");
+   const waNumber=phone?(phone.startsWith("56")?phone:"56"+phone):"";
+   const message="Hola "+(o.customer_name||"")+" 😊 Confirmamos la recepción de tu transferencia para el pedido "+(o.order_number||"")+" de La Picá del Benjamín. Total: $"+Number(o.total_clp||0).toLocaleString("es-CL")+". Tu pedido queda confirmado. ¡Muchas gracias!";
+   $("message").textContent="Pago confirmado. Ahora puedes enviar la confirmación al cliente por WhatsApp.";
+   if(waNumber){const link=el("a","btn","📲 Avisar al cliente por WhatsApp");link.href="https://wa.me/"+waNumber+"?text="+encodeURIComponent(message);link.target="_blank";link.rel="noopener noreferrer";payBox.append(link)}
+  }catch(e){$("message").textContent=e.message;confirmPay.disabled=false;confirmPay.textContent="✅ Confirmar pago recibido"}
+ };
+ payBox.append(confirmPay);card.append(payBox);
+}
+if(["manager","superadmin"].includes(d.role)){const approval=o.approval_status||"pending";card.append(el("p","status",approval==="approved"?"✅ Aprobado por jefatura":approval==="rejected"?"❌ Rechazado por jefatura":"🕒 Pendiente de aprobación de la jefa"));let items=[];try{items=Array.isArray(o.items_json)?o.items_json:JSON.parse(o.items_json||"[]")}catch{}if(d.role==="manager"&&o.notes)card.append(el("p","muted","📝 Observaciones: "+o.notes));if(items.length){const detail=el("div","status");detail.append(el("strong","","Detalle del pedido"));for(const item of items){detail.append(el("p","muted",(item.quantity||item.qty||1)+" × "+(item.name||item.product||item.title||"Producto")))}card.append(detail)}if(o.notes)card.append(el("p","muted","Observaciones: "+o.notes));if(d.role==="manager"&&approval==="approved"&&!o.assignment_id&&["paid","approved"].includes(String(o.payment_status||"").toLowerCase())){
+ const assignBox=el("div","status");assignBox.append(el("strong","","Asignar este pedido"));
+ const driverSelect=el("select");driverSelect.setAttribute("aria-label","Seleccionar repartidor");
+ for(const [value,label] of [["maximo","Máximo Palma"],["claudio","Claudio Scheid"]]){const opt=el("option","",label);opt.value=value;driverSelect.append(opt)}
+ const send=el("button","btn","Enviar pedido al repartidor");send.onclick=async()=>{send.disabled=true;try{await call("/api/reparto/asignar",{order_id:o.id,driver_username:driverSelect.value});$("message").textContent="Pedido asignado y enviado al repartidor.";load()}catch(e){$("message").textContent=e.message;send.disabled=false}};
+ assignBox.append(driverSelect,send);card.append(assignBox);
+}if(d.role==="manager"&&approval==="pending"){const rejectLine=el("label","pending-reject-line");const rejectCb=el("input");rejectCb.type="checkbox";rejectCb.className="pending-reject-pick";rejectCb.value=o.id;rejectCb.setAttribute("aria-label","Seleccionar para rechazar "+(o.order_number||o.id));rejectCb.onchange=updateRejectCount;rejectLine.append(rejectCb,el("span","","Seleccionar para rechazo en lote"));card.append(rejectLine);const actions=el("div","row");const yes=el("button","btn","Aprobar pedido");yes.onclick=async()=>{if(!confirm("¿Confirmar aprobación de "+(o.order_number||"este pedido")+"?"))return;try{await call("/api/reparto/aprobar-pedido",{order_id:o.id,approved:true});$("message").textContent="Pedido aprobado. Ya puede pasar a preparación.";load()}catch(e){$("message").textContent=e.message}};const no=el("button","btn secondary","Rechazar");no.onclick=async()=>{const note=prompt("Motivo del rechazo (opcional):")||"";if(!confirm("¿Rechazar "+(o.order_number||"este pedido")+"?"))return;try{await call("/api/reparto/aprobar-pedido",{order_id:o.id,approved:false,note});$("message").textContent="Pedido rechazado.";load()}catch(e){$("message").textContent=e.message}};actions.append(yes,no);card.append(actions)}}if(o.created_at)card.append(el("p","muted","🕒 Pedido recibido: "+formatChileDate(o.created_at)));if(o.delivered_at)card.append(el("p","status","✅ Entregado: "+formatChileDate(o.delivered_at)));if(o.assignment_status==="delivered"||o.delivery_status==="delivered"){card.append(el("p","status","✅ Entregado por el repartidor asignado: "+(o.driver_name||"Repartidor")));}else if(o.driver_name){card.append(el("p","muted","Asignado a: "+o.driver_name));}if(o.delivery_address){const a=el("a","btn","Abrir Google Maps");a.href=mapLink(o);a.rel="noopener";card.append(a)}if(["driver","superadmin"].includes(d.role)&&o.assignment_status!=="delivered"&&o.delivery_status!=="delivered"&&o.delivery_method!=="Retiro en el local"&&orderDestination(o)){const lab=el("label","row");const cb=el("input");cb.type="checkbox";cb.className="route-pick";cb.checked=routeOrders.some(x=>String(x.id)===String(o.id));cb.onchange=()=>toggleRouteOrder(o,cb.checked);lab.append(cb,el("span","muted","Agregar a mi ruta"));card.append(lab)}
+if(d.role==="driver"||d.role==="superadmin"){if(o.assignment_status==="assigned"){const b=el("button","btn","Confirmar pedido");b.onclick=()=>change(o.id,"picked_up");card.append(b)}if(o.assignment_status==="picked_up"){const b=el("button","btn","Marcar entregado");b.onclick=()=>change(o.id,"delivered");card.append(b)}}
+$("orders").append(card);
+if(["superadmin","manager"].includes(d.role)&&o.approval_status==="approved"&&!o.assignment_id&&["delivery","despacho","Delivery"].includes(o.delivery_method)&&["paid","approved"].includes(String(o.payment_status||"").toLowerCase())){const line=el("div","status");const pick=el("input");pick.type="checkbox";pick.className="batch-pick";pick.value=o.id;pick.setAttribute("aria-label","Seleccionar "+(o.order_number||o.id));pick.onchange=updateBatchCount;const details=el("div","");details.append(el("strong","",o.order_number||("#"+o.id)));details.append(el("p","muted",(o.customer_name||"Cliente")+" · "+[o.delivery_address,o.locality].filter(Boolean).join(", ")));details.append(el("p","muted","Total: $"+Number(o.total_clp||0).toLocaleString("es-CL")));line.append(pick,details);$("adminOrders").append(line)}}
+
+if(d.role==="manager"){for(const o of managerDeliveryOrders.filter(o=>!["online","website","web"].includes(String(o.source||"").toLowerCase())&&o.approval_status==="approved"&&!o.assignment_id)){const line=el("div","status");const pick=el("input");pick.type="checkbox";pick.className="batch-pick";pick.value=o.id;pick.onchange=updateBatchCount;const details=el("div","");details.append(el("strong","",o.order_number||("#"+o.id)));details.append(el("p","muted",(o.customer_name||"Cliente")+" · "+[o.delivery_address,o.locality].filter(Boolean).join(", ")));details.append(el("p","muted","Pedido manual · Total: $"+Number(o.total_clp||0).toLocaleString("es-CL")));line.append(pick,details);$("adminOrders").append(line)}}
+setupDriverHome(d.role,d.orders);
+setupManagerHome(d.role);
+const extraData=await call("/api/reparto/extras");
+$("extras").replaceChildren();
+for(const x of extraData.extras){const row=el("div","status",x.description+" · "+(x.destination||"")+" · $"+(x.requested_amount_clp||0)+" · "+x.approval_status+(x.driver_name?" · "+x.driver_name:""));if(d.role==="manager"&&x.approval_status==="pending"){const ok=el("button","btn","Aprobar");ok.onclick=async()=>{const v=prompt("Monto a pagar al repartidor",String(x.requested_amount_clp));if(v===null)return;await call("/api/reparto/extras/aprobar",{id:x.id,approved:true,amount:Number(v)});load()};const no=el("button","btn secondary","Rechazar");no.onclick=async()=>{await call("/api/reparto/extras/aprobar",{id:x.id,approved:false,amount:0});load()};row.append(ok,no)}$("extras").append(row)}
+const closing=await call("/api/reparto/cierre");
+$("totals").textContent=closing.totals.map(x=>x.display_name+": $"+x.delivery_total).join(" · ")||"Sin entregas cerradas todavía.";
+window.closingData=closing;
+$("message").textContent="Pedidos actualizados."; }catch(e){$("message").textContent=e.message}}
+function updateBatchCount(){const n=document.querySelectorAll(".batch-pick:checked").length;$("batchCount").textContent=n+" seleccionados"}
+$("selectRouteOrders").onclick=()=>{document.querySelectorAll(".route-pick").forEach(x=>{x.checked=true;x.dispatchEvent(new Event("change"))})};$("clearRouteOrders").onclick=()=>{routeOrders=[];document.querySelectorAll(".route-pick").forEach(x=>x.checked=false);$("routeCount").textContent="0 destinos seleccionados";$("routeResult").textContent="Selección limpiada."};$("buildRoute").onclick=async()=>{
+ const button=$("buildRoute"),status=$("routeResult");
+ if(!routeOrders.length){status.textContent="Selecciona al menos un pedido antes de calcular la ruta.";return}
+ button.disabled=true;button.textContent="Preparando ruta…";status.textContent="Comprobando direcciones y ubicación…";
+ try{
+  const selected=[...routeOrders];
+  const stops=selected.map(o=>({order:o,destination:orderDestination(o)})).filter(x=>x.destination&&x.destination!=="Chile");
+  if(!stops.length)throw new Error("Los pedidos seleccionados no tienen direcciones de entrega. Revisa la dirección y localidad.");
+  let origin="La Picá del Benjamín, Linares, Maule, Chile";
+  try{const gps=await Promise.race([currentGps(),new Promise((_,reject)=>setTimeout(()=>reject(Error("GPS no disponible")),7000))]);origin=gps.lat+","+gps.lng;}
+  catch(e){status.textContent="No se pudo obtener GPS. Se usará La Picá del Benjamín, Linares como punto de partida.";}
+  const destination=stops[stops.length-1].destination;
+  const params=new URLSearchParams({api:"1",origin,destination,travelmode:"driving"});
+  if(stops.length>1)params.set("waypoints",stops.slice(0,-1).map(x=>x.destination).join("|"));
+  const url="https://www.google.com/maps/dir/?"+params.toString();
+  status.textContent="Ruta lista: "+stops.length+" destino(s). Abriendo Google Maps…";
+  window.location.assign(url);
+ }catch(e){status.textContent=e.message||"No se pudo calcular la ruta."}
+ finally{button.disabled=false;button.textContent="📍 Calcular y abrir ruta en Google Maps"}
+};
+function updateRejectCount(){$("rejectCount").textContent=document.querySelectorAll(".pending-reject-pick:checked").length+" seleccionados"}
+$("selectPendingReject").onclick=()=>{document.querySelectorAll(".pending-reject-pick").forEach(x=>x.checked=true);updateRejectCount()};
+$("clearPendingReject").onclick=()=>{document.querySelectorAll(".pending-reject-pick:checked").forEach(x=>x.checked=false);updateRejectCount()};
+$("rejectSelected").onclick=async()=>{const ids=[...document.querySelectorAll(".pending-reject-pick:checked")].map(x=>Number(x.value));if(!ids.length){$("message").textContent="Marca al menos un pedido pendiente.";return}const note=prompt("Motivo del rechazo para los "+ids.length+" pedidos (opcional):")||"Rechazado por jefatura";if(!confirm("¿Confirmas rechazar "+ids.length+" pedidos seleccionados? Esta acción no se puede deshacer desde el panel."))return;try{const d=await call("/api/reparto/rechazar-lote",{order_ids:ids,note});$("message").textContent=d.rejected+" pedidos rechazados correctamente.";load()}catch(e){$("message").textContent=e.message}};
+$("assignBatch").onclick=async()=>{const ids=[...document.querySelectorAll(".batch-pick:checked")].map(x=>Number(x.value));if(!ids.length){$("message").textContent="Selecciona al menos un pedido.";return}try{const d=await call("/api/reparto/asignar-lote",{order_ids:ids,driver_username:$("batchDriver").value});$("message").textContent=d.assigned+" pedidos asignados correctamente.";load()}catch(e){$("message").textContent=e.message}};
+$("clearBatch").onclick=()=>{document.querySelectorAll(".batch-pick:checked").forEach(x=>x.checked=false);updateBatchCount()};
+async function change(id,status){try{await call("/api/reparto/estado",{order_id:id,status});$("message").textContent="Estado actualizado.";load()}catch(e){$("message").textContent=e.message}}
+let manualSearchTimer=null,manualSearchController=null,manualSearchSequence=0;
+function formatManualAddress(p){
+ const street=p.street||p.name||p.locality||"";
+ const number=p.housenumber||"";
+ const locality=p.city||p.town||p.village||p.municipality||p.county||"";
+ const region=p.state||p.county||"";
+ return {street:[street,number].filter(Boolean).join(" "),locality,full:[street,number,locality,region,"Chile"].filter(Boolean).join(", ")};
+}
+async function searchManualAddress(){
+ const typed=$("mAddress").value.trim();
+ const locality=$("mLocality").value.trim()||"Linares";
+ const box=$("manualMapSuggestions");
+ if(typed.length<3){box.replaceChildren();box.classList.add("hidden");$("manualMapStatus").textContent="Escribe al menos 3 caracteres para buscar direcciones.";return}
+ if(manualSearchController)manualSearchController.abort();
+ manualSearchController=new AbortController();
+ const sequence=++manualSearchSequence;
+ $("manualMapStatus").textContent="Buscando direcciones en Chile…";
+ try{
+  const params=new URLSearchParams({q:typed,locality});
+  const response=await fetch(API+"/api/direcciones?"+params.toString(),{
+   credentials:"include",signal:manualSearchController.signal,headers:{"Accept":"application/json"}
+  });
+  const data=await response.json().catch(()=>({}));
+  if(!response.ok)throw new Error(data.error||"El servidor no pudo buscar la dirección.");
+  if(sequence!==manualSearchSequence)return;
+  box.replaceChildren();
+  (data.features||[]).forEach(feature=>{
+   const p=feature.properties||{},address=formatManualAddress(p);
+   if(!address.street&&!address.locality)return;
+   const button=document.createElement("button");
+   button.type="button";button.className="btn secondary";
+   button.style.cssText="display:block;width:100%;text-align:left;margin:3px 0;white-space:normal";
+   button.textContent=address.full;
+   button.setAttribute("role","option");
+   button.onclick=()=>{
+    $("mAddress").value=address.street||typed;
+    $("mLocality").value=address.locality||locality;
+    box.classList.add("hidden");box.replaceChildren();
+    $("manualMapStatus").textContent="Dirección seleccionada: "+[$("mAddress").value,$("mLocality").value].filter(Boolean).join(", ");
+   };
+   box.append(button);
+  });
+  box.classList.toggle("hidden",!box.childElementCount);
+  $("manualMapStatus").textContent=box.childElementCount?"Selecciona una de las direcciones encontradas.":"No encontramos coincidencias en Chile. Prueba con otra forma de escribir la calle o agrega la comuna.";
+ }catch(error){
+  if(error.name==="AbortError")return;
+  box.classList.add("hidden");
+  $("manualMapStatus").textContent="No se pudo conectar al buscador del servidor. Puedes completar la dirección manualmente.";
+ }
+}
+$("mAddress").addEventListener("input",()=>{
+ clearTimeout(manualSearchTimer);
+ $("manualMapSuggestions").classList.add("hidden");
+ manualSearchTimer=setTimeout(searchManualAddress,600);
+});
+$("mLocality").addEventListener("change",()=>{
+ clearTimeout(manualSearchTimer);
+ manualSearchTimer=setTimeout(searchManualAddress,150);
+});
+document.addEventListener("click",event=>{
+ if(!event.target.closest("#mAddress")&&!event.target.closest("#manualMapSuggestions"))$("manualMapSuggestions").classList.add("hidden");
+});
+function calculateManualTotal(){const expr=$("calcDisplay").value.replace(/\s+/g,"");if(!expr||!/^[0-9+*/().-]+$/.test(expr)||/[+*/.-]$/.test(expr)){throw new Error("Escribe una operación válida, por ejemplo 4500+3200+2000.");}const tokens=expr.match(/\d+(?:\.\d+)?|[()+*/-]/g)||[];let pos=0;function factor(){if(tokens[pos]==="-"){pos++;return -factor()}if(tokens[pos]==="+"){pos++;return factor()}if(tokens[pos]==="("){pos++;const v=expression();if(tokens[pos++]!==")")throw new Error("Revisa los paréntesis.");return v}const v=Number(tokens[pos++]);if(!Number.isFinite(v))throw new Error("Operación inválida.");return v}function term(){let v=factor();while(tokens[pos]==="*"||tokens[pos]==="/"){const op=tokens[pos++],n=factor();if(op==="/"&&n===0)throw new Error("No se puede dividir por cero.");v=op==="*"?v*n:v/n}return v}function expression(){let v=term();while(tokens[pos]==="+"||tokens[pos]==="-"){const op=tokens[pos++],n=term();v=op==="+"?v+n:v-n}return v}const result=expression();if(pos!==tokens.length||!Number.isFinite(result)||result<0||result>1000000)throw new Error("El resultado debe estar entre $0 y $1.000.000.");return Math.round(result)}$("calcEquals").onclick=()=>{try{$("calcResult").textContent="Resultado: $"+calculateManualTotal().toLocaleString("es-CL")}catch(e){$("calcResult").textContent=e.message}};$("calcClear").onclick=()=>{$("calcDisplay").value="";$("calcResult").textContent="Calculadora limpia."};$("calcUse").onclick=()=>{try{$("mTotal").value=calculateManualTotal();$("calcResult").textContent="Total copiado al pedido."}catch(e){$("calcResult").textContent=e.message}};
+$("saveManual").onclick=async()=>{const lines=$("mItems").value.split("\n").map(x=>x.trim()).filter(Boolean);if(!$("mName").value.trim()||!$("mPhone").value.trim()||!$("mAddress").value.trim()||!$("mLocality").value.trim()||!lines.length||!Number.isInteger(Number($("mTotal").value))||Number($("mTotal").value)<=0){$("message").textContent="Completa nombre, teléfono, dirección, localidad, productos y total.";return}const items=lines.map(line=>{const m=line.match(/^(\d+)\s*[x×]\s*(.+)$/i);return {quantity:m?Number(m[1]):1,name:m?m[2].trim():line}});try{const d=await call("/api/reparto/orden-manual",{customer_name:$("mName").value,customer_phone:$("mPhone").value,total_clp:Number($("mTotal").value),source:$("mSource").value,delivery_method:"Delivery",delivery_zone:$("mZone").value,delivery_address:$("mAddress").value,locality:$("mLocality").value,driver_username:$("mDriver").value,items,notes:$("mNotes").value});$("message").textContent="Pedido manual "+d.order_number+" registrado y asignado a "+d.driver_name+". Ya aparece en su panel.";["mName","mPhone","mAddress","mLocality","mItems","mTotal","mNotes","calcDisplay"].forEach(id=>$(id).value="");$("calcResult").textContent="Escribe una suma o cálculo y pulsa Calcular.";load()}catch(e){$("message").textContent=e.message}};
+$("saveExtra").onclick=async()=>{try{await call("/api/reparto/extras",{description:$("extraDesc").value,destination:$("extraDest").value,amount:Number($("extraAmount").value)});$("message").textContent="Carrera enviada a aprobación.";load()}catch(e){$("message").textContent=e.message}};
+let closingCsvContent="";
+$("closeCsv").onclick=async()=>{
+ const button=$("closeCsv"),preview=$("closingPreview");
+ try{
+  button.disabled=true;button.textContent="Preparando cierre…";
+  preview.classList.remove("hidden");preview.replaceChildren();
+  const loading=document.createElement("p");loading.textContent="Consultando cierre de turno…";preview.append(loading);
+  const d=await call("/api/reparto/cierre");
+  const deliveries=Array.isArray(d.deliveries)?d.deliveries:[];
+  const extras=Array.isArray(d.extras)?d.extras:[];
+  const totals=Array.isArray(d.totals)?d.totals:[];
+  const rows=[
+   ["CIERRE DE TURNO - LA PICA DEL BENJAMIN"],[],
+   ["PEDIDOS ENTREGADOS"],["Pedido","Fecha","Direccion","Localidad","Repartidor","Tipo","Pago repartidor (CLP)","Estado"],
+   ...deliveries.map(x=>[x.order_number,x.created_at,x.delivery_address,x.locality,x.driver_name,x.delivery_zone,x.driver_fee_clp,x.delivery_status]),
+   [],["CARRERAS EXTRA APROBADAS"],["Descripcion","Destino","Solicitado (CLP)","Aprobado (CLP)","Estado","Repartidor"],
+   ...extras.map(x=>[x.description,x.destination,x.requested_amount_clp,x.approved_amount_clp,x.approval_status,x.driver_name]),
+   [],["TOTALES POR REPARTIDOR"],["Repartidor","Total delivery (CLP)"],
+   ...totals.map(x=>[x.display_name,x.delivery_total])
+  ];
+  // BOM UTF-8 y saltos CRLF reales para que Excel reconozca tildes y columnas.
+  closingCsvContent="\uFEFF"+rows.map(row=>row.map(v=>'"'+String(v??"").replaceAll('"','""')+'"').join(";")).join("\r\n");
+  preview.replaceChildren();
+  const caption=document.createElement("strong");caption.textContent="Vista previa del cierre";preview.append(caption);
+  const summary=document.createElement("p");summary.textContent=deliveries.length+" entregas · "+extras.length+" carreras extra aprobadas · "+totals.length+" repartidores";preview.append(summary);
+  const table=document.createElement("table");table.style.cssText="width:100%;border-collapse:collapse;margin-top:12px;font-size:13px";
+  const head=document.createElement("tr");
+  ["Repartidor","Entregas","Total delivery"].forEach(label=>{const th=document.createElement("th");th.textContent=label;th.style.cssText="text-align:left;padding:8px;border-bottom:1px solid #987";head.append(th)});
+  table.append(head);
+  for(const total of totals){const tr=document.createElement("tr");[
+   total.display_name,
+   String(deliveries.filter(x=>x.driver_name===total.display_name).length),
+   "$"+Number(total.delivery_total||0).toLocaleString("es-CL")
+  ].forEach(value=>{const td=document.createElement("td");td.textContent=value;td.style.cssText="padding:8px;border-bottom:1px solid #765";tr.append(td)});table.append(tr)}
+  preview.append(table);
+  const help=document.createElement("p");help.textContent="Para descargar, pulsa el botón de abajo. El archivo se abre con Microsoft Excel.";preview.append(help);
+  const download=document.createElement("button");download.type="button";download.className="btn";download.textContent="⬇ Descargar archivo para Excel (.csv)";
+  download.addEventListener("click",()=>{
+   if(!closingCsvContent){help.textContent="Primero vuelve a generar el cierre.";return}
+   const blob=new Blob([closingCsvContent],{type:"text/csv;charset=utf-8"});
+   const url=URL.createObjectURL(blob);
+   const filename="cierre-turno-la-pica-del-benjamin.csv";
+   // La vista se abre directamente por el clic del usuario, sin depender de una descarga automática bloqueable.
+   const view=window.open("about:blank","_blank");
+   const escapeHtml=value=>String(value??"").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));
+   if(view){
+    const tableHtml=rows.map((row,index)=>"<tr>"+row.map(cell=>(index===0||row.length===1?"<th>":"<td>")+escapeHtml(cell)+(index===0||row.length===1?"</th>":"</td>")).join("")+"</tr>").join("");
+    view.document.open();
+    view.document.write(`<!doctype html><html lang="es"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Cierre de turno - La Picá del Benjamín</title><style>body{font:15px Arial,sans-serif;padding:20px;color:#24180d}h1{font-size:22px}p{color:#59432c}.actions{position:sticky;top:0;background:#fff;padding:12px 0}a{display:inline-block;background:#e99a20;color:#1c1207;padding:12px 18px;border-radius:8px;text-decoration:none;font-weight:bold}table{border-collapse:collapse;width:100%;font-size:13px}td,th{border:1px solid #c8bba8;padding:8px;text-align:left}th{background:#f3e4ca}</style><h1>Cierre de turno - La Picá del Benjamín</h1><p>Vista para revisar el reporte. Para abrirlo en Excel, descarga el archivo CSV y elige Excel cuando tu dispositivo pregunte con qué aplicación abrirlo.</p><div class="actions"><a id="csvDownload" href="${url}" download="${filename}">Descargar y abrir con Excel</a></div><table>${tableHtml}</table><p id="openHint"></p></html>`);
+    view.document.close();
+   }else{
+    help.textContent="El navegador bloqueó la nueva pestaña. Permite ventanas emergentes y vuelve a pulsar el botón.";
+   }
+   const direct=document.createElement("a");direct.href=url;direct.download=filename;direct.textContent="Descargar CSV";direct.className="btn";direct.style.display="inline-block";direct.style.marginLeft="8px";
+   preview.append(direct);
+   help.textContent="Abrimos una vista del cierre en otra pestaña. Desde allí puedes revisar el reporte y descargarlo para abrirlo con Excel.";
+   setTimeout(()=>URL.revokeObjectURL(url),10*60*1000);
+  });
+  preview.append(download);
+  $("message").textContent="Cierre listo para visualizar y descargar.";
+ }catch(e){
+  preview.classList.remove("hidden");preview.textContent="No se pudo generar el cierre: "+e.message;
+  $("message").textContent=e.message;
+ }finally{
+  button.disabled=false;button.textContent="Ver cierre de turno";
+ }
+};
+
+let loggingOut=false; $("ordersDate").value=chileToday();$("showDate").onclick=load;$("todayDate").onclick=()=>{$("ordersDate").value=chileToday();load()};$("refresh").onclick=()=>{if(loggingOut)return;const b=$("refresh");b.disabled=true;b.textContent="Actualizando…";Promise.resolve(load()).finally(()=>{b.disabled=false;b.textContent="Actualizar"})};$("logout").onclick=()=>{if(loggingOut)return;loggingOut=true;$("logout").disabled=true;$("logout").textContent="Cerrando…";location.replace("/personal.html");call("/api/personal/logout",{}).catch(()=>{});};load();setInterval(()=>{if(!document.hidden&&!loggingOut)load()},12000);
+</script></body></html>
