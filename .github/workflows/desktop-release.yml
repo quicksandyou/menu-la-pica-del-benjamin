@@ -33,7 +33,7 @@ jobs:
           python -m pip install --quiet Pillow
           @'
           from PIL import Image
-          source = Image.open("build/icon.ico.ico").convert("RGBA")
+          source = Image.open("build/icon.ico.ico.ico").convert("RGBA")
           source = source.resize((256, 256), Image.Resampling.LANCZOS)
           source.save("build/icon.ico", format="ICO", sizes=[(16,16),(24,24),(32,32),(48,48),(64,64),(128,128),(256,256)])
           check = Image.open("build/icon.ico")
