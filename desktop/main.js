@@ -22,6 +22,36 @@ ipcMain.handle("pos:print-web-order",async(_event,order)=>{
  const items=Array.isArray(order.items_json)?order.items_json:(()=>{try{return JSON.parse(order.items_json||"[]")}catch(_){return []}})();
  const rows=items.map(item=>'<div class="item"><span>'+escapeReceipt(item.quantity||item.qty||1)+' × '+escapeReceipt(item.name||item.product||item.title||"Producto")+'</span></div>').join("");
  const html='<!doctype html><html lang="es"><meta charset="utf-8"><style>@page{size:80mm auto;margin:0}html,body{width:80mm;margin:0;padding:0;background:#fff;color:#000;font:13px/1.35 Arial,sans-serif}body{padding:4mm;box-sizing:border-box}h2{text-align:center;font-size:18px;margin:0 0 3mm}.center{text-align:center}.line{border-top:1px dashed #333;margin:3mm 0}.item{padding:2mm 0;border-bottom:1px dashed #bbb;overflow-wrap:anywhere}.small{font-size:11px}.total{font-size:17px;font-weight:bold;text-align:right;margin-top:3mm}b{font-weight:700}</style><h2>LA PICÁ DEL BENJAMÍN</h2><div class="center"><b>COMANDA WEB</b><br>'+escapeReceipt(order.order_number||("Pedido #"+id))+'</div><div class="line"></div><p><b>Fecha:</b> '+escapeReceipt(order.created_at?new Date(order.created_at).toLocaleString("es-CL",{timeZone:"America/Santiago"}):new Date().toLocaleString("es-CL"))+'</p><p><b>Cliente:</b> '+escapeReceipt(order.customer_name||"Sin nombre")+'</p><p><b>Teléfono:</b> '+escapeReceipt(order.customer_phone||"No informado")+'</p><p><b>Modalidad:</b> '+escapeReceipt(order.delivery_method||"No informada")+'</p><p><b>Dirección:</b> '+escapeReceipt([order.delivery_address,order.locality].filter(Boolean).join(", ")||"Retiro en local")+'</p><div class="line"></div><b>PRODUCTOS</b>'+rows+'<div class="line"></div><div class="total">TOTAL: 
+ipcMain.handle("pos:open-staff",async()=>{
+ const service="staff";
+ let staffWin=serviceWindows.get(service);
+ if(staffWin&&!staffWin.isDestroyed()){
+  if(staffWin.isMinimized())staffWin.restore();
+  staffWin.focus();
+  return true;
+ }
+ staffWin=new BrowserWindow({
+  width:1440,height:950,minWidth:1000,minHeight:700,
+  title:"Repartidor / Jefatura · La Picá del Benjamín",
+  backgroundColor:"#100b07",autoHideMenuBar:true,
+  webPreferences:{partition:"persist:lapica-local",contextIsolation:true,nodeIntegration:false,sandbox:true,webSecurity:true}
+ });
+ serviceWindows.set(service,staffWin);
+ staffWin.webContents.setWindowOpenHandler(({url})=>{
+  if(url.startsWith("https://menu-la-pica-del-benjamin-pago.onrender.com/"))return {action:"allow"};
+  if(url.startsWith("https://")){shell.openExternal(url);return {action:"deny"};}
+  return {action:"deny"};
+ });
+ staffWin.webContents.on("will-navigate",(event,url)=>{
+  if(!url.startsWith("https://menu-la-pica-del-benjamin-pago.onrender.com/"))event.preventDefault();
+ });
+ staffWin.webContents.on("did-fail-load",(_event,errorCode,errorDescription,validatedURL)=>{
+  console.warn("No se pudo cargar el panel de personal:",errorCode,errorDescription,validatedURL);
+ });
+ staffWin.on("closed",()=>serviceWindows.delete(service));
+ await staffWin.loadURL("https://menu-la-pica-del-benjamin-pago.onrender.com/reparto.html");
+ return true;
+});
 ipcMain.handle("pos:open-service",async(_event,service)=>{
  const config=SERVICE_CONFIG[service];
  if(!config)throw new Error("Servicio no permitido.");
