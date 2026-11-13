@@ -34,6 +34,7 @@
 .orders-alert{background:#182d3b;border:1px solid #3982a9;color:#e6f5ff}
 .payments-alert{background:#2c2410;border:1px solid #bd8c2c;color:#fff0c7}
 .alert-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px;font-size:13px;font-weight:950;letter-spacing:.2px}
+.orders-login-button{display:none;margin-top:10px;background:#f5a623;color:#1a1008;border:1px solid #ffd27a;border-radius:9px;padding:9px 13px;font-weight:900;cursor:pointer}.orders-login-button:hover{filter:brightness(1.06)}
 .alert-heading span{border-radius:999px;background:#ffffff20;padding:3px 9px;font-variant-numeric:tabular-nums}
 @media(max-width:700px){.alert-grid{grid-template-columns:1fr;gap:8px}.alert-card{min-height:65px;padding:11px}}
 .top-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
@@ -46,7 +47,7 @@
 <div class="alert-grid" aria-label="Alertas independientes">
  <section class="alert-card orders-alert" aria-live="polite">
   <div class="alert-heading"><strong>🛎️ PEDIDOS NUEVOS DE LA WEB</strong><span id="ordersAlertCount">0</span></div>
-  <div id="ordersAlertMessage">Esperando nuevos pedidos web…</div>
+  <div id="ordersAlertMessage">Esperando nuevos pedidos web…</div><button id="ordersLoginButton" type="button" class="orders-login-button" style="display:none" onclick="openStaffPanel()">🔐 Iniciar sesión de Jefatura y reconectar</button>
  </section>
  <section class="alert-card payments-alert" aria-live="polite">
   <div class="alert-heading"><strong>💳 PAGOS CONFIRMADOS</strong><span id="paymentsAlertCount">0</span></div>
@@ -210,6 +211,10 @@ function playAlertTone(kind){
 function showAlertMessage(id,message,countId,count){
  const el=document.getElementById(id),badge=document.getElementById(countId);
  if(el)el.textContent=message;if(badge)badge.textContent=String(count);
+ if(id==="ordersAlertMessage"){
+  const loginButton=document.getElementById("ordersLoginButton");
+  if(loginButton)loginButton.style.display=/inicia sesión|sesión.*caducada|autenticación/i.test(String(message))?"inline-flex":"none";
+ }
 }
 async function checkOnlineOrderAlerts(){
  if(!window.posBridge||typeof window.posBridge.pollOnlineOrders!=="function")return;
