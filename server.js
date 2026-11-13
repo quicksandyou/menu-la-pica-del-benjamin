@@ -286,7 +286,21 @@ const server = http.createServer(async (req, res) => {
     return res.end();
   }
 
-  const requestPath = new URL(req.url, "http://localhost").pathname;
+  const requestUrl = new URL(req.url, "http://localhost");
+  const requestPath = requestUrl.pathname;
+
+  // La tienda web se sirve también desde este dominio para que el modo de prueba
+  // conserve la sesión autenticada de Jefatura en el mismo origen.
+  if (req.method === "GET" && requestPath === "/" && requestUrl.searchParams.get("modoPrueba") === "1") {
+    try {
+      const page = await fs.promises.readFile(path.join(__dirname, "index.html"));
+      res.writeHead(200, { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff", "Referrer-Policy": "no-referrer" });
+      return res.end(page);
+    } catch (error) {
+      console.error("No se pudo cargar la tienda para modo de prueba:", error.message);
+      return send(res, 503, { error: "La tienda de prueba no está disponible en este momento." });
+    }
+  }
 
   // Servir recursos gráficos del panel de reparto desde la carpeta icons.
   // Se restringe la ruta a /icons/ y se valida la ruta resuelta para impedir traversal.
