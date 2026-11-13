@@ -214,10 +214,32 @@ function showAlertMessage(id,message,countId,count){
 async function checkOnlineOrderAlerts(){
  if(!window.posBridge||typeof window.posBridge.pollOnlineOrders!=="function")return;
  try{
-  const result=await window.posBridge.pollOnlineOrders();if(!result||!result.ok)return;
+  const result=await window.posBridge.pollOnlineOrders();
+  if(!result||!result.ok){
+   const detail=result?.error||("No se pudo consultar el servidor"+(result?.status?" (HTTP "+result.status+")":"")+".");
+   showAlertMessage("ordersAlertMessage","⚠️ Sin conexión de pedidos: "+detail,"ordersAlertCount",ordersAlertTotal);
+   return;
+  }
   const orders=Array.isArray(result.orders)?result.orders:[];
   const current=new Map(orders.map(o=>[String(o.id),o]));
-  if(knownOnlineOrders===null){knownOnlineOrders=current;knownPaymentStatuses=new Map(orders.map(o=>[String(o.id),String(o.payment_status||"pending").toLowerCase()]));return;}
+  if(knownOnlineOrders===null){
+   knownOnlineOrders=current;
+   knownPaymentStatuses=new Map(orders.map(o=>[String(o.id),String(o.payment_status||"pending").toLowerCase()]));
+   // Recupera pedidos recientes creados mientras el POS estaba cerrado.
+   const recentCutoff=Date.now()-20*60*1000;
+   const recentOrders=orders.filter(o=>{const t=Date.parse(o.created_at||"");return Number.isFinite(t)&&t>=recentCutoff;});
+   if(recentOrders.length){
+    ordersAlertTotal+=recentOrders.length;playAlertTone("order");
+    showAlertMessage("ordersAlertMessage","🔔 "+recentOrders.length+" pedido(s) reciente(s) detectado(s) al iniciar: "+recentOrders.map(o=>o.order_number||("#"+o.id)).slice(0,3).join(", "),"ordersAlertCount",ordersAlertTotal);
+    if(window.posBridge&&typeof window.posBridge.printWebOrder==="function"){
+     for(const order of recentOrders){
+      try{const printed=await window.posBridge.printWebOrder(order);if(printed&&!printed.ok)showAlertMessage("ordersAlertMessage","⚠️ Pedido "+(order.order_number||("#"+order.id))+" recibido, pero no se pudo imprimir. Revisa la impresora USB.","ordersAlertCount",ordersAlertTotal);}
+      catch(printError){console.error("Error impresión pedido recuperado:",printError);showAlertMessage("ordersAlertMessage","⚠️ Pedido recibido, pero falló la impresión. Revisa la impresora USB.","ordersAlertCount",ordersAlertTotal);}
+     }
+    }
+   }else showAlertMessage("ordersAlertMessage","Conectado. Esperando nuevos pedidos web…","ordersAlertCount",ordersAlertTotal);
+   return;
+  }
   const newOrders=[...current.keys()].filter(id=>!knownOnlineOrders.has(id));
   const paidOrders=[];
   for(const [id,o] of current){
