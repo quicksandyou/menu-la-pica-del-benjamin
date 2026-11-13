@@ -61,6 +61,19 @@ ipcMain.handle("pos:open-staff",async()=>{
  return true;
 });
 
+ipcMain.handle("pos:open-test-mode",async()=>{
+ const service="test-mode";
+ let testWin=serviceWindows.get(service);
+ if(testWin&&!testWin.isDestroyed()){if(testWin.isMinimized())testWin.restore();testWin.focus();return true;}
+ testWin=new BrowserWindow({width:1280,height:900,minWidth:1000,minHeight:700,title:"Acceso Jefatura · Modo de prueba",backgroundColor:"#100b07",autoHideMenuBar:true,webPreferences:{partition:"persist:lapica-local",contextIsolation:true,nodeIntegration:false,sandbox:true,webSecurity:true}});
+ serviceWindows.set(service,testWin);
+ testWin.webContents.setWindowOpenHandler(({url})=>url.startsWith("https://menu-la-pica-del-benjamin-pago.onrender.com/")?{action:"allow"}:{action:"deny"});
+ testWin.webContents.on("will-navigate",(event,url)=>{if(!url.startsWith("https://menu-la-pica-del-benjamin-pago.onrender.com/"))event.preventDefault();});
+ testWin.on("closed",()=>serviceWindows.delete(service));
+ await testWin.loadURL("https://menu-la-pica-del-benjamin-pago.onrender.com/personal.html");
+ return true;
+});
+
 ipcMain.handle("pos:open-service",async(_event,service)=>{
  const config=SERVICE_CONFIG[service];
  if(!config)throw new Error("Servicio no permitido.");
