@@ -1,5 +1,7 @@
 const {app,BrowserWindow,shell,dialog,ipcMain,net}=require("electron");
 const {autoUpdater}=require("electron-updater");
+// Permite que las alertas sonoras del POS funcionen automáticamente, sin clic previo del usuario.
+app.commandLine.appendSwitch("autoplay-policy","no-user-gesture-required");
 const path=require("path");
 const fs=require("fs");
 let win;
