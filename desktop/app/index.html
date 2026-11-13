@@ -233,6 +233,18 @@ async function checkOnlineOrderAlerts(){
    ordersAlertTotal+=newOrders.length;playAlertTone("order");
    const names=newOrders.map(id=>current.get(id)?.order_number||("#"+id)).slice(0,3).join(", ");
    showAlertMessage("ordersAlertMessage","🔔 "+newOrders.length+" pedido(s) nuevo(s): "+names, "ordersAlertCount",ordersAlertTotal);
+   if(window.posBridge&&typeof window.posBridge.printWebOrder==="function"){
+    for(const id of newOrders){
+     const order=current.get(id);
+     try{
+      const printed=await window.posBridge.printWebOrder(order);
+      if(printed&&printed.ok)console.info("Comanda web impresa:",order.order_number||id);
+     }catch(printError){
+      console.error("No se pudo imprimir la comanda web "+(order.order_number||id)+":",printError);
+      showAlertMessage("ordersAlertMessage","⚠️ Pedido recibido, pero no se pudo imprimir "+(order.order_number||("#"+id))+". Revisa la impresora USB.", "ordersAlertCount",ordersAlertTotal);
+     }
+    }
+   }
   }
   if(paidOrders.length){
    paymentsAlertTotal+=paidOrders.length;playAlertTone("payment");
