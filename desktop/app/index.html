@@ -218,6 +218,23 @@ function showAlertMessage(id,message,countId,count){
   if(loginButton)loginButton.style.display=/inicia sesión|sesión.*caducada|autenticación/i.test(String(message))?"inline-flex":"none";
  }
 }
+async function printPaidWebOrder(order){
+ if(!order||!["paid","approved","accredited"].includes(String(order.payment_status||"").toLowerCase()))return;
+ if(!window.posBridge||typeof window.posBridge.printWebOrder!=="function")return;
+ try{
+  const result=await window.posBridge.printWebOrder(order);
+  if(result?.ok){
+   console.info("Comanda impresa:",order.order_number||order.id,result.duplicate?"(ya estaba impresa)":"");
+   showAlertMessage("ordersAlertMessage","🖨️ Pedido "+(order.order_number||("#"+order.id))+" recibido e impreso.","ordersAlertCount",ordersAlertTotal);
+  }else{
+   const reason=result?.error||"Windows no confirmó la impresión.";
+   showAlertMessage("ordersAlertMessage","⚠️ Pedido "+(order.order_number||("#"+order.id))+" recibido, pero no impreso: "+reason,"ordersAlertCount",ordersAlertTotal);
+  }
+ }catch(error){
+  console.error("Error de impresión:",error);
+  showAlertMessage("ordersAlertMessage","⚠️ Pedido "+(order.order_number||("#"+order.id))+" recibido, pero falló la impresión: "+(error.message||"Error de impresora"),"ordersAlertCount",ordersAlertTotal);
+ }
+}
 async function checkOnlineOrderAlerts(){
  if(!window.posBridge||typeof window.posBridge.pollOnlineOrders!=="function")return;
  try{
@@ -230,65 +247,56 @@ async function checkOnlineOrderAlerts(){
   }
   const orders=Array.isArray(result.orders)?result.orders:[];
   const current=new Map(orders.map(o=>[String(o.id),o]));
-  setOrdersAuthStatus("ok","🟢 Conectado al servidor · última sincronización "+new Date().toLocaleTimeString("es-CL"));
+  setOrdersAuthStatus("ok","🟢 Conectado · última sincronización "+new Date().toLocaleTimeString("es-CL"));
   if(knownOnlineOrders===null){
    knownOnlineOrders=current;
    knownPaymentStatuses=new Map(orders.map(o=>[String(o.id),String(o.payment_status||"pending").toLowerCase()]));
-   const confirmedAtStartup=orders.filter(o=>["paid","approved","accredited"].includes(String(o.payment_status||"").toLowerCase()));
-   if(confirmedAtStartup.length){
-    paymentsAlertTotal=confirmedAtStartup.length;
-    const paidNames=confirmedAtStartup.slice(0,4).map(o=>(o.order_number||("#"+o.id))+" · "+(String(o.payment_status).toLowerCase()==="paid"?"Transferencia verificada":"Mercado Pago confirmado")).join(" | ");
-    showAlertMessage("paymentsAlertMessage","💳 "+confirmedAtStartup.length+" pago(s) confirmado(s) hoy: "+paidNames,"paymentsAlertCount",paymentsAlertTotal);
-   }else showAlertMessage("paymentsAlertMessage","Conectado. Esperando pagos confirmados…","paymentsAlertCount",paymentsAlertTotal);
-   // Solo avisa/imprime pedidos recientes al iniciar; no reimprime toda la jornada.
-   const recentCutoff=Date.now()-30*60*1000;
+   const confirmed=orders.filter(o=>["paid","approved","accredited"].includes(String(o.payment_status||"").toLowerCase()));
+   paymentsAlertTotal=confirmed.length;
+   showAlertMessage("paymentsAlertMessage",confirmed.length
+    ?"💳 "+confirmed.length+" pago(s) confirmado(s) hoy: "+confirmed.slice(0,4).map(o=>o.order_number||("#"+o.id)).join(", ")
+    :"🟢 Conectado · esperando pagos confirmados…","paymentsAlertCount",paymentsAlertTotal);
+   const recentCutoff=Date.now()-24*60*60*1000;
    const recentOrders=orders.filter(o=>{const t=Date.parse(o.created_at||"");return Number.isFinite(t)&&t>=recentCutoff;});
    if(recentOrders.length){
-    ordersAlertTotal+=recentOrders.length;playAlertTone("order");
-    showAlertMessage("ordersAlertMessage","🔔 Conectado · "+recentOrders.length+" pedido(s) reciente(s): "+recentOrders.map(o=>o.order_number||("#"+o.id)).slice(0,4).join(", "),"ordersAlertCount",ordersAlertTotal);
-    if(window.posBridge&&typeof window.posBridge.printWebOrder==="function"){
-     for(const order of recentOrders){
-      try{const printed=await window.posBridge.printWebOrder(order);if(!printed&&!printed?.ok)showAlertMessage("ordersAlertMessage","⚠️ Pedido "+(order.order_number||("#"+order.id))+" recibido, pero no se pudo imprimir. Revisa la impresora USB.","ordersAlertCount",ordersAlertTotal);}
-      catch(printError){console.error("Error impresión pedido recuperado:",printError);showAlertMessage("ordersAlertMessage","⚠️ Pedido recibido, pero falló la impresión. Revisa la impresora USB.","ordersAlertCount",ordersAlertTotal);}
-     }
-    }
-   }else showAlertMessage("ordersAlertMessage","🟢 Conectado · "+orders.length+" pedido(s) web registrados hoy. Esperando nuevos pedidos…","ordersAlertCount",ordersAlertTotal);
+    ordersAlertTotal+=recentOrders.length;
+    playAlertTone("order");
+    showAlertMessage("🔔 "+recentOrders.length+" pedido(s) de hoy: "+recentOrders.slice(0,4).map(o=>o.order_number||("#"+o.id)).join(", "),"ordersAlertMessage","ordersAlertCount",ordersAlertTotal);
+    for(const order of recentOrders)await printPaidWebOrder(order);
+   }else{
+    showAlertMessage("ordersAlertMessage","🟢 Conectado · "+orders.length+" pedido(s) web registrados hoy. Esperando nuevos pedidos…","ordersAlertCount",ordersAlertTotal);
+   }
    return;
   }
   const newOrders=[...current.keys()].filter(id=>!knownOnlineOrders.has(id));
   const paidOrders=[];
-  for(const [id,o] of current){
-   const status=String(o.payment_status||"pending").toLowerCase();
+  for(const [id,order] of current){
+   const status=String(order.payment_status||"pending").toLowerCase();
    const previous=knownPaymentStatuses.get(id);
    const confirmed=["paid","approved","accredited"].includes(status);
    const wasConfirmed=["paid","approved","accredited"].includes(previous||"");
-   if(previous!==undefined&&confirmed&&!wasConfirmed)paidOrders.push(o);
+   if(previous!==undefined&&confirmed&&!wasConfirmed)paidOrders.push(order);
    knownPaymentStatuses.set(id,status);
   }
   knownOnlineOrders=current;
   if(newOrders.length){
-   ordersAlertTotal+=newOrders.length;playAlertTone("order");
-   const names=newOrders.map(id=>current.get(id)?.order_number||("#"+id)).slice(0,3).join(", ");
-   showAlertMessage("ordersAlertMessage","🔔 "+newOrders.length+" pedido(s) nuevo(s): "+names, "ordersAlertCount",ordersAlertTotal);
-   if(window.posBridge&&typeof window.posBridge.printWebOrder==="function"){
-    for(const id of newOrders){
-     const order=current.get(id);
-     try{
-      const printed=await window.posBridge.printWebOrder(order);
-      if(printed&&printed.ok)console.info("Comanda web impresa:",order.order_number||id);
-     }catch(printError){
-      console.error("No se pudo imprimir la comanda web "+(order.order_number||id)+":",printError);
-      showAlertMessage("ordersAlertMessage","⚠️ Pedido recibido, pero no se pudo imprimir "+(order.order_number||("#"+id))+". Revisa la impresora USB.", "ordersAlertCount",ordersAlertTotal);
-     }
-    }
-   }
+   ordersAlertTotal+=newOrders.length;
+   playAlertTone("order");
+   const names=newOrders.map(id=>current.get(id)?.order_number||("#"+id)).slice(0,4).join(", ");
+   showAlertMessage("ordersAlertMessage","🔔 "+newOrders.length+" pedido(s) nuevo(s): "+names,"ordersAlertCount",ordersAlertTotal);
+   for(const id of newOrders)await printPaidWebOrder(current.get(id));
   }
   if(paidOrders.length){
-   paymentsAlertTotal+=paidOrders.length;playAlertTone("payment");
-   const names=paidOrders.map(o=>(o.order_number||("#"+o.id))+" · "+(String(o.payment_status).toLowerCase()==="paid"?"Transferencia verificada":"Mercado Pago confirmado")).slice(0,3).join(" | ");
+   paymentsAlertTotal+=paidOrders.length;
+   playAlertTone("payment");
+   const names=paidOrders.map(o=>(o.order_number||("#"+o.id))+" · "+(String(o.payment_status).toLowerCase()==="paid"?"Transferencia verificada":"Mercado Pago confirmado")).slice(0,4).join(" | ");
    showAlertMessage("paymentsAlertMessage","✅ "+paidOrders.length+" pago(s) confirmado(s): "+names,"paymentsAlertCount",paymentsAlertTotal);
+   for(const order of paidOrders)await printPaidWebOrder(order);
   }
- }catch(e){console.warn("Avisos de pedidos y pagos:",e);}
+ }catch(e){
+  console.warn("Avisos de pedidos y pagos:",e);
+  setOrdersAuthStatus("error","🔴 Error de sincronización: "+(e.message||"Error desconocido"));
+ }
 }
 if(window.posBridge&&typeof window.posBridge.onAuthStatus==="function"){window.posBridge.onAuthStatus(data=>{if(data?.state==="connected"){setOrdersAuthStatus("ok","✅ "+(data.message||"Jefatura autenticada. Sincronizando pedidos y pagos…"));knownOnlineOrders=null;knownPaymentStatuses=new Map();checkOnlineOrderAlerts();}});}
 setTimeout(()=>{checkOnlineOrderAlerts();setInterval(checkOnlineOrderAlerts,12000);},5000);
