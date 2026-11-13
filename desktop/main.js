@@ -144,14 +144,7 @@ function createWindow(){
 app.whenReady().then(()=>{createWindow();configureAutoUpdates();});
 app.on("window-all-closed",()=>{if(process.platform!=="darwin")app.quit()});
 app.on("activate",()=>{if(BrowserWindow.getAllWindows().length===0)createWindow()});
-+Number(order.total_clp||0).toLocaleString("es-CL")+'</div><p class="small"><b>Pago:</b> '+escapeReceipt(order.payment_status||"pendiente")+'</p><p class="small"><b>Observaciones:</b> '+escapeReceipt(order.notes||"Sin observaciones")+'</p><div class="line"></div><div class="center small">Comanda automática · La Picá del Benjamín</div></html>';
- const printWin=new BrowserWindow({show:false,webPreferences:{sandbox:true,contextIsolation:true,nodeIntegration:false}});
- try{
-  await printWin.loadURL("data:text/html;charset=utf-8,"+encodeURIComponent(html));
-  const result=await new Promise((resolve,reject)=>printWin.webContents.print({silent:true,printBackground:true},(success,failureReason)=>success?resolve(true):reject(new Error(failureReason||"La impresora no aceptó la comanda."))));
-  printedOrderIds.add(id);persistPrintedOrderIds();return {ok:result,duplicate:false};
- }finally{if(!printWin.isDestroyed())printWin.close();}
-});
+
 ipcMain.handle("pos:poll-online-orders",async()=>{
  if(!win||win.isDestroyed())return {ok:false,orders:[]};
  try{
