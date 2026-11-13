@@ -230,6 +230,8 @@ ipcMain.handle("pos:enroll-device",async()=>{
  if(responseData.status<200||responseData.status>=300)throw new Error(responseData.body.error||"El servidor no autorizó este equipo.");
  if(!/^[a-f0-9]{64}$/i.test(responseData.body.device_token||""))throw new Error("El servidor devolvió una autorización inválida.");
  savePosDeviceToken(responseData.body.device_token);
+ if(win&&!win.isDestroyed())win.webContents.send("pos:auth-status",{state:"connected",message:"Jefatura autenticada. Sincronizando pedidos y pagos…"});
+ if(staffWin&&!staffWin.isDestroyed())setTimeout(()=>{try{staffWin.close();}catch(_){}},900);
  return {ok:true,device_name:responseData.body.device_name||"POS Windows"};
 });
 ipcMain.handle("pos:poll-online-orders",async()=>{
