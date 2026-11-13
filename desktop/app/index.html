@@ -34,21 +34,19 @@
 .orders-alert{background:#182d3b;border:1px solid #3982a9;color:#e6f5ff}
 .payments-alert{background:#2c2410;border:1px solid #bd8c2c;color:#fff0c7}
 .alert-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px;font-size:13px;font-weight:950;letter-spacing:.2px}
-.orders-auth-status{margin-top:8px;padding:8px 10px;border-radius:8px;background:#2b2118;color:#f7dcae;font-size:12px;font-weight:700}.orders-auth-status.busy{background:#49330d;color:#ffe09a}.orders-auth-status.ok{background:#153b2b;color:#baf3ce}.orders-auth-status.error{background:#4a1d19;color:#ffd0c8}
-.orders-login-button{display:none;margin-top:10px;background:#f5a623;color:#1a1008;border:1px solid #ffd27a;border-radius:9px;padding:9px 13px;font-weight:900;cursor:pointer}.orders-login-button:hover{filter:brightness(1.06)}
 .alert-heading span{border-radius:999px;background:#ffffff20;padding:3px 9px;font-variant-numeric:tabular-nums}
 @media(max-width:700px){.alert-grid{grid-template-columns:1fr;gap:8px}.alert-card{min-height:65px;padding:11px}}
 .top-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .top-actions button{background:#2b1b0e;border:1px solid #9b6328;color:#ffe0a3;min-height:42px}
 .top-actions button:hover{background:#503016}
 @media(max-width:700px){.top{align-items:flex-start;gap:10px;flex-wrap:wrap}.top-actions{width:100%}.top-actions button{flex:1;padding:9px 8px;font-size:12px}}
-</style></head><body><header class="top"><div><div class="brand">🍔 LA PICÁ DEL BENJAMÍN</div><div class="sub">Punto de venta local · Uso interno</div></div><div class="top-actions"><button id="gmailShortcut" type="button" onclick="openPosService(&quot;gmail&quot;)">✉️ Gmail</button><button id="whatsappShortcut" type="button" onclick="openPosService(&quot;whatsapp&quot;)">💬 WhatsApp</button><button id="testModeShortcut" type="button" onclick="openPosTestMode()">🧪 Modo prueba · Jefatura</button><button id="staffShortcut" type="button" onclick="openStaffPanel()">🚴 Repartidor / Jefatura</button></div></header>
+</style></head><body><header class="top"><div><div class="brand">🍔 LA PICÁ DEL BENJAMÍN</div><div class="sub">Punto de venta local · Uso interno</div></div><div class="top-actions"><button id="gmailShortcut" type="button" onclick="openPosService(&quot;gmail&quot;)">✉️ Gmail</button><button id="whatsappShortcut" type="button" onclick="openPosService(&quot;whatsapp&quot;)">💬 WhatsApp</button><button id="staffShortcut" type="button" onclick="openStaffPanel()">🚴 Repartidor / Jefatura</button></div></header>
 
 <main id="app" class="wrap">
 <div class="alert-grid" aria-label="Alertas independientes">
  <section class="alert-card orders-alert" aria-live="polite">
   <div class="alert-heading"><strong>🛎️ PEDIDOS NUEVOS DE LA WEB</strong><span id="ordersAlertCount">0</span></div>
-  <div id="ordersAlertMessage">Esperando nuevos pedidos web…</div><div id="ordersAuthStatus" class="orders-auth-status" role="status">Estado de conexión: esperando autenticación</div><button id="ordersLoginButton" type="button" class="orders-login-button" style="display:none" onclick="openStaffPanel()">🔐 Iniciar sesión de Jefatura y reconectar</button>
+  <div id="ordersAlertMessage">Esperando nuevos pedidos web…</div>
  </section>
  <section class="alert-card payments-alert" aria-live="polite">
   <div class="alert-heading"><strong>💳 PAGOS CONFIRMADOS</strong><span id="paymentsAlertCount">0</span></div>
@@ -209,96 +207,52 @@ function playAlertTone(kind){
   });
  }catch(e){console.warn("No se pudo reproducir alerta:",e);}
 }
-function setOrdersAuthStatus(state,message){const el=document.getElementById("ordersAuthStatus");if(!el)return;el.className="orders-auth-status "+(state||"");el.textContent=message||"Estado de conexión";}
 function showAlertMessage(id,message,countId,count){
  const el=document.getElementById(id),badge=document.getElementById(countId);
  if(el)el.textContent=message;if(badge)badge.textContent=String(count);
- if(id==="ordersAlertMessage"){
-  const loginButton=document.getElementById("ordersLoginButton");
-  if(loginButton)loginButton.style.display=/inicia sesión|sesión.*caducada|autenticación/i.test(String(message))?"inline-flex":"none";
- }
-}
-async function printPaidWebOrder(order){
- if(!order||!["paid","approved","accredited"].includes(String(order.payment_status||"").toLowerCase()))return;
- if(!window.posBridge||typeof window.posBridge.printWebOrder!=="function")return;
- try{
-  const result=await window.posBridge.printWebOrder(order);
-  if(result?.ok){
-   console.info("Comanda impresa:",order.order_number||order.id,result.duplicate?"(ya estaba impresa)":"");
-   showAlertMessage("ordersAlertMessage","🖨️ Pedido "+(order.order_number||("#"+order.id))+" recibido e impreso.","ordersAlertCount",ordersAlertTotal);
-  }else{
-   const reason=result?.error||"Windows no confirmó la impresión.";
-   showAlertMessage("ordersAlertMessage","⚠️ Pedido "+(order.order_number||("#"+order.id))+" recibido, pero no impreso: "+reason,"ordersAlertCount",ordersAlertTotal);
-  }
- }catch(error){
-  console.error("Error de impresión:",error);
-  showAlertMessage("ordersAlertMessage","⚠️ Pedido "+(order.order_number||("#"+order.id))+" recibido, pero falló la impresión: "+(error.message||"Error de impresora"),"ordersAlertCount",ordersAlertTotal);
- }
 }
 async function checkOnlineOrderAlerts(){
  if(!window.posBridge||typeof window.posBridge.pollOnlineOrders!=="function")return;
  try{
-  const result=await window.posBridge.pollOnlineOrders();
-  if(!result||!result.ok){
-   const detail=result?.error||("No se pudo consultar el servidor"+(result?.status?" (HTTP "+result.status+")":"")+".");
-   setOrdersAuthStatus("error","🔴 Sin conexión · "+detail);
-   showAlertMessage("ordersAlertMessage","⚠️ Sin conexión de pedidos: "+detail,"ordersAlertCount",ordersAlertTotal);
-   return;
-  }
+  const result=await window.posBridge.pollOnlineOrders();if(!result||!result.ok)return;
   const orders=Array.isArray(result.orders)?result.orders:[];
   const current=new Map(orders.map(o=>[String(o.id),o]));
-  setOrdersAuthStatus("ok","🟢 Conectado · última sincronización "+new Date().toLocaleTimeString("es-CL"));
-  if(knownOnlineOrders===null){
-   knownOnlineOrders=current;
-   knownPaymentStatuses=new Map(orders.map(o=>[String(o.id),String(o.payment_status||"pending").toLowerCase()]));
-   const confirmed=orders.filter(o=>["paid","approved","accredited"].includes(String(o.payment_status||"").toLowerCase()));
-   paymentsAlertTotal=confirmed.length;
-   showAlertMessage("paymentsAlertMessage",confirmed.length
-    ?"💳 "+confirmed.length+" pago(s) confirmado(s) hoy: "+confirmed.slice(0,4).map(o=>o.order_number||("#"+o.id)).join(", ")
-    :"🟢 Conectado · esperando pagos confirmados…","paymentsAlertCount",paymentsAlertTotal);
-   const recentCutoff=Date.now()-24*60*60*1000;
-   const recentOrders=orders.filter(o=>{const t=Date.parse(o.created_at||"");return Number.isFinite(t)&&t>=recentCutoff;});
-   if(recentOrders.length){
-    ordersAlertTotal+=recentOrders.length;
-    playAlertTone("order");
-    showAlertMessage("ordersAlertMessage","🔔 "+recentOrders.length+" pedido(s) de hoy: "+recentOrders.slice(0,4).map(o=>o.order_number||("#"+o.id)).join(", "),"ordersAlertCount",ordersAlertTotal);
-    for(const order of recentOrders)await printPaidWebOrder(order);
-   }else{
-    showAlertMessage("ordersAlertMessage","🟢 Conectado · "+orders.length+" pedido(s) web registrados hoy. Esperando nuevos pedidos…","ordersAlertCount",ordersAlertTotal);
-   }
-   return;
-  }
+  if(knownOnlineOrders===null){knownOnlineOrders=current;knownPaymentStatuses=new Map(orders.map(o=>[String(o.id),String(o.payment_status||"pending").toLowerCase()]));return;}
   const newOrders=[...current.keys()].filter(id=>!knownOnlineOrders.has(id));
   const paidOrders=[];
-  for(const [id,order] of current){
-   const status=String(order.payment_status||"pending").toLowerCase();
+  for(const [id,o] of current){
+   const status=String(o.payment_status||"pending").toLowerCase();
    const previous=knownPaymentStatuses.get(id);
    const confirmed=["paid","approved","accredited"].includes(status);
    const wasConfirmed=["paid","approved","accredited"].includes(previous||"");
-   if(previous!==undefined&&confirmed&&!wasConfirmed)paidOrders.push(order);
+   if(previous!==undefined&&confirmed&&!wasConfirmed)paidOrders.push(o);
    knownPaymentStatuses.set(id,status);
   }
   knownOnlineOrders=current;
   if(newOrders.length){
-   ordersAlertTotal+=newOrders.length;
-   playAlertTone("order");
-   const names=newOrders.map(id=>current.get(id)?.order_number||("#"+id)).slice(0,4).join(", ");
-   showAlertMessage("ordersAlertMessage","🔔 "+newOrders.length+" pedido(s) nuevo(s): "+names,"ordersAlertCount",ordersAlertTotal);
-   for(const id of newOrders)await printPaidWebOrder(current.get(id));
+   ordersAlertTotal+=newOrders.length;playAlertTone("order");
+   const names=newOrders.map(id=>current.get(id)?.order_number||("#"+id)).slice(0,3).join(", ");
+   showAlertMessage("ordersAlertMessage","🔔 "+newOrders.length+" pedido(s) nuevo(s): "+names, "ordersAlertCount",ordersAlertTotal);
+   if(window.posBridge&&typeof window.posBridge.printWebOrder==="function"){
+    for(const id of newOrders){
+     const order=current.get(id);
+     try{
+      const printed=await window.posBridge.printWebOrder(order);
+      if(printed&&printed.ok)console.info("Comanda web impresa:",order.order_number||id);
+     }catch(printError){
+      console.error("No se pudo imprimir la comanda web "+(order.order_number||id)+":",printError);
+      showAlertMessage("ordersAlertMessage","⚠️ Pedido recibido, pero no se pudo imprimir "+(order.order_number||("#"+id))+". Revisa la impresora USB.", "ordersAlertCount",ordersAlertTotal);
+     }
+    }
+   }
   }
   if(paidOrders.length){
-   paymentsAlertTotal+=paidOrders.length;
-   playAlertTone("payment");
-   const names=paidOrders.map(o=>(o.order_number||("#"+o.id))+" · "+(String(o.payment_status).toLowerCase()==="paid"?"Transferencia verificada":"Mercado Pago confirmado")).slice(0,4).join(" | ");
+   paymentsAlertTotal+=paidOrders.length;playAlertTone("payment");
+   const names=paidOrders.map(o=>(o.order_number||("#"+o.id))+" · "+(String(o.payment_status).toLowerCase()==="paid"?"Transferencia verificada":"Mercado Pago confirmado")).slice(0,3).join(" | ");
    showAlertMessage("paymentsAlertMessage","✅ "+paidOrders.length+" pago(s) confirmado(s): "+names,"paymentsAlertCount",paymentsAlertTotal);
-   for(const order of paidOrders)await printPaidWebOrder(order);
   }
- }catch(e){
-  console.warn("Avisos de pedidos y pagos:",e);
-  setOrdersAuthStatus("error","🔴 Error de sincronización: "+(e.message||"Error desconocido"));
- }
+ }catch(e){console.warn("Avisos de pedidos y pagos:",e);}
 }
-if(window.posBridge&&typeof window.posBridge.onAuthStatus==="function"){window.posBridge.onAuthStatus(data=>{if(data?.state==="connected"){setOrdersAuthStatus("ok","✅ "+(data.message||"Jefatura autenticada. Sincronizando pedidos y pagos…"));knownOnlineOrders=null;knownPaymentStatuses=new Map();checkOnlineOrderAlerts();}});}
 setTimeout(()=>{checkOnlineOrderAlerts();setInterval(checkOnlineOrderAlerts,12000);},5000);
 
 async function openPosService(service){
@@ -308,11 +262,9 @@ async function openPosService(service){
    await window.posBridge.openService(service);
  }catch(error){alert("No se pudo abrir "+(labels[service]||"el servicio")+": "+(error.message||"Error desconocido"));}
 }
-async function openPosTestMode(){try{if(!window.posBridge||typeof window.posBridge.openTestMode!=="function")throw new Error("Esta función requiere actualizar el POS.");await window.posBridge.openTestMode();}catch(e){alert("No se pudo abrir el acceso de Jefatura: "+e.message);}}
-async function openStaffPanel(){setOrdersAuthStatus("busy","🔄 Autenticando Jefatura… Se abrirá el acceso seguro.");try{if(!window.posBridge||typeof window.posBridge.openStaff!=="function")throw new Error("Esta función requiere actualizar el POS.");await window.posBridge.openStaff();}catch(e){setOrdersAuthStatus("error","No se pudo abrir el acceso: "+e.message);}}
 </script><section id="staffEmbedded" class="staff-overlay" style="display:none" aria-label="Panel de repartidor y jefatura">
 <div class="staff-toolbar"><div><strong>🚴 Repartidor / Jefatura</strong><small>Panel de gestión interna</small></div><button type="button" class="staff-back" onclick="closeStaffPanel()">← Volver al POS</button></div>
 <iframe id="staffFrame" title="Panel de repartidor y jefatura" src="https://menu-la-pica-del-benjamin-pago.onrender.com/reparto.html"></iframe></section>
-<script>async function openStaffPanel(){setOrdersAuthStatus("busy","🔄 Abriendo autenticación segura de Jefatura…");try{if(!window.posBridge||typeof window.posBridge.openStaff!=="function")throw new Error("Esta función requiere actualizar el POS.");await window.posBridge.openStaff();}catch(e){setOrdersAuthStatus("error","No se pudo abrir el acceso: "+e.message);alert("No se pudo abrir el panel de personal: "+e.message);}}
+<script>function openStaffPanel(){document.getElementById("staffEmbedded").style.display="flex";document.body.style.overflow="hidden";}
 function closeStaffPanel(){document.getElementById("staffEmbedded").style.display="none";document.body.style.overflow="";document.getElementById("staffShortcut").focus();}
 document.addEventListener("keydown",event=>{if(event.key==="Escape"&&document.getElementById("staffEmbedded").style.display!=="none")closeStaffPanel();});</script></body></html>
