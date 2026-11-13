@@ -599,9 +599,13 @@ La Picá del Benjamín`,
   }
   function isSuperAdmin(staff) { return Boolean(staff && staff.role === "superadmin"); }
   function canManageOrders(staff) { return Boolean(staff && ["superadmin","manager"].includes(staff.role)); }
+  function canUsePaymentTestMode(staff) {
+    return Boolean(staff && ["superadmin","manager"].includes(staff.role) &&
+      String(process.env.MP_ACCESS_TOKEN || "").startsWith("TEST-"));
+  }
   if (req.method === "GET" && requestPath === "/api/personal/test-mode") {
     const staff = await getStaffUser();
-    return send(res, 200, { allowed: isSuperAdmin(staff) });
+    return send(res, 200, { allowed: canUsePaymentTestMode(staff) });
   }
 
   if (requestPath.startsWith("/api/reparto/")) {
@@ -992,12 +996,16 @@ if(!price||!Number.isInteger(quantity)||quantity<1||quantity>30||Number(item.uni
     }
   }
 
-  if (req.method === "POST" && new URL(req.url, "http://localhost").pathname === "/api/crear-orden" && Date.now() < 1794687621111 && !isSuperAdmin(await getStaffUser())) {
-    return send(res, 423, { error: "Los pagos online de La Picá del Benjamín están temporalmente bloqueados por preparación de lanzamiento. Se habilitarán automáticamente al finalizar la cuenta regresiva de estreno." });
+  const paymentStaff = req.method === "POST" && new URL(req.url, "http://localhost").pathname === "/api/crear-orden"
+    ? await getStaffUser() : null;
+  const paymentTestAllowed = canUsePaymentTestMode(paymentStaff);
+
+  if (req.method === "POST" && new URL(req.url, "http://localhost").pathname === "/api/crear-orden" && Date.now() < 1794687621111 && !paymentTestAllowed) {
+    return send(res, 423, { error: "Los pagos públicos siguen bloqueados durante la preparación. Para pruebas internas se requiere una sesión autorizada y credenciales TEST de Mercado Pago." });
   }
 
-  if (req.method === "POST" && req.url === "/api/crear-orden" && !isOrderingOpen() && !isSuperAdmin(await getStaffUser())) {
-    return send(res, 403, { error: "Estamos fuera de horario. Los pedidos y pagos online están disponibles de martes a sábado, de 17:30 a 02:00. Muchas gracias por preferir La Picá del Benjamín." });
+  if (req.method === "POST" && req.url === "/api/crear-orden" && !isOrderingOpen() && !paymentTestAllowed) {
+    return send(res, 403, { error: "Los pedidos y pagos públicos están fuera de horario. El modo de prueba interno requiere credenciales TEST y una sesión autorizada." });
   }
 
   if (req.method !== "POST" || req.url !== "/api/crear-orden") {
