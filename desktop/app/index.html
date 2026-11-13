@@ -34,6 +34,7 @@
 .orders-alert{background:#182d3b;border:1px solid #3982a9;color:#e6f5ff}
 .payments-alert{background:#2c2410;border:1px solid #bd8c2c;color:#fff0c7}
 .alert-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px;font-size:13px;font-weight:950;letter-spacing:.2px}
+.orders-auth-status{margin-top:8px;padding:8px 10px;border-radius:8px;background:#2b2118;color:#f7dcae;font-size:12px;font-weight:700}.orders-auth-status.busy{background:#49330d;color:#ffe09a}.orders-auth-status.ok{background:#153b2b;color:#baf3ce}.orders-auth-status.error{background:#4a1d19;color:#ffd0c8}
 .orders-login-button{display:none;margin-top:10px;background:#f5a623;color:#1a1008;border:1px solid #ffd27a;border-radius:9px;padding:9px 13px;font-weight:900;cursor:pointer}.orders-login-button:hover{filter:brightness(1.06)}
 .alert-heading span{border-radius:999px;background:#ffffff20;padding:3px 9px;font-variant-numeric:tabular-nums}
 @media(max-width:700px){.alert-grid{grid-template-columns:1fr;gap:8px}.alert-card{min-height:65px;padding:11px}}
@@ -47,7 +48,7 @@
 <div class="alert-grid" aria-label="Alertas independientes">
  <section class="alert-card orders-alert" aria-live="polite">
   <div class="alert-heading"><strong>🛎️ PEDIDOS NUEVOS DE LA WEB</strong><span id="ordersAlertCount">0</span></div>
-  <div id="ordersAlertMessage">Esperando nuevos pedidos web…</div><button id="ordersLoginButton" type="button" class="orders-login-button" style="display:none" onclick="openStaffPanel()">🔐 Iniciar sesión de Jefatura y reconectar</button>
+  <div id="ordersAlertMessage">Esperando nuevos pedidos web…</div><div id="ordersAuthStatus" class="orders-auth-status" role="status">Estado de conexión: esperando autenticación</div><button id="ordersLoginButton" type="button" class="orders-login-button" style="display:none" onclick="openStaffPanel()">🔐 Iniciar sesión de Jefatura y reconectar</button>
  </section>
  <section class="alert-card payments-alert" aria-live="polite">
   <div class="alert-heading"><strong>💳 PAGOS CONFIRMADOS</strong><span id="paymentsAlertCount">0</span></div>
@@ -208,6 +209,7 @@ function playAlertTone(kind){
   });
  }catch(e){console.warn("No se pudo reproducir alerta:",e);}
 }
+function setOrdersAuthStatus(state,message){const el=document.getElementById("ordersAuthStatus");if(!el)return;el.className="orders-auth-status "+(state||"");el.textContent=message||"Estado de conexión";}
 function showAlertMessage(id,message,countId,count){
  const el=document.getElementById(id),badge=document.getElementById(countId);
  if(el)el.textContent=message;if(badge)badge.textContent=String(count);
@@ -280,6 +282,7 @@ async function checkOnlineOrderAlerts(){
   }
  }catch(e){console.warn("Avisos de pedidos y pagos:",e);}
 }
+if(window.posBridge&&typeof window.posBridge.onAuthStatus==="function"){window.posBridge.onAuthStatus(data=>{if(data?.state==="connected"){setOrdersAuthStatus("ok","✅ "+(data.message||"Jefatura autenticada. Sincronizando pedidos y pagos…"));knownOnlineOrders=null;knownPaymentStatuses=new Map();checkOnlineOrderAlerts();}});}
 setTimeout(()=>{checkOnlineOrderAlerts();setInterval(checkOnlineOrderAlerts,12000);},5000);
 
 async function openPosService(service){
@@ -290,6 +293,7 @@ async function openPosService(service){
  }catch(error){alert("No se pudo abrir "+(labels[service]||"el servicio")+": "+(error.message||"Error desconocido"));}
 }
 async function openPosTestMode(){try{if(!window.posBridge||typeof window.posBridge.openTestMode!=="function")throw new Error("Esta función requiere actualizar el POS.");await window.posBridge.openTestMode();}catch(e){alert("No se pudo abrir el acceso de Jefatura: "+e.message);}}
+async function openStaffPanel(){setOrdersAuthStatus("busy","🔄 Autenticando Jefatura… Se abrirá el acceso seguro.");try{if(!window.posBridge||typeof window.posBridge.openStaff!=="function")throw new Error("Esta función requiere actualizar el POS.");await window.posBridge.openStaff();}catch(e){setOrdersAuthStatus("error","No se pudo abrir el acceso: "+e.message);}}
 </script><section id="staffEmbedded" class="staff-overlay" style="display:none" aria-label="Panel de repartidor y jefatura">
 <div class="staff-toolbar"><div><strong>🚴 Repartidor / Jefatura</strong><small>Panel de gestión interna</small></div><button type="button" class="staff-back" onclick="closeStaffPanel()">← Volver al POS</button></div>
 <iframe id="staffFrame" title="Panel de repartidor y jefatura" src="https://menu-la-pica-del-benjamin-pago.onrender.com/reparto.html"></iframe></section>
