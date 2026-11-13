@@ -40,7 +40,7 @@
 .top-actions button{background:#2b1b0e;border:1px solid #9b6328;color:#ffe0a3;min-height:42px}
 .top-actions button:hover{background:#503016}
 @media(max-width:700px){.top{align-items:flex-start;gap:10px;flex-wrap:wrap}.top-actions{width:100%}.top-actions button{flex:1;padding:9px 8px;font-size:12px}}
-</style></head><body><header class="top"><div><div class="brand">🍔 LA PICÁ DEL BENJAMÍN</div><div class="sub">Punto de venta local · Uso interno</div></div><div class="top-actions"><button id="gmailShortcut" type="button" onclick="openPosService(&quot;gmail&quot;)">✉️ Gmail</button><button id="whatsappShortcut" type="button" onclick="openPosService(&quot;whatsapp&quot;)">💬 WhatsApp</button><button id="staffShortcut" type="button" onclick="openStaffPanel()">🚴 Repartidor / Jefatura</button></div></header>
+</style></head><body><header class="top"><div><div class="brand">🍔 LA PICÁ DEL BENJAMÍN</div><div class="sub">Punto de venta local · Uso interno</div></div><div class="top-actions"><button id="gmailShortcut" type="button" onclick="openPosService(&quot;gmail&quot;)">✉️ Gmail</button><button id="whatsappShortcut" type="button" onclick="openPosService(&quot;whatsapp&quot;)">💬 WhatsApp</button><button id="testModeShortcut" type="button" onclick="openPosTestMode()">🧪 Modo prueba · Jefatura</button><button id="staffShortcut" type="button" onclick="openStaffPanel()">🚴 Repartidor / Jefatura</button></div></header>
 
 <main id="app" class="wrap">
 <div class="alert-grid" aria-label="Alertas independientes">
@@ -262,6 +262,7 @@ async function openPosService(service){
    await window.posBridge.openService(service);
  }catch(error){alert("No se pudo abrir "+(labels[service]||"el servicio")+": "+(error.message||"Error desconocido"));}
 }
+async function openPosTestMode(){try{if(!window.posBridge||typeof window.posBridge.openTestMode!=="function")throw new Error("Esta función requiere actualizar el POS.");await window.posBridge.openTestMode();}catch(e){alert("No se pudo abrir el acceso de Jefatura: "+e.message);}}
 </script><section id="staffEmbedded" class="staff-overlay" style="display:none" aria-label="Panel de repartidor y jefatura">
 <div class="staff-toolbar"><div><strong>🚴 Repartidor / Jefatura</strong><small>Panel de gestión interna</small></div><button type="button" class="staff-back" onclick="closeStaffPanel()">← Volver al POS</button></div>
 <iframe id="staffFrame" title="Panel de repartidor y jefatura" src="https://menu-la-pica-del-benjamin-pago.onrender.com/reparto.html"></iframe></section>
