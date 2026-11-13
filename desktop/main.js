@@ -61,7 +61,7 @@ ipcMain.handle("pos:open-staff",async()=>{
   console.warn("No se pudo cargar el panel de personal:",errorCode,errorDescription,validatedURL);
  });
  staffWin.on("closed",()=>serviceWindows.delete(service));
- await staffWin.loadURL("https://menu-la-pica-del-benjamin-pago.onrender.com/reparto.html");
+ await staffWin.loadURL("https://menu-la-pica-del-benjamin-pago.onrender.com/personal.html?desktopPos=1");
  return true;
 });
 
