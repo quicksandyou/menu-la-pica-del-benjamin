@@ -1000,7 +1000,7 @@ if(!price||!Number.isInteger(quantity)||quantity<1||quantity>30||Number(item.uni
     ? await getStaffUser() : null;
   const paymentTestAllowed = canUsePaymentTestMode(paymentStaff);
 
-  if (req.method === "POST" && new URL(req.url, "http://localhost").pathname === "/api/crear-orden" && Date.now() < 1794687621111 && !paymentTestAllowed) {
+  if (req.method === "POST" && new URL(req.url, "http://localhost").pathname === "/api/crear-orden" && false && !paymentTestAllowed) {
     return send(res, 423, { error: "Los pagos públicos siguen bloqueados durante la preparación. Para pruebas internas se requiere una sesión autorizada y credenciales TEST de Mercado Pago." });
   }
 
