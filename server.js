@@ -513,7 +513,7 @@ La Picá del Benjamín`,
       const token = randomBytes(32).toString("hex");
       const tokenHash = createHash("sha256").update(token).digest("hex");
       await dbPool.query("INSERT INTO app_sessions(token_hash,user_id,expires_at) VALUES($1,$2,NOW()+INTERVAL '12 hours')", [tokenHash,user.id]);
-      res.setHeader("Set-Cookie", "pb_session="+token+"; HttpOnly; Secure; SameSite=None; Path=/; Max-Age=43200");
+      res.setHeader("Set-Cookie", "pb_session="+token+"; HttpOnly; Secure; SameSite=None; Partitioned; Path=/; Max-Age=43200");
       return send(res, 200, { user: { username:user.username, full_name:user.full_name, role:user.role }, mustChangePassword: user.must_change_password });
     } catch (error) { console.error("Login error:", error.message); return send(res, 400, { error: "No fue posible iniciar sesión." }); }
   }
@@ -562,7 +562,7 @@ La Picá del Benjamín`,
   if (req.method === "POST" && requestPath === "/api/personal/logout") {
     const token = (req.headers.cookie || "").split(";").map(x=>x.trim()).find(x=>x.startsWith("pb_session="))?.slice(11);
     if (token && dbPool) await dbPool.query("DELETE FROM app_sessions WHERE token_hash=$1", [createHash("sha256").update(token).digest("hex")]);
-    res.setHeader("Set-Cookie", "pb_session=; HttpOnly; Secure; SameSite=None; Path=/; Max-Age=0");
+    res.setHeader("Set-Cookie", "pb_session=; HttpOnly; Secure; SameSite=None; Partitioned; Path=/; Max-Age=0");
     return send(res, 200, { ok:true });
   }
 
