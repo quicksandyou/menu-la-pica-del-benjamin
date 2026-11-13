@@ -155,40 +155,7 @@ ipcMain.handle("pos:poll-online-orders",async()=>{
   return {ok:true,orders:orders.filter(o=>String(o.source||"online").toLowerCase()==="online").map(o=>({id:o.id,order_number:o.order_number,customer_name:o.customer_name,customer_phone:o.customer_phone,delivery_method:o.delivery_method,delivery_address:o.delivery_address,locality:o.locality,total_clp:o.total_clp,payment_status:o.payment_status,created_at:o.created_at,items_json:o.items_json,notes:o.notes}))};
  }catch(error){console.warn("No se pudieron consultar pedidos web:",error.message);return {ok:false,orders:[]};}
 });
-ipcMain.handle("pos:open-service",async(_event,service)=>{
- const config=SERVICE_CONFIG[service];
- if(!config)throw new Error("Servicio no permitido.");
- if(service==="whatsapp"){
-   await shell.openExternal("https://web.whatsapp.com/");
-   return true;
- }
- let serviceWin=serviceWindows.get(service);
- if(serviceWin&&!serviceWin.isDestroyed()){
-   if(serviceWin.isMinimized())serviceWin.restore();
-   serviceWin.focus();
-   return true;
- }
- serviceWin=new BrowserWindow({
-   width:1280,height:850,minWidth:900,minHeight:650,
-   title:config.title,backgroundColor:"#ffffff",autoHideMenuBar:true,
-   webPreferences:{
-     partition:config.partition,
-     contextIsolation:true,nodeIntegration:false,sandbox:true,
-     webSecurity:true
-   }
- });
- serviceWindows.set(service,serviceWin);
- serviceWin.webContents.setWindowOpenHandler(({url})=>{
-   if(url.startsWith("https://")){shell.openExternal(url);return {action:"deny"};}
-   return {action:"deny"};
- });
- serviceWin.webContents.on("will-navigate",(event,url)=>{
-   if(!url.startsWith("https://"))event.preventDefault();
- });
- serviceWin.on("closed",()=>serviceWindows.delete(service));
- await serviceWin.loadURL(config.url);
- return true;
-});
+
 
 function validateMenu(data){
  if(!data||!Array.isArray(data.products)||!data.products.length||!Array.isArray(data.categories)||!data.categories.length)throw new Error("Carta incompleta.");
