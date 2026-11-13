@@ -969,7 +969,7 @@ function applySchedule(){
  const launchLocked=isLaunchPaymentLocked();
  const notice=document.getElementById("closedNotice");
  const launchNotice=document.getElementById("launchOrderLockNotice");
- notice.style.display=open?"none":"block";
+ notice.style.display="none"; // Aviso de fuera de horario oculto temporalmente; las restricciones de pedidos y pagos siguen activas.
  if(launchNotice)launchNotice.style.display=open&&launchLocked?"block":"none";
  document.querySelector(".fields").style.display=open?"grid":"none";
  const payButton=document.querySelector(".online-pay");
