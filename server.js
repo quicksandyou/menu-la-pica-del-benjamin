@@ -125,16 +125,7 @@ async function initializeDatabase() {
     CREATE INDEX IF NOT EXISTS idx_orders_delivery_status ON orders(delivery_status);
     CREATE INDEX IF NOT EXISTS idx_assignments_driver ON delivery_assignments(driver_id);
     CREATE INDEX IF NOT EXISTS idx_extra_runs_driver ON extra_runs(driver_id);
-  CREATE TABLE IF NOT EXISTS pos_devices (
-      id BIGSERIAL PRIMARY KEY,
-      token_hash TEXT UNIQUE NOT NULL,
-      device_name VARCHAR(120) NOT NULL DEFAULT 'POS Windows',
-      created_by BIGINT REFERENCES app_users(id),
-      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-      last_seen_at TIMESTAMPTZ,
-      revoked_at TIMESTAMPTZ
-    );
-    `);
+  `);
   await dbPool.query("DELETE FROM app_sessions WHERE expires_at < NOW()");
   const tempPassword = process.env.INITIAL_TEMP_PASSWORD;
   if (tempPassword) {
@@ -295,21 +286,7 @@ const server = http.createServer(async (req, res) => {
     return res.end();
   }
 
-  const requestUrl = new URL(req.url, "http://localhost");
-  const requestPath = requestUrl.pathname;
-
-  // La tienda web se sirve también desde este dominio para que el modo de prueba
-  // conserve la sesión autenticada de Jefatura en el mismo origen.
-  if (req.method === "GET" && requestPath === "/" && requestUrl.searchParams.get("modoPrueba") === "1") {
-    try {
-      const page = await fs.promises.readFile(path.join(__dirname, "index.html"));
-      res.writeHead(200, { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff", "Referrer-Policy": "no-referrer" });
-      return res.end(page);
-    } catch (error) {
-      console.error("No se pudo cargar la tienda para modo de prueba:", error.message);
-      return send(res, 503, { error: "La tienda de prueba no está disponible en este momento." });
-    }
-  }
+  const requestPath = new URL(req.url, "http://localhost").pathname;
 
   // Servir recursos gráficos del panel de reparto desde la carpeta icons.
   // Se restringe la ruta a /icons/ y se valida la ruta resuelta para impedir traversal.
@@ -625,42 +602,6 @@ La Picá del Benjamín`,
   function canUsePaymentTestMode(staff) {
     return Boolean(staff && ["superadmin","manager"].includes(staff.role) &&
       String(process.env.MP_ACCESS_TOKEN_TEST || "").trim());
-  }
-
-  // Emisión y revocación de credencial limitada para el POS Windows.
-  if (requestPath === "/api/personal/pos-device/issue" && req.method === "POST") {
-    const staff = await getStaffUser();
-    if (!canManageOrders(staff)) return send(res,403,{error:"Solo Jefatura puede autorizar el POS."});
-    if (!dbPool) return send(res,503,{error:"Base de datos no disponible."});
-    try {
-      const data=await readJson(req);
-      const deviceName=String(data.device_name||"POS Windows").trim().slice(0,120)||"POS Windows";
-      const token=randomBytes(32).toString("hex");
-      await dbPool.query("UPDATE pos_devices SET revoked_at=NOW() WHERE revoked_at IS NULL");
-      await dbPool.query("INSERT INTO pos_devices(token_hash,device_name,created_by) VALUES($1,$2,$3)",[createHash("sha256").update(token).digest("hex"),deviceName,staff.id]);
-      return send(res,200,{ok:true,device_token:token,device_name:deviceName});
-    } catch(error) {
-      console.error("POS device issue:",error.message);
-      return send(res,500,{error:"No se pudo autorizar el POS."});
-    }
-  }
-  if (requestPath === "/api/personal/pos-device/revoke" && req.method === "POST") {
-    const staff = await getStaffUser();
-    if (!canManageOrders(staff)) return send(res,403,{error:"Solo Jefatura puede revocar el POS."});
-    if (!dbPool) return send(res,503,{error:"Base de datos no disponible."});
-    await dbPool.query("UPDATE pos_devices SET revoked_at=NOW() WHERE revoked_at IS NULL");
-    return send(res,200,{ok:true});
-  }
-  if (requestPath === "/api/pos/device-orders" && req.method === "GET") {
-    if (!dbPool) return send(res,503,{error:"Base de datos no disponible."});
-    const bearer=String(req.headers.authorization||"").replace(/^Bearer\s+/i,"").trim();
-    if (!/^[a-f0-9]{64}$/i.test(bearer)) return send(res,401,{error:"POS no autorizado."});
-    const device=await dbPool.query("UPDATE pos_devices SET last_seen_at=NOW() WHERE token_hash=$1 AND revoked_at IS NULL RETURNING id",[createHash("sha256").update(bearer).digest("hex")]);
-    if (!device.rowCount) return send(res,401,{error:"Autorización del POS vencida o revocada."});
-    const requestedDate=String(requestUrl.searchParams.get("date")||"");
-    const selectedDate=/^\d{4}-\d{2}-\d{2}$/.test(requestedDate)?requestedDate:new Intl.DateTimeFormat("en-CA",{timeZone:"America/Santiago",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date());
-    const result=await dbPool.query("SELECT id,order_number,customer_name,customer_phone,delivery_address,locality,delivery_method,total_clp,payment_status,delivery_status,approval_status,items_json,notes,source,created_at FROM orders WHERE (created_at AT TIME ZONE 'America/Santiago')::date=$1::date AND source='online' ORDER BY created_at DESC LIMIT 500",[selectedDate]);
-    return send(res,200,{ok:true,orders:result.rows,date:selectedDate});
   }
   if (req.method === "GET" && requestPath === "/api/personal/test-mode") {
     const staff = await getStaffUser();
