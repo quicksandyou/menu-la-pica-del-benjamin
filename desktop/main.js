@@ -213,12 +213,19 @@ app.on("before-quit",()=>{allowAppQuit=true;});
 app.on("activate",()=>showMainWindow());
 
 ipcMain.handle("pos:poll-online-orders",async()=>{
- if(!win||win.isDestroyed())return {ok:false,orders:[]};
+ if(!win||win.isDestroyed())return {ok:false,orders:[],error:"POS no disponible"};
  try{
+  const base="https://menu-la-pica-del-benjamin-pago.onrender.com";
   const localDate=new Intl.DateTimeFormat("en-CA",{timeZone:"America/Santiago",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date());
-  const response=await win.webContents.session.fetch("https://menu-la-pica-del-benjamin-pago.onrender.com/api/reparto/pedidos?date="+localDate,{headers:{"Accept":"application/json"}});
-  if(!response.ok)return {ok:false,status:response.status,orders:[]};
-  const data=await response.json(),orders=Array.isArray(data.orders)?data.orders:[];
+  // Electron no adjunta automáticamente cookies HttpOnly en session.fetch:
+  // leer la cookie de la sesión persistente compartida con la ventana Jefatura.
+  const cookies=await win.webContents.session.cookies.get({url:base});
+  const cookieHeader=cookies.map(c=>c.name+"="+c.value).join("; ");
+  if(!cookieHeader.includes("pb_session="))return {ok:false,orders:[],status:401,error:"Inicia sesión en Repartidor / Jefatura dentro del POS para habilitar la consulta web."};
+  const response=await win.webContents.session.fetch(base+"/api/reparto/pedidos?date="+localDate,{headers:{"Accept":"application/json","Cookie":cookieHeader}});
+  const data=await response.json().catch(()=>({}));
+  if(!response.ok)return {ok:false,status:response.status,orders:[],error:data.error||"El servidor rechazó la consulta de pedidos."};
+  const orders=Array.isArray(data.orders)?data.orders:[];
   return {ok:true,orders:orders.filter(o=>String(o.source||"online").toLowerCase()==="online").map(o=>({id:o.id,order_number:o.order_number,customer_name:o.customer_name,customer_phone:o.customer_phone,delivery_method:o.delivery_method,delivery_address:o.delivery_address,locality:o.locality,total_clp:o.total_clp,payment_status:o.payment_status,created_at:o.created_at,items_json:o.items_json,notes:o.notes}))};
- }catch(error){console.warn("No se pudieron consultar pedidos web:",error.message);return {ok:false,orders:[]};}
+ }catch(error){console.warn("No se pudieron consultar pedidos web:",error.message);return {ok:false,orders:[],error:error.message};}
 });
