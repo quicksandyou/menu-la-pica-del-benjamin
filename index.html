@@ -953,7 +953,7 @@ function isOrderingOpen(){
  if(hour<2) day=(day+6)%7;
  return day>=2&&day<=6&&(hour<2||(hour>17||(hour===17&&minute>=30)));
 }
-const LAUNCH_PAYMENTS_UNLOCK_AT=1794687621111;
+const LAUNCH_PAYMENTS_UNLOCK_AT=0;
 function isLaunchPaymentLocked(){return !staffTestMode && Date.now()<LAUNCH_PAYMENTS_UNLOCK_AT;}
 function updateLaunchCountdown(){
  const remaining=Math.max(0,LAUNCH_PAYMENTS_UNLOCK_AT-Date.now());
