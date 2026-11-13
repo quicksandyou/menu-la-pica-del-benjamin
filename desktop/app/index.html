@@ -261,7 +261,7 @@ async function checkOnlineOrderAlerts(){
    if(recentOrders.length){
     ordersAlertTotal+=recentOrders.length;
     playAlertTone("order");
-    showAlertMessage("🔔 "+recentOrders.length+" pedido(s) de hoy: "+recentOrders.slice(0,4).map(o=>o.order_number||("#"+o.id)).join(", "),"ordersAlertMessage","ordersAlertCount",ordersAlertTotal);
+    showAlertMessage("ordersAlertMessage","🔔 "+recentOrders.length+" pedido(s) de hoy: "+recentOrders.slice(0,4).map(o=>o.order_number||("#"+o.id)).join(", "),"ordersAlertCount",ordersAlertTotal);
     for(const order of recentOrders)await printPaidWebOrder(order);
    }else{
     showAlertMessage("ordersAlertMessage","🟢 Conectado · "+orders.length+" pedido(s) web registrados hoy. Esperando nuevos pedidos…","ordersAlertCount",ordersAlertTotal);
