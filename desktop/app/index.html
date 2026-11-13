@@ -224,27 +224,35 @@ async function checkOnlineOrderAlerts(){
   const result=await window.posBridge.pollOnlineOrders();
   if(!result||!result.ok){
    const detail=result?.error||("No se pudo consultar el servidor"+(result?.status?" (HTTP "+result.status+")":"")+".");
+   setOrdersAuthStatus("error","🔴 Sin conexión · "+detail);
    showAlertMessage("ordersAlertMessage","⚠️ Sin conexión de pedidos: "+detail,"ordersAlertCount",ordersAlertTotal);
    return;
   }
   const orders=Array.isArray(result.orders)?result.orders:[];
   const current=new Map(orders.map(o=>[String(o.id),o]));
+  setOrdersAuthStatus("ok","🟢 Conectado al servidor · última sincronización "+new Date().toLocaleTimeString("es-CL"));
   if(knownOnlineOrders===null){
    knownOnlineOrders=current;
    knownPaymentStatuses=new Map(orders.map(o=>[String(o.id),String(o.payment_status||"pending").toLowerCase()]));
-   // Recupera pedidos recientes creados mientras el POS estaba cerrado.
-   const recentCutoff=Date.now()-20*60*1000;
+   const confirmedAtStartup=orders.filter(o=>["paid","approved","accredited"].includes(String(o.payment_status||"").toLowerCase()));
+   if(confirmedAtStartup.length){
+    paymentsAlertTotal=confirmedAtStartup.length;
+    const paidNames=confirmedAtStartup.slice(0,4).map(o=>(o.order_number||("#"+o.id))+" · "+(String(o.payment_status).toLowerCase()==="paid"?"Transferencia verificada":"Mercado Pago confirmado")).join(" | ");
+    showAlertMessage("paymentsAlertMessage","💳 "+confirmedAtStartup.length+" pago(s) confirmado(s) hoy: "+paidNames,"paymentsAlertCount",paymentsAlertTotal);
+   }else showAlertMessage("paymentsAlertMessage","Conectado. Esperando pagos confirmados…","paymentsAlertCount",paymentsAlertTotal);
+   // Solo avisa/imprime pedidos recientes al iniciar; no reimprime toda la jornada.
+   const recentCutoff=Date.now()-30*60*1000;
    const recentOrders=orders.filter(o=>{const t=Date.parse(o.created_at||"");return Number.isFinite(t)&&t>=recentCutoff;});
    if(recentOrders.length){
     ordersAlertTotal+=recentOrders.length;playAlertTone("order");
-    showAlertMessage("ordersAlertMessage","🔔 "+recentOrders.length+" pedido(s) reciente(s) detectado(s) al iniciar: "+recentOrders.map(o=>o.order_number||("#"+o.id)).slice(0,3).join(", "),"ordersAlertCount",ordersAlertTotal);
+    showAlertMessage("ordersAlertMessage","🔔 Conectado · "+recentOrders.length+" pedido(s) reciente(s): "+recentOrders.map(o=>o.order_number||("#"+o.id)).slice(0,4).join(", "),"ordersAlertCount",ordersAlertTotal);
     if(window.posBridge&&typeof window.posBridge.printWebOrder==="function"){
      for(const order of recentOrders){
-      try{const printed=await window.posBridge.printWebOrder(order);if(printed&&!printed.ok)showAlertMessage("ordersAlertMessage","⚠️ Pedido "+(order.order_number||("#"+order.id))+" recibido, pero no se pudo imprimir. Revisa la impresora USB.","ordersAlertCount",ordersAlertTotal);}
+      try{const printed=await window.posBridge.printWebOrder(order);if(!printed&&!printed?.ok)showAlertMessage("ordersAlertMessage","⚠️ Pedido "+(order.order_number||("#"+order.id))+" recibido, pero no se pudo imprimir. Revisa la impresora USB.","ordersAlertCount",ordersAlertTotal);}
       catch(printError){console.error("Error impresión pedido recuperado:",printError);showAlertMessage("ordersAlertMessage","⚠️ Pedido recibido, pero falló la impresión. Revisa la impresora USB.","ordersAlertCount",ordersAlertTotal);}
      }
     }
-   }else showAlertMessage("ordersAlertMessage","Conectado. Esperando nuevos pedidos web…","ordersAlertCount",ordersAlertTotal);
+   }else showAlertMessage("ordersAlertMessage","🟢 Conectado · "+orders.length+" pedido(s) web registrados hoy. Esperando nuevos pedidos…","ordersAlertCount",ordersAlertTotal);
    return;
   }
   const newOrders=[...current.keys()].filter(id=>!knownOnlineOrders.has(id));
@@ -297,6 +305,6 @@ async function openStaffPanel(){setOrdersAuthStatus("busy","🔄 Autenticando Je
 </script><section id="staffEmbedded" class="staff-overlay" style="display:none" aria-label="Panel de repartidor y jefatura">
 <div class="staff-toolbar"><div><strong>🚴 Repartidor / Jefatura</strong><small>Panel de gestión interna</small></div><button type="button" class="staff-back" onclick="closeStaffPanel()">← Volver al POS</button></div>
 <iframe id="staffFrame" title="Panel de repartidor y jefatura" src="https://menu-la-pica-del-benjamin-pago.onrender.com/reparto.html"></iframe></section>
-<script>async function openStaffPanel(){try{if(!window.posBridge||typeof window.posBridge.openStaff!=="function")throw new Error("Esta función requiere actualizar el POS.");await window.posBridge.openStaff();}catch(e){alert("No se pudo abrir el panel de personal: "+e.message);}}
+<script>async function openStaffPanel(){setOrdersAuthStatus("busy","🔄 Abriendo autenticación segura de Jefatura…");try{if(!window.posBridge||typeof window.posBridge.openStaff!=="function")throw new Error("Esta función requiere actualizar el POS.");await window.posBridge.openStaff();}catch(e){setOrdersAuthStatus("error","No se pudo abrir el acceso: "+e.message);alert("No se pudo abrir el panel de personal: "+e.message);}}
 function closeStaffPanel(){document.getElementById("staffEmbedded").style.display="none";document.body.style.overflow="";document.getElementById("staffShortcut").focus();}
 document.addEventListener("keydown",event=>{if(event.key==="Escape"&&document.getElementById("staffEmbedded").style.display!=="none")closeStaffPanel();});</script></body></html>
