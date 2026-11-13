@@ -653,12 +653,12 @@ La Picá del Benjamín`,
   }
   if (requestPath === "/api/pos/device-orders" && req.method === "GET") {
     if (!dbPool) return send(res,503,{error:"Base de datos no disponible."});
-    const bearer=String(req.headers.authorization||"").replace(/^Bearer\\s+/i,"").trim();
+    const bearer=String(req.headers.authorization||"").replace(/^Bearer\s+/i,"").trim();
     if (!/^[a-f0-9]{64}$/i.test(bearer)) return send(res,401,{error:"POS no autorizado."});
     const device=await dbPool.query("UPDATE pos_devices SET last_seen_at=NOW() WHERE token_hash=$1 AND revoked_at IS NULL RETURNING id",[createHash("sha256").update(bearer).digest("hex")]);
     if (!device.rowCount) return send(res,401,{error:"Autorización del POS vencida o revocada."});
     const requestedDate=String(requestUrl.searchParams.get("date")||"");
-    const selectedDate=/^\\d{4}-\\d{2}-\\d{2}$/.test(requestedDate)?requestedDate:new Intl.DateTimeFormat("en-CA",{timeZone:"America/Santiago",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date());
+    const selectedDate=/^\d{4}-\d{2}-\d{2}$/.test(requestedDate)?requestedDate:new Intl.DateTimeFormat("en-CA",{timeZone:"America/Santiago",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date());
     const result=await dbPool.query("SELECT id,order_number,customer_name,customer_phone,delivery_address,locality,delivery_method,total_clp,payment_status,delivery_status,approval_status,items_json,notes,source,created_at FROM orders WHERE (created_at AT TIME ZONE 'America/Santiago')::date=$1::date AND source='online' ORDER BY created_at DESC LIMIT 500",[selectedDate]);
     return send(res,200,{ok:true,orders:result.rows,date:selectedDate});
   }
