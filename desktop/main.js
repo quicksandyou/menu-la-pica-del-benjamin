@@ -1,10 +1,12 @@
-const {app,BrowserWindow,shell,dialog,ipcMain,net}=require("electron");
+const {app,BrowserWindow,shell,dialog,ipcMain,net,Tray,Menu,nativeImage}=require("electron");
 const {autoUpdater}=require("electron-updater");
 // Permite que las alertas sonoras del POS funcionen automáticamente, sin clic previo del usuario.
 app.commandLine.appendSwitch("autoplay-policy","no-user-gesture-required");
 const path=require("path");
 const fs=require("fs");
 let win;
+let tray=null;
+let allowAppQuit=false;
 let updatePromptOpen=false;
 const serviceWindows=new Map();
 const SERVICE_CONFIG={
@@ -185,12 +187,30 @@ function createWindow(){
        !url.startsWith("https://menu-la-pica-del-benjamin.onrender.com/")&&
        !url.startsWith("https://menu-la-pica-del-benjamin-pago.onrender.com/")) e.preventDefault();
   });
+  win.on("close",(event)=>{if(!allowAppQuit){event.preventDefault();win.hide();if(tray)tray.displayBalloon?.({title:"La Picá del Benjamín",content:"El POS sigue activo en segundo plano y avisará cuando llegue un pedido."});}});
   win.on("closed",()=>win=null);
 }
 
-app.whenReady().then(()=>{createWindow();configureAutoUpdates();});
-app.on("window-all-closed",()=>{if(process.platform!=="darwin")app.quit()});
-app.on("activate",()=>{if(BrowserWindow.getAllWindows().length===0)createWindow()});
+function showMainWindow(){if(!win||win.isDestroyed())createWindow();else{if(win.isMinimized())win.restore();win.show();win.focus();}}
+function createTray(){
+ if(tray)return;
+ const iconPath=path.join(__dirname,"build","icon.ico");
+ let icon=nativeImage.createFromPath(iconPath);
+ if(icon.isEmpty())icon=nativeImage.createEmpty();
+ tray=new Tray(icon);
+ tray.setToolTip("La Picá del Benjamín · Avisos de pedidos activos");
+ tray.setContextMenu(Menu.buildFromTemplate([
+  {label:"Abrir POS",click:showMainWindow},
+  {label:"Estado: avisos activos",enabled:false},
+  {type:"separator"},
+  {label:"Salir completamente",click:()=>{allowAppQuit=true;app.quit();}}
+ ]));
+ tray.on("double-click",showMainWindow);
+}
+app.whenReady().then(()=>{createTray();createWindow();configureAutoUpdates();});
+app.on("window-all-closed",()=>{ /* Se mantiene activo en la bandeja del sistema. */ });
+app.on("before-quit",()=>{allowAppQuit=true;});
+app.on("activate",()=>showMainWindow());
 
 ipcMain.handle("pos:poll-online-orders",async()=>{
  if(!win||win.isDestroyed())return {ok:false,orders:[]};
