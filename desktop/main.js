@@ -1,4 +1,4 @@
-const {app,BrowserWindow,shell,dialog,ipcMain,net,Tray,Menu,nativeImage}=require("electron");
+const {app,BrowserWindow,shell,dialog,ipcMain,net,Tray,Menu,nativeImage,safeStorage}=require("electron");
 const {autoUpdater}=require("electron-updater");
 // Permite que las alertas sonoras del POS funcionen automáticamente, sin clic previo del usuario.
 app.commandLine.appendSwitch("autoplay-policy","no-user-gesture-required");
@@ -16,6 +16,9 @@ const SERVICE_CONFIG={
 
 const printedOrderIds=new Set();
 const printedOrdersFile=path.join(app.getPath("userData"),"printed-web-orders.json");
+const posDeviceTokenFile=path.join(app.getPath("userData"),"pos-device-token.enc");
+function readPosDeviceToken(){try{if(!safeStorage.isEncryptionAvailable())return null;const encrypted=fs.readFileSync(posDeviceTokenFile,"utf8");return safeStorage.decryptString(Buffer.from(encrypted,"base64"));}catch(_){return null;}}
+function savePosDeviceToken(token){if(!safeStorage.isEncryptionAvailable())throw new Error("El almacenamiento seguro de Windows no está disponible.");fs.writeFileSync(posDeviceTokenFile,safeStorage.encryptString(token).toString("base64"),{mode:0o600});}
 try{for(const id of JSON.parse(fs.readFileSync(printedOrdersFile,"utf8")))printedOrderIds.add(String(id));}catch(_){}
 function persistPrintedOrderIds(){try{fs.writeFileSync(printedOrdersFile,JSON.stringify([...printedOrderIds].slice(-2000)),"utf8");}catch(e){console.warn("No se pudo guardar historial de comandas:",e.message);}}
 function escapeReceipt(value){return String(value??"").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));}
@@ -46,7 +49,7 @@ ipcMain.handle("pos:open-staff",async()=>{
   width:1440,height:950,minWidth:1000,minHeight:700,
   title:"Repartidor / Jefatura · La Picá del Benjamín",
   backgroundColor:"#100b07",autoHideMenuBar:true,
-  webPreferences:{partition:"persist:lapica-local",contextIsolation:true,nodeIntegration:false,sandbox:true,webSecurity:true}
+  webPreferences:{preload:path.join(__dirname,"preload.js"),partition:"persist:lapica-local",contextIsolation:true,nodeIntegration:false,sandbox:true,webSecurity:true}
  });
  serviceWindows.set(service,staffWin);
  staffWin.webContents.setWindowOpenHandler(({url})=>{
@@ -212,18 +215,39 @@ app.on("window-all-closed",()=>{ /* Se mantiene activo en la bandeja del sistema
 app.on("before-quit",()=>{allowAppQuit=true;});
 app.on("activate",()=>showMainWindow());
 
+ipcMain.handle("pos:enroll-device",async()=>{
+ const staffWin=serviceWindows.get("staff");
+ if(!staffWin||staffWin.isDestroyed())throw new Error("Abre el portal de Jefatura e inicia sesión primero.");
+ const base="https://menu-la-pica-del-benjamin-pago.onrender.com";
+ const cookies=await staffWin.webContents.session.cookies.get({url:base});
+ const cookieHeader=cookies.map(c=>c.name+"="+c.value).join("; ");
+ if(!cookieHeader.includes("pb_session="))throw new Error("No se encontró la sesión de Jefatura. Inicia sesión nuevamente.");
+ const responseData=await new Promise((resolve,reject)=>{
+  const request=net.request({method:"POST",url:base+"/api/personal/pos-device/issue",session:staffWin.webContents.session,headers:{"Accept":"application/json","Content-Type":"application/json","Cookie":cookieHeader}});
+  request.on("response",response=>{let raw="";response.on("data",chunk=>raw+=chunk.toString());response.on("end",()=>{let body={};try{body=JSON.parse(raw||"{}");}catch{}resolve({status:response.statusCode,body});});});
+  request.on("error",reject);request.write(JSON.stringify({device_name:require("os").hostname()+" · POS Windows"}));request.end();
+ });
+ if(responseData.status<200||responseData.status>=300)throw new Error(responseData.body.error||"El servidor no autorizó este equipo.");
+ if(!/^[a-f0-9]{64}$/i.test(responseData.body.device_token||""))throw new Error("El servidor devolvió una autorización inválida.");
+ savePosDeviceToken(responseData.body.device_token);
+ return {ok:true,device_name:responseData.body.device_name||"POS Windows"};
+});
 ipcMain.handle("pos:poll-online-orders",async()=>{
  if(!win||win.isDestroyed())return {ok:false,orders:[],error:"POS no disponible"};
  try{
   const base="https://menu-la-pica-del-benjamin-pago.onrender.com";
   const localDate=new Intl.DateTimeFormat("en-CA",{timeZone:"America/Santiago",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date());
-  // Electron no adjunta automáticamente cookies HttpOnly en session.fetch:
-  // leer la cookie de la sesión persistente compartida con la ventana Jefatura.
-  const cookies=await win.webContents.session.cookies.get({url:base});
-  const cookieHeader=cookies.map(c=>c.name+"="+c.value).join("; ");
-  if(!cookieHeader.includes("pb_session="))return {ok:false,orders:[],status:401,error:"Inicia sesión en Repartidor / Jefatura dentro del POS para habilitar la consulta web."};
+  const deviceToken=readPosDeviceToken();
+  let requestUrl,headers={"Accept":"application/json"};
+  if(deviceToken){requestUrl=base+"/api/pos/device-orders?date="+localDate;headers.Authorization="Bearer "+deviceToken;}
+  else{
+   const cookies=await win.webContents.session.cookies.get({url:base});
+   const cookieHeader=cookies.map(c=>c.name+"="+c.value).join("; ");
+   if(!cookieHeader.includes("pb_session="))return {ok:false,orders:[],status:401,error:"Este POS aún no está autorizado. Inicia sesión una vez como Jefatura y autoriza este equipo."};
+   requestUrl=base+"/api/reparto/pedidos?date="+localDate;headers.Cookie=cookieHeader;
+  }
   const responseData=await new Promise((resolve,reject)=>{
-   const request=net.request({method:"GET",url:base+"/api/reparto/pedidos?date="+localDate,session:win.webContents.session,headers:{"Accept":"application/json","Cookie":cookieHeader}});
+   const request=net.request({method:"GET",url:requestUrl,session:win.webContents.session,headers});
    request.on("response",response=>{let raw="";response.on("data",chunk=>raw+=chunk.toString());response.on("end",()=>{let body={};try{body=JSON.parse(raw||"{}");}catch{}resolve({status:response.statusCode,body});});});
    request.on("error",reject);request.end();
   });
