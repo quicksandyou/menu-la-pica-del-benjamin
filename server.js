@@ -250,9 +250,9 @@ async function readJson(req) {
   return JSON.parse(raw || "{}");
 }
 
-async function mpRequest(path, options = {}) {
-  const token = process.env.MP_ACCESS_TOKEN;
-  if (!token) throw new Error("Falta configurar MP_ACCESS_TOKEN en Render");
+async function mpRequest(path, options = {}, tokenOverride = null) {
+  const token = tokenOverride || process.env.MP_ACCESS_TOKEN;
+  if (!token) throw new Error("Falta configurar la credencial de Mercado Pago correspondiente en Render");
   return fetch(`${MP_API}${path}`, {
     ...options,
     headers: {
@@ -601,7 +601,7 @@ La Picá del Benjamín`,
   function canManageOrders(staff) { return Boolean(staff && ["superadmin","manager"].includes(staff.role)); }
   function canUsePaymentTestMode(staff) {
     return Boolean(staff && ["superadmin","manager"].includes(staff.role) &&
-      String(process.env.MP_ACCESS_TOKEN || "").startsWith("TEST-"));
+      String(process.env.MP_ACCESS_TOKEN_TEST || "").trim());
   }
   if (req.method === "GET" && requestPath === "/api/personal/test-mode") {
     const staff = await getStaffUser();
@@ -1086,7 +1086,7 @@ if(!price||!Number.isInteger(quantity)||quantity<1||quantity>30||Number(item.uni
       method: "POST",
       headers: { "X-Idempotency-Key": idempotencyKey },
       body: JSON.stringify(payload)
-    });
+    }, paymentTestAllowed ? process.env.MP_ACCESS_TOKEN_TEST : null);
 
     const result = await response.json();
     console.log("MP DIAGNOSTICO DELIVERY:", JSON.stringify({
