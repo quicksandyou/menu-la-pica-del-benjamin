@@ -15,7 +15,8 @@ let updatePromptOpen=false;
 const serviceWindows=new Map();
 const SERVICE_CONFIG={
  gmail:{url:"https://mail.google.com/mail/u/?authuser=lapicadadelbenjamin%40gmail.com",title:"Gmail · lapicadadelbenjamin@gmail.com",partition:"persist:lapica-gmail"},
- whatsapp:{url:"https://web.whatsapp.com/",title:"WhatsApp | La Picá del Benjamín",partition:"persist:lapica-whatsapp"}
+ whatsapp:{url:"https://web.whatsapp.com/",title:"WhatsApp | La Picá del Benjamín",partition:"persist:lapica-whatsapp"},
+ youtubeMusic:{url:"https://music.youtube.com/",title:"YouTube Music · La Picá del Benjamín",partition:"persist:lapica-youtube-music"}
 };
 
 const printedOrderIds=new Set();
@@ -180,6 +181,17 @@ ipcMain.handle("pos:print-web-order",async(_event,order)=>{
  }finally{
   if(!receiptWindow.isDestroyed())receiptWindow.close();
  }
+});
+let youtubeMusicRestoreTimer=null;
+ipcMain.handle("pos:duck-youtube-music",async(_event,durationMs=4500)=>{
+ const musicWin=serviceWindows.get("youtubeMusic");
+ if(!musicWin||musicWin.isDestroyed())return {ok:false,reason:"not-open"};
+ clearTimeout(youtubeMusicRestoreTimer);
+ musicWin.webContents.setAudioMuted(true);
+ youtubeMusicRestoreTimer=setTimeout(()=>{
+  if(!musicWin.isDestroyed())musicWin.webContents.setAudioMuted(false);
+ },Math.max(1000,Math.min(15000,Number(durationMs)||4500)));
+ return {ok:true};
 });
 ipcMain.handle("pos:open-service",async(_event,service)=>{
  const config=SERVICE_CONFIG[service];

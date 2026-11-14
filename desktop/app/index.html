@@ -141,9 +141,12 @@ body{padding-bottom:68px}
 <div class="notice">POS local de acceso directo, sin contraseña. Las alertas de pedidos y pagos se muestran por separado.</div><div class="layout"><section><section class="search-panel" aria-label="Buscar productos"><label class="search-label" for="search">🔎 Buscar un producto</label><form class="search-row" onsubmit="searchProduct(event)"><input id="search" type="search" placeholder="Escribe el nombre del producto..." autocomplete="off" oninput="renderProducts()"><button class="search-button" type="submit">Buscar</button></form><div id="searchStatus" class="search-status" aria-live="polite">Puedes buscar por nombre, categoría o descripción.</div></section><div class="tools"><button type="button" class="add" onclick="loadSharedMenu().catch(e=>alert(e.message))">↻ Actualizar carta</button><select id="mode"><option>Consumo en local</option><option>Retiro en el local</option></select></div><div id="menuSyncStatus" class="muted" aria-live="polite">Conectando con la carta web…</div><div class="tabbar"><button class="tab-arrow" id="catPrev" type="button" aria-label="Ver categorías anteriores">‹</button><nav class="tabs" id="tabs" aria-label="Categorías de productos"></nav><button class="tab-arrow" id="catNext" type="button" aria-label="Ver más categorías">›</button></div><div class="products" id="products"></div></section><aside class="cart"><h2>🧾 Pedido actual</h2><div id="cartLines">Agrega productos para comenzar.</div><div class="total" id="total">$0</div><div class="field"><label>Cliente (opcional)</label><input id="customer" placeholder="Nombre del cliente"></div><div class="field"><label>Forma de pago</label><select id="payment"><option>Efectivo</option><option>Transferencia</option><option>Tarjeta</option><option>Pendiente</option></select></div><div class="field"><label>Observaciones para cocina</label><textarea id="notes" rows="2" placeholder="Sin cebolla, término, etc."></textarea></div><button class="action primary" onclick="printReceipt()">Imprimir comanda</button><button class="action" onclick="newOrder()">Nuevo pedido / limpiar</button><p class="muted">La impresión abre el diálogo de Windows.</p></aside></div></main><section id="receipt" class="receipt"></section>
 <section class="music-dock" aria-label="Música ambiental del POS">
  <strong class="music-dock-title">🎵 Música del local</strong>
- <input id="youtubeUrl" type="url" placeholder="Pega aquí un enlace o playlist de YouTube" aria-label="Enlace de YouTube">
- <button type="button" id="loadYoutube">Cargar música</button>
- <button type="button" id="toggleMusic" disabled>▶ Reproducir</button>
+ <button type="button" id="openYoutubeMusic">Abrir YouTube Music</button>
+ <span class="music-status" id="musicStatus" aria-live="polite">Abre YouTube Music e inicia sesión/reproducción</span>
+ <span style="color:#f4dfc3;font-size:12px">La ventana conserva tu sesión</span>
+ <input id="youtubeUrl" type="url" placeholder="Respaldo: enlace de YouTube" aria-label="Enlace de YouTube" style="max-width:190px">
+ <button type="button" id="loadYoutube">Usar respaldo</button>
+ <button type="button" id="toggleMusic" disabled>▶ Reproducir respaldo</button>
  <label class="music-volume">Volumen <input id="musicVolume" type="range" min="0" max="100" value="70"><span id="musicVolumeValue">70%</span></label>
  <span id="musicStatus" class="music-status" aria-live="polite">Pega un enlace de YouTube</span>
  <div id="youtubePlayer" class="music-player-frame"></div>
@@ -185,17 +188,26 @@ function toggleYouTubeMusic(){
  else{ytPlayer.playVideo();document.getElementById("toggleMusic").textContent="Ⅱ Pausar";}
 }
 function duckMusicForOrder(){
- if(!ytPlayer||typeof ytPlayer.setVolume!=="function")return;
- clearTimeout(musicRestoreTimer);musicDucked=true;ytPlayer.setVolume(12);
- setMusicStatus("🔔 Pedido recibido · música atenuada");
- musicRestoreTimer=setTimeout(()=>{
-  musicDucked=false;ytPlayer.setVolume(Number(document.getElementById("musicVolume").value)||70);
-  setMusicStatus("Música ambiental activa");
- },4500);
+ clearTimeout(musicRestoreTimer);
+ if(ytPlayer&&typeof ytPlayer.setVolume==="function"){
+  musicDucked=true;ytPlayer.setVolume(12);
+  musicRestoreTimer=setTimeout(()=>{
+   musicDucked=false;ytPlayer.setVolume(Number(document.getElementById("musicVolume").value)||70);
+  },4500);
+ }
+ if(window.posBridge&&typeof window.posBridge.duckYouTubeMusic==="function"){
+  window.posBridge.duckYouTubeMusic(4500).catch(e=>console.warn("No se pudo atenuar YouTube Music:",e));
+ }
+ setMusicStatus("🔔 Pedido recibido · audio de YouTube atenuado temporalmente");
+ setTimeout(()=>setMusicStatus("Música ambiental"),4700);
 }
 document.addEventListener("DOMContentLoaded",()=>{
  const url=document.getElementById("youtubeUrl"),saved=localStorage.getItem(MUSIC_URL_KEY);
  if(saved)url.value=saved;
+ document.getElementById("openYoutubeMusic").addEventListener("click",async()=>{
+  try{await window.posBridge.openService("youtubeMusic");setMusicStatus("YouTube Music abierto. Inicia la música y minimiza esa ventana para volver al POS.");}
+  catch(e){setMusicStatus("No se pudo abrir YouTube Music: "+(e.message||e));}
+ });
  document.getElementById("loadYoutube").addEventListener("click",loadYouTubeMusic);
  document.getElementById("toggleMusic").addEventListener("click",toggleYouTubeMusic);
  document.getElementById("musicVolume").addEventListener("input",e=>setMusicVolume(e.target.value));
