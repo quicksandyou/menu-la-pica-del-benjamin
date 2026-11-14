@@ -80,6 +80,28 @@ async function findThermalPrinter(webContents){
  }catch(error){console.warn("PowerShell tampoco pudo consultar la impresora:",error.message);}
  throw new Error("Windows/Electron no pudo confirmar la impresora 80mm Series Printer. Verifica que Cola de impresión esté iniciada.");
 }
+async function printHtmlToThermalPrinter(receiptWindow,html,label){
+ await receiptWindow.loadURL("data:text/html;charset=utf-8,"+encodeURIComponent(html));
+ const printerName=await findThermalPrinter(receiptWindow.webContents);
+ await new Promise((resolve,reject)=>{
+  let settled=false;
+  const finish=(error)=>{
+   if(settled)return;
+   settled=true;
+   clearTimeout(timeout);
+   error?reject(error):resolve();
+  };
+  const timeout=setTimeout(()=>finish(new Error("Windows no respondió a la impresión en 20 segundos. Revisa la cola de impresión y vuelve a intentarlo.")),20000);
+  try{
+   receiptWindow.webContents.print({silent:true,printBackground:true,deviceName:printerName},(success,reason)=>{
+    if(success)finish();
+    else finish(new Error(reason||"Windows rechazó la impresión en "+printerName+"."));
+   });
+  }catch(error){finish(error);}
+ });
+ console.log(label+" enviado a "+printerName);
+ return printerName;
+}
 let localPrintInProgress=false;
 ipcMain.handle("pos:print-local-receipt",(_event,payload)=>runPrintExclusive(async()=>{
  if(localPrintInProgress)return {ok:false,error:"Ya hay una comanda local en proceso de impresión."};
@@ -111,10 +133,8 @@ ipcMain.handle("pos:print-local-receipt",(_event,payload)=>runPrintExclusive(asy
   .ticket-footer{text-align:center;font-size:12px;margin-top:12px;line-height:1.5}
   .ticket-footer strong{font-size:14px}
   </style></head><body>${content}</body></html>`;
-  await receiptWindow.loadURL("data:text/html;charset=utf-8,"+encodeURIComponent(html));
-  await new Promise((resolve,reject)=>receiptWindow.webContents.print({silent:true,printBackground:true},(success,reason)=>success?resolve():reject(new Error(reason||"No se pudo imprimir la comanda."))));
-  console.log("Comanda local enviada con formato HTML mediante impresora predeterminada.");
-  return {ok:true,method:"Windows/Electron"};
+  const printerName=await printHtmlToThermalPrinter(receiptWindow,html,"Comanda local");
+  return {ok:true,printer:printerName,method:"Windows/Electron · 80mm"};
  }catch(error){console.error("Error impresión local POS:",error);return {ok:false,error:error.message||"Error de impresión"};}
  finally{if(!receiptWindow.isDestroyed())receiptWindow.close();localPrintInProgress=false;}
 }));
@@ -220,9 +240,7 @@ ipcMain.handle("pos:print-web-order",(_event,order)=>runPrintExclusive(async()=>
  </body></html>`;
  const receiptWindow=new BrowserWindow({show:false,width:400,height:800,webPreferences:{nodeIntegration:false,contextIsolation:true}});
  try{
-  await receiptWindow.loadURL("data:text/html;charset=utf-8,"+encodeURIComponent(html));
-  const printerName="80mm Series Printer";
-  await new Promise((resolve,reject)=>receiptWindow.webContents.print({silent:true,printBackground:true},(success,reason)=>success?resolve():reject(new Error(reason||"No se pudo imprimir la comanda."))));
+  const printerName=await printHtmlToThermalPrinter(receiptWindow,html,"Comanda web/APK");
   const sent={printer:printerName,method:"Windows/Electron · formato 80mm"};
   console.log("Comanda web/APK enviada:",sent);printedOrderIds.add(id);
   persistPrintedOrderIds();
@@ -350,6 +368,14 @@ function createWindow(){
   });
   win.on("closed",()=>win=null);
 }
+ipcMain.handle("pos:focus-window",async()=>{
+ if(!win||win.isDestroyed())return false;
+ if(win.isMinimized())win.restore();
+ if(!win.isVisible())win.show();
+ win.focus();
+ win.webContents.focus();
+ return true;
+});
 if(gotSingleInstanceLock) app.whenReady().then(()=>{createWindow();configureAutoUpdates();});
 app.on("window-all-closed",()=>{if(process.platform!=="darwin")app.quit()});
 app.on("activate",()=>{if(BrowserWindow.getAllWindows().length===0)createWindow()});
