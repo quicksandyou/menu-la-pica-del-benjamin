@@ -71,6 +71,27 @@ ipcMain.handle("pos:print-web-order",async(_event,order)=>{
  .notes{border:1px solid #333;padding:6px;font-size:11px;white-space:pre-wrap;overflow-wrap:anywhere}
  .footer{text-align:center;font-size:10px;margin-top:12px;line-height:1.5}
  .footer strong{font-size:12px}
+ 
+ /* Comanda 80mm unificada: tipografía grande y alto contraste */
+ body{font:15px/1.4 Arial,Helvetica,sans-serif}
+ .brand{font-size:21px}
+ .brand-sub{font-size:12px;letter-spacing:1.5px}
+ .ticket-type{font-size:14px;font-weight:900}
+ .order{font-size:25px}
+ .meta{font-size:12px}
+ .section-title{font-size:14px}
+ .customer{font-size:15px}
+ .customer strong{font-size:16px}
+ .method{font-size:13px}
+ .item{padding:8px 0}
+ .item-main{font-size:15px;font-weight:800;line-height:1.4}
+ .qty{min-width:31px}
+ .item-detail{font-size:13px}
+ .item-price{font-size:14px}
+ .total-row{font-size:21px}
+ .notes{font-size:14px;line-height:1.4;padding:8px}
+ .footer{font-size:12px}
+ .footer strong{font-size:14px}
  </style></head><body>
  <div class="brand">LA PICÁ DEL BENJAMÍN</div>
  <div class="brand-sub">SABOR QUE SE COMPARTE</div>
