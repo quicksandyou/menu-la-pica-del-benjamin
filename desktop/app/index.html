@@ -134,8 +134,9 @@ body{padding-bottom:68px}
 <main id="app" class="wrap">
 <div class="alert-grid" aria-label="Alertas independientes">
  <section class="alert-card orders-alert" aria-live="polite">
-  <div class="alert-heading"><strong>🛎️ PEDIDOS NUEVOS DE LA WEB</strong><span id="ordersAlertCount">0</span></div>
-  <div id="ordersAlertMessage">Esperando nuevos pedidos web…</div>
+  <div class="alert-heading"><strong>🛎️ PEDIDOS EN LÍNEA · WEB Y APK</strong><span id="ordersAlertCount">0</span></div>
+  <div id="ordersAlertMessage">Esperando nuevos pedidos web y APK…</div>
+  <div id="ordersShiftStatus" class="muted" style="margin-top:6px;font-size:12px"></div>
   <div id="ordersPrintActions" class="orders-print-actions" aria-live="polite"></div>
  </section>
  <section class="alert-card payments-alert" aria-live="polite">
@@ -388,21 +389,30 @@ let ordersAlertTotal=0,paymentsAlertTotal=0;
 const PRINT_QUEUE_KEY="lapica_pos_manual_print_queue_v1";
 const PRINTED_ONLINE_KEY="lapica_pos_manual_printed_v1";
 function readPrintQueue(){try{const value=JSON.parse(localStorage.getItem(PRINT_QUEUE_KEY)||"[]");return Array.isArray(value)?value:[];}catch(_){return [];}}
-function savePrintQueue(queue){try{localStorage.setItem(PRINT_QUEUE_KEY,JSON.stringify(queue.slice(-500)));}catch(e){console.error("No se pudo guardar cola local:",e);}}
+function savePrintQueue(queue){try{localStorage.setItem(PRINT_QUEUE_KEY,JSON.stringify(queue.slice(-2000)));}catch(e){console.error("No se pudo guardar cola local:",e);}}
 function readPrintedOnlineIds(){try{const value=JSON.parse(localStorage.getItem(PRINTED_ONLINE_KEY)||"[]");return new Set(Array.isArray(value)?value.map(String):[]);}catch(_){return new Set();}}
 function savePrintedOnlineId(id){try{const ids=readPrintedOnlineIds();ids.add(String(id));localStorage.setItem(PRINTED_ONLINE_KEY,JSON.stringify([...ids].slice(-2000)));}catch(e){console.error("No se pudo guardar historial de impresión web:",e);}}
 function enqueueOrders(orders){
  const queue=readPrintQueue(),ids=new Set(queue.map(o=>String(o.id))),printed=readPrintedOnlineIds();
+ let added=0;
  for(const order of orders){
   const id=String(order?.id||"");
   const rejected=String(order?.approval_status||"").toLowerCase()==="rejected"||["rejected","cancelled","canceled"].includes(String(order?.payment_status||"").toLowerCase());
-  if(id&&!rejected&&!ids.has(id)&&!printed.has(id)){queue.push(order);ids.add(id);}
+  if(id&&!rejected&&!ids.has(id)&&!printed.has(id)){queue.push(order);ids.add(id);added++;}
  }
  savePrintQueue(queue);renderPendingOrders();
+ return added;
 }
 function renderPendingOrders(){
  const queue=readPrintQueue(),host=document.getElementById("ordersPrintActions");
- showAlertMessage("ordersAlertMessage",queue.length?"Hay "+queue.length+" pedido(s) esperando impresión manual.":"Esperando nuevos pedidos web…","ordersAlertCount",queue.length);
+ showAlertMessage("ordersAlertMessage",queue.length?"Hay "+queue.length+" pedido(s) de web/APK esperando impresión manual.":"Sin pedidos pendientes de impresión.","ordersAlertCount",queue.length);
+ const shiftStatus=document.getElementById("ordersShiftStatus");
+ if(shiftStatus){
+  const parts=new Intl.DateTimeFormat("en-CA",{timeZone:"America/Santiago",year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",hourCycle:"h23"}).formatToParts(new Date());
+  const v=Object.fromEntries(parts.map(p=>[p.type,p.value]));
+  const minutes=Number(v.hour)*60+Number(v.minute);
+  shiftStatus.textContent=minutes>=1050?"Turno en curso · cierre estimado 01:30 AM":minutes<90?"Turno en curso · comenzó el día anterior a las 17:30":"Fuera del horario del turno · los pendientes se conservan";
+ }
  if(!host)return;
  host.innerHTML=queue.map(order=>{
   const id=escapeHTML(String(order.id));
@@ -462,7 +472,8 @@ async function checkOnlineOrderAlerts(){
   if(knownOnlineOrders===null){
    knownOnlineOrders=current;
    knownPaymentStatuses=new Map(orders.map(o=>[String(o.id),String(o.payment_status||"pending").toLowerCase()]));
-   enqueueOrders(orders);
+   const recovered=enqueueOrders(orders);
+   if(recovered){duckMusicForOrder();playAlertTone("order");}
    return;
   }
   const newOrders=[...current.keys()].filter(id=>!knownOnlineOrders.has(id));
