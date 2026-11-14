@@ -40,7 +40,7 @@ async function findThermalPrinter(webContents){
  }
  // Fallback: consultar el registro de impresoras de Windows directamente.
  try{
-  const command="(Get-Printer -Name \'"+target+"\' -ErrorAction Stop).Name";
+  const command='(Get-Printer -Name "'+target+'" -ErrorAction Stop).Name';
   const result=await execFileAsync("powershell.exe",["-NoProfile","-NonInteractive","-Command",command],{windowsHide:true,timeout:5000});
   const name=String(result.stdout||"").trim();
   if(name.toLowerCase()===target.toLowerCase()){console.log("Impresora confirmada por Windows PowerShell:",name);return name;}
