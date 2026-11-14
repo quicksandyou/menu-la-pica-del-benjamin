@@ -377,14 +377,17 @@ let knownPaymentStatuses=new Map();
 let alertSoundContext=null;
 let ordersAlertTotal=0,paymentsAlertTotal=0;
 const PRINT_QUEUE_KEY="lapica_pos_manual_print_queue_v1";
+const PRINTED_ONLINE_KEY="lapica_pos_manual_printed_v1";
 function readPrintQueue(){try{const value=JSON.parse(localStorage.getItem(PRINT_QUEUE_KEY)||"[]");return Array.isArray(value)?value:[];}catch(_){return [];}}
 function savePrintQueue(queue){try{localStorage.setItem(PRINT_QUEUE_KEY,JSON.stringify(queue.slice(-500)));}catch(e){console.error("No se pudo guardar cola local:",e);}}
+function readPrintedOnlineIds(){try{const value=JSON.parse(localStorage.getItem(PRINTED_ONLINE_KEY)||"[]");return new Set(Array.isArray(value)?value.map(String):[]);}catch(_){return new Set();}}
+function savePrintedOnlineId(id){try{const ids=readPrintedOnlineIds();ids.add(String(id));localStorage.setItem(PRINTED_ONLINE_KEY,JSON.stringify([...ids].slice(-2000)));}catch(e){console.error("No se pudo guardar historial de impresión web:",e);}}
 function enqueueOrders(orders){
- const queue=readPrintQueue(),ids=new Set(queue.map(o=>String(o.id)));
+ const queue=readPrintQueue(),ids=new Set(queue.map(o=>String(o.id))),printed=readPrintedOnlineIds();
  for(const order of orders){
   const id=String(order?.id||"");
   const rejected=String(order?.approval_status||"").toLowerCase()==="rejected"||["rejected","cancelled","canceled"].includes(String(order?.payment_status||"").toLowerCase());
-  if(id&&!rejected&&!ids.has(id)){queue.push(order);ids.add(id);}
+  if(id&&!rejected&&!ids.has(id)&&!printed.has(id)){queue.push(order);ids.add(id);}
  }
  savePrintQueue(queue);renderPendingOrders();
 }
@@ -406,6 +409,7 @@ async function printPendingOrder(id,button){
   if(!window.posBridge||typeof window.posBridge.printWebOrder!=="function")throw new Error("La impresión de pedidos web no está disponible en este POS.");
   const result=await window.posBridge.printWebOrder(order);
   if(!result||!result.ok)throw new Error(result?.error||"Windows no confirmó la impresión.");
+  savePrintedOnlineId(id);
   savePrintQueue(readPrintQueue().filter(item=>String(item.id)!==String(id)));
   renderPendingOrders();
  }catch(error){
