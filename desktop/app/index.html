@@ -251,7 +251,7 @@ async function printReceipt(){
   if(!window.posBridge||typeof window.posBridge.printLocalReceipt!=="function")throw new Error("La función de impresión local no está disponible. Cierra y vuelve a abrir el POS actualizado.");
   const result=await window.posBridge.printLocalReceipt({html:document.getElementById('receipt').innerHTML});
   if(!result||!result.ok)throw new Error(result?.error||"Windows no confirmó la impresión.");
-  alert("Comanda enviada a la impresora predeterminada de Windows.");
+  alert("Windows recibió la comanda para imprimir en: "+(result.printer||"impresora predeterminada")+".");
  }catch(error){alert("No se pudo imprimir la comanda: "+(error.message||error));}
  finally{if(printButton){printButton.disabled=false;printButton.textContent="Imprimir comanda";}}
 }

@@ -55,8 +55,14 @@ ipcMain.handle("pos:print-local-receipt",async(_event,payload)=>{
   .ticket-footer strong{font-size:14px}
   </style></head><body>${content}</body></html>`;
   await receiptWindow.loadURL("data:text/html;charset=utf-8,"+encodeURIComponent(html));
-  await new Promise((resolve,reject)=>receiptWindow.webContents.print({silent:true,printBackground:true},(success,reason)=>success?resolve():reject(new Error(reason||"Revisa que haya una impresora predeterminada instalada en Windows."))));
-  return {ok:true};
+  const printers=await receiptWindow.webContents.getPrintersAsync();
+  if(!printers.length)throw new Error("Windows no informa impresoras disponibles. Revisa el servicio Cola de impresión.");
+  const selected=printers.find(p=>p.isDefault)||printers[0];
+  console.log("Impresión POS local: impresora seleccionada",selected.name,"predeterminada:",!!selected.isDefault);
+  await new Promise((resolve,reject)=>receiptWindow.webContents.print({silent:true,printBackground:true,deviceName:selected.name},(success,reason)=>{
+   if(success)resolve();else reject(new Error(reason||("Windows rechazó la impresión en "+selected.name)));
+  }));
+  return {ok:true,printer:selected.name};
  }catch(error){console.error("Error impresión local POS:",error);return {ok:false,error:error.message||"Error de impresión"};}
  finally{if(!receiptWindow.isDestroyed())receiptWindow.close();localPrintInProgress=false;}
 });
