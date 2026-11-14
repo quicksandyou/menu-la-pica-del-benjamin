@@ -159,11 +159,18 @@ function searchProduct(event){
  renderProducts();
  document.getElementById('search').focus();
 }
+function normalizeSearchText(value){
+ return String(value??'').normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').toLocaleLowerCase('es-CL').replace(/[^\\p{L}\\p{N}]+/gu,' ').trim();
+}
 function renderProducts(){
- const q=document.getElementById('search').value.trim().toLocaleLowerCase('es-CL');
+ const rawQuery=document.getElementById('search').value.trim();
+ const q=normalizeSearchText(rawQuery);
+ const terms=q.split(/\\s+/).filter(Boolean);
  const list=P.map((p,index)=>({p,index})).filter(({p})=>{
-   const searchable=[p[1],p[3],p[0],...(p[5]||[]).flatMap(g=>[g.label,...(g.choices||[])])].join(' ').toLocaleLowerCase('es-CL');
-   return (category==='Todos'||p[0]===category)&&searchable.includes(q);
+   const searchable=normalizeSearchText([p[1],p[3],p[0],...(p[5]||[]).flatMap(g=>[g.label,...(g.choices||[])])].join(' '));
+   const matchesText=!terms.length||terms.every(term=>searchable.includes(term));
+   const matchesCategory=!q&&(category==='Todos'||p[0]===category);
+   return q?matchesText:matchesCategory;
  });
  const searchStatus=document.getElementById('searchStatus');
  if(searchStatus)searchStatus.textContent=q?(list.length?list.length+' producto(s) encontrado(s) para “'+document.getElementById('search').value.trim()+'”.':'No encontramos productos con ese nombre. Prueba otra palabra o cambia la categoría.'):'Puedes buscar por nombre, categoría o descripción.';
