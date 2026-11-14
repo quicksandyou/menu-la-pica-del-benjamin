@@ -103,7 +103,7 @@ async function printHtmlToThermalPrinter(receiptWindow,html,label){
  return printerName;
 }
 let localPrintInProgress=false;
-ipcMain.handle("pos:print-local-receipt",(_event,payload)=>runPrintExclusive(async()=>{
+ipcMain.handle("pos:print-local-receipt",async(_event,payload)=>{
  if(localPrintInProgress)return {ok:false,error:"Ya hay una comanda local en proceso de impresión."};
  const content=String(payload?.html||"").trim();
  if(!content)return {ok:false,error:"La comanda está vacía."};
@@ -133,8 +133,24 @@ ipcMain.handle("pos:print-local-receipt",(_event,payload)=>runPrintExclusive(asy
   .ticket-footer{text-align:center;font-size:12px;margin-top:12px;line-height:1.5}
   .ticket-footer strong{font-size:14px}
   </style></head><body>${content}</body></html>`;
-  const printerName=await printHtmlToThermalPrinter(receiptWindow,html,"Comanda local");
-  return {ok:true,printer:printerName,method:"Windows/Electron · 80mm"};
+  await new Promise((resolve,reject)=>{
+   let finished=false;
+   const finish=error=>{
+    if(finished)return;
+    finished=true;
+    clearTimeout(timeout);
+    error?reject(error):resolve();
+   };
+   const timeout=setTimeout(()=>finish(new Error("La impresión local no respondió en 15 segundos. Se liberó el POS para volver a intentar.")),15000);
+   try{
+    receiptWindow.webContents.print({silent:true,printBackground:true},(success,reason)=>{
+     if(success)finish();
+     else finish(new Error(reason||"Windows no pudo imprimir la comanda local."));
+    });
+   }catch(error){finish(error);}
+  });
+  console.log("Comanda local enviada mediante la impresora predeterminada de Windows.");
+  return {ok:true,method:"Windows/Electron · impresora predeterminada"};
  }catch(error){console.error("Error impresión local POS:",error);return {ok:false,error:error.message||"Error de impresión"};}
  finally{if(!receiptWindow.isDestroyed())receiptWindow.close();localPrintInProgress=false;}
 }));
