@@ -1089,7 +1089,7 @@ if(!price||!Number.isInteger(quantity)||quantity<1||quantity>30||Number(item.uni
     }
   }
 
-  const fintocVerifyMatch=req.method==="GET"&&new URL(req.url,"http://localhost").pathname.match(/^\\/api\\/fintoc\\/verify\\/(\\d+)$/);
+  const fintocVerifyMatch=req.method==="GET"&&new URL(req.url,"http://localhost").pathname.match(/^\/api\/fintoc\/verify\/(\d+)$/);
   if(fintocVerifyMatch){
     if(!dbPool)return send(res,503,{error:"Base de datos no disponible."});
     try{
