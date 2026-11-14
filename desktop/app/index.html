@@ -237,7 +237,7 @@ function iniciarPOS(){
    if(!btn)return;
    const product=P[Number(btn.dataset.addIndex)];
    if(!product)return;
-   add(product[1]);
+   add(product[1],Number(btn.dataset.addIndex));
  });
  document.getElementById('cartLines').addEventListener('click',e=>{
    const btn=e.target.closest('button[data-change]');
