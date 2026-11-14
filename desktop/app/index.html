@@ -257,27 +257,38 @@ function printReceipt(){
 }
 async function loadSharedMenu(){
  const status=document.getElementById('menuSyncStatus');
- if(status)status.textContent='Actualizando carta desde la tienda web…';
- const d=window.posBridge&&typeof window.posBridge.loadMenu==="function" ? await window.posBridge.loadMenu() : await (async()=>{const r=await fetch("https://menu-la-pica-del-benjamin.onrender.com/menu.json?v="+Date.now(),{cache:"no-store"});if(!r.ok)throw Error("No se pudo cargar la carta online (HTTP "+r.status+").");return r.json();})();
- if(!Array.isArray(d.products)||!d.products.length)throw Error("La carta online está vacía.");
+ if(status)status.textContent='Actualizando carta…';
+ let d=null,lastError=null;
+ // Primero intenta la fuente central de Electron; si falla, usa el archivo local incluido con el POS.
+ if(window.posBridge&&typeof window.posBridge.loadMenu==="function"){
+  try{d=await window.posBridge.loadMenu();}catch(e){lastError=e;console.warn("Fuente central de carta no disponible; se probará respaldo local:",e);}
+ }
+ if(!d){
+  for(const url of ['./menu.json','https://menu-la-pica-del-benjamin.onrender.com/menu.json?v='+Date.now(),'https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/menu.json']){
+   try{const response=await fetch(url,{cache:'no-store'});if(!response.ok)throw new Error('HTTP '+response.status);const candidate=await response.json();if(!Array.isArray(candidate.products)||!candidate.products.length||!Array.isArray(candidate.categories)||!candidate.categories.length)throw new Error('Formato de carta incompleto');d=candidate;d._menuSource=url.startsWith('./')?'respaldo-instalado':'respaldo-online';break;}
+   catch(e){lastError=e;console.warn("No se pudo cargar carta desde "+url,e);}
+  }
+ }
+ if(!d||!Array.isArray(d.products)||!d.products.length)throw new Error(lastError?.message||'No se encontró una carta válida.');
  P=d.products.map(x=>[x.category,x.name,x.price_clp===null||x.price_clp===undefined?null:Number(x.price_clp),x.description||"",resolveMenuImage(x.image_url||d.photos?.[x.category]||""),x.option_groups||[]]);
  cats=["Todos",...(d.categories||[...new Set(P.map(x=>x[0]))])];
- if(status)status.textContent='Carta segura v'+(d.version||1)+' · '+P.length+' productos · '+(d._menuSource||"web")+(d._menuWarning?" · respaldo activo":"") +' · '+new Date().toLocaleTimeString('es-CL');
+ if(status)status.textContent='Carta v'+(d.version||1)+' · '+P.length+' productos · '+(d._menuSource||"web")+(d._menuWarning?" · respaldo activo":"")+' · '+new Date().toLocaleTimeString('es-CL');
  renderTabs();renderProducts();drawCart();
+ return d;
 }
 loadSharedMenu().then(()=>{
  iniciarPOS();
- // Sincroniza la carta mientras el POS permanece abierto, sin borrar el pedido actual.
  setInterval(()=>loadSharedMenu().catch(e=>{
-   const status=document.getElementById('menuSyncStatus');
-   if(status)status.textContent='No se pudo actualizar la carta; se mantiene la última versión disponible.';
-   console.warn('Actualización automática de carta POS:',e);
+  const status=document.getElementById('menuSyncStatus');
+  if(status)status.textContent='No se pudo actualizar la carta; se mantiene la última versión disponible.';
+  console.warn('Actualización automática de carta POS:',e);
  }),60000);
 }).catch(e=>{
- const status=document.getElementById('menuSyncStatus');if(status)status.textContent='Error al conectar con la carta: '+(e.message||'sin conexión');
- document.getElementById("products").textContent="No se pudo cargar la carta. Pulsa Actualizar carta para reintentar.";console.error('Error sincronizando menú POS:',e);
+ const status=document.getElementById('menuSyncStatus');
+ if(status)status.textContent='Error al cargar carta: '+(e.message||'sin conexión')+'. Pulsa Actualizar carta.';
+ document.getElementById("products").textContent="No se pudo cargar la carta. Pulsa Actualizar carta para reintentar.";
+ console.error('Error sincronizando menú POS:',e);
 });
-
 
 let knownOnlineOrders=null;
 let knownPaymentStatuses=new Map();
