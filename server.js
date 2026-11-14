@@ -871,26 +871,18 @@ La Picá del Benjamín`,
         return send(res, 401, { error: "Invalid webhook signature." });
       }
 
-      // The simulator can send a synthetic Data ID that is not a real Order.
-      // A validly signed event is acknowledged even when that resource is absent.
-      const response = await mpRequest("/v1/orders/" + encodeURIComponent(id));
-      const order = await response.json();
-      if (response.status === 404) {
-        console.log("MP webhook validado; recurso de prueba no encontrado:", id);
-        return send(res, 200, { received: true, resource_found: false });
-      }
-      if (!response.ok) {
-        console.error("MP webhook: consulta de orden fallida", response.status);
-        return send(res, 502, { error: "Could not verify order with Mercado Pago." });
-      }
-
-      const paid = Number(order.total_paid_amount || 0);
-      const total = Number(order.total_amount || 0);
-      const approved = order.status === "processed" && total > 0 && paid >= total;
-      if (dbPool) {
+      // Checkout Pro clásico notifica pagos: el recurso data.id es un payment ID.
+      const response = await mpRequest("/v1/payments/" + encodeURIComponent(id));
+      const payment = await response.json();
+      if (response.status === 404) return send(res, 200, { received: true, resource_found: false });
+      if (!response.ok) return send(res, 502, { error: "Could not verify payment with Mercado Pago." });
+      const reference = String(payment.external_reference || "");
+      const amount = Number(payment.transaction_amount || 0);
+      const approved = payment.status === "approved" && amount > 0;
+      if (dbPool && reference) {
         await dbPool.query(
-          "UPDATE orders SET payment_status=$1,updated_at=NOW() WHERE external_payment_id=$2",
-          [approved ? "approved" : String(order.status || "pending"), id]
+          "UPDATE orders SET external_payment_id=$1,payment_status=$2,updated_at=NOW() WHERE external_reference=$3 AND total_clp=$4",
+          [id, approved ? "approved" : String(payment.status || "pending"), reference, Math.round(amount)]
         );
       }
       return send(res, 200, { received: true, resource_found: true });
@@ -915,43 +907,30 @@ La Picá del Benjamín`,
     return send(res, 200, { status: "Servidor activo", ordering_open: isOrderingOpen(), hours: "Martes a sábado, 17:30 a 02:00 (America/Santiago)" });
   }
 
-  // Consultar la orden directamente en Mercado Pago; nunca confiar en el estado de la URL.
+  // Consultar pagos de Checkout Pro clásico por referencia; nunca confiar en parámetros del retorno.
   const orderMatch = req.method === "GET" && req.url.match(/^\/api\/orden\/([A-Za-z0-9_-]+)$/);
   if (orderMatch) {
-    if (isRateLimited(req, 20, 60_000)) {
-      return send(res, 429, { error: "Demasiadas consultas. Espera un minuto e inténtalo nuevamente." });
-    }
+    if (isRateLimited(req, 20, 60_000)) return send(res,429,{error:"Demasiadas consultas. Espera un minuto e inténtalo nuevamente."});
     try {
-      const orderId = orderMatch[1];
-      const response = await mpRequest(`/v1/orders/${encodeURIComponent(orderId)}`);
-      const order = await response.json();
-      if (!response.ok) {
-        console.error("Error consultando orden:", order);
-        return send(res, response.status, { error: "No se pudo verificar el pago en Mercado Pago." });
+      const reference=orderMatch[1];
+      const response=await mpRequest("/v1/payments/search?external_reference="+encodeURIComponent(reference)+"&sort=date_created&criteria=desc");
+      const result=await response.json();
+      if(!response.ok) return send(res,response.status,{error:"No se pudo verificar el pago en Mercado Pago."});
+      const payments=Array.isArray(result.results)?result.results:[];
+      const payment=payments.find(p=>String(p.external_reference||"")===reference);
+      const saved=dbPool?await dbPool.query("SELECT total_clp,delivery_method,payment_status FROM orders WHERE external_reference=$1 ORDER BY created_at DESC LIMIT 1",[reference]):{rows:[]};
+      const order=saved.rows[0];
+      if(!order) return send(res,404,{error:"No encontramos el pedido asociado a este pago."});
+      const amount=Number(payment?.transaction_amount||0);
+      const approved=payment?.status==="approved" && amount>=Number(order.total_clp);
+      if(dbPool && payment){
+        await dbPool.query("UPDATE orders SET external_payment_id=$1,payment_status=$2,updated_at=NOW() WHERE external_reference=$3 AND total_clp=$4",
+          [String(payment.id),approved?"approved":String(payment.status||"pending"),reference,Math.round(amount)]);
       }
-
-      const paid = Number(order.total_paid_amount || 0);
-      const total = Number(order.total_amount || 0);
-      const approved = order.status === "processed" && total > 0 && paid >= total;
-      if (dbPool) {
-        await dbPool.query(
-          "UPDATE orders SET payment_status=$1,updated_at=NOW() WHERE external_payment_id=$2",
-          [approved ? "approved" : String(order.status || "pending"), orderId]
-        );
-      }
-
-      // Nunca devolver dirección, teléfono ni otros datos personales al navegador.
-      const delivery = Boolean(order.payer?.address || order.shipment?.address);
-
-      return send(res, 200, {
-        approved,
-        status: order.status || "unknown",
-        status_detail: order.status_detail || "",
-        delivery
-      });
-    } catch (error) {
-      console.error(error);
-      return send(res, 500, { error: "No fue posible verificar el estado del pago." });
+      return send(res,200,{approved,status:payment?.status||order.payment_status||"pending",delivery:String(order.delivery_method||"").toLowerCase()==="delivery"});
+    } catch(error) {
+      console.error("Checkout Pro payment verification:",error.message);
+      return send(res,500,{error:"No fue posible verificar el estado del pago."});
     }
   }
 
@@ -1055,84 +1034,39 @@ if(!price||!Number.isInteger(quantity)||quantity<1||quantity>30||Number(item.uni
     if (deliveryFee > 0) { total += deliveryFee; items.push({ title: `Despacho a ${locality}`, quantity: 1, unit_price: String(deliveryFee) }); }
     if (Number(data.total_clp) !== total) throw new Error("El total del pedido no coincide.");
 
-    const returnUrl = `${FRONTEND_URL}/?pago=retorno`;
+    const externalReference = randomUUID();
+    const returnUrl = `${FRONTEND_URL}/?pago=retorno&external_reference=${encodeURIComponent(externalReference)}`;
     const payload = {
-      type: "online",
-      processing_mode: "manual",
-      capture_mode: "automatic_async",
-      total_amount: String(total),
-      external_reference: randomUUID(),
-      description: "Pedido La Picá del Benjamín",
-     payer: {
-  email: customerEmail,
-  ...(method === "Delivery" ? {
-    address: {
-      street_name: address,
-      city: locality
-    }
-  } : {})
-},
       items,
-      config: {
-        online: {
-          success_url: returnUrl,
-          failure_url: returnUrl,
-          pending_url: returnUrl,
-          auto_return: "approved"
-        }
-      }
+      payer: { name: customerName, email: customerEmail },
+      external_reference: externalReference,
+      statement_descriptor: "LA PICA DEL BENJAMIN",
+      back_urls: { success: returnUrl, failure: returnUrl, pending: returnUrl },
+      auto_return: "approved",
+      payment_methods: {},
+      ...(process.env.MP_WEBHOOK_URL ? { notification_url: process.env.MP_WEBHOOK_URL } : {})
     };
-    const response = await mpRequest("/v1/orders", {
+    const response = await mpRequest("/checkout/preferences", {
       method: "POST",
       headers: { "X-Idempotency-Key": idempotencyKey },
       body: JSON.stringify(payload)
     }, paymentTestAllowed ? process.env.MP_ACCESS_TOKEN_TEST : null);
-
     const result = await response.json();
-    console.log("MP DIAGNOSTICO DELIVERY:", JSON.stringify({
-  method,
-  hasShipmentRequest: Boolean(payload.shipment),
-  shipmentKeys: Object.keys(payload.shipment || {}),
-  hasShipmentResponse: Boolean(result?.shipment),
-  checkoutUrlPresent: Boolean(result?.checkout_url),
-  clientTokenPresent: Boolean(result?.client_token),
-  status: result?.status
-}));
-    console.log("MP RESPUESTA SEGURA:", JSON.stringify({
-  id: result?.id,
-  type: result?.type,
-  processing_mode: result?.processing_mode,
-  status: result?.status,
-  status_detail: result?.status_detail,
-  checkout_url: result?.checkout_url || null,
-  application_id: result?.integration_data?.application_id,
-  config: result?.config
-}, null, 2));
-    console.log("MP HTTP:", response.status);
-console.log("MP campos:", Object.keys(result || {}));
-console.log("MP order ID:", Boolean(result?.id));
-console.log("MP checkout URL:", Boolean(result?.checkout_url));
-console.log("MP status:", result?.status);
-    console.log("MP status_detail:", result?.status_detail);
-console.log("MP config online:", Object.keys(result?.config?.online || {}));
-console.log("MP country:", result?.country_code);
-    console.log("MP application ID:", result?.integration_data?.application_id);
     if (!response.ok) {
-      console.error("Mercado Pago:", result);
-      return send(res, response.status, { error: "Mercado Pago rechazó la creación de la orden. Revisa los logs de Render." });
+      console.error("Mercado Pago Checkout Pro preference error:", { status: response.status, message: result?.message, error: result?.error });
+      return send(res,response.status,{error:"Mercado Pago rechazó la creación de la preferencia. Revisa los logs de Render."});
     }
-    if (!result.checkout_url || !result.id) throw new Error("Mercado Pago no devolvió checkout_url o el ID de la orden.");
-    if (dbPool) {
-      const saved = await dbPool.query(
-        "INSERT INTO orders (source,external_payment_id,external_reference,customer_name,customer_phone,customer_email,delivery_address,locality,delivery_method,total_clp,payment_status,delivery_status,items_json,notes,delivery_fee_clp,delivery_latitude,delivery_longitude) VALUES ('online',$1,$2,$3,$4,$5,$6,$7,$8,$9,'pending','pending',$10::jsonb,$11,$12,$13,$14) ON CONFLICT DO NOTHING RETURNING id",
-        [String(result.id),payload.external_reference,customerName,String(data.customer?.phone||"").trim(),customerEmail,method==="Delivery"?address:null,method==="Delivery"?locality:null,method,total,JSON.stringify(data.items),String(data.notes||""),deliveryFee,method==="Delivery"&&data.delivery?.latitude!==null&&data.delivery?.latitude!==undefined&&data.delivery?.latitude!==""&&Number.isFinite(Number(data.delivery.latitude))?Number(data.delivery.latitude):null,method==="Delivery"&&data.delivery?.longitude!==null&&data.delivery?.longitude!==undefined&&data.delivery?.longitude!==""&&Number.isFinite(Number(data.delivery.longitude))?Number(data.delivery.longitude):null]
+    const checkoutUrl=result.init_point || result.sandbox_init_point;
+    if(!checkoutUrl || !result.id) throw new Error("Mercado Pago no devolvió init_point o el ID de la preferencia.");
+    if(dbPool) {
+      const saved=await dbPool.query(
+        "INSERT INTO orders (source,external_reference,customer_name,customer_phone,customer_email,delivery_address,locality,delivery_method,total_clp,payment_status,delivery_status,items_json,notes,delivery_fee_clp,delivery_latitude,delivery_longitude) VALUES ('online',$1,$2,$3,$4,$5,$6,$7,$8,'pending','pending',$9::jsonb,$10,$11,$12,$13) RETURNING id",
+        [externalReference,customerName,String(data.customer?.phone||"").trim(),customerEmail,address,locality,method,total,JSON.stringify(data.items),String(data.notes||""),deliveryFee,method==="Delivery"&&data.delivery?.latitude!==null&&data.delivery?.latitude!==undefined&&data.delivery?.latitude!==""&&Number.isFinite(Number(data.delivery.latitude))?Number(data.delivery.latitude):null,method==="Delivery"&&data.delivery?.longitude!==null&&data.delivery?.longitude!==undefined&&data.delivery?.longitude!==""&&Number.isFinite(Number(data.delivery.longitude))?Number(data.delivery.longitude):null]
       );
-      let savedOrderId = saved.rows[0]?.id;
-      if (!savedOrderId) { const existing = await dbPool.query("SELECT id FROM orders WHERE external_payment_id=$1 LIMIT 1",[String(result.id)]); savedOrderId = existing.rows[0]?.id; }
-      if (savedOrderId) { const orderNumber = "PB-" + String(savedOrderId).padStart(6,"0"); await dbPool.query("UPDATE orders SET order_number=COALESCE(order_number,$1) WHERE id=$2",[orderNumber,savedOrderId]); }
+      const savedOrderId=saved.rows[0]?.id;
+      if(savedOrderId) await dbPool.query("UPDATE orders SET order_number=COALESCE(order_number,$1) WHERE id=$2",["PB-"+String(savedOrderId).padStart(6,"0"),savedOrderId]);
     }
-
-    return send(res, 200, { checkout_url: result.checkout_url, order_id: result.id });
+    return send(res,200,{checkout_url:checkoutUrl,order_id:externalReference});
   } catch (error) {
     console.error(error);
     return send(res, 400, { error: error.message || "No fue posible crear la orden." });
