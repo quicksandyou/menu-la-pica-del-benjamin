@@ -112,25 +112,25 @@ ipcMain.handle("pos:print-local-receipt",(_event,payload)=>runPrintExclusive(asy
   const html=`<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Comanda local</title><style>
   @page{size:80mm auto;margin:0}*{box-sizing:border-box}
   html,body{width:80mm;margin:0;padding:0;background:#fff;color:#000}
-  body{padding:4mm;font:15px/1.4 Arial,Helvetica,sans-serif}
-  .ticket-brand{text-align:center;font-size:21px;font-weight:900}
-  .ticket-brand-sub{text-align:center;font-size:12px;margin:2px 0}
-  .ticket-type{text-align:center;font-size:16px;font-weight:900;margin-top:9px}
-  .ticket-order{text-align:center;font-size:25px;font-weight:900;margin:4px 0}
-  .ticket-rule{border-top:1px dashed #333;margin:8px 0}
-  .ticket-meta{display:flex;justify-content:space-between;font-size:12px}
-  .ticket-section{font-size:15px;font-weight:900;margin:7px 0 5px}
-  .ticket-customer{font-size:15px;font-weight:900;line-height:1.5}
-  .ticket-method{display:inline-block;font-size:13px;font-weight:800}
-  .ticket-item{padding:10px 0;border-bottom:2px solid #222}
-  .ticket-item-main{display:flex;gap:6px;font-size:18px;font-weight:900;line-height:1.3}
-  .ticket-qty{font-size:19px;font-weight:900;min-width:36px}
-  .ticket-product{text-transform:uppercase;font-size:18px;font-weight:900;overflow-wrap:anywhere}
-  .ticket-item-price{text-align:right;font-size:15px;font-weight:900;margin-top:3px}
-  .ticket-total{display:flex;justify-content:space-between;font-size:25px;font-weight:900;margin:13px 0}
-  .ticket-notes{border:1px solid #333;padding:8px;font-size:15px;font-weight:800;white-space:pre-wrap}
-  .ticket-footer{text-align:center;font-size:12px;margin-top:12px;line-height:1.5}
-  .ticket-footer strong{font-size:14px}
+  body{padding:2mm;font:11px/1.2 Arial,Helvetica,sans-serif;font-weight:700}
+  .ticket-brand{text-align:center;font-size:15px;line-height:1.15;font-weight:900}
+  .ticket-brand-sub{text-align:center;font-size:9px;font-weight:700;margin:1px 0}
+  .ticket-type{text-align:center;font-size:10px;font-weight:900;margin-top:3px}
+  .ticket-order{text-align:center;font-size:16px;line-height:1.1;font-weight:900;margin:2px 0}
+  .ticket-rule{border-top:1px dashed #333;margin:3px 0}
+  .ticket-meta{display:flex;justify-content:space-between;gap:4px;font-size:9px;font-weight:700}
+  .ticket-section{font-size:10px;line-height:1.15;font-weight:900;margin:3px 0 2px}
+  .ticket-customer{font-size:11px;font-weight:900;line-height:1.2}
+  .ticket-method{display:inline-block;font-size:10px;font-weight:800}
+  .ticket-item{padding:3px 0;border-bottom:1px dashed #555;break-inside:avoid}
+  .ticket-item-main{display:flex;gap:4px;font-size:12px;font-weight:900;line-height:1.15}
+  .ticket-qty{font-size:12px;font-weight:900;min-width:25px}
+  .ticket-product{text-transform:uppercase;font-size:12px;font-weight:900;line-height:1.15;overflow-wrap:anywhere}
+  .ticket-item-price{text-align:right;font-size:10px;font-weight:900;margin-top:1px}
+  .ticket-total{display:flex;justify-content:space-between;font-size:16px;line-height:1.15;font-weight:900;margin:4px 0}
+  .ticket-notes{border:1px solid #333;padding:3px;font-size:10px;line-height:1.2;font-weight:900;white-space:pre-wrap}
+  .ticket-footer{text-align:center;font-size:9px;font-weight:700;margin-top:4px;line-height:1.2}
+  .ticket-footer strong{font-size:10px;font-weight:900}
   </style></head><body>${content}</body></html>`;
   await receiptWindow.loadURL("data:text/html;charset=utf-8,"+encodeURIComponent(html));
   // Diálogo estándar de Windows: el usuario selecciona la impresora,
