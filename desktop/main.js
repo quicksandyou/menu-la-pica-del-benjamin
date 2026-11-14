@@ -133,6 +133,7 @@ ipcMain.handle("pos:print-local-receipt",async(_event,payload)=>{
   .ticket-footer{text-align:center;font-size:12px;margin-top:12px;line-height:1.5}
   .ticket-footer strong{font-size:14px}
   </style></head><body>${content}</body></html>`;
+  await receiptWindow.loadURL("data:text/html;charset=utf-8,"+encodeURIComponent(html));
   await new Promise((resolve,reject)=>{
    let finished=false;
    const finish=error=>{
