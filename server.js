@@ -871,6 +871,29 @@ La Picá del Benjamín`,
         return send(res, 401, { error: "Invalid webhook signature." });
       }
 
+      const eventType = String(url.searchParams.get("type") || url.searchParams.get("topic") || data?.type || data?.topic || "").toLowerCase();
+      if (eventType === "payment") {
+        const paymentResponse = await mpRequest("/v1/payments/" + encodeURIComponent(id));
+        const payment = await paymentResponse.json();
+        if (!paymentResponse.ok) {
+          console.error("MP payment webhook: consulta fallida", paymentResponse.status);
+          return send(res, 502, { error: "Could not verify payment with Mercado Pago." });
+        }
+        const orderId = String(payment.external_reference || "");
+        const amount = Number(payment.transaction_amount || 0);
+        const approved = payment.status === "approved" &&
+          payment.payment_method_id === "fintoc" &&
+          payment.currency_id === "CLP" &&
+          Number.isFinite(Number(orderId)) && amount > 0;
+        if (dbPool && orderId) {
+          await dbPool.query(
+            "UPDATE orders SET payment_status=$1,external_payment_id=$2,updated_at=NOW() WHERE id=$3 AND total_clp=$4 AND (external_payment_id IS NULL OR external_payment_id=$2)",
+            [approved ? "approved" : String(payment.status || "pending"), id, Number(orderId), amount]
+          );
+        }
+        return send(res, 200, { received: true, resource_found: true });
+      }
+
       // The simulator can send a synthetic Data ID that is not a real Order.
       // A validly signed event is acknowledged even when that resource is absent.
       const response = await mpRequest("/v1/orders/" + encodeURIComponent(id));
@@ -993,6 +1016,99 @@ if(!price||!Number.isInteger(quantity)||quantity<1||quantity>30||Number(item.uni
     } catch(e) {
       console.error("Transfer order creation:",e.message);
       return send(res,400,{error:e.message||"No se pudo registrar el pedido por transferencia."});
+    }
+  }
+
+  if (req.method === "POST" && new URL(req.url, "http://localhost").pathname === "/api/crear-pago-fintoc") {
+    if (!dbPool) return send(res,503,{error:"Base de datos no disponible. Inténtalo más tarde."});
+    if (!FRONTEND_URL) return send(res,503,{error:"Falta configurar FRONTEND_URL en Render."});
+    if (!isOrderingOpen() && !canUsePaymentTestMode(await getStaffUser())) return send(res,403,{error:"Estamos fuera de horario. Los pedidos están disponibles de martes a sábado."});
+    if (isRateLimited(req,8,60000)) return send(res,429,{error:"Has enviado varios intentos de pago. Espera un minuto."});
+    const idempotencyKey=String(req.headers["idempotency-key"]||"");
+    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(idempotencyKey)) return send(res,400,{error:"No se pudo validar el intento de pago. Actualiza la página e inténtalo nuevamente."});
+    let localOrderId=null;
+    try {
+      const data=await readJson(req);
+      if(!Array.isArray(data.items)||!data.items.length||data.items.length>50) return send(res,400,{error:"El carrito está vacío o contiene demasiados productos."});
+      const customerName=String(data.customer?.name||"").trim().slice(0,120);
+      const customerEmail=String(data.customer?.email||"").trim().toLowerCase().slice(0,254);
+      const customerPhone=String(data.customer?.phone||"").trim().slice(0,30);
+      const method=String(data.delivery?.method||"");
+      const address=String(data.delivery?.address||"").trim().slice(0,500);
+      const locality=String(data.delivery?.locality||"").trim().slice(0,80);
+      if(!customerName||!customerEmail||!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(customerEmail)) return send(res,400,{error:"Completa nombre y correo electrónico válido."});
+      if(method!=="Delivery"||!address||!Object.prototype.hasOwnProperty.call(deliveryFees,locality)) return send(res,400,{error:"Completa una dirección y localidad de despacho válida."});
+      const menuProducts=getMenuProducts();
+      let subtotal=0;
+      const items=data.items.map(item=>{
+        const name=String(item.name||"").trim(),quantity=Number(item.quantity),price=getMenuProductPrice(name,menuProducts);
+        if(!price||!Number.isInteger(quantity)||quantity<1||quantity>30||Number(item.unit_price)!==price) throw new Error("Producto, cantidad o precio inválido.");
+        subtotal+=price*quantity;
+        return {name,quantity,unit_price:price};
+      });
+      const fee=deliveryFees[locality],total=subtotal+fee;
+      if(Number(data.total_clp)!==total||Number(data.delivery?.fee_clp||0)!==fee) return send(res,400,{error:"El total del pedido no coincide. Actualiza el menú e inténtalo nuevamente."});
+      const saved=await dbPool.query(
+        "INSERT INTO orders (source,customer_name,customer_phone,customer_email,delivery_address,locality,delivery_method,total_clp,payment_status,delivery_status,approval_status,items_json,notes,delivery_fee_clp,delivery_latitude,delivery_longitude) VALUES ('online',$1,$2,$3,$4,$5,'Delivery',$6,'pending','pending','pending',$7::jsonb,$8,$9,$10,$11) RETURNING id",
+        [customerName,customerPhone,customerEmail,address,locality,total,JSON.stringify(items),String(data.notes||"").slice(0,1000),fee,Number.isFinite(Number(data.delivery?.latitude))?Number(data.delivery.latitude):null,Number.isFinite(Number(data.delivery?.longitude))?Number(data.delivery.longitude):null]
+      );
+      localOrderId=Number(saved.rows[0].id);
+      const orderNumber="PB-"+String(localOrderId).padStart(6,"0");
+      await dbPool.query("UPDATE orders SET order_number=$1,external_reference=$2 WHERE id=$3",[orderNumber,String(localOrderId),localOrderId]);
+      const callbackUrl=new URL(FRONTEND_URL);
+      callbackUrl.searchParams.set("pago","fintoc-retorno");
+      callbackUrl.searchParams.set("order_id",String(localOrderId));
+      const payload={
+        transaction_amount:total,
+        payment_method_id:"fintoc",
+        description:"Pedido La Picá del Benjamín "+orderNumber,
+        external_reference:String(localOrderId),
+        callback_url:callbackUrl.toString(),
+        point_of_interaction:{type:"CHECKOUT",sub_type:"INTER_PSP"},
+        payer:{email:customerEmail}
+      };
+      const response=await mpRequest("/v1/payments",{
+        method:"POST",
+        headers:{"X-Idempotency-Key":idempotencyKey},
+        body:JSON.stringify(payload)
+      });
+      const payment=await response.json();
+      const redirectUrl=payment?.transaction_details?.external_resource_url||payment?.payment_method?.data?.external_resource_url;
+      if(!response.ok||!payment?.id||!redirectUrl){
+        await dbPool.query("UPDATE orders SET payment_status='payment_error',updated_at=NOW() WHERE id=$1",[localOrderId]);
+        console.error("Fintoc create payment failed:",response.status,payment?.message||payment?.error||"missing redirect URL");
+        return send(res,response.status||502,{error:"Mercado Pago no pudo iniciar la transferencia bancaria. No se realizó el cobro; inténtalo nuevamente."});
+      }
+      await dbPool.query("UPDATE orders SET external_payment_id=$1,payment_status='pending',updated_at=NOW() WHERE id=$2",[String(payment.id),localOrderId]);
+      console.log("Fintoc payment created:",JSON.stringify({order_id:localOrderId,payment_id:String(payment.id),status:payment.status,redirect_url_present:true}));
+      return send(res,201,{checkout_url:redirectUrl,order_id:localOrderId,payment_id:String(payment.id),expires_in_minutes:10});
+    } catch(e) {
+      if(localOrderId) await dbPool.query("UPDATE orders SET payment_status='payment_error',updated_at=NOW() WHERE id=$1",[localOrderId]).catch(()=>{});
+      console.error("Fintoc payment creation:",e.message);
+      return send(res,400,{error:e.message||"No fue posible iniciar la transferencia bancaria."});
+    }
+  }
+
+  const fintocVerifyMatch=req.method==="GET"&&new URL(req.url,"http://localhost").pathname.match(/^\/api\/fintoc\/verify\/(\d+)$/);
+  if(fintocVerifyMatch){
+    if(!dbPool)return send(res,503,{error:"Base de datos no disponible."});
+    try{
+      const orderId=Number(fintocVerifyMatch[1]);
+      const saved=await dbPool.query("SELECT id,total_clp,external_payment_id,payment_status FROM orders WHERE id=$1 AND source='online' LIMIT 1",[orderId]);
+      if(!saved.rowCount||!saved.rows[0].external_payment_id)return send(res,404,{error:"No encontramos el pago asociado a este pedido."});
+      const local=saved.rows[0];
+      const response=await mpRequest("/v1/payments/"+encodeURIComponent(local.external_payment_id));
+      const payment=await response.json();
+      if(!response.ok)return send(res,502,{error:"No pudimos consultar el pago en Mercado Pago."});
+      const validReference=String(payment.external_reference||"")===String(orderId);
+      const validAmount=Number(payment.transaction_amount)===Number(local.total_clp)&&payment.currency_id==="CLP"&&payment.payment_method_id==="fintoc";
+      const approved=validReference&&validAmount&&payment.status==="approved";
+      const nextStatus=approved?"approved":(validReference&&validAmount?String(payment.status||"pending"):"payment_review");
+      await dbPool.query("UPDATE orders SET payment_status=$1,updated_at=NOW() WHERE id=$2 AND external_payment_id=$3",[nextStatus,orderId,String(local.external_payment_id)]);
+      return send(res,200,{approved,status:nextStatus,delivery:true});
+    }catch(e){
+      console.error("Fintoc verification:",e.message);
+      return send(res,500,{error:"No fue posible verificar la transferencia."});
     }
   }
 
