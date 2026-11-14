@@ -741,8 +741,8 @@ html.native-app-ui #appNativeWhatsAppCta:active,html.native-app-ui .app-native-c
 <section id="appNativeHome" aria-label="Inicio de La Picá del Benjamín"><div class="app-native-hero"><img id="appNativeHeroImage" alt="Sushi fresco de La Picá del Benjamín"><div class="app-native-hero-copy"><span>Sushi</span><span>Fresco y</span><strong>Delicioso</strong></div></div><div class="app-native-dots"><i></i><i></i><i></i></div><div id="appNativeCategoryGrid" class="app-native-categories"></div><button id="appNativeWhatsAppCta" class="app-native-whatsapp" type="button"><span class="app-native-wa-icon">◉</span><span>REALIZAR PEDIDO<br>ONLINE</span><b>›</b></button></section>
 <div class="layout"><aside class="category-sidebar" id="appCategoryDrawer"><div class="sidebar-brand"><span>🍔 LA PICÁ DEL BENJAMÍN</span><button type="button" class="sidebar-close" id="appDrawerClose" aria-label="Cerrar menú">×</button></div><nav id="tabs" aria-label="Categorías del menú"></nav><div class="app-drawer-extra"><button type="button" onclick="showStoreSection('jewelry');closeAppDrawer()">💎 Joyas</button><button type="button" onclick="showStoreSection('contests');closeAppDrawer()">🎉 Concursos</button><button type="button" id="drawerSuggestions">💬 Enviar sugerencias</button></div><div class="sidebar-foot">📍 Linares<br>❤️ Sabor que enamora</div></aside><section class="menu-column"><h2 id="menuHeading" class="section-title">🍽️ Menú Online</h2><div id="menu"></div></section>
 <section class="cart"><h2>🛒 Tu pedido <small id="count"></small></h2><div id="lines">Todavía no agregas productos.</div><div class="total" id="total">Total: $0</div>
-<div id="testModeNotice" class="notice" style="display:none;border-color:#e7b93e;color:#ffe8a3"><strong>🧪 MODO DE PRUEBA DEL EQUIPO</strong><br>Solo administración autenticada. No compartas este enlace con clientes.</div><div id="closedNotice" class="closed-notice" style="display:none"><strong>🌙 ¡Por ahora estamos fuera de horario!</strong><p>La tienda online y los pagos están disponibles de martes a sábado, de 17:30 a 02:00 AM.</p><p>Muchas gracias por preferir La Picá del Benjamín. ❤️ ¡Te esperamos en nuestro próximo horario!</p></div><div id="launchOrderLockNotice" class="closed-notice" style="display:none;border-color:#d18a2d"><strong>🔒 ¡Estamos preparando nuestro estreno!</strong><p>Por ahora, el formulario para ingresar tus datos y los pedidos por WhatsApp están temporalmente deshabilitados.</p><p>Podrás completar tu pedido cuando termine la cuenta regresiva de lanzamiento.</p></div><div class="fields"><input id="name" placeholder="Tu nombre *"><input id="phone" type="tel" placeholder="Tu teléfono (opcional)"><input id="email" type="email" placeholder="Tu correo electrónico *" required><div class="payment-method-note" style="margin:8px 0 12px;padding:12px;border:1px solid #b4772e;border-radius:10px;background:#fffaf2;color:#21170f"><b style="display:block;color:#8a4a12">Medio de pago</b><span>Mercado Pago y otras tarjetas</span><small style="display:block;margin-top:5px;color:#6e6256">Paga con tarjeta de crédito, débito o prepago. No necesitas tener cuenta de Mercado Pago.</small></div><input id="method" type="text" value="Delivery" readonly aria-label="Modalidad de entrega"><select id="locality" onchange="drawCart()"><option value="Linares">Linares</option><option value="Longaví">Longaví</option><option value="Yerbas Buenas">Yerbas Buenas</option><option value="Colbún">Colbún</option><option value="Villa Alegre">Villa Alegre</option><option value="San Javier">San Javier</option><option value="Palmilla">Palmilla</option></select><input id="address" placeholder="Dirección y referencia (delivery)"><button type="button" class="secondary" id="locationBtn" onclick="captureDeliveryLocation()">📍 Compartir ubicación exacta (opcional)</button><small id="locationStatus" aria-live="polite">Puedes escribir tu dirección normalmente o compartir tu ubicación GPS.</small><input type="hidden" id="deliveryLat"><input type="hidden" id="deliveryLng"><textarea id="notes" placeholder="Notas del pedido (opcional)"></textarea></div>
-<button class="online-pay" onclick="payOnline()">💳 Pagar con Mercado Pago u otras tarjetas</button><button class="clear" onclick="cart={};drawCart()">Vaciar carrito</button><p class="small">Delivery disponible en Linares ($1.990), Longaví ($3.500), Yerbas Buenas ($3.000), Colbún ($12.000), Villa Alegre ($4.000), San Javier y Palmilla ($5.000). Completa tu dirección y paga por Internet. WhatsApp queda disponible exclusivamente para consultas.</p></section></div>
+<div id="testModeNotice" class="notice" style="display:none;border-color:#e7b93e;color:#ffe8a3"><strong>🧪 MODO DE PRUEBA DEL EQUIPO</strong><br>Solo administración autenticada. No compartas este enlace con clientes.</div><div id="closedNotice" class="closed-notice" style="display:none"><strong>🌙 ¡Por ahora estamos fuera de horario!</strong><p>La tienda online y los pagos están disponibles de martes a sábado, de 17:30 a 02:00 AM.</p><p>Muchas gracias por preferir La Picá del Benjamín. ❤️ ¡Te esperamos en nuestro próximo horario!</p></div><div id="launchOrderLockNotice" class="closed-notice" style="display:none;border-color:#d18a2d"><strong>🔒 ¡Estamos preparando nuestro estreno!</strong><p>Por ahora, el formulario para ingresar tus datos y los pedidos por WhatsApp están temporalmente deshabilitados.</p><p>Podrás completar tu pedido cuando termine la cuenta regresiva de lanzamiento.</p></div><div class="fields"><input id="name" placeholder="Tu nombre *"><input id="phone" type="tel" placeholder="Tu teléfono (opcional)"><input id="email" type="email" placeholder="Tu correo electrónico *" required><div class="payment-method-note" style="margin:8px 0 12px;padding:12px;border:1px solid #b4772e;border-radius:10px;background:#fffaf2;color:#21170f"><b style="display:block;color:#8a4a12">Medio de pago</b><select id="onlinePaymentMethod" aria-label="Selecciona medio de pago" style="width:100%;margin-top:8px;padding:12px;border-radius:8px"><option value="card">Mercado Pago · Tarjetas</option><option value="fintoc">Transferencia bancaria · Fintoc</option></select><small id="onlinePaymentHelp" style="display:block;margin-top:5px;color:#6e6256">Paga con tarjeta de crédito, débito o prepago. No necesitas tener cuenta de Mercado Pago.</small></div><input id="method" type="text" value="Delivery" readonly aria-label="Modalidad de entrega"><select id="locality" onchange="drawCart()"><option value="Linares">Linares</option><option value="Longaví">Longaví</option><option value="Yerbas Buenas">Yerbas Buenas</option><option value="Colbún">Colbún</option><option value="Villa Alegre">Villa Alegre</option><option value="San Javier">San Javier</option><option value="Palmilla">Palmilla</option></select><input id="address" placeholder="Dirección y referencia (delivery)"><button type="button" class="secondary" id="locationBtn" onclick="captureDeliveryLocation()">📍 Compartir ubicación exacta (opcional)</button><small id="locationStatus" aria-live="polite">Puedes escribir tu dirección normalmente o compartir tu ubicación GPS.</small><input type="hidden" id="deliveryLat"><input type="hidden" id="deliveryLng"><textarea id="notes" placeholder="Notas del pedido (opcional)"></textarea></div>
+<button class="online-pay" onclick="payOnline()">💳 Continuar al pago</button><button class="clear" onclick="cart={};drawCart()">Vaciar carrito</button><p class="small">Delivery disponible en Linares ($1.990), Longaví ($3.500), Yerbas Buenas ($3.000), Colbún ($12.000), Villa Alegre ($4.000), San Javier y Palmilla ($5.000). Completa tu dirección y paga por Internet. WhatsApp queda disponible exclusivamente para consultas.</p></section></div>
 </div>
 <section id="jewelrySection" style="display:none" aria-hidden="true"></section>
 <section id="contestsSection" style="display:none;min-height:55vh;padding:28px 0">
@@ -1189,7 +1189,7 @@ function updatePaymentMethod(){
  if(button)button.textContent=isLaunchPaymentLocked()?"🔒 Pago online próximamente":"💳 Pagar con Mercado Pago u otras tarjetas";
 }
 async function payOnline(){
- if(isLaunchPaymentLocked()){updateLaunchCountdown();return alert("El pago con Mercado Pago está temporalmente en preparación.");}
+ if(isLaunchPaymentLocked()){updateLaunchCountdown();return alert("El pago online está temporalmente en preparación.");}
  if(!isOrderingOpen()){applySchedule();return alert("Estamos fuera de horario. Muchas gracias por preferir La Picá del Benjamín.");}
  let items=Object.entries(cart);
  if(!items.length)return alert("Agrega al menos un producto.");
@@ -1201,33 +1201,46 @@ async function payOnline(){
  let products=items.map(([n,q])=>{let p=P.find(x=>x[1]===n.split(" | ")[0]);return {name:n.replace(" | "," · "),quantity:q,unit_price:p[2]}});
  let subtotal=products.reduce((s,p)=>s+p.quantity*p.unit_price,0);let locality=document.getElementById("locality").value;let fee=method==="Delivery"?deliveryFee():0;if(fee===null)return alert("Selecciona una localidad válida para calcular el despacho.");let total=subtotal+fee;
  const button=document.querySelector(".online-pay");
- const paymentFingerprint=JSON.stringify({name,email:document.getElementById("email").value.trim(),phone:document.getElementById("phone").value.trim(),method,address,locality,notes:document.getElementById("notes").value.trim(),products,total});
+ const selected=document.getElementById("onlinePaymentMethod")?.value||"card";
+ const paymentFingerprint=JSON.stringify({name,email:document.getElementById("email").value.trim(),phone:document.getElementById("phone").value.trim(),method,address,locality,notes:document.getElementById("notes").value.trim(),products,total,selected});
  if(!paymentAttemptKey||paymentAttemptFingerprint!==paymentFingerprint){paymentAttemptKey=crypto.randomUUID();paymentAttemptFingerprint=paymentFingerprint;}
- button.disabled=true;button.textContent="Creando orden de pago...";
+ button.disabled=true;button.textContent=selected==="fintoc"?"Preparando transferencia...":"Creando orden de pago...";
  try{
-   // El Access Token debe permanecer en el servidor, nunca en este HTML.
-   const response=await fetch(`${PAYMENT_API_BASE_URL}/api/crear-orden`,{method:"POST",credentials:"include",headers:{"Content-Type":"application/json","Idempotency-Key":paymentAttemptKey},body:JSON.stringify({
+   const endpoint=selected==="fintoc"?"/api/crear-pago-fintoc":"/api/crear-orden";
+   const response=await fetch(`${PAYMENT_API_BASE_URL}${endpoint}`,{method:"POST",credentials:"include",headers:{"Content-Type":"application/json","Idempotency-Key":paymentAttemptKey},body:JSON.stringify({
      restaurant:"La Picá del Benjamín",customer:{name,email:document.getElementById("email").value.trim(),phone:document.getElementById("phone").value.trim()},
      delivery:{method,address:method==="Delivery"?address:"",locality,fee_clp:fee,latitude:method==="Delivery"?(document.getElementById("deliveryLat").value||null):null,longitude:method==="Delivery"?(document.getElementById("deliveryLng").value||null):null},notes:document.getElementById("notes").value.trim(),
      items:products,total_clp:total
    })});
    const data=await response.json();
-   if(!response.ok)throw new Error(data.error || "No se pudo crear la orden. Revisa la configuración de Render.");
-   if(!data.checkout_url)throw new Error("Mercado Pago no devolvió checkout_url.");
+   if(!response.ok)throw new Error(data.error||"No se pudo iniciar el pago.");
+   if(!data.checkout_url)throw new Error("El proveedor no devolvió la dirección de pago.");
    window.location.href=data.checkout_url;
  }catch(error){
-   alert(error.message||"No fue posible iniciar el pago. Puedes enviar tu pedido por WhatsApp.");
-   button.disabled=false;button.textContent="💳 Pagar con Mercado Pago";
+   alert(error.message||"No fue posible iniciar el pago. Puedes volver a intentarlo.");
+   button.disabled=false;button.textContent="💳 Continuar al pago";
  }
 }
 
 async function showPaymentResult(){
  const params=new URLSearchParams(window.location.search);
- if(params.get("pago")!=="retorno")return;
+ const isFintocReturn=params.get("pago")==="fintoc-retorno";
+ if(params.get("pago")!=="retorno"&&!isFintocReturn)return;
  const panel=document.getElementById("payment-result");
  panel.style.display="block";
  panel.innerHTML="<b>Estamos verificando tu pago...</b>";
- const orderId=params.get("order_id");
+ const orderId=params.get("order_id"); 
+ if(isFintocReturn){
+   if(!orderId){panel.innerHTML="<b>No pudimos identificar la transferencia.</b><p>Contacta al local antes de realizar otro pago.</p>";return;}
+   try{
+     const verify=await fetch(`${PAYMENT_API_BASE_URL}/api/fintoc/verify/${encodeURIComponent(orderId)}`);
+     const result=await verify.json();
+     if(!verify.ok)throw new Error(result.error||"No pudimos verificar la transferencia.");
+     panel.innerHTML=result.approved?"<b>✅ Transferencia confirmada.</b><p>Tu pago fue verificado y el pedido quedó registrado. ¡Gracias por preferirnos!</p>":`<b>Transferencia aún no confirmada.</b><p>Estado: ${String(result.status||"pendiente")}. No realices otro pago; espera la confirmación o comunícate con el local.</p>`;
+   }catch(error){panel.innerHTML=`<b>No pudimos verificar la transferencia en este momento.</b><p>${error.message}</p><p>No realizaremos una confirmación hasta comprobar el pago.</p>`;}
+   return;
+ }
+
  if(!orderId){
    panel.innerHTML="<b>No pudimos identificar la orden.</b><p>Revisa tu pago en Mercado Pago o contáctanos.</p>";
    return;
