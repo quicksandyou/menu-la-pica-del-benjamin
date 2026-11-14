@@ -327,15 +327,7 @@ async function printReceipt(){
  const notes=escapeHTML(document.getElementById('notes').value.trim());
  const created=new Date().toLocaleString('es-CL',{timeZone:'America/Santiago'});
  document.getElementById('receipt').innerHTML='<div class="ticket-brand">LA PICÁ DEL BENJAMÍN</div><div class="ticket-brand-sub">SABOR QUE SE COMPARTE</div><div class="ticket-type">COMANDA DE PEDIDO</div><div class="ticket-order">PEDIDO LOCAL</div><div class="ticket-meta"><span>FECHA</span><strong>'+escapeHTML(created)+'</strong></div><div class="ticket-rule"></div><div class="ticket-section">DATOS DEL CLIENTE</div><div class="ticket-customer"><strong>'+customer+'</strong><br><span class="ticket-method">'+mode+'</span></div><div class="ticket-rule"></div><div class="ticket-section">DETALLE DEL PEDIDO</div>'+(detail||'<div class="ticket-item">Sin productos</div>')+'<div class="ticket-rule"></div><div class="ticket-total"><span>TOTAL</span><span>'+money(sum)+'</span></div><div class="ticket-section">MEDIO DE PAGO</div><div class="ticket-notes">'+payment+'</div>'+(notes?'<div class="ticket-section">OBSERVACIONES</div><div class="ticket-notes">'+notes+'</div>':'')+'<div class="ticket-rule"></div><div class="ticket-footer"><strong>¡GRACIAS POR TU COMPRA!</strong><br>La Picá del Benjamín</div>';
- const printButton=document.querySelector('button[onclick="printReceipt()"]');
- if(printButton){printButton.disabled=true;printButton.textContent="Enviando a impresora…";}
- try{
-  if(!window.posBridge||typeof window.posBridge.printLocalReceipt!=="function")throw new Error("La función de impresión local no está disponible. Cierra y vuelve a abrir el POS actualizado.");
-  const result=await window.posBridge.printLocalReceipt({html:document.getElementById('receipt').innerHTML});
-  if(!result||!result.ok)throw new Error(result?.error||"Windows no confirmó la impresión.");
-  alert("Comanda enviada a "+(result.printer||"la impresora")+" mediante "+(result.method||"impresión")+".");
- }catch(error){alert("No se pudo imprimir la comanda: "+(error.message||error));}
- finally{if(printButton){printButton.disabled=false;printButton.textContent="Imprimir comanda";}}
+ window.print();
 }
 async function loadSharedMenu(){
  const status=document.getElementById('menuSyncStatus');
