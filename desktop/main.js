@@ -83,7 +83,7 @@ async function findThermalPrinter(webContents){
 let localPrintInProgress=false;
 ipcMain.handle("pos:print-local-receipt",(_event,payload)=>runPrintExclusive(async()=>{
  if(localPrintInProgress)return {ok:false,error:"Ya hay una comanda local en proceso de impresión."};
- const content=String(payload?.text||"").trim();
+ const content=String(payload?.html||"").trim();
  if(!content)return {ok:false,error:"La comanda está vacía."};
  localPrintInProgress=true;
  const receiptWindow=new BrowserWindow({show:false,width:420,height:900,autoHideMenuBar:true,webPreferences:{nodeIntegration:false,contextIsolation:true}});
@@ -112,15 +112,10 @@ ipcMain.handle("pos:print-local-receipt",(_event,payload)=>runPrintExclusive(asy
   .ticket-footer strong{font-size:14px}
   </style></head><body>${content}</body></html>`;
   await receiptWindow.loadURL("data:text/html;charset=utf-8,"+encodeURIComponent(html));
-  if(process.env.POS_PRINT_METHOD==="legacy"){
-   const printerSource=(win&&!win.isDestroyed())?win.webContents:receiptWindow.webContents;
-   const printerName=await findThermalPrinter(printerSource);
-   await new Promise((resolve,reject)=>receiptWindow.webContents.print({silent:true,printBackground:true,deviceName:printerName},(success,reason)=>success?resolve():reject(new Error(reason||("Windows rechazó la impresión en "+printerName)))));
-   return {ok:true,printer:printerName,method:"Windows/Electron (respaldo)"};
-  }
-  const sent=await printEscPosRaw(content.split(/\r?\n/));
-  console.log("Comanda local enviada por ESC/POS RAW:",sent);
-  return {ok:true,printer:sent.printer,method:sent.method};
+  const printerName="80mm Series Printer";
+  await new Promise((resolve,reject)=>receiptWindow.webContents.print({silent:true,printBackground:true,deviceName:printerName},(success,reason)=>success?resolve():reject(new Error(reason||("Windows rechazó la impresión en "+printerName)))));
+  console.log("Comanda local enviada con formato HTML:",printerName);
+  return {ok:true,printer:printerName,method:"Windows/Electron · formato 80mm"};
  }catch(error){console.error("Error impresión local POS:",error);return {ok:false,error:error.message||"Error de impresión"};}
  finally{if(!receiptWindow.isDestroyed())receiptWindow.close();localPrintInProgress=false;}
 }));
@@ -227,16 +222,9 @@ ipcMain.handle("pos:print-web-order",(_event,order)=>runPrintExclusive(async()=>
  const receiptWindow=new BrowserWindow({show:false,width:400,height:800,webPreferences:{nodeIntegration:false,contextIsolation:true}});
  try{
   await receiptWindow.loadURL("data:text/html;charset=utf-8,"+encodeURIComponent(html));
-  const rawLines=["LA PICA DEL BENJAMIN","SABOR QUE SE COMPARTE","COMANDA DE PEDIDO",orderLabel,"FECHA: "+created,"--------------------------------","CLIENTE: "+customer,"TEL: "+phone,(isPickup?"RETIRO EN LOCAL":"DIRECCION: "+(address||"No informada")),"MODALIDAD: "+(order.delivery_method||"No informada"),"--------------------------------","DETALLE DEL PEDIDO"];
-  for(const item of items){const qty=Number(item.quantity||item.qty||1);rawLines.push(qty+" x "+(item.name||item.product||item.title||"Producto"));const detail=item.variant||item.details||item.notes||"";if(detail)rawLines.push("   "+detail);const unit=Number(item.unit_price_clp??item.price_clp??item.price??0);const subtotal=Number(item.subtotal_clp??(unit*qty));if(subtotal>0)rawLines.push("   "+money(subtotal));}
-  rawLines.push("--------------------------------","TOTAL: "+money(order.total_clp));if(notes)rawLines.push("OBSERVACIONES: "+notes);rawLines.push("--------------------------------","GRACIAS POR TU COMPRA","LA PICA DEL BENJAMIN");
-  let sent;
-  if(process.env.POS_PRINT_METHOD==="legacy"){
-   const printerSource=(win&&!win.isDestroyed())?win.webContents:receiptWindow.webContents;
-   const printerName=await findThermalPrinter(printerSource);
-   await new Promise((resolve,reject)=>receiptWindow.webContents.print({silent:true,printBackground:true,deviceName:printerName},(success,reason)=>success?resolve():reject(new Error(reason||("No se pudo imprimir en "+printerName)))));
-   sent={printer:printerName,method:"Windows/Electron (respaldo)"};
-  }else{sent=await printEscPosRaw(rawLines);}
+  const printerName="80mm Series Printer";
+  await new Promise((resolve,reject)=>receiptWindow.webContents.print({silent:true,printBackground:true,deviceName:printerName},(success,reason)=>success?resolve():reject(new Error(reason||("No se pudo imprimir en "+printerName)))));
+  const sent={printer:printerName,method:"Windows/Electron · formato 80mm"};
   console.log("Comanda web/APK enviada:",sent);printedOrderIds.add(id);
   persistPrintedOrderIds();
   return {ok:true,duplicate:false,printer:sent.printer,method:sent.method};
