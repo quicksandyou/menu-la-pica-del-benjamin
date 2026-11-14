@@ -56,9 +56,9 @@ ipcMain.handle("pos:print-local-receipt",async(_event,payload)=>{
   </style></head><body>${content}</body></html>`;
   await receiptWindow.loadURL("data:text/html;charset=utf-8,"+encodeURIComponent(html));
   const printers=await receiptWindow.webContents.getPrintersAsync();
-  if(!printers.length)throw new Error("Windows no informa impresoras disponibles. Revisa el servicio Cola de impresión.");
-  const selected=printers.find(p=>p.isDefault)||printers[0];
-  console.log("Impresión POS local: impresora seleccionada",selected.name,"predeterminada:",!!selected.isDefault);
+  const selected=printers.find(p=>String(p.name||"").trim().toLowerCase()==="80mm series printer");
+  if(!selected)throw new Error("No se encontró la impresora térmica 80mm Series Printer. Impresoras detectadas: "+(printers.map(p=>p.name).join(", ")||"ninguna"));
+  console.log("Impresión POS local dirigida a:",selected.name);
   await new Promise((resolve,reject)=>receiptWindow.webContents.print({silent:true,printBackground:true,deviceName:selected.name},(success,reason)=>{
    if(success)resolve();else reject(new Error(reason||("Windows rechazó la impresión en "+selected.name)));
   }));
@@ -169,7 +169,11 @@ ipcMain.handle("pos:print-web-order",async(_event,order)=>{
  const receiptWindow=new BrowserWindow({show:false,width:400,height:800,webPreferences:{nodeIntegration:false,contextIsolation:true}});
  try{
   await receiptWindow.loadURL("data:text/html;charset=utf-8,"+encodeURIComponent(html));
-  await new Promise((resolve,reject)=>receiptWindow.webContents.print({silent:true,printBackground:true},(success,reason)=>success?resolve():reject(new Error(reason||"No se pudo imprimir la comanda."))));
+  const printers=await receiptWindow.webContents.getPrintersAsync();
+  const selected=printers.find(p=>String(p.name||"").trim().toLowerCase()==="80mm series printer");
+  if(!selected)throw new Error("No se encontró la impresora térmica 80mm Series Printer. Impresoras detectadas: "+(printers.map(p=>p.name).join(", ")||"ninguna"));
+  console.log("Impresión automática web dirigida a:",selected.name);
+  await new Promise((resolve,reject)=>receiptWindow.webContents.print({silent:true,printBackground:true,deviceName:selected.name},(success,reason)=>success?resolve():reject(new Error(reason||("No se pudo imprimir en "+selected.name)))));
   printedOrderIds.add(id);
   persistPrintedOrderIds();
   return {ok:true,duplicate:false};
