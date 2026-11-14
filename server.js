@@ -1027,7 +1027,7 @@ if(!price||!Number.isInteger(quantity)||quantity<1||quantity>30||Number(item.uni
         throw new Error("Producto, cantidad o precio inválido.");
       }
       total += price * item.quantity;
-      return { title: item.name, quantity: item.quantity, unit_price: String(price) };
+      return { title: item.name, quantity: item.quantity, currency_id: "CLP", unit_price: Number(price) };
     });
 
     const deliveryFee = method === "Delivery" ? deliveryFees[locality] : 0;
@@ -1044,7 +1044,7 @@ if(!price||!Number.isInteger(quantity)||quantity<1||quantity>30||Number(item.uni
       back_urls: { success: returnUrl, failure: returnUrl, pending: returnUrl },
       auto_return: "approved",
       payment_methods: {},
-      ...(process.env.MP_WEBHOOK_URL ? { notification_url: process.env.MP_WEBHOOK_URL } : {})
+      notification_url: process.env.MP_WEBHOOK_URL || "https://menu-la-pica-del-benjamin-pago.onrender.com/api/mercadopago/webhook"
     };
     const response = await mpRequest("/checkout/preferences", {
       method: "POST",
