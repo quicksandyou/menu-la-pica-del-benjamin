@@ -144,11 +144,7 @@ body{padding-bottom:68px}
  <button type="button" id="openYoutubeMusic">Abrir YouTube Music</button>
  <span class="music-status" id="musicStatus" aria-live="polite">Abre YouTube Music e inicia sesión/reproducción</span>
  <span style="color:#f4dfc3;font-size:12px">La ventana conserva tu sesión</span>
- <input id="youtubeUrl" type="url" placeholder="Respaldo: enlace de YouTube" aria-label="Enlace de YouTube" style="max-width:190px">
- <button type="button" id="loadYoutube">Usar respaldo</button>
- <button type="button" id="toggleMusic" disabled>▶ Reproducir respaldo</button>
  <label class="music-volume">Volumen <input id="musicVolume" type="range" min="0" max="100" value="70"><span id="musicVolumeValue">70%</span></label>
- <span id="musicStatus" class="music-status" aria-live="polite">Pega un enlace de YouTube</span>
  <div id="youtubePlayer" class="music-player-frame"></div>
 </section>
 <script>
@@ -202,16 +198,11 @@ function duckMusicForOrder(){
  setTimeout(()=>setMusicStatus("Música ambiental"),4700);
 }
 document.addEventListener("DOMContentLoaded",()=>{
- const url=document.getElementById("youtubeUrl"),saved=localStorage.getItem(MUSIC_URL_KEY);
- if(saved)url.value=saved;
  document.getElementById("openYoutubeMusic").addEventListener("click",async()=>{
   try{await window.posBridge.openService("youtubeMusic");setMusicStatus("YouTube Music abierto. Inicia la música y minimiza esa ventana para volver al POS.");}
   catch(e){setMusicStatus("No se pudo abrir YouTube Music: "+(e.message||e));}
  });
- document.getElementById("loadYoutube").addEventListener("click",loadYouTubeMusic);
- document.getElementById("toggleMusic").addEventListener("click",toggleYouTubeMusic);
  document.getElementById("musicVolume").addEventListener("input",e=>setMusicVolume(e.target.value));
- loadYouTubeApi();
 });
 window.onYouTubeIframeAPIReady=onYouTubeIframeAPIReady;
 let P=[],cats=[];
