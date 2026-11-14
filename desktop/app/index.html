@@ -65,6 +65,10 @@
 .alert-card{border-radius:12px;padding:13px 15px;min-height:78px;font-size:13px;line-height:1.4}
 .orders-alert{background:#182d3b;border:1px solid #3982a9;color:#e6f5ff}
 .payments-alert{background:#2c2410;border:1px solid #bd8c2c;color:#fff0c7}
+.orders-print-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.orders-print-actions button{background:#ffd36b;color:#211306;font-weight:950;border:1px solid #e5a52a;padding:10px 15px}
+.orders-print-actions button:disabled{opacity:.65;cursor:wait}
+.orders-print-actions .printed{background:#c8e6c9;color:#17351a;border-color:#72a875}
 .alert-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px;font-size:13px;font-weight:950;letter-spacing:.2px}
 .alert-heading span{border-radius:999px;background:#ffffff20;padding:3px 9px;font-variant-numeric:tabular-nums}
 @media(max-width:700px){.alert-grid{grid-template-columns:1fr;gap:8px}.alert-card{min-height:65px;padding:11px}}
@@ -132,6 +136,7 @@ body{padding-bottom:68px}
  <section class="alert-card orders-alert" aria-live="polite">
   <div class="alert-heading"><strong>🛎️ PEDIDOS NUEVOS DE LA WEB</strong><span id="ordersAlertCount">0</span></div>
   <div id="ordersAlertMessage">Esperando nuevos pedidos web…</div>
+  <div id="ordersPrintActions" class="orders-print-actions" aria-live="polite"></div>
  </section>
  <section class="alert-card payments-alert" aria-live="polite">
   <div class="alert-heading"><strong>💳 PAGOS CONFIRMADOS</strong><span id="paymentsAlertCount">0</span></div>
@@ -371,26 +376,49 @@ let knownOnlineOrders=null;
 let knownPaymentStatuses=new Map();
 let alertSoundContext=null;
 let ordersAlertTotal=0,paymentsAlertTotal=0;
-const PRINT_QUEUE_KEY="lapica_pos_print_queue_v1";
+const PRINT_QUEUE_KEY="lapica_pos_manual_print_queue_v1";
 function readPrintQueue(){try{const value=JSON.parse(localStorage.getItem(PRINT_QUEUE_KEY)||"[]");return Array.isArray(value)?value:[];}catch(_){return [];}}
 function savePrintQueue(queue){try{localStorage.setItem(PRINT_QUEUE_KEY,JSON.stringify(queue.slice(-500)));}catch(e){console.error("No se pudo guardar cola local:",e);}}
 function enqueueOrders(orders){
  const queue=readPrintQueue(),ids=new Set(queue.map(o=>String(o.id)));
- for(const order of orders){const id=String(order?.id||"");const rejected=String(order?.approval_status||"").toLowerCase()==="rejected"||["rejected","cancelled","canceled"].includes(String(order?.payment_status||"").toLowerCase());if(id&&!rejected&&!ids.has(id)){queue.push(order);ids.add(id);}}
- savePrintQueue(queue);
-}
-async function processPrintQueue(){
- if(!window.posBridge||typeof window.posBridge.printWebOrder!=="function")return;
- let queue=readPrintQueue();if(!queue.length)return;
- const remaining=[];
- for(const order of queue){
-  try{const result=await window.posBridge.printWebOrder(order);if(!result||!result.ok)remaining.push(order);}
-  catch(error){remaining.push(order);console.warn("Comanda queda pendiente para reintento:",order.order_number||order.id,error);}
+ for(const order of orders){
+  const id=String(order?.id||"");
+  const rejected=String(order?.approval_status||"").toLowerCase()==="rejected"||["rejected","cancelled","canceled"].includes(String(order?.payment_status||"").toLowerCase());
+  if(id&&!rejected&&!ids.has(id)){queue.push(order);ids.add(id);}
  }
- savePrintQueue(remaining);
- const msg=remaining.length?"⚠️ "+remaining.length+" comanda(s) pendiente(s): revisa papel e impresora.":"✅ Cola de impresión al día.";
- showAlertMessage("ordersAlertMessage",msg,"ordersAlertCount",remaining.length);
+ savePrintQueue(queue);renderPendingOrders();
 }
+function renderPendingOrders(){
+ const queue=readPrintQueue(),host=document.getElementById("ordersPrintActions");
+ showAlertMessage("ordersAlertMessage",queue.length?"Hay "+queue.length+" pedido(s) esperando impresión manual.":"Esperando nuevos pedidos web…","ordersAlertCount",queue.length);
+ if(!host)return;
+ host.innerHTML=queue.map(order=>{
+  const id=escapeHTML(String(order.id));
+  const label=escapeHTML(order.order_number||("Pedido #"+order.id));
+  return '<button type="button" data-print-order="'+id+'">🖨️ Imprimir '+label+'</button>';
+ }).join("");
+}
+async function printPendingOrder(id,button){
+ const queue=readPrintQueue(),order=queue.find(item=>String(item.id)===String(id));
+ if(!order||!button)return;
+ button.disabled=true;button.textContent="Enviando a impresora…";
+ try{
+  if(!window.posBridge||typeof window.posBridge.printWebOrder!=="function")throw new Error("La impresión de pedidos web no está disponible en este POS.");
+  const result=await window.posBridge.printWebOrder(order);
+  if(!result||!result.ok)throw new Error(result?.error||"Windows no confirmó la impresión.");
+  savePrintQueue(readPrintQueue().filter(item=>String(item.id)!==String(id)));
+  renderPendingOrders();
+ }catch(error){
+  button.disabled=false;button.textContent="Reintentar impresión";
+  console.warn("No se pudo imprimir pedido web:",error);
+  alert("No se pudo imprimir "+(order.order_number||"el pedido")+": "+(error.message||error));
+ }
+}
+document.addEventListener("click",event=>{
+ const button=event.target.closest("button[data-print-order]");
+ if(button)printPendingOrder(button.dataset.printOrder,button);
+});
+renderPendingOrders();
 function playAlertTone(kind){
  try{
   const AudioCtx=window.AudioContext||window.webkitAudioContext;if(!AudioCtx)return;
@@ -422,7 +450,6 @@ async function checkOnlineOrderAlerts(){
    knownOnlineOrders=current;
    knownPaymentStatuses=new Map(orders.map(o=>[String(o.id),String(o.payment_status||"pending").toLowerCase()]));
    enqueueOrders(orders);
-   await processPrintQueue();
    return;
   }
   const newOrders=[...current.keys()].filter(id=>!knownOnlineOrders.has(id));
@@ -435,7 +462,6 @@ async function checkOnlineOrderAlerts(){
   knownOnlineOrders=current;
   if(newOrders.length){ordersAlertTotal+=newOrders.length;duckMusicForOrder();playAlertTone("order");}
   enqueueOrders(orders);
-  await processPrintQueue();
   if(paidOrders.length){paymentsAlertTotal+=paidOrders.length;playAlertTone("payment");}
  }catch(e){console.warn("Avisos de pedidos y pagos:",e);}
 }
