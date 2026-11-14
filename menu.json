@@ -20,7 +20,8 @@
     "Aguas",
     "Salsas",
     "Energéticas",
-    "Joyas & Detalles"
+    "Joyas & Detalles",
+    "Postres"
   ],
   "products": [
     {
@@ -788,66 +789,6 @@
       "image_url": "assets/promos/promo-picoteo.jpg"
     },
     {
-      "category": "Promociones",
-      "name": "Promo 1 · 4 ASS normales + bebida 1,5 L",
-      "price_clp": 12490,
-      "description": "4 ASS normales y bebida de 1,5 litros. Disponible en pollo, cerdo o vacuno.",
-      "image_url": "assets/promos/promo-1-ass.jpg",
-      "option_groups": [
-        {
-          "label": "ASS",
-          "quantity": 4,
-          "choices": [
-            "Pollo",
-            "Cerdo",
-            "Vacuno"
-          ]
-        },
-        {
-          "label": "Bebida 1,5 L",
-          "choices": [
-            "Coca-Cola",
-            "Fanta",
-            "Sprite",
-            "Kem Piña",
-            "Limón Soda",
-            "Bilz",
-            "Pap"
-          ]
-        }
-      ]
-    },
-    {
-      "category": "Promociones",
-      "name": "Promo 2 · Churrasco o hamburguesa + papas + lata",
-      "price_clp": 7490,
-      "description": "1 churrasco o hamburguesa + papas medianas + bebida en lata.",
-      "image_url": "assets/promos/promo-2-churrasco.jpg",
-      "option_groups": [
-        {
-          "label": "Elige tu sándwich",
-          "choices": [
-            "Churrasco",
-            "Hamburguesa",
-            "Completo italiano",
-            "Chacarero"
-          ]
-        },
-        {
-          "label": "Bebida lata",
-          "choices": [
-            "Coca-Cola",
-            "Fanta",
-            "Sprite",
-            "Kem Piña",
-            "Limón Soda",
-            "Bilz",
-            "Pap"
-          ]
-        }
-      ]
-    },
-    {
       "category": "Fritos",
       "name": "6 empanadas",
       "price_clp": 2000,
@@ -1039,6 +980,203 @@
           ]
         }
       ]
+    },
+    {
+      "category": "Promociones",
+      "name": "Promo 1 · Picoteo para compartir",
+      "price_clp": 7990,
+      "description": "2 bebidas de 355 cc, papas fritas, 3 nuggets, 3 empanadas, 3 arrolladitos y salsa.",
+      "option_groups": [
+        {
+          "label": "Bebida lata",
+          "quantity": 2,
+          "choices": [
+            "Coca-Cola",
+            "Fanta",
+            "Sprite",
+            "Kem Piña",
+            "Limón Soda",
+            "Bilz",
+            "Pap"
+          ]
+        }
+      ]
+    },
+    {
+      "category": "Promociones",
+      "name": "Promo 2 · Salchipapas y empanadas",
+      "price_clp": 6990,
+      "description": "2 bebidas de 355 cc, salchipapas y 3 empanadas.",
+      "option_groups": [
+        {
+          "label": "Bebida lata",
+          "quantity": 2,
+          "choices": [
+            "Coca-Cola",
+            "Fanta",
+            "Sprite",
+            "Kem Piña",
+            "Limón Soda",
+            "Bilz",
+            "Pap"
+          ]
+        }
+      ]
+    },
+    {
+      "category": "Promociones",
+      "name": "Promo 3 · 3 churrascos",
+      "price_clp": 15990,
+      "description": "3 churrascos a elección, 2 bebidas de 355 cc y 3 nuggets.",
+      "option_groups": [
+        {
+          "label": "Elige cada churrasco",
+          "quantity": 3,
+          "choices": [
+            "Clásico de la casa",
+            "Chacarero",
+            "Barros Luco",
+            "Benjita",
+            "Sándwich del chef",
+            "A lo pobre",
+            "Mexicano",
+            "Chileno"
+          ]
+        },
+        {
+          "label": "Bebida lata",
+          "quantity": 2,
+          "choices": [
+            "Coca-Cola",
+            "Fanta",
+            "Sprite",
+            "Kem Piña",
+            "Limón Soda",
+            "Bilz",
+            "Pap"
+          ]
+        }
+      ]
+    },
+    {
+      "category": "Promociones",
+      "name": "Promo 4 · 4 churrascos",
+      "price_clp": 19990,
+      "description": "4 churrascos a elección, 1 bebida de 1,5 litros, papas fritas y 3 empanadas.",
+      "option_groups": [
+        {
+          "label": "Elige cada churrasco",
+          "quantity": 4,
+          "choices": [
+            "Clásico de la casa",
+            "Chacarero",
+            "Barros Luco",
+            "Benjita",
+            "Sándwich del chef",
+            "A lo pobre",
+            "Mexicano",
+            "Chileno"
+          ]
+        },
+        {
+          "label": "Bebida 1,5 L",
+          "quantity": 1,
+          "choices": [
+            "Coca-Cola",
+            "Fanta",
+            "Sprite",
+            "Kem Piña",
+            "Limón Soda",
+            "Bilz",
+            "Pap"
+          ]
+        }
+      ]
+    },
+    {
+      "category": "Promociones",
+      "name": "Promo 5 · 3 completos",
+      "price_clp": 9990,
+      "description": "3 completos clásicos o italianos, 1 bebida de 1,5 litros, 3 nuggets, 3 empanadas y salsa.",
+      "option_groups": [
+        {
+          "label": "Elige cada completo",
+          "quantity": 3,
+          "choices": [
+            "Clásico",
+            "Italiano"
+          ]
+        },
+        {
+          "label": "Bebida 1,5 L",
+          "quantity": 1,
+          "choices": [
+            "Coca-Cola",
+            "Fanta",
+            "Sprite",
+            "Kem Piña",
+            "Limón Soda",
+            "Bilz",
+            "Pap"
+          ]
+        }
+      ]
+    },
+    {
+      "category": "Promociones",
+      "name": "Promo 6 · 5 completos",
+      "price_clp": 14990,
+      "description": "5 completos clásicos o italianos, 1 bebida de 1,5 litros, papas fritas, 3 arrolladitos primavera y salsas.",
+      "option_groups": [
+        {
+          "label": "Elige cada completo",
+          "quantity": 5,
+          "choices": [
+            "Clásico",
+            "Italiano"
+          ]
+        },
+        {
+          "label": "Bebida 1,5 L",
+          "quantity": 1,
+          "choices": [
+            "Coca-Cola",
+            "Fanta",
+            "Sprite",
+            "Kem Piña",
+            "Limón Soda",
+            "Bilz",
+            "Pap"
+          ]
+        }
+      ]
+    },
+    {
+      "category": "Promociones",
+      "name": "Promo 7 · Picoteo salchipapa",
+      "price_clp": 12990,
+      "description": "Papas grandes, 5 nuggets, 5 empanadas, 1 bebida de 1,5 litros y 1 salchipapa.",
+      "option_groups": [
+        {
+          "label": "Bebida 1,5 L",
+          "quantity": 1,
+          "choices": [
+            "Coca-Cola",
+            "Fanta",
+            "Sprite",
+            "Kem Piña",
+            "Limón Soda",
+            "Bilz",
+            "Pap"
+          ]
+        }
+      ]
+    },
+    {
+      "category": "Postres",
+      "name": "Jalea de frambuesa",
+      "price_clp": 500,
+      "description": "Jalea de frambuesa dulce y natural."
     }
   ],
   "photos": {
