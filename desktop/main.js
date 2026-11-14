@@ -1,4 +1,7 @@
 const {app,BrowserWindow,shell,dialog,ipcMain,net}=require("electron");
+const {execFile}=require("child_process");
+const {promisify}=require("util");
+const execFileAsync=promisify(execFile);
 const gotSingleInstanceLock=app.requestSingleInstanceLock();
 if(!gotSingleInstanceLock) app.quit();
 else app.on("second-instance",()=>{
@@ -24,6 +27,26 @@ const printedOrdersFile=path.join(app.getPath("userData"),"printed-web-orders.js
 try{for(const id of JSON.parse(fs.readFileSync(printedOrdersFile,"utf8")))printedOrderIds.add(String(id));}catch(_){}
 function persistPrintedOrderIds(){try{fs.writeFileSync(printedOrdersFile,JSON.stringify([...printedOrderIds].slice(-2000)),"utf8");}catch(e){console.warn("No se pudo guardar historial de comandas:",e.message);}}
 function escapeReceipt(value){return String(value??"").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));}
+async function findThermalPrinter(webContents){
+ const target="80mm Series Printer";
+ for(let attempt=0;attempt<2;attempt++){
+  try{
+   const printers=await webContents.getPrintersAsync();
+   console.log("Electron printers (attempt "+(attempt+1)+"):",printers.map(p=>p.name));
+   const found=printers.find(p=>String(p.name||"").trim().toLowerCase()===target.toLowerCase());
+   if(found)return found.name;
+  }catch(error){console.warn("Electron no pudo enumerar impresoras:",error.message);}
+  if(attempt===0)await new Promise(resolve=>setTimeout(resolve,400));
+ }
+ // Fallback: consultar el registro de impresoras de Windows directamente.
+ try{
+  const command="(Get-Printer -Name \'"+target+"\' -ErrorAction Stop).Name";
+  const result=await execFileAsync("powershell.exe",["-NoProfile","-NonInteractive","-Command",command],{windowsHide:true,timeout:5000});
+  const name=String(result.stdout||"").trim();
+  if(name.toLowerCase()===target.toLowerCase()){console.log("Impresora confirmada por Windows PowerShell:",name);return name;}
+ }catch(error){console.warn("PowerShell tampoco pudo consultar la impresora:",error.message);}
+ throw new Error("Windows/Electron no pudo confirmar la impresora 80mm Series Printer. Verifica que Cola de impresión esté iniciada.");
+}
 let localPrintInProgress=false;
 ipcMain.handle("pos:print-local-receipt",async(_event,payload)=>{
  if(localPrintInProgress)return {ok:false,error:"Ya hay una comanda local en proceso de impresión."};
@@ -56,17 +79,13 @@ ipcMain.handle("pos:print-local-receipt",async(_event,payload)=>{
   .ticket-footer strong{font-size:14px}
   </style></head><body>${content}</body></html>`;
   await receiptWindow.loadURL("data:text/html;charset=utf-8,"+encodeURIComponent(html));
-  // Enumerar impresoras desde la ventana principal del POS, que usa la sesión persistente de la tienda.
   const printerSource=(win&&!win.isDestroyed())?win.webContents:receiptWindow.webContents;
-  const printers=await printerSource.getPrintersAsync();
-  console.log("Impresoras visibles para POS:",printers.map(p=>({name:p.name,isDefault:p.isDefault})));
-  const selected=printers.find(p=>String(p.name||"").trim().toLowerCase()==="80mm series printer");
-  if(!selected)throw new Error("No se encontró la impresora térmica 80mm Series Printer. Impresoras detectadas: "+(printers.map(p=>p.name).join(", ")||"ninguna"));
-  console.log("Impresión POS local dirigida a:",selected.name);
-  await new Promise((resolve,reject)=>receiptWindow.webContents.print({silent:true,printBackground:true,deviceName:selected.name},(success,reason)=>{
-   if(success)resolve();else reject(new Error(reason||("Windows rechazó la impresión en "+selected.name)));
+  const printerName=await findThermalPrinter(printerSource);
+  console.log("Impresión POS local dirigida a:",printerName);
+  await new Promise((resolve,reject)=>receiptWindow.webContents.print({silent:true,printBackground:true,deviceName:printerName},(success,reason)=>{
+   if(success)resolve();else reject(new Error(reason||("Windows rechazó la impresión en "+printerName)));
   }));
-  return {ok:true,printer:selected.name};
+  return {ok:true,printer:printerName};
  }catch(error){console.error("Error impresión local POS:",error);return {ok:false,error:error.message||"Error de impresión"};}
  finally{if(!receiptWindow.isDestroyed())receiptWindow.close();localPrintInProgress=false;}
 });
@@ -175,12 +194,9 @@ ipcMain.handle("pos:print-web-order",async(_event,order)=>{
   await receiptWindow.loadURL("data:text/html;charset=utf-8,"+encodeURIComponent(html));
   // Enumerar impresoras desde la ventana principal del POS, que usa la sesión persistente de la tienda.
   const printerSource=(win&&!win.isDestroyed())?win.webContents:receiptWindow.webContents;
-  const printers=await printerSource.getPrintersAsync();
-  console.log("Impresoras visibles para POS:",printers.map(p=>({name:p.name,isDefault:p.isDefault})));
-  const selected=printers.find(p=>String(p.name||"").trim().toLowerCase()==="80mm series printer");
-  if(!selected)throw new Error("No se encontró la impresora térmica 80mm Series Printer. Impresoras detectadas: "+(printers.map(p=>p.name).join(", ")||"ninguna"));
-  console.log("Impresión automática web dirigida a:",selected.name);
-  await new Promise((resolve,reject)=>receiptWindow.webContents.print({silent:true,printBackground:true,deviceName:selected.name},(success,reason)=>success?resolve():reject(new Error(reason||("No se pudo imprimir en "+selected.name)))));
+  const printerName=await findThermalPrinter(printerSource);
+  console.log("Impresión automática web dirigida a:",printerName);
+  await new Promise((resolve,reject)=>receiptWindow.webContents.print({silent:true,printBackground:true,deviceName:printerName},(success,reason)=>success?resolve():reject(new Error(reason||("No se pudo imprimir en "+printerName)))));
   printedOrderIds.add(id);
   persistPrintedOrderIds();
   return {ok:true,duplicate:false};
