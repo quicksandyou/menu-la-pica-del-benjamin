@@ -153,7 +153,7 @@ ipcMain.handle("pos:print-local-receipt",async(_event,payload)=>{
   return {ok:true,method:"Windows/Electron · impresora predeterminada"};
  }catch(error){console.error("Error impresión local POS:",error);return {ok:false,error:error.message||"Error de impresión"};}
  finally{if(!receiptWindow.isDestroyed())receiptWindow.close();localPrintInProgress=false;}
-}));
+});
 ipcMain.handle("pos:print-web-order",(_event,order)=>runPrintExclusive(async()=>{
  if(!order||!order.id)throw new Error("Pedido inválido para impresión.");
  const id=String(order.id);
