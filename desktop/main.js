@@ -28,8 +28,67 @@ ipcMain.handle("pos:print-web-order",async(_event,order)=>{
  const id=String(order.id);
  if(printedOrderIds.has(id))return {ok:true,duplicate:true};
  const items=Array.isArray(order.items_json)?order.items_json:(()=>{try{return JSON.parse(order.items_json||"[]")}catch(_){return []}})();
- const rows=items.map(item=>'<div class="item"><span>'+escapeReceipt(item.quantity||item.qty||1)+' × '+escapeReceipt(item.name||item.product||item.title||"Producto")+'</span></div>').join("");
- const html=`<!doctype html><html lang="es"><meta charset="utf-8"><style>@page{size:80mm auto;margin:0}html,body{width:80mm;margin:0;padding:0;background:#fff;color:#000;font:13px/1.35 Arial,sans-serif}body{padding:4mm;box-sizing:border-box}h2{text-align:center;font-size:18px;margin:0 0 3mm}.center{text-align:center}.line{border-top:1px dashed #333;margin:3mm 0}.item{padding:2mm 0;border-bottom:1px dashed #bbb;overflow-wrap:anywhere}.small{font-size:11px}.total{font-size:17px;font-weight:bold;text-align:right;margin-top:3mm}b{font-weight:700}</style><h2>LA PICÁ DEL BENJAMÍN</h2><div class="center"><b>COMANDA WEB</b><br>${escapeReceipt(order.order_number||("Pedido #"+id))}</div><div class="line"></div><p><b>Fecha:</b> ${escapeReceipt(order.created_at?new Date(order.created_at).toLocaleString("es-CL",{timeZone:"America/Santiago"}):new Date().toLocaleString("es-CL"))}</p><p><b>Cliente:</b> ${escapeReceipt(order.customer_name||"Sin nombre")}</p><p><b>Teléfono:</b> ${escapeReceipt(order.customer_phone||"No informado")}</p><p><b>Modalidad:</b> ${escapeReceipt(order.delivery_method||"No informada")}</p><p><b>Dirección:</b> ${escapeReceipt([order.delivery_address,order.locality].filter(Boolean).join(", ")||"Retiro en local")}</p><div class="line"></div><b>PRODUCTOS</b>${rows}<div class="line"></div><div class="total">TOTAL: ${escapeReceipt(Number(order.total_clp||0).toLocaleString("es-CL"))}</div><div class="center small">Gracias por su compra</div></html>`;
+ const money=value=>"$"+Number(value||0).toLocaleString("es-CL");
+ const rows=items.map(item=>{
+  const qty=Number(item.quantity||item.qty||1);
+  const name=escapeReceipt(item.name||item.product||item.title||"Producto");
+  const detail=escapeReceipt(item.variant||item.details||item.notes||"");
+  const unit=Number(item.unit_price_clp??item.price_clp??item.price??0);
+  const subtotal=Number(item.subtotal_clp??(unit*qty));
+  const priceLine=subtotal>0?'<div class="item-price">'+money(subtotal)+'</div>':"";
+  return '<div class="item"><div class="item-main"><span class="qty">'+qty+' ×</span><span class="product">'+name+'</span></div>'+(detail?'<div class="item-detail">'+detail+'</div>':"")+priceLine+'</div>';
+ }).join("");
+ const orderLabel=escapeReceipt(order.order_number||("Pedido #"+id));
+ const created=order.created_at?new Date(order.created_at).toLocaleString("es-CL",{timeZone:"America/Santiago"}):new Date().toLocaleString("es-CL",{timeZone:"America/Santiago"});
+ const address=[order.delivery_address,order.locality].filter(Boolean).join(", ");
+ const method=String(order.delivery_method||"").toLowerCase();
+ const isPickup=method.includes("retiro")||method.includes("local");
+ const customer=escapeReceipt(order.customer_name||"Sin nombre");
+ const phone=escapeReceipt(order.customer_phone||"No informado");
+ const notes=escapeReceipt(order.notes||order.customer_notes||"");
+ const html=`<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Comanda ${orderLabel}</title><style>
+ @page{size:80mm auto;margin:0}
+ *{box-sizing:border-box}
+ html,body{width:80mm;margin:0;padding:0;background:#fff;color:#111}
+ body{padding:4mm;font:12px/1.35 Arial,Helvetica,sans-serif}
+ .brand{text-align:center;font-weight:900;font-size:19px;line-height:1.05;letter-spacing:.2px}
+ .brand-sub{text-align:center;font-size:10px;letter-spacing:2px;margin-top:2px}
+ .ticket-type{text-align:center;font-size:11px;font-weight:800;letter-spacing:1.4px;margin-top:9px}
+ .order{text-align:center;font-size:22px;font-weight:900;margin:3px 0 7px}
+ .rule{border-top:1px dashed #333;margin:8px 0}
+ .meta{display:flex;justify-content:space-between;gap:8px;font-size:10px}
+ .section-title{font-size:11px;font-weight:900;letter-spacing:.8px;margin:7px 0 5px}
+ .customer{font-size:12px;line-height:1.45}
+ .customer strong{font-size:13px}
+ .method{display:inline-block;border:1px solid #111;padding:3px 6px;font-size:10px;font-weight:800;margin-top:5px}
+ .item{padding:6px 0;border-bottom:1px dotted #aaa}
+ .item-main{display:flex;gap:6px;align-items:flex-start;font-size:12px;font-weight:700}
+ .qty{min-width:27px;white-space:nowrap}
+ .product{flex:1;overflow-wrap:anywhere}
+ .item-detail{font-size:10px;margin:3px 0 0 33px;color:#333;overflow-wrap:anywhere}
+ .item-price{text-align:right;font-size:11px;font-weight:700;margin-top:2px}
+ .total-row{display:flex;justify-content:space-between;align-items:center;font-size:17px;font-weight:900;margin:9px 0}
+ .notes{border:1px solid #333;padding:6px;font-size:11px;white-space:pre-wrap;overflow-wrap:anywhere}
+ .footer{text-align:center;font-size:10px;margin-top:12px;line-height:1.5}
+ .footer strong{font-size:12px}
+ </style></head><body>
+ <div class="brand">LA PICÁ DEL BENJAMÍN</div>
+ <div class="brand-sub">SABOR QUE SE COMPARTE</div>
+ <div class="ticket-type">COMANDA DE PEDIDO</div>
+ <div class="order">${orderLabel}</div>
+ <div class="meta"><span>FECHA</span><strong>${escapeReceipt(created)}</strong></div>
+ <div class="rule"></div>
+ <div class="section-title">DATOS DEL CLIENTE</div>
+ <div class="customer"><strong>${customer}</strong><br>Tel: ${phone}<br>${isPickup?"Retiro en local":escapeReceipt(address||"Dirección no informada")}<br><span class="method">${escapeReceipt(order.delivery_method||"Modalidad no informada")}</span></div>
+ <div class="rule"></div>
+ <div class="section-title">DETALLE DEL PEDIDO</div>
+ ${rows||'<div class="item">Sin detalle de productos</div>'}
+ <div class="rule"></div>
+ <div class="total-row"><span>TOTAL</span><span>${money(order.total_clp)}</span></div>
+ ${notes?'<div class="section-title">OBSERVACIONES</div><div class="notes">'+notes+'</div>':""}
+ <div class="rule"></div>
+ <div class="footer"><strong>¡GRACIAS POR TU COMPRA!</strong><br>La Picá del Benjamín</div>
+ </body></html>`;
  const receiptWindow=new BrowserWindow({show:false,width:400,height:800,webPreferences:{nodeIntegration:false,contextIsolation:true}});
  try{
   await receiptWindow.loadURL("data:text/html;charset=utf-8,"+encodeURIComponent(html));
