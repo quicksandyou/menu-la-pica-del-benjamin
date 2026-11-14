@@ -80,9 +80,11 @@ async function findThermalPrinter(webContents){
  }catch(error){console.warn("PowerShell tampoco pudo consultar la impresora:",error.message);}
  throw new Error("Windows/Electron no pudo confirmar la impresora 80mm Series Printer. Verifica que Cola de impresión esté iniciada.");
 }
-async function printHtmlToThermalPrinter(receiptWindow,html,label){
+async function printHtmlToThermalPrinter(receiptWindow,html,label,options={}){
  await receiptWindow.loadURL("data:text/html;charset=utf-8,"+encodeURIComponent(html));
- const printerName=await findThermalPrinter(receiptWindow.webContents);
+ const printerName=options.useNamedThermalPrinter?await findThermalPrinter(receiptWindow.webContents):null;
+ const printOptions={silent:true,printBackground:true};
+ if(printerName)printOptions.deviceName=printerName;
  await new Promise((resolve,reject)=>{
   let settled=false;
   const finish=(error)=>{
@@ -93,21 +95,18 @@ async function printHtmlToThermalPrinter(receiptWindow,html,label){
   };
   const timeout=setTimeout(()=>finish(new Error("Windows no respondió a la impresión en 20 segundos. Revisa la cola de impresión y vuelve a intentarlo.")),20000);
   try{
-   receiptWindow.webContents.print({silent:true,printBackground:true,deviceName:printerName},(success,reason)=>{
+   receiptWindow.webContents.print(printOptions,(success,reason)=>{
     if(success)finish();
-    else finish(new Error(reason||"Windows rechazó la impresión en "+printerName+"."));
+    else finish(new Error(reason||"Windows no pudo completar la impresión."));
    });
   }catch(error){finish(error);}
  });
- console.log(label+" enviado a "+printerName);
- return printerName;
+ console.log(label+" enviado a "+(printerName||"la impresora predeterminada de Windows"));
+ return printerName||"Impresora predeterminada de Windows";
 }
-let localPrintInProgress=false;
-ipcMain.handle("pos:print-local-receipt",async(_event,payload)=>{
- if(localPrintInProgress)return {ok:false,error:"Ya hay una comanda local en proceso de impresión."};
+ipcMain.handle("pos:print-local-receipt",(_event,payload)=>runPrintExclusive(async()=>{
  const content=String(payload?.html||"").trim();
  if(!content)return {ok:false,error:"La comanda está vacía."};
- localPrintInProgress=true;
  const receiptWindow=new BrowserWindow({show:false,width:420,height:900,autoHideMenuBar:true,webPreferences:{nodeIntegration:false,contextIsolation:true}});
  try{
   const html=`<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Comanda local</title><style>
@@ -133,28 +132,11 @@ ipcMain.handle("pos:print-local-receipt",async(_event,payload)=>{
   .ticket-footer{text-align:center;font-size:12px;margin-top:12px;line-height:1.5}
   .ticket-footer strong{font-size:14px}
   </style></head><body>${content}</body></html>`;
-  await receiptWindow.loadURL("data:text/html;charset=utf-8,"+encodeURIComponent(html));
-  await new Promise((resolve,reject)=>{
-   let finished=false;
-   const finish=error=>{
-    if(finished)return;
-    finished=true;
-    clearTimeout(timeout);
-    error?reject(error):resolve();
-   };
-   const timeout=setTimeout(()=>finish(new Error("La impresión local no respondió en 15 segundos. Se liberó el POS para volver a intentar.")),15000);
-   try{
-    receiptWindow.webContents.print({silent:true,printBackground:true},(success,reason)=>{
-     if(success)finish();
-     else finish(new Error(reason||"Windows no pudo imprimir la comanda local."));
-    });
-   }catch(error){finish(error);}
-  });
-  console.log("Comanda local enviada mediante la impresora predeterminada de Windows.");
-  return {ok:true,method:"Windows/Electron · impresora predeterminada"};
+  const printerName=await printHtmlToThermalPrinter(receiptWindow,html,"Comanda local");
+  return {ok:true,printer:printerName,method:"Windows/Electron · impresora predeterminada"};
  }catch(error){console.error("Error impresión local POS:",error);return {ok:false,error:error.message||"Error de impresión"};}
- finally{if(!receiptWindow.isDestroyed())receiptWindow.close();localPrintInProgress=false;}
-});
+ finally{if(!receiptWindow.isDestroyed())receiptWindow.close();}
+}));
 ipcMain.handle("pos:print-web-order",(_event,order)=>runPrintExclusive(async()=>{
  if(!order||!order.id)throw new Error("Pedido inválido para impresión.");
  const id=String(order.id);
@@ -257,7 +239,7 @@ ipcMain.handle("pos:print-web-order",(_event,order)=>runPrintExclusive(async()=>
  </body></html>`;
  const receiptWindow=new BrowserWindow({show:false,width:400,height:800,webPreferences:{nodeIntegration:false,contextIsolation:true}});
  try{
-  const printerName=await printHtmlToThermalPrinter(receiptWindow,html,"Comanda web/APK");
+  const printerName=await printHtmlToThermalPrinter(receiptWindow,html,"Comanda web/APK",{useNamedThermalPrinter:true});
   const sent={printer:printerName,method:"Windows/Electron · formato 80mm"};
   console.log("Comanda web/APK enviada:",sent);printedOrderIds.add(id);
   persistPrintedOrderIds();
