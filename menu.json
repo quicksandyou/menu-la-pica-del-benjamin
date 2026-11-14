@@ -376,19 +376,7 @@
       "category": "Hanrolls",
       "name": "3 Hanrolls",
       "price_clp": 6490,
-      "description": "3 hand rolls fritos con queso y palta. Elige para cada uno: pollo, camarón o kanikama.",
-      "image_url": "assets/promos/3-hanrolls.jpg",
-      "option_groups": [
-        {
-          "label": "Elige relleno",
-          "quantity": 3,
-          "choices": [
-            "Pollo",
-            "Camarón",
-            "Kanikama"
-          ]
-        }
-      ]
+      "image_url": "assets/promos/3-hanrolls.jpg"
     },
     {
       "category": "Promociones",
