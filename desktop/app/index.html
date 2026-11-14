@@ -160,12 +160,12 @@ function searchProduct(event){
  document.getElementById('search').focus();
 }
 function normalizeSearchText(value){
- return String(value??'').normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').toLocaleLowerCase('es-CL').replace(/[^\\p{L}\\p{N}]+/gu,' ').trim();
+ return String(value??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('es-CL').replace(/[^a-z0-9ñ ]/g,' ').replace(/\s+/g,' ').trim();
 }
 function renderProducts(){
  const rawQuery=document.getElementById('search').value.trim();
  const q=normalizeSearchText(rawQuery);
- const terms=q.split(/\\s+/).filter(Boolean);
+ const terms=q.split(/\s+/).filter(Boolean);
  const list=P.map((p,index)=>({p,index})).filter(({p})=>{
    const searchable=normalizeSearchText([p[1],p[3],p[0],...(p[5]||[]).flatMap(g=>[g.label,...(g.choices||[])])].join(' '));
    const matchesText=!terms.length||terms.every(term=>searchable.includes(term));
