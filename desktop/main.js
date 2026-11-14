@@ -26,6 +26,39 @@ const printedOrderIds=new Set();
 const printedOrdersFile=path.join(app.getPath("userData"),"printed-web-orders.json");
 try{for(const id of JSON.parse(fs.readFileSync(printedOrdersFile,"utf8")))printedOrderIds.add(String(id));}catch(_){}
 function persistPrintedOrderIds(){try{fs.writeFileSync(printedOrdersFile,JSON.stringify([...printedOrderIds].slice(-2000)),"utf8");}catch(e){console.warn("No se pudo guardar historial de comandas:",e.message);}}
+
+let printQueueTail=Promise.resolve();
+function runPrintExclusive(job){const next=printQueueTail.then(job,job);printQueueTail=next.catch(()=>{});return next;}
+function escposClean(value){return String(value??"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^\x20-\x7E]/g," ").replace(/\s+/g," ").trim();}
+function escposLine(value){return Buffer.from(escposClean(value)+"\n","ascii");}
+async function printEscPosRaw(lines){
+ const printer="80mm Series Printer",chunks=[Buffer.from([0x1b,0x40,0x1b,0x61,0x01,0x1b,0x45,0x01])];
+ for(const line of lines)chunks.push(escposLine(line));
+ chunks.push(Buffer.from([0x1b,0x45,0x00,0x1b,0x61,0x00,0x0a,0x0a,0x0a]));
+ const payload=Buffer.concat(chunks).toString("base64");
+ const ps=["$ErrorActionPreference='Stop'","Add-Type -TypeDefinition @'","using System;","using System.Runtime.InteropServices;","public class RawPosPrinter {",
+ " [StructLayout(LayoutKind.Sequential, CharSet=CharSet.Unicode)] public class DOCINFO { [MarshalAs(UnmanagedType.LPWStr)] public string pDocName; [MarshalAs(UnmanagedType.LPWStr)] public string pOutputFile; [MarshalAs(UnmanagedType.LPWStr)] public string pDataType; }",
+ " [DllImport(\"winspool.drv\", SetLastError=true, CharSet=CharSet.Unicode)] public static extern bool OpenPrinter(string name, out IntPtr handle, IntPtr defaults);",
+ " [DllImport(\"winspool.drv\", SetLastError=true)] public static extern bool ClosePrinter(IntPtr handle);",
+ " [DllImport(\"winspool.drv\", SetLastError=true, CharSet=CharSet.Unicode)] public static extern int StartDocPrinter(IntPtr handle, int level, [In] DOCINFO info);",
+ " [DllImport(\"winspool.drv\", SetLastError=true)] public static extern bool EndDocPrinter(IntPtr handle);",
+ " [DllImport(\"winspool.drv\", SetLastError=true)] public static extern bool StartPagePrinter(IntPtr handle);",
+ " [DllImport(\"winspool.drv\", SetLastError=true)] public static extern bool EndPagePrinter(IntPtr handle);",
+ " [DllImport(\"winspool.drv\", SetLastError=true)] public static extern bool WritePrinter(IntPtr handle, byte[] bytes, int count, out int written);","}","'@",
+ "$printer='80mm Series Printer'","$bytes=[Convert]::FromBase64String('" + payload + "')","$h=[IntPtr]::Zero",
+ "if(-not [RawPosPrinter]::OpenPrinter($printer,[ref]$h,[IntPtr]::Zero)){throw \"OpenPrinter fallo: $([Runtime.InteropServices.Marshal]::GetLastWin32Error())\"}",
+ "$doc=New-Object RawPosPrinter+DOCINFO","$doc.pDocName='La Pica - Comanda ESC POS'; $doc.pDataType='RAW'","$id=[RawPosPrinter]::StartDocPrinter($h,1,$doc)",
+ "if($id -eq 0){[void][RawPosPrinter]::ClosePrinter($h);throw \"StartDocPrinter fallo: $([Runtime.InteropServices.Marshal]::GetLastWin32Error())\"}",
+ "try {"," if(-not [RawPosPrinter]::StartPagePrinter($h)){throw \"StartPagePrinter fallo: $([Runtime.InteropServices.Marshal]::GetLastWin32Error())\"}",
+ " $written=0"," if(-not [RawPosPrinter]::WritePrinter($h,$bytes,$bytes.Length,[ref]$written)){throw \"WritePrinter fallo: $([Runtime.InteropServices.Marshal]::GetLastWin32Error())\"}",
+ " if($written -ne $bytes.Length){throw \"Escritura incompleta: $written de $($bytes.Length) bytes\"}",
+ " [void][RawPosPrinter]::EndPagePrinter($h); [void][RawPosPrinter]::EndDocPrinter($h)"," Write-Output \"RAW_OK:$written\"","} finally { [void][RawPosPrinter]::ClosePrinter($h) }"].join("\n");
+ const encoded=Buffer.from(ps,"utf16le").toString("base64");
+ const result=await execFileAsync("powershell.exe",["-NoProfile","-NonInteractive","-EncodedCommand",encoded],{windowsHide:true,timeout:15000,maxBuffer:1024*1024});
+ if(!String(result.stdout||"").includes("RAW_OK:"))throw new Error(String(result.stderr||result.stdout||"Windows no confirmó el envío RAW").trim());
+ return {printer,method:"ESC/POS RAW",message:String(result.stdout).trim()};
+}
+
 function escapeReceipt(value){return String(value??"").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));}
 async function findThermalPrinter(webContents){
  const target="80mm Series Printer";
@@ -48,10 +81,10 @@ async function findThermalPrinter(webContents){
  throw new Error("Windows/Electron no pudo confirmar la impresora 80mm Series Printer. Verifica que Cola de impresión esté iniciada.");
 }
 let localPrintInProgress=false;
-ipcMain.handle("pos:print-local-receipt",async(_event,payload)=>{
+ipcMain.handle("pos:print-local-receipt",(_event,payload)=>runPrintExclusive(async()=>{
  if(localPrintInProgress)return {ok:false,error:"Ya hay una comanda local en proceso de impresión."};
- const content=String(payload?.html||"");
- if(!content.trim())return {ok:false,error:"La comanda está vacía."};
+ const content=String(payload?.text||"").trim();
+ if(!content)return {ok:false,error:"La comanda está vacía."};
  localPrintInProgress=true;
  const receiptWindow=new BrowserWindow({show:false,width:420,height:900,autoHideMenuBar:true,webPreferences:{nodeIntegration:false,contextIsolation:true}});
  try{
@@ -79,17 +112,19 @@ ipcMain.handle("pos:print-local-receipt",async(_event,payload)=>{
   .ticket-footer strong{font-size:14px}
   </style></head><body>${content}</body></html>`;
   await receiptWindow.loadURL("data:text/html;charset=utf-8,"+encodeURIComponent(html));
-  const printerSource=(win&&!win.isDestroyed())?win.webContents:receiptWindow.webContents;
-  const printerName=await findThermalPrinter(printerSource);
-  console.log("Impresión POS local dirigida a:",printerName);
-  await new Promise((resolve,reject)=>receiptWindow.webContents.print({silent:true,printBackground:true,deviceName:printerName},(success,reason)=>{
-   if(success)resolve();else reject(new Error(reason||("Windows rechazó la impresión en "+printerName)));
-  }));
-  return {ok:true,printer:printerName};
+  if(process.env.POS_PRINT_METHOD==="legacy"){
+   const printerSource=(win&&!win.isDestroyed())?win.webContents:receiptWindow.webContents;
+   const printerName=await findThermalPrinter(printerSource);
+   await new Promise((resolve,reject)=>receiptWindow.webContents.print({silent:true,printBackground:true,deviceName:printerName},(success,reason)=>success?resolve():reject(new Error(reason||("Windows rechazó la impresión en "+printerName)))));
+   return {ok:true,printer:printerName,method:"Windows/Electron (respaldo)"};
+  }
+  const sent=await printEscPosRaw(content.split(/\r?\n/));
+  console.log("Comanda local enviada por ESC/POS RAW:",sent);
+  return {ok:true,printer:sent.printer,method:sent.method};
  }catch(error){console.error("Error impresión local POS:",error);return {ok:false,error:error.message||"Error de impresión"};}
  finally{if(!receiptWindow.isDestroyed())receiptWindow.close();localPrintInProgress=false;}
-});
-ipcMain.handle("pos:print-web-order",async(_event,order)=>{
+}));
+ipcMain.handle("pos:print-web-order",(_event,order)=>runPrintExclusive(async()=>{
  if(!order||!order.id)throw new Error("Pedido inválido para impresión.");
  const id=String(order.id);
  if(printedOrderIds.has(id))return {ok:true,duplicate:true};
@@ -192,18 +227,23 @@ ipcMain.handle("pos:print-web-order",async(_event,order)=>{
  const receiptWindow=new BrowserWindow({show:false,width:400,height:800,webPreferences:{nodeIntegration:false,contextIsolation:true}});
  try{
   await receiptWindow.loadURL("data:text/html;charset=utf-8,"+encodeURIComponent(html));
-  // Enumerar impresoras desde la ventana principal del POS, que usa la sesión persistente de la tienda.
-  const printerSource=(win&&!win.isDestroyed())?win.webContents:receiptWindow.webContents;
-  const printerName=await findThermalPrinter(printerSource);
-  console.log("Impresión automática web dirigida a:",printerName);
-  await new Promise((resolve,reject)=>receiptWindow.webContents.print({silent:true,printBackground:true,deviceName:printerName},(success,reason)=>success?resolve():reject(new Error(reason||("No se pudo imprimir en "+printerName)))));
-  printedOrderIds.add(id);
+  const rawLines=["LA PICA DEL BENJAMIN","SABOR QUE SE COMPARTE","COMANDA DE PEDIDO",orderLabel,"FECHA: "+created,"--------------------------------","CLIENTE: "+customer,"TEL: "+phone,(isPickup?"RETIRO EN LOCAL":"DIRECCION: "+(address||"No informada")),"MODALIDAD: "+(order.delivery_method||"No informada"),"--------------------------------","DETALLE DEL PEDIDO"];
+  for(const item of items){const qty=Number(item.quantity||item.qty||1);rawLines.push(qty+" x "+(item.name||item.product||item.title||"Producto"));const detail=item.variant||item.details||item.notes||"";if(detail)rawLines.push("   "+detail);const unit=Number(item.unit_price_clp??item.price_clp??item.price??0);const subtotal=Number(item.subtotal_clp??(unit*qty));if(subtotal>0)rawLines.push("   "+money(subtotal));}
+  rawLines.push("--------------------------------","TOTAL: "+money(order.total_clp));if(notes)rawLines.push("OBSERVACIONES: "+notes);rawLines.push("--------------------------------","GRACIAS POR TU COMPRA","LA PICA DEL BENJAMIN");
+  let sent;
+  if(process.env.POS_PRINT_METHOD==="legacy"){
+   const printerSource=(win&&!win.isDestroyed())?win.webContents:receiptWindow.webContents;
+   const printerName=await findThermalPrinter(printerSource);
+   await new Promise((resolve,reject)=>receiptWindow.webContents.print({silent:true,printBackground:true,deviceName:printerName},(success,reason)=>success?resolve():reject(new Error(reason||("No se pudo imprimir en "+printerName)))));
+   sent={printer:printerName,method:"Windows/Electron (respaldo)"};
+  }else{sent=await printEscPosRaw(rawLines);}
+  console.log("Comanda web/APK enviada:",sent);printedOrderIds.add(id);
   persistPrintedOrderIds();
-  return {ok:true,duplicate:false};
+  return {ok:true,duplicate:false,printer:sent.printer,method:sent.method};
  }finally{
   if(!receiptWindow.isDestroyed())receiptWindow.close();
  }
-});
+}));
 let youtubeMusicRestoreTimer=null;
 ipcMain.handle("pos:duck-youtube-music",async(_event,durationMs=4500)=>{
  const musicWin=serviceWindows.get("youtubeMusic");
