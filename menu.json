@@ -324,37 +324,6 @@
       "image_url": "https://tofuu.getjusto.com/orioneat-local/resized2/Mruur6nHh2mZNyq7J-2400-x.webp"
     },
     {
-      "category": "Promociones",
-      "name": "Promo 4 · 3 churrascos o hamburguesas + papas + bebida 1,5 L",
-      "price_clp": 14500,
-      "description": "3 churrascos o hamburguesas a elección, papas fritas medianas y bebida de 1,5 litros. Puedes combinar Chacarero, Italiano, Luco o hamburguesa.",
-      "image_url": "assets/promos/promo-4.jpg",
-      "option_groups": [
-        {
-          "label": "Elige cada churrasco o hamburguesa",
-          "quantity": 3,
-          "choices": [
-            "Chacarero",
-            "Italiano",
-            "Luco",
-            "Hamburguesa"
-          ]
-        },
-        {
-          "label": "Bebida 1,5 L",
-          "choices": [
-            "Coca-Cola",
-            "Fanta",
-            "Sprite",
-            "Kem Piña",
-            "Limón Soda",
-            "Bilz",
-            "Pap"
-          ]
-        }
-      ]
-    },
-    {
       "category": "Sushi Burger",
       "name": "Sushi Burger",
       "price_clp": 4990,
