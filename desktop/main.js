@@ -112,10 +112,9 @@ ipcMain.handle("pos:print-local-receipt",(_event,payload)=>runPrintExclusive(asy
   .ticket-footer strong{font-size:14px}
   </style></head><body>${content}</body></html>`;
   await receiptWindow.loadURL("data:text/html;charset=utf-8,"+encodeURIComponent(html));
-  const printerName="80mm Series Printer";
-  await new Promise((resolve,reject)=>receiptWindow.webContents.print({silent:true,printBackground:true,deviceName:printerName},(success,reason)=>success?resolve():reject(new Error(reason||("Windows rechazó la impresión en "+printerName)))));
-  console.log("Comanda local enviada con formato HTML:",printerName);
-  return {ok:true,printer:printerName,method:"Windows/Electron · formato 80mm"};
+  await new Promise((resolve,reject)=>receiptWindow.webContents.print({silent:true,printBackground:true},(success,reason)=>success?resolve():reject(new Error(reason||"No se pudo imprimir la comanda."))));
+  console.log("Comanda local enviada con formato HTML mediante impresora predeterminada.");
+  return {ok:true,method:"Windows/Electron"};
  }catch(error){console.error("Error impresión local POS:",error);return {ok:false,error:error.message||"Error de impresión"};}
  finally{if(!receiptWindow.isDestroyed())receiptWindow.close();localPrintInProgress=false;}
 }));
@@ -223,7 +222,7 @@ ipcMain.handle("pos:print-web-order",(_event,order)=>runPrintExclusive(async()=>
  try{
   await receiptWindow.loadURL("data:text/html;charset=utf-8,"+encodeURIComponent(html));
   const printerName="80mm Series Printer";
-  await new Promise((resolve,reject)=>receiptWindow.webContents.print({silent:true,printBackground:true,deviceName:printerName},(success,reason)=>success?resolve():reject(new Error(reason||("No se pudo imprimir en "+printerName)))));
+  await new Promise((resolve,reject)=>receiptWindow.webContents.print({silent:true,printBackground:true},(success,reason)=>success?resolve():reject(new Error(reason||"No se pudo imprimir la comanda."))));
   const sent={printer:printerName,method:"Windows/Electron · formato 80mm"};
   console.log("Comanda web/APK enviada:",sent);printedOrderIds.add(id);
   persistPrintedOrderIds();
