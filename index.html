@@ -807,6 +807,32 @@ html.native-app-ui #nativeProductDetail .native-detail-content .add{min-height:4
 html.native-app-ui #nativeProductDetail .native-detail-content .product-count-badge{display:none!important}
 @media(max-width:380px){html.native-app-ui .app-native-categories{gap:6px!important}html.native-app-ui .app-native-category-image{height:56px!important}html.native-app-ui .app-native-whatsapp{min-height:42px!important}}
 
+
+/* APK AAB v2: jerarquía visual inspirada en la referencia móvil */
+html.native-app-ui .site-header{padding:calc(8px + env(safe-area-inset-top)) 12px 10px!important}
+html.native-app-ui .app-native-topbar{height:104px!important;align-items:flex-start!important;padding-top:3px!important}
+html.native-app-ui .app-native-logo{display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:flex-start!important;gap:0!important}
+html.native-app-ui .app-native-logo img{width:min(72vw,286px)!important;height:76px!important;object-fit:contain!important}
+html.native-app-ui .app-native-logo:after{content:"Sushi · Sándwiches · Gohan · Mucho más";display:block;margin-top:-1px;color:#eee;font-size:clamp(10px,2.8vw,13px);font-weight:650;letter-spacing:.15px;text-align:center;white-space:nowrap}
+html.native-app-ui .app-drawer-toggle{top:calc(20px + env(safe-area-inset-top))!important;left:12px!important;width:52px!important;height:52px!important;border-radius:50%!important;font-size:27px!important}
+html.native-app-ui #appCartShortcut{top:12px!important;right:5px!important;width:54px!important;height:54px!important}
+html.native-app-ui #appNativeHome{margin:4px 0 16px!important}
+html.native-app-ui .app-native-hero{aspect-ratio:16/7!important;max-height:190px!important;border-radius:18px!important}
+html.native-app-ui .app-native-dots{height:22px!important}
+html.native-app-ui .app-native-categories{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:9px!important;margin:7px 0 16px!important}
+html.native-app-ui .app-native-category{padding:4px 4px 7px!important;border:2px solid #a9272d!important;border-radius:17px!important;box-shadow:0 4px 12px #0009!important}
+html.native-app-ui .app-native-category-image{height:clamp(76px,23vw,104px)!important;border-radius:12px!important}
+html.native-app-ui .app-native-category strong{display:block!important;padding-top:6px!important;font-size:clamp(11px,3.2vw,15px)!important;line-height:1.15!important}
+html.native-app-ui .category-sidebar{width:min(86vw,350px)!important;border-radius:0 22px 22px 0!important}
+html.native-app-ui .sidebar-brand{font-size:20px!important;font-weight:900!important}
+html.native-app-ui .category-sidebar nav button{min-height:48px!important;font-size:16px!important;border-bottom:1px solid #ffffff0c!important}
+html.native-app-ui .app-native-whatsapp{width:min(88%,430px)!important;min-height:58px!important;margin:8px auto 12px!important;border-radius:999px!important;font-size:16px!important;box-shadow:0 6px 20px #0009!important}
+@media(max-width:370px){
+ html.native-app-ui .app-native-logo img{width:min(68vw,250px)!important;height:68px!important}
+ html.native-app-ui .app-native-topbar{height:96px!important}
+ html.native-app-ui .app-native-category-image{height:70px!important}
+ html.native-app-ui .app-native-category strong{font-size:11px!important}
+}
 </style>`);
 function showStoreSection(section){
  const food=section==="food";
