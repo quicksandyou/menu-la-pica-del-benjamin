@@ -249,10 +249,15 @@ app.on("activate",()=>{if(BrowserWindow.getAllWindows().length===0)createWindow(
 ipcMain.handle("pos:poll-online-orders",async()=>{
  if(!win||win.isDestroyed())return {ok:false,orders:[]};
  try{
-  const localDate=new Intl.DateTimeFormat("en-CA",{timeZone:"America/Santiago",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date());
-  const response=await win.webContents.session.fetch("https://menu-la-pica-del-benjamin-pago.onrender.com/api/reparto/pedidos?date="+localDate,{headers:{"Accept":"application/json"}});
-  if(!response.ok)return {ok:false,status:response.status,orders:[]};
-  const data=await response.json(),orders=Array.isArray(data.orders)?data.orders:[];
-  return {ok:true,orders:orders.filter(o=>String(o.source||"online").toLowerCase()==="online").map(o=>({id:o.id,order_number:o.order_number,customer_name:o.customer_name,customer_phone:o.customer_phone,delivery_method:o.delivery_method,delivery_address:o.delivery_address,locality:o.locality,total_clp:o.total_clp,payment_status:o.payment_status,created_at:o.created_at,items_json:o.items_json,notes:o.notes}))};
+  const base=new Date(),dates=[];
+  for(let d=0;d<7;d++){const day=new Date(base);day.setDate(base.getDate()-d);dates.push(new Intl.DateTimeFormat("en-CA",{timeZone:"America/Santiago",year:"numeric",month:"2-digit",day:"2-digit"}).format(day));}
+  const results=await Promise.all(dates.map(async date=>{
+   const response=await win.webContents.session.fetch("https://menu-la-pica-del-benjamin-pago.onrender.com/api/reparto/pedidos?date="+date,{headers:{"Accept":"application/json"}});
+   if(!response.ok)throw new Error("Consulta de pedidos "+date+": HTTP "+response.status);
+   const data=await response.json();return Array.isArray(data.orders)?data.orders:[];
+  }));
+  const unique=new Map();
+  for(const o of results.flat())if(String(o.source||"online").toLowerCase()==="online")unique.set(String(o.id),o);
+  return {ok:true,orders:[...unique.values()].map(o=>({id:o.id,order_number:o.order_number,customer_name:o.customer_name,customer_phone:o.customer_phone,delivery_method:o.delivery_method,delivery_address:o.delivery_address,locality:o.locality,total_clp:o.total_clp,payment_status:o.payment_status,approval_status:o.approval_status,delivery_status:o.delivery_status,created_at:o.created_at,items_json:o.items_json,notes:o.notes}))};
  }catch(error){console.warn("No se pudieron consultar pedidos web:",error.message);return {ok:false,orders:[]};}
 });

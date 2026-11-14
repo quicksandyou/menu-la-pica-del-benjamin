@@ -275,6 +275,26 @@ let knownOnlineOrders=null;
 let knownPaymentStatuses=new Map();
 let alertSoundContext=null;
 let ordersAlertTotal=0,paymentsAlertTotal=0;
+const PRINT_QUEUE_KEY="lapica_pos_print_queue_v1";
+function readPrintQueue(){try{const value=JSON.parse(localStorage.getItem(PRINT_QUEUE_KEY)||"[]");return Array.isArray(value)?value:[];}catch(_){return [];}}
+function savePrintQueue(queue){try{localStorage.setItem(PRINT_QUEUE_KEY,JSON.stringify(queue.slice(-500)));}catch(e){console.error("No se pudo guardar cola local:",e);}}
+function enqueueOrders(orders){
+ const queue=readPrintQueue(),ids=new Set(queue.map(o=>String(o.id)));
+ for(const order of orders){const id=String(order?.id||"");const rejected=String(order?.approval_status||"").toLowerCase()==="rejected"||["rejected","cancelled","canceled"].includes(String(order?.payment_status||"").toLowerCase());if(id&&!rejected&&!ids.has(id)){queue.push(order);ids.add(id);}}
+ savePrintQueue(queue);
+}
+async function processPrintQueue(){
+ if(!window.posBridge||typeof window.posBridge.printWebOrder!=="function")return;
+ let queue=readPrintQueue();if(!queue.length)return;
+ const remaining=[];
+ for(const order of queue){
+  try{const result=await window.posBridge.printWebOrder(order);if(!result||!result.ok)remaining.push(order);}
+  catch(error){remaining.push(order);console.warn("Comanda queda pendiente para reintento:",order.order_number||order.id,error);}
+ }
+ savePrintQueue(remaining);
+ const msg=remaining.length?"⚠️ "+remaining.length+" comanda(s) pendiente(s): revisa papel e impresora.":"✅ Cola de impresión al día.";
+ showAlertMessage("ordersAlertMessage",msg,"ordersAlertCount",remaining.length);
+}
 function playAlertTone(kind){
  try{
   const AudioCtx=window.AudioContext||window.webkitAudioContext;if(!AudioCtx)return;
@@ -286,7 +306,7 @@ function playAlertTone(kind){
    const offset=i*.19,osc=ctx.createOscillator(),gain=ctx.createGain();
    osc.type=kind==="payment"?"triangle":"sine";osc.frequency.value=frequency;
    gain.gain.setValueAtTime(.0001,ctx.currentTime+offset);
-   gain.gain.exponentialRampToValueAtTime(.20,ctx.currentTime+offset+.025);
+   gain.gain.exponentialRampToValueAtTime(.08,ctx.currentTime+offset+.025);
    gain.gain.exponentialRampToValueAtTime(.0001,ctx.currentTime+offset+.15);
    osc.connect(gain);gain.connect(ctx.destination);osc.start(ctx.currentTime+offset);osc.stop(ctx.currentTime+offset+.17);
   });
@@ -302,40 +322,25 @@ async function checkOnlineOrderAlerts(){
   const result=await window.posBridge.pollOnlineOrders();if(!result||!result.ok)return;
   const orders=Array.isArray(result.orders)?result.orders:[];
   const current=new Map(orders.map(o=>[String(o.id),o]));
-  if(knownOnlineOrders===null){knownOnlineOrders=current;knownPaymentStatuses=new Map(orders.map(o=>[String(o.id),String(o.payment_status||"pending").toLowerCase()]));return;}
+  if(knownOnlineOrders===null){
+   knownOnlineOrders=current;
+   knownPaymentStatuses=new Map(orders.map(o=>[String(o.id),String(o.payment_status||"pending").toLowerCase()]));
+   enqueueOrders(orders);
+   await processPrintQueue();
+   return;
+  }
   const newOrders=[...current.keys()].filter(id=>!knownOnlineOrders.has(id));
   const paidOrders=[];
   for(const [id,o] of current){
-   const status=String(o.payment_status||"pending").toLowerCase();
-   const previous=knownPaymentStatuses.get(id);
-   const confirmed=["paid","approved","accredited"].includes(status);
-   const wasConfirmed=["paid","approved","accredited"].includes(previous||"");
-   if(previous!==undefined&&confirmed&&!wasConfirmed)paidOrders.push(o);
+   const status=String(o.payment_status||"pending").toLowerCase(),previous=knownPaymentStatuses.get(id);
+   if(previous!==undefined&&["paid","approved","accredited"].includes(status)&&!["paid","approved","accredited"].includes(previous))paidOrders.push(o);
    knownPaymentStatuses.set(id,status);
   }
   knownOnlineOrders=current;
-  if(newOrders.length){
-   ordersAlertTotal+=newOrders.length;playAlertTone("order");
-   const names=newOrders.map(id=>current.get(id)?.order_number||("#"+id)).slice(0,3).join(", ");
-   showAlertMessage("ordersAlertMessage","🔔 "+newOrders.length+" pedido(s) nuevo(s): "+names, "ordersAlertCount",ordersAlertTotal);
-   if(window.posBridge&&typeof window.posBridge.printWebOrder==="function"){
-    for(const id of newOrders){
-     const order=current.get(id);
-     try{
-      const printed=await window.posBridge.printWebOrder(order);
-      if(printed&&printed.ok)console.info("Comanda web impresa:",order.order_number||id);
-     }catch(printError){
-      console.error("No se pudo imprimir la comanda web "+(order.order_number||id)+":",printError);
-      showAlertMessage("ordersAlertMessage","⚠️ Pedido recibido, pero no se pudo imprimir "+(order.order_number||("#"+id))+". Revisa la impresora USB.", "ordersAlertCount",ordersAlertTotal);
-     }
-    }
-   }
-  }
-  if(paidOrders.length){
-   paymentsAlertTotal+=paidOrders.length;playAlertTone("payment");
-   const names=paidOrders.map(o=>(o.order_number||("#"+o.id))+" · "+(String(o.payment_status).toLowerCase()==="paid"?"Transferencia verificada":"Mercado Pago confirmado")).slice(0,3).join(" | ");
-   showAlertMessage("paymentsAlertMessage","✅ "+paidOrders.length+" pago(s) confirmado(s): "+names,"paymentsAlertCount",paymentsAlertTotal);
-  }
+  if(newOrders.length){ordersAlertTotal+=newOrders.length;playAlertTone("order");}
+  enqueueOrders(orders);
+  await processPrintQueue();
+  if(paidOrders.length){paymentsAlertTotal+=paidOrders.length;playAlertTone("payment");}
  }catch(e){console.warn("Avisos de pedidos y pagos:",e);}
 }
 setTimeout(()=>{checkOnlineOrderAlerts();setInterval(checkOnlineOrderAlerts,12000);},5000);
