@@ -228,7 +228,7 @@ function newOrder(){
  if(!confirm('¿Limpiar el pedido actual?'))return;
  cart={};document.getElementById('customer').value='';document.getElementById('notes').value='';document.getElementById('payment').value='Efectivo';drawCart();
 }
-function printReceipt(){
+async function printReceipt(){
  const entries=Object.entries(cart);
  if(!entries.length)return alert('Agrega al menos un producto.');
  let sum=0;
