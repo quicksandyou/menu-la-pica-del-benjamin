@@ -113,7 +113,19 @@
  #receipt .ticket-product{text-transform:uppercase!important;font-size:18px!important;font-weight:900!important}
  #receipt .ticket-qty{font-size:19px!important;font-weight:900!important}
  #receipt .ticket-total{font-size:25px!important;font-weight:900!important}
-}</style></head><body><header class="top"><div><div class="brand">🍔 LA PICÁ DEL BENJAMÍN</div><div class="sub">Punto de venta local · Uso interno</div></div><div class="top-actions"><button id="gmailShortcut" type="button" onclick="openPosService(&quot;gmail&quot;)">✉️ Gmail</button><button id="whatsappShortcut" type="button" onclick="openPosService(&quot;whatsapp&quot;)">💬 WhatsApp</button><button id="staffShortcut" type="button" onclick="openStaffPanel()">🚴 Repartidor / Jefatura</button></div></header>
+}
+/* Barra inferior de música ambiental */
+.music-dock{position:fixed;z-index:1000;left:0;right:0;bottom:0;background:linear-gradient(100deg,#17100b,#2b1a0d);border-top:2px solid #a85b13;box-shadow:0 -8px 28px #0008;padding:9px 16px;display:flex;align-items:center;gap:12px}
+.music-dock-title{color:#ffd36b;font-weight:900;white-space:nowrap}
+.music-dock input{max-width:390px;min-width:170px;padding:9px}
+.music-dock button{background:#ffc34d;color:#241306;padding:9px 12px}
+.music-dock .music-status{color:#e5d3b8;font-size:12px;min-width:120px}
+.music-dock .music-volume{display:flex;align-items:center;gap:7px;color:#f4dfc3;white-space:nowrap}
+.music-dock input[type=range]{width:110px;padding:0;accent-color:#ffc34d}
+.music-player-frame{width:1px;height:1px;position:absolute;left:-10000px;top:-10000px}
+body{padding-bottom:68px}
+@media(max-width:760px){.music-dock{flex-wrap:wrap;gap:7px}.music-dock input{flex:1;max-width:none}.music-dock .music-status{min-width:100px}body{padding-bottom:112px}}
+</style></head><body><header class="top"><div><div class="brand">🍔 LA PICÁ DEL BENJAMÍN</div><div class="sub">Punto de venta local · Uso interno</div></div><div class="top-actions"><button id="gmailShortcut" type="button" onclick="openPosService(&quot;gmail&quot;)">✉️ Gmail</button><button id="whatsappShortcut" type="button" onclick="openPosService(&quot;whatsapp&quot;)">💬 WhatsApp</button><button id="staffShortcut" type="button" onclick="openStaffPanel()">🚴 Repartidor / Jefatura</button></div></header>
 
 <main id="app" class="wrap">
 <div class="alert-grid" aria-label="Alertas independientes">
@@ -127,7 +139,69 @@
  </section>
 </div>
 <div class="notice">POS local de acceso directo, sin contraseña. Las alertas de pedidos y pagos se muestran por separado.</div><div class="layout"><section><section class="search-panel" aria-label="Buscar productos"><label class="search-label" for="search">🔎 Buscar un producto</label><form class="search-row" onsubmit="searchProduct(event)"><input id="search" type="search" placeholder="Escribe el nombre del producto..." autocomplete="off" oninput="renderProducts()"><button class="search-button" type="submit">Buscar</button></form><div id="searchStatus" class="search-status" aria-live="polite">Puedes buscar por nombre, categoría o descripción.</div></section><div class="tools"><button type="button" class="add" onclick="loadSharedMenu().catch(e=>alert(e.message))">↻ Actualizar carta</button><select id="mode"><option>Consumo en local</option><option>Retiro en el local</option></select></div><div id="menuSyncStatus" class="muted" aria-live="polite">Conectando con la carta web…</div><div class="tabbar"><button class="tab-arrow" id="catPrev" type="button" aria-label="Ver categorías anteriores">‹</button><nav class="tabs" id="tabs" aria-label="Categorías de productos"></nav><button class="tab-arrow" id="catNext" type="button" aria-label="Ver más categorías">›</button></div><div class="products" id="products"></div></section><aside class="cart"><h2>🧾 Pedido actual</h2><div id="cartLines">Agrega productos para comenzar.</div><div class="total" id="total">$0</div><div class="field"><label>Cliente (opcional)</label><input id="customer" placeholder="Nombre del cliente"></div><div class="field"><label>Forma de pago</label><select id="payment"><option>Efectivo</option><option>Transferencia</option><option>Tarjeta</option><option>Pendiente</option></select></div><div class="field"><label>Observaciones para cocina</label><textarea id="notes" rows="2" placeholder="Sin cebolla, término, etc."></textarea></div><button class="action primary" onclick="printReceipt()">Imprimir comanda</button><button class="action" onclick="newOrder()">Nuevo pedido / limpiar</button><p class="muted">La impresión abre el diálogo de Windows.</p></aside></div></main><section id="receipt" class="receipt"></section>
+<section class="music-dock" aria-label="Música ambiental del POS">
+ <strong class="music-dock-title">🎵 Música del local</strong>
+ <input id="youtubeUrl" type="url" placeholder="Pega aquí un enlace o playlist de YouTube" aria-label="Enlace de YouTube">
+ <button type="button" id="loadYoutube">Cargar música</button>
+ <button type="button" id="toggleMusic" disabled>▶ Reproducir</button>
+ <label class="music-volume">Volumen <input id="musicVolume" type="range" min="0" max="100" value="70"><span id="musicVolumeValue">70%</span></label>
+ <span id="musicStatus" class="music-status" aria-live="polite">Pega un enlace de YouTube</span>
+ <div id="youtubePlayer" class="music-player-frame"></div>
+</section>
 <script>
+let ytPlayer=null,ytApiReady=false,musicRestoreTimer=null,musicDucked=false;
+const MUSIC_URL_KEY="lapica_pos_youtube_url";
+function youtubeVideoId(value){
+ try{const u=new URL(value);if(u.hostname.includes("youtu.be"))return u.pathname.split("/").filter(Boolean)[0]||"";if(u.hostname.includes("youtube.com")){if(u.pathname==="/watch")return u.searchParams.get("v")||"";const parts=u.pathname.split("/").filter(Boolean);if(["embed","shorts","live"].includes(parts[0]))return parts[1]||"";}}catch(_){}
+ return "";
+}
+function setMusicStatus(message){const el=document.getElementById("musicStatus");if(el)el.textContent=message;}
+function setMusicVolume(value){const v=Math.max(0,Math.min(100,Number(value)||0));const label=document.getElementById("musicVolumeValue");if(label)label.textContent=v+"%";if(ytPlayer&&typeof ytPlayer.setVolume==="function"&&!musicDucked)ytPlayer.setVolume(v);}
+function onYouTubeIframeAPIReady(){ytApiReady=true;setMusicStatus("YouTube listo. Carga tu música.");}
+function loadYouTubeMusic(){
+ const url=document.getElementById("youtubeUrl").value.trim(),id=youtubeVideoId(url);
+ if(!id){setMusicStatus("Pega un enlace válido de un video de YouTube.");return;}
+ localStorage.setItem(MUSIC_URL_KEY,url);
+ if(!ytApiReady||!window.YT||!YT.Player){setMusicStatus("Cargando reproductor de YouTube…");loadYouTubeApi();setTimeout(()=>{if(ytApiReady)createYouTubePlayer(id);},700);return;}
+ createYouTubePlayer(id);
+}
+function loadYouTubeApi(){
+ if(document.getElementById("youtube-iframe-api"))return;
+ const tag=document.createElement("script");tag.id="youtube-iframe-api";tag.src="https://www.youtube.com/iframe_api";document.head.appendChild(tag);
+}
+function createYouTubePlayer(videoId){
+ const button=document.getElementById("toggleMusic");button.disabled=false;
+ if(ytPlayer&&typeof ytPlayer.loadVideoById==="function"){ytPlayer.loadVideoById(videoId);setMusicStatus("Reproduciendo música de YouTube");return;}
+ ytPlayer=new YT.Player("youtubePlayer",{height:"1",width:"1",videoId,playerVars:{autoplay:1,controls:1,playsinline:1,rel:0},events:{
+  onReady:event=>{event.target.setVolume(Number(document.getElementById("musicVolume").value)||70);event.target.playVideo();setMusicStatus("Música cargada · baja automáticamente con cada pedido");document.getElementById("toggleMusic").textContent="Ⅱ Pausar";},
+  onStateChange:event=>{if(event.data===YT.PlayerState.PLAYING)document.getElementById("toggleMusic").textContent="Ⅱ Pausar";if(event.data===YT.PlayerState.PAUSED||event.data===YT.PlayerState.ENDED)document.getElementById("toggleMusic").textContent="▶ Reproducir";},
+  onError:()=>setMusicStatus("YouTube no permitió reproducir este video. Prueba otro enlace.")
+ }});
+}
+function toggleYouTubeMusic(){
+ if(!ytPlayer)return;
+ const state=ytPlayer.getPlayerState();
+ if(state===YT.PlayerState.PLAYING){ytPlayer.pauseVideo();document.getElementById("toggleMusic").textContent="▶ Reproducir";}
+ else{ytPlayer.playVideo();document.getElementById("toggleMusic").textContent="Ⅱ Pausar";}
+}
+function duckMusicForOrder(){
+ if(!ytPlayer||typeof ytPlayer.setVolume!=="function")return;
+ clearTimeout(musicRestoreTimer);musicDucked=true;ytPlayer.setVolume(12);
+ setMusicStatus("🔔 Pedido recibido · música atenuada");
+ musicRestoreTimer=setTimeout(()=>{
+  musicDucked=false;ytPlayer.setVolume(Number(document.getElementById("musicVolume").value)||70);
+  setMusicStatus("Música ambiental activa");
+ },4500);
+}
+document.addEventListener("DOMContentLoaded",()=>{
+ const url=document.getElementById("youtubeUrl"),saved=localStorage.getItem(MUSIC_URL_KEY);
+ if(saved)url.value=saved;
+ document.getElementById("loadYoutube").addEventListener("click",loadYouTubeMusic);
+ document.getElementById("toggleMusic").addEventListener("click",toggleYouTubeMusic);
+ document.getElementById("musicVolume").addEventListener("input",e=>setMusicVolume(e.target.value));
+ loadYouTubeApi();
+});
+window.onYouTubeIframeAPIReady=onYouTubeIframeAPIReady;
 let P=[],cats=[];
 const MENU_ORIGIN="https://menu-la-pica-del-benjamin.onrender.com/";
 function resolveMenuImage(value){
@@ -356,7 +430,7 @@ async function checkOnlineOrderAlerts(){
    knownPaymentStatuses.set(id,status);
   }
   knownOnlineOrders=current;
-  if(newOrders.length){ordersAlertTotal+=newOrders.length;playAlertTone("order");}
+  if(newOrders.length){ordersAlertTotal+=newOrders.length;duckMusicForOrder();playAlertTone("order");}
   enqueueOrders(orders);
   await processPrintQueue();
   if(paidOrders.length){paymentsAlertTotal+=paidOrders.length;playAlertTone("payment");}
