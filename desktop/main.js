@@ -132,8 +132,26 @@ ipcMain.handle("pos:print-local-receipt",(_event,payload)=>runPrintExclusive(asy
   .ticket-footer{text-align:center;font-size:12px;margin-top:12px;line-height:1.5}
   .ticket-footer strong{font-size:14px}
   </style></head><body>${content}</body></html>`;
-  const printerName=await printHtmlToThermalPrinter(receiptWindow,html,"Comanda local");
-  return {ok:true,printer:printerName,method:"Windows/Electron · impresora predeterminada"};
+  await receiptWindow.loadURL("data:text/html;charset=utf-8,"+encodeURIComponent(html));
+  // Diálogo estándar de Windows: el usuario selecciona la impresora,
+  // igual que en Bloc de notas. No enumerar ni forzar controladores.
+  const result=await new Promise((resolve,reject)=>{
+   let settled=false;
+   const finish=(error,value)=>{
+    if(settled)return;
+    settled=true;
+    clearTimeout(timeout);
+    error?reject(error):resolve(value);
+   };
+   const timeout=setTimeout(()=>finish(new Error("Windows no respondió al diálogo de impresión en 120 segundos.")),120000);
+   try{
+    receiptWindow.webContents.print({silent:false,printBackground:true},(success,reason)=>{
+     if(success)finish(null,{ok:true,method:"Diálogo nativo de Windows"});
+     else finish(new Error(reason||"La impresión fue cancelada o Windows no pudo completarla."));
+    });
+   }catch(error){finish(error);}
+  });
+  return result;
  }catch(error){console.error("Error impresión local POS:",error);return {ok:false,error:error.message||"Error de impresión"};}
  finally{if(!receiptWindow.isDestroyed())receiptWindow.close();}
 }));
