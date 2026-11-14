@@ -306,11 +306,17 @@ function drawCart(){
  document.getElementById('total').textContent=money(sum);
 }
 function newOrder(){
- if(!Object.keys(cart).length)return;
- if(!confirm('¿Limpiar el pedido actual?'))return;
- cart={};document.getElementById('customer').value='';document.getElementById('notes').value='';document.getElementById('payment').value='Efectivo';drawCart();
+ const hasData=Object.keys(cart).length>0||document.getElementById('customer').value.trim()||document.getElementById('notes').value.trim();
+ if(hasData&&!confirm('¿Limpiar el pedido actual?'))return;
+ cart={};
+ document.getElementById('customer').value='';
+ document.getElementById('notes').value='';
+ document.getElementById('payment').value='Efectivo';
+ document.getElementById('receipt').innerHTML='';
+ drawCart();
+ document.getElementById('customer').focus();
 }
-async function printReceipt(){
+function printReceipt(){
  const entries=Object.entries(cart);
  if(!entries.length)return alert('Agrega al menos un producto.');
  let sum=0;
@@ -327,7 +333,18 @@ async function printReceipt(){
  const notes=escapeHTML(document.getElementById('notes').value.trim());
  const created=new Date().toLocaleString('es-CL',{timeZone:'America/Santiago'});
  document.getElementById('receipt').innerHTML='<div class="ticket-brand">LA PICÁ DEL BENJAMÍN</div><div class="ticket-brand-sub">SABOR QUE SE COMPARTE</div><div class="ticket-type">COMANDA DE PEDIDO</div><div class="ticket-order">PEDIDO LOCAL</div><div class="ticket-meta"><span>FECHA</span><strong>'+escapeHTML(created)+'</strong></div><div class="ticket-rule"></div><div class="ticket-section">DATOS DEL CLIENTE</div><div class="ticket-customer"><strong>'+customer+'</strong><br><span class="ticket-method">'+mode+'</span></div><div class="ticket-rule"></div><div class="ticket-section">DETALLE DEL PEDIDO</div>'+(detail||'<div class="ticket-item">Sin productos</div>')+'<div class="ticket-rule"></div><div class="ticket-total"><span>TOTAL</span><span>'+money(sum)+'</span></div><div class="ticket-section">MEDIO DE PAGO</div><div class="ticket-notes">'+payment+'</div>'+(notes?'<div class="ticket-section">OBSERVACIONES</div><div class="ticket-notes">'+notes+'</div>':'')+'<div class="ticket-rule"></div><div class="ticket-footer"><strong>¡GRACIAS POR TU COMPRA!</strong><br>La Picá del Benjamín</div>';
- window.print();
+ const receipt=document.getElementById('receipt');
+ window.addEventListener('afterprint',function cleanupReceipt(){
+  receipt.innerHTML='';
+  window.removeEventListener('afterprint',cleanupReceipt);
+  window.focus();
+ },{once:true});
+ try{
+  window.print();
+ }finally{
+  // Liberar el flujo de la interfaz cuando Windows cierre el diálogo de impresión.
+  setTimeout(()=>{if(!window.matchMedia('print').matches)receipt.innerHTML='';},300);
+ }
 }
 async function loadSharedMenu(){
  const status=document.getElementById('menuSyncStatus');
