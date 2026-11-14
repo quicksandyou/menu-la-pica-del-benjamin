@@ -56,7 +56,10 @@ ipcMain.handle("pos:print-local-receipt",async(_event,payload)=>{
   .ticket-footer strong{font-size:14px}
   </style></head><body>${content}</body></html>`;
   await receiptWindow.loadURL("data:text/html;charset=utf-8,"+encodeURIComponent(html));
-  const printers=await receiptWindow.webContents.getPrintersAsync();
+  // Enumerar impresoras desde la ventana principal del POS, que usa la sesión persistente de la tienda.
+  const printerSource=(win&&!win.isDestroyed())?win.webContents:receiptWindow.webContents;
+  const printers=await printerSource.getPrintersAsync();
+  console.log("Impresoras visibles para POS:",printers.map(p=>({name:p.name,isDefault:p.isDefault})));
   const selected=printers.find(p=>String(p.name||"").trim().toLowerCase()==="80mm series printer");
   if(!selected)throw new Error("No se encontró la impresora térmica 80mm Series Printer. Impresoras detectadas: "+(printers.map(p=>p.name).join(", ")||"ninguna"));
   console.log("Impresión POS local dirigida a:",selected.name);
@@ -170,7 +173,10 @@ ipcMain.handle("pos:print-web-order",async(_event,order)=>{
  const receiptWindow=new BrowserWindow({show:false,width:400,height:800,webPreferences:{nodeIntegration:false,contextIsolation:true}});
  try{
   await receiptWindow.loadURL("data:text/html;charset=utf-8,"+encodeURIComponent(html));
-  const printers=await receiptWindow.webContents.getPrintersAsync();
+  // Enumerar impresoras desde la ventana principal del POS, que usa la sesión persistente de la tienda.
+  const printerSource=(win&&!win.isDestroyed())?win.webContents:receiptWindow.webContents;
+  const printers=await printerSource.getPrintersAsync();
+  console.log("Impresoras visibles para POS:",printers.map(p=>({name:p.name,isDefault:p.isDefault})));
   const selected=printers.find(p=>String(p.name||"").trim().toLowerCase()==="80mm series printer");
   if(!selected)throw new Error("No se encontró la impresora térmica 80mm Series Printer. Impresoras detectadas: "+(printers.map(p=>p.name).join(", ")||"ninguna"));
   console.log("Impresión automática web dirigida a:",selected.name);
