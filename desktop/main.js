@@ -1,5 +1,27 @@
 const {app,BrowserWindow,shell,dialog,ipcMain,net}=require("electron");
 const {execFile}=require("child_process");
+const https=require("https");
+
+// Electron 22 no incluye net.fetch/session.fetch. Usar HTTPS de Node para Windows 7.
+function fetchJson(url,timeoutMs=10000){
+ return new Promise((resolve,reject)=>{
+  const request=https.get(url,{headers:{"Accept":"application/json"}},response=>{
+   const chunks=[];
+   response.on("data",chunk=>chunks.push(chunk));
+   response.on("end",()=>{
+    const body=Buffer.concat(chunks).toString("utf8");
+    if(response.statusCode<200||response.statusCode>=300){
+     reject(new Error("HTTP "+response.statusCode+" en "+url));
+     return;
+    }
+    try{resolve(JSON.parse(body));}
+    catch(error){reject(new Error("Respuesta JSON inválida: "+error.message));}
+   });
+  });
+  request.setTimeout(timeoutMs,()=>request.destroy(new Error("Tiempo de espera agotado: "+url)));
+  request.on("error",reject);
+ });
+}
 const {promisify}=require("util");
 const execFileAsync=promisify(execFile);
 const gotSingleInstanceLock=app.requestSingleInstanceLock();
@@ -326,7 +348,7 @@ ipcMain.handle("pos:load-menu",async()=>{
  for(const localPath of [cachePath,packagedPath]){try{const candidate=validateMenu(JSON.parse(fs.readFileSync(localPath,"utf8")));if(!localData||String(candidate.revision||"")>String(localData.revision||"")){localData=candidate;localData._menuSource=localPath===cachePath?"cache-local":"local-instalado";}}catch(e){localError=e;}}
  const sources=["https://menu-la-pica-del-benjamin.onrender.com/menu.json?v="+Date.now(),"https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/menu.json"];
  const errors=[];
- for(const url of sources){const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),5000);try{const response=await net.fetch(url,{signal:controller.signal});if(!response.ok)throw new Error("HTTP "+response.status);const data=validateMenu(await response.json());data._menuSource=url.includes("raw.githubusercontent.com")?"github":"web";try{fs.mkdirSync(cacheDir,{recursive:true});const temp=cachePath+".tmp";fs.writeFileSync(temp,JSON.stringify(data),"utf8");fs.renameSync(temp,cachePath);}catch(cacheError){console.warn("No se pudo actualizar caché de carta:",cacheError.message);}return data;}catch(e){errors.push(url.includes("raw.githubusercontent.com")?"GitHub: "+e.message:"Web: "+e.message);}finally{clearTimeout(timeout);}}
+ for(const url of sources){try{const data=validateMenu(await fetchJson(url,5000));data._menuSource=url.includes("raw.githubusercontent.com")?"github":"web";try{fs.mkdirSync(cacheDir,{recursive:true});const temp=cachePath+".tmp";fs.writeFileSync(temp,JSON.stringify(data),"utf8");fs.renameSync(temp,cachePath);}catch(cacheError){console.warn("No se pudo actualizar caché de carta:",cacheError.message);}return data;}catch(e){errors.push(url.includes("raw.githubusercontent.com")?"GitHub: "+e.message:"Web: "+e.message);}}
  if(localData){localData._menuWarning=errors.join(" | ");return localData;}
  throw new Error("No se pudo cargar una carta válida. "+errors.join(" | ")+" | copia local: "+(localError?localError.message:"no disponible"));
 });
@@ -403,9 +425,8 @@ ipcMain.handle("pos:poll-online-orders",async()=>{
   const base=new Date(),dates=[];
   for(let d=0;d<7;d++){const day=new Date(base);day.setDate(base.getDate()-d);dates.push(new Intl.DateTimeFormat("en-CA",{timeZone:"America/Santiago",year:"numeric",month:"2-digit",day:"2-digit"}).format(day));}
   const results=await Promise.all(dates.map(async date=>{
-   const response=await win.webContents.session.fetch("https://menu-la-pica-del-benjamin-pago.onrender.com/api/reparto/pedidos?date="+date,{headers:{"Accept":"application/json"}});
-   if(!response.ok)throw new Error("Consulta de pedidos "+date+": HTTP "+response.status);
-   const data=await response.json();return Array.isArray(data.orders)?data.orders:[];
+   const data=await fetchJson("https://menu-la-pica-del-benjamin-pago.onrender.com/api/reparto/pedidos?date="+date,10000);
+   return Array.isArray(data.orders)?data.orders:[];
   }));
   const unique=new Map();
   for(const o of results.flat())if(String(o.source||"online").toLowerCase()==="online")unique.set(String(o.id),o);
