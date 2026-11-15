@@ -1,15 +1,15 @@
 {
   "name": "la-pica-del-benjamin-desktop",
-  "version": "1.1.4",
-  "description": "Aplicación de escritorio La Picá del Benjamín",
+  "version": "1.1.156",
+  "description": "Aplicación de escritorio La Picá del Benjamín - compatibilidad heredada Windows 7",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
     "dist:win": "electron-builder --win nsis"
   },
   "devDependencies": {
-    "electron": "^38.0.0",
-    "electron-builder": "^26.0.12"
+    "electron": "22.3.27",
+    "electron-builder": "24.13.3"
   },
   "build": {
     "appId": "cl.lapicadelbenjamin.desktop",
@@ -32,7 +32,7 @@
           ]
         }
       ],
-      "artifactName": "LaPicaDelBenjamin-Setup-${version}.${ext}",
+      "artifactName": "LaPicaDelBenjamin-Windows7-Setup-${version}.${ext}",
       "icon": "build/icon.ico"
     },
     "nsis": {
@@ -40,19 +40,13 @@
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "La Picá del Benjamín",
+      "shortcutName": "La Picá del Benjamín Windows 7",
       "installerIcon": "build/icon.ico",
       "uninstallerIcon": "build/icon.ico"
     },
-    "publish": [
-      {
-        "provider": "github",
-        "owner": "quicksandyou",
-        "repo": "menu-la-pica-del-benjamin"
-      }
-    ]
+    "publish": null
   },
   "dependencies": {
-    "electron-updater": "^6.6.2"
+    "electron-updater": "6.6.2"
   }
 }
