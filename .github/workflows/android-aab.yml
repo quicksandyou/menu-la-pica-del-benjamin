@@ -91,14 +91,14 @@ jobs:
           s = p.read_text()
 
           s, count_code = re.subn(
-              r'(?m)^(\\s*versionCode\\s+)\\d+',
+              r'(?m)^(\s*versionCode\s+)\d+',
               lambda m: m.group(1) + str(version_code),
               s,
               count=1
           )
 
           s, count_name = re.subn(
-              r'''(?m)^(\\s*versionName\\s+)(['"])[^'"]+\\2''',
+              r'''(?m)^(\s*versionName\s+)(['"])[^'"]+\2''',
               lambda m: m.group(1) + '"' + version_name.replace('"', '') + '"',
               s,
               count=1
