@@ -43,8 +43,7 @@
       "shortcutName": "La Picá del Benjamín Windows 7",
       "installerIcon": "build/icon.ico",
       "uninstallerIcon": "build/icon.ico"
-    },
-    "publish": null
+    }
   },
   "dependencies": {
     "electron-updater": "6.6.2"
