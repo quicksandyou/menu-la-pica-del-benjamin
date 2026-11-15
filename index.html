@@ -1486,4 +1486,67 @@ setInterval(async()=>{if(document.visibilityState==='hidden')return;try{await lo
 updateLaunchCountdown();setInterval(updateLaunchCountdown,1000);setInterval(applySchedule,60000);
 enableKetchupDragging();
 initNativeProductDetails();
-</script></html>
+</script>
+<style id="food-experience-theme">
+/* Rediseño gastronómico responsive — capa visual, sin modificar lógica de pedidos o pagos */
+:root{
+ --gold:#ffd166;--orange:#f07822;--red:#b83225;--bg:#fff7ed;
+ --panel:#fffdf9;--line:#f0d8c5;--muted:#66574b;
+}
+html{scroll-behavior:smooth}
+body{background:linear-gradient(180deg,#fff3e3 0,#fffaf4 34%,#fff7ed 100%)!important;color:#2b211a!important}
+.site-header{background:linear-gradient(115deg,#8f211c,#c43b27 52%,#8f211c)!important;border-bottom:4px solid #f5b544!important;box-shadow:0 5px 20px #6b251c22}
+.brand{color:#ffe08a!important;text-shadow:2px 3px #6e1b16!important}
+.tagline{color:#fff0d9!important}
+.info-chip{background:#78241e!important;border-color:#f4bd65!important;color:#fff4e4!important}
+.wrap{max-width:1460px}
+.hero{gap:16px}
+.hero-main{background:linear-gradient(135deg,#fff0d7,#ffe0bd)!important;border:2px solid #f0c08b!important;box-shadow:0 12px 28px #7b3a1c16}
+.hero-title{color:#a92d22!important;text-shadow:2px 3px #ffd58a!important}
+.hero-sub{color:#573226!important}
+.hero-side{background:linear-gradient(145deg,#fffdf8,#ffe9d2)!important;border:2px solid #f0c08b!important;color:#39271d!important;box-shadow:0 12px 28px #7b3a1c12}
+.hero-side strong{color:#a92d22!important}
+.hero-side p{color:#665246!important}
+.section-title{color:#922b21!important;font-weight:950}
+nav{background:#fff8ef!important;border-bottom:1px solid #efd8c4;scrollbar-width:thin}
+nav button{background:#fff!important;color:#793126!important;border:1px solid #e8c6aa!important;box-shadow:0 2px 7px #6c2a1710}
+nav button.on{background:linear-gradient(100deg,#c83c2b,#ed792c)!important;color:#fff!important;border-color:#c83c2b!important}
+.grid{gap:14px}
+.item{background:#fffdf9!important;border:1px solid #efd8c5!important;border-radius:18px!important;box-shadow:0 7px 20px #71391d14!important}
+.food-art{background:linear-gradient(135deg,#fff1df,#f7dfc7)!important;border:1px solid #e8c4a3!important}
+.item h3{color:#8f2b21!important}
+.desc{color:#67574b!important}
+.price{color:#b53225!important}
+.add{background:linear-gradient(100deg,#c33428,#ed792b)!important;color:#fff!important;box-shadow:0 4px 10px #a9342426}
+.add:active{transform:translateY(1px)}
+.cart{background:#fffdf8!important;color:#2b211a!important;border:2px solid #d95b35!important;box-shadow:0 12px 28px #71391d18!important}
+.cart h2{color:#8f2b21!important}
+.line{border-bottom-color:#ead8c8!important}
+.total{background:#fff3e4!important;border-color:#e8c7a8!important;color:#34251c!important}
+.total-row{color:#5c4a3d!important}
+.total-grand{color:#a82d22!important;border-top-color:#e6c7ad!important}
+input,select,textarea{border-color:#e1c8b4!important;background:#fff!important;color:#30231b!important}
+input:focus,select:focus,textarea:focus{outline:2px solid #ed9a52!important;outline-offset:1px}
+.closed-notice,.notice{background:linear-gradient(135deg,#fff1dc,#ffe1c5)!important;border:1px solid #e8b77d!important;color:#5a2c20!important}
+.closed-notice strong{color:#a52d22!important}
+.feature-update,.app-install{background:linear-gradient(110deg,#fff0d9,#ffe1c3)!important;border-color:#e5b77d!important;color:#4a2c20!important}
+.feature-update strong,.app-install strong{color:#a52d22!important}
+.feature-update p,.app-install p{color:#654b3c!important}
+.app-install button{background:linear-gradient(100deg,#c33428,#ed792b)!important;color:white!important}
+#musicToggle{background:linear-gradient(100deg,#c33428,#ed792b)!important;color:white!important;border-color:#f5bd76!important}
+@media(max-width:900px){
+ .hero{grid-template-columns:1fr}
+ .cart{order:initial}
+}
+@media(max-width:520px){
+ .wrap{padding:10px}
+ .grid{gap:9px}
+ .item{border-radius:14px!important;padding:8px!important}
+ .food-art{border-radius:10px!important}
+ .item h3{font-size:13px!important}
+ .add{border-radius:9px!important}
+ .cart{border-radius:15px!important}
+}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+</html>
