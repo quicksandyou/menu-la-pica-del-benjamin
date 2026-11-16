@@ -129,6 +129,62 @@
 .music-player-frame{width:1px;height:1px;position:absolute;left:-10000px;top:-10000px}
 body{padding-bottom:68px}
 @media(max-width:760px){.music-dock{flex-wrap:wrap;gap:7px}.music-dock input{flex:1;max-width:none}.music-dock .music-status{min-width:100px}body{padding-bottom:112px}}
+
+/* Adaptación compacta para monitores pequeños, incluido 848x480 */
+html{min-width:0;min-height:100%;overflow-x:hidden}
+body{min-width:0;min-height:100vh;overflow-x:hidden;overflow-y:auto}
+.wrap{width:100%;min-width:0}
+.layout>*{min-width:0}
+.products{grid-template-columns:repeat(auto-fill,minmax(min(150px,100%),1fr))}
+.product,.cart{min-width:0;overflow-wrap:anywhere}
+@media(max-width:1050px){
+ .wrap{padding:12px}
+ .layout{grid-template-columns:minmax(0,1fr) 320px;gap:10px}
+ .cart{padding:11px;top:8px;max-height:calc(100vh - 16px);overflow-y:auto}
+ .top{padding:10px 14px;gap:8px}
+ .brand{font-size:21px}
+ .products{grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:8px}
+ .product{padding:9px;gap:6px}
+ .product-image{height:82px}
+ .promo-product .product-image{height:120px}
+ .price{font-size:17px}
+ .tools{gap:6px;margin:7px 0 9px}
+ .tabs{padding-bottom:8px}
+}
+@media(max-width:760px){
+ .layout{grid-template-columns:minmax(0,1fr)}
+ .cart{position:static;order:-1;max-height:none}
+ .products{grid-template-columns:repeat(auto-fill,minmax(135px,1fr))}
+ .top{align-items:flex-start;flex-wrap:wrap}
+}
+@media(max-height:600px){
+ body{font-size:13px}
+ .top{padding:7px 12px;min-height:0}
+ .brand{font-size:18px;line-height:1.15}
+ .sub{font-size:10px}
+ .wrap{padding:8px}
+ .notice{padding:6px 9px;margin-bottom:7px}
+ .layout{gap:8px}
+ .cart{padding:8px;top:4px;max-height:calc(100vh - 8px)}
+ .cartrow{padding:5px 0;font-size:11px}
+ .total{font-size:20px;margin:8px 0}
+ .action,button{padding:7px 9px}
+ .field{margin:6px 0}
+ .search-label{font-size:12px;margin-bottom:4px}
+ .search-row input{padding:8px 10px;font-size:14px}
+ .search-status{min-height:12px;margin-top:2px}
+ .tools{margin:5px 0 7px}
+ .tabs{padding:3px 0 6px}
+ .product{min-height:0;padding:7px;gap:4px}
+ .product-image{height:65px}
+ .promo-product .product-image{height:90px}
+ .product-desc{font-size:10px;min-height:0}
+ .price{font-size:15px}
+ .add{padding:7px 8px;font-size:12px}
+ .login{margin:4vh auto;padding:16px}
+ .login h1{font-size:21px}
+ .login input{font-size:22px;padding:8px;margin:7px 0}
+}
 </style></head><body><header class="top"><div><div class="brand">🍔 LA PICÁ DEL BENJAMÍN</div><div class="sub">Punto de venta local · Uso interno</div></div><div class="top-actions"><button id="gmailShortcut" type="button" onclick="openPosService(&quot;gmail&quot;)">✉️ Gmail</button><button id="whatsappShortcut" type="button" onclick="openPosService(&quot;whatsapp&quot;)">💬 WhatsApp</button><button id="staffShortcut" type="button" onclick="openStaffPanel()">🚴 Repartidor / Jefatura</button></div></header>
 
 <main id="app" class="wrap">
