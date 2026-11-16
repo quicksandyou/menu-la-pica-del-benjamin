@@ -1,4 +1,4 @@
-const {app,BrowserWindow,shell,dialog,ipcMain,net}=require("electron");
+const {app,BrowserWindow,shell,dialog,ipcMain,net,screen}=require("electron");
 const {execFile}=require("child_process");
 const {promisify}=require("util");
 const execFileAsync=promisify(execFile);
@@ -361,8 +361,13 @@ function configureAutoUpdates(){
 }
 
 function createWindow(){
+  // Adaptar el tamaño inicial al área útil real del monitor (incluye pantallas 848x480).
+  const workArea=screen.getPrimaryDisplay().workAreaSize;
+  const initialWidth=Math.max(640,Math.min(1440,workArea.width));
+  const initialHeight=Math.max(400,Math.min(920,workArea.height));
   win=new BrowserWindow({
-    width:1440,height:920,minWidth:1100,minHeight:720,
+    width:initialWidth,height:initialHeight,minWidth:640,minHeight:400,
+    center:true,
     title:"La Picá del Benjamín",backgroundColor:"#100b07",autoHideMenuBar:true,
     webPreferences:{
       preload:path.join(__dirname,"preload.js"),
