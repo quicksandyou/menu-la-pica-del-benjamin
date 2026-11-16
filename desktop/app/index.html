@@ -220,6 +220,22 @@ body.display-large .promo-product .product-image{height:250px}
  body.display-compact{padding-bottom:54px}
  body.display-compact .top-actions button{min-height:32px}
 }
+
+/* Perfil dedicado para monitores 5:4 de 1280 x 1024 */
+body.display-1280x1024 .wrap{max-width:1500px;padding:14px}
+body.display-1280x1024 .top{padding:12px 18px}
+body.display-1280x1024 .brand{font-size:22px}
+body.display-1280x1024 .layout{grid-template-columns:minmax(0,1fr) 340px;gap:14px}
+body.display-1280x1024 .cart{position:sticky;top:10px;max-height:calc(100vh - 20px);overflow-y:auto;padding:12px}
+body.display-1280x1024 .products{grid-template-columns:repeat(auto-fill,minmax(165px,1fr));gap:9px}
+body.display-1280x1024 .product{padding:10px;gap:6px;min-height:0}
+body.display-1280x1024 .product-image{height:95px}
+body.display-1280x1024 .promo-product .product-image{height:135px}
+body.display-1280x1024 .price{font-size:18px}
+@media(max-width:760px){
+ body.display-1280x1024 .layout{grid-template-columns:minmax(0,1fr)}
+ body.display-1280x1024 .cart{position:static;order:-1;max-height:none}
+}
 </style></head><body><header class="top"><div><div class="brand">🍔 LA PICÁ DEL BENJAMÍN</div><div class="sub">Punto de venta local · Uso interno</div></div><div class="top-actions"><button id="gmailShortcut" type="button" onclick="openPosService(&quot;gmail&quot;)">✉️ Gmail</button><button id="whatsappShortcut" type="button" onclick="openPosService(&quot;whatsapp&quot;)">💬 WhatsApp</button><button id="staffShortcut" type="button" onclick="openStaffPanel()">🚴 Repartidor / Jefatura</button></div></header>
 
 <main id="app" class="wrap">
@@ -235,7 +251,7 @@ body.display-large .promo-product .product-image{height:250px}
   <div id="paymentsAlertMessage">Mercado Pago y transferencias verificadas aparecerán aquí.</div>
  </section>
 </div>
-<div class="notice">POS local de acceso directo, sin contraseña. Las alertas de pedidos y pagos se muestran por separado.</div><div class="layout"><section><section class="search-panel" aria-label="Buscar productos"><label class="search-label" for="search">🔎 Buscar un producto</label><form class="search-row" onsubmit="searchProduct(event)"><input id="search" type="search" placeholder="Escribe el nombre del producto..." autocomplete="off" oninput="renderProducts()"><button class="search-button" type="submit">Buscar</button></form><div id="searchStatus" class="search-status" aria-live="polite">Puedes buscar por nombre, categoría o descripción.</div></section><div class="tools"><button type="button" class="add" onclick="loadSharedMenu().catch(e=>alert(e.message))">↻ Actualizar carta</button><select id="mode"><option>Consumo en local</option><option>Retiro en el local</option></select><select id="displayProfile" aria-label="Tamaño de interfaz" title="Adaptar interfaz a la pantalla"><option value="auto">Pantalla: Automático</option><option value="compact">Pantalla: Compacta</option><option value="standard">Pantalla: Estándar</option><option value="large">Pantalla: Amplia</option></select></div><div id="menuSyncStatus" class="muted" aria-live="polite">Conectando con la carta web…</div><div class="tabbar"><button class="tab-arrow" id="catPrev" type="button" aria-label="Ver categorías anteriores">‹</button><nav class="tabs" id="tabs" aria-label="Categorías de productos"></nav><button class="tab-arrow" id="catNext" type="button" aria-label="Ver más categorías">›</button></div><div class="products" id="products"></div></section><aside class="cart"><h2>🧾 Pedido actual</h2><div id="cartLines">Agrega productos para comenzar.</div><div class="total" id="total">$0</div><div class="field"><label>Cliente (opcional)</label><input id="customer" placeholder="Nombre del cliente"></div><div class="field"><label>Forma de pago</label><select id="payment"><option>Efectivo</option><option>Transferencia</option><option>Tarjeta</option><option>Pendiente</option></select></div><div class="field"><label>Observaciones para cocina</label><textarea id="notes" rows="2" placeholder="Sin cebolla, término, etc."></textarea></div><button class="action primary" onclick="printReceipt()">Imprimir comanda</button><button class="action" onclick="newOrder()">Nuevo pedido / limpiar</button><p class="muted">La comanda se envía directamente a la impresora térmica del local.</p></aside></div></main><section id="receipt" class="receipt"></section>
+<div class="notice">POS local de acceso directo, sin contraseña. Las alertas de pedidos y pagos se muestran por separado.</div><div class="layout"><section><section class="search-panel" aria-label="Buscar productos"><label class="search-label" for="search">🔎 Buscar un producto</label><form class="search-row" onsubmit="searchProduct(event)"><input id="search" type="search" placeholder="Escribe el nombre del producto..." autocomplete="off" oninput="renderProducts()"><button class="search-button" type="submit">Buscar</button></form><div id="searchStatus" class="search-status" aria-live="polite">Puedes buscar por nombre, categoría o descripción.</div></section><div class="tools"><button type="button" class="add" onclick="loadSharedMenu().catch(e=>alert(e.message))">↻ Actualizar carta</button><select id="mode"><option>Consumo en local</option><option>Retiro en el local</option></select><select id="displayProfile" aria-label="Tamaño de interfaz" title="Adaptar interfaz a la pantalla"><option value="auto">Pantalla: Automático</option><option value="compact">Pantalla: Compacta</option><option value="standard">Pantalla: Estándar</option><option value="large">Pantalla: Amplia</option><option value="1280x1024">Pantalla: 1280 × 1024</option></select></div><div id="menuSyncStatus" class="muted" aria-live="polite">Conectando con la carta web…</div><div class="tabbar"><button class="tab-arrow" id="catPrev" type="button" aria-label="Ver categorías anteriores">‹</button><nav class="tabs" id="tabs" aria-label="Categorías de productos"></nav><button class="tab-arrow" id="catNext" type="button" aria-label="Ver más categorías">›</button></div><div class="products" id="products"></div></section><aside class="cart"><h2>🧾 Pedido actual</h2><div id="cartLines">Agrega productos para comenzar.</div><div class="total" id="total">$0</div><div class="field"><label>Cliente (opcional)</label><input id="customer" placeholder="Nombre del cliente"></div><div class="field"><label>Forma de pago</label><select id="payment"><option>Efectivo</option><option>Transferencia</option><option>Tarjeta</option><option>Pendiente</option></select></div><div class="field"><label>Observaciones para cocina</label><textarea id="notes" rows="2" placeholder="Sin cebolla, término, etc."></textarea></div><button class="action primary" onclick="printReceipt()">Imprimir comanda</button><button class="action" onclick="newOrder()">Nuevo pedido / limpiar</button><p class="muted">La comanda se envía directamente a la impresora térmica del local.</p></aside></div></main><section id="receipt" class="receipt"></section>
 <section class="music-dock" aria-label="Música ambiental del POS">
  <strong class="music-dock-title">🎵 Música del local</strong>
  <button type="button" id="openYoutubeMusic">Abrir YouTube Music</button>
@@ -317,14 +333,14 @@ function applyDisplayProfile(profile){
  const select=document.getElementById("displayProfile");
  const chosen=profile||select?.value||"auto";
  const body=document.body;
- body.classList.remove("display-compact","display-standard","display-large");
+ body.classList.remove("display-compact","display-standard","display-large","display-1280x1024");
  let effective=chosen;
  if(chosen==="auto"){
   const width=window.innerWidth||document.documentElement.clientWidth;
   const height=window.innerHeight||document.documentElement.clientHeight;
   effective=(width<=1050||height<=520)?"compact":(width>=1600&&height>=900)?"large":"standard";
  }
- if(["compact","standard","large"].includes(effective))body.classList.add("display-"+effective);
+ if(["compact","standard","large","1280x1024"].includes(effective))body.classList.add("display-"+effective);
  if(select&&select.value!==chosen)select.value=chosen;
  try{localStorage.setItem("lapica_pos_display_profile",chosen);}catch(_){}
 }
@@ -333,7 +349,7 @@ function iniciarPOS(){
  let savedProfile="auto";
  try{savedProfile=localStorage.getItem("lapica_pos_display_profile")||"auto";}catch(_){}
  if(displaySelect){
-  displaySelect.value=["auto","compact","standard","large"].includes(savedProfile)?savedProfile:"auto";
+  displaySelect.value=["auto","compact","standard","large","1280x1024"].includes(savedProfile)?savedProfile:"auto";
   applyDisplayProfile(displaySelect.value);
   displaySelect.addEventListener("change",()=>applyDisplayProfile(displaySelect.value));
   window.addEventListener("resize",()=>{if(displaySelect.value==="auto")applyDisplayProfile("auto");});
