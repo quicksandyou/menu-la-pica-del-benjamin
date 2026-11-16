@@ -185,6 +185,41 @@ body{min-width:0;min-height:100vh;overflow-x:hidden;overflow-y:auto}
  .login h1{font-size:21px}
  .login input{font-size:22px;padding:8px;margin:7px 0}
 }
+
+/* Perfiles de visualización del POS: cambian la densidad de la interfaz,
+   no la resolución configurada en Windows ni las funciones del sistema. */
+#displayProfile{width:auto;min-width:190px;max-width:240px;flex:0 1 220px;background:#fff8e9;border:1px solid #a86a28;color:#24170c;font-weight:800}
+body.display-compact{font-size:12px}
+body.display-compact .top{padding:7px 12px}
+body.display-compact .brand{font-size:18px}
+body.display-compact .wrap{padding:7px}
+body.display-compact .notice{padding:6px 9px;margin-bottom:7px}
+body.display-compact .layout{gap:8px;grid-template-columns:minmax(0,1fr) minmax(245px,300px)}
+body.display-compact .cart{padding:8px;top:5px;max-height:calc(100vh - 10px);overflow:auto}
+body.display-compact .product{padding:7px;gap:4px;min-height:0}
+body.display-compact .product-image{height:64px}
+body.display-compact .promo-product .product-image{height:88px}
+body.display-compact .price{font-size:15px}
+body.display-compact button{padding:6px 8px;font-size:12px}
+body.display-compact input,body.display-compact select,body.display-compact textarea{padding:7px;font-size:12px}
+body.display-standard .layout{grid-template-columns:minmax(0,1fr) minmax(290px,350px);gap:12px}
+body.display-large .wrap{max-width:1800px;padding:22px}
+body.display-large .top{padding:20px 28px}
+body.display-large .brand{font-size:28px}
+body.display-large .layout{grid-template-columns:minmax(0,1fr) minmax(360px,430px);gap:20px}
+body.display-large .products{grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:14px}
+body.display-large .product{padding:16px;gap:10px}
+body.display-large .product-image{height:135px}
+body.display-large .promo-product .product-image{height:250px}
+@media(max-width:900px){
+ body.display-compact .layout,body.display-standard .layout,body.display-large .layout{grid-template-columns:minmax(0,1fr)}
+ body.display-compact .cart,body.display-standard .cart,body.display-large .cart{position:static;order:-1;max-height:none}
+}
+@media(max-height:520px){
+ body.display-compact .music-dock{padding:5px 9px;gap:6px}
+ body.display-compact{padding-bottom:54px}
+ body.display-compact .top-actions button{min-height:32px}
+}
 </style></head><body><header class="top"><div><div class="brand">🍔 LA PICÁ DEL BENJAMÍN</div><div class="sub">Punto de venta local · Uso interno</div></div><div class="top-actions"><button id="gmailShortcut" type="button" onclick="openPosService(&quot;gmail&quot;)">✉️ Gmail</button><button id="whatsappShortcut" type="button" onclick="openPosService(&quot;whatsapp&quot;)">💬 WhatsApp</button><button id="staffShortcut" type="button" onclick="openStaffPanel()">🚴 Repartidor / Jefatura</button></div></header>
 
 <main id="app" class="wrap">
@@ -200,7 +235,7 @@ body{min-width:0;min-height:100vh;overflow-x:hidden;overflow-y:auto}
   <div id="paymentsAlertMessage">Mercado Pago y transferencias verificadas aparecerán aquí.</div>
  </section>
 </div>
-<div class="notice">POS local de acceso directo, sin contraseña. Las alertas de pedidos y pagos se muestran por separado.</div><div class="layout"><section><section class="search-panel" aria-label="Buscar productos"><label class="search-label" for="search">🔎 Buscar un producto</label><form class="search-row" onsubmit="searchProduct(event)"><input id="search" type="search" placeholder="Escribe el nombre del producto..." autocomplete="off" oninput="renderProducts()"><button class="search-button" type="submit">Buscar</button></form><div id="searchStatus" class="search-status" aria-live="polite">Puedes buscar por nombre, categoría o descripción.</div></section><div class="tools"><button type="button" class="add" onclick="loadSharedMenu().catch(e=>alert(e.message))">↻ Actualizar carta</button><select id="mode"><option>Consumo en local</option><option>Retiro en el local</option></select></div><div id="menuSyncStatus" class="muted" aria-live="polite">Conectando con la carta web…</div><div class="tabbar"><button class="tab-arrow" id="catPrev" type="button" aria-label="Ver categorías anteriores">‹</button><nav class="tabs" id="tabs" aria-label="Categorías de productos"></nav><button class="tab-arrow" id="catNext" type="button" aria-label="Ver más categorías">›</button></div><div class="products" id="products"></div></section><aside class="cart"><h2>🧾 Pedido actual</h2><div id="cartLines">Agrega productos para comenzar.</div><div class="total" id="total">$0</div><div class="field"><label>Cliente (opcional)</label><input id="customer" placeholder="Nombre del cliente"></div><div class="field"><label>Forma de pago</label><select id="payment"><option>Efectivo</option><option>Transferencia</option><option>Tarjeta</option><option>Pendiente</option></select></div><div class="field"><label>Observaciones para cocina</label><textarea id="notes" rows="2" placeholder="Sin cebolla, término, etc."></textarea></div><button class="action primary" onclick="printReceipt()">Imprimir comanda</button><button class="action" onclick="newOrder()">Nuevo pedido / limpiar</button><p class="muted">La comanda se envía directamente a la impresora térmica del local.</p></aside></div></main><section id="receipt" class="receipt"></section>
+<div class="notice">POS local de acceso directo, sin contraseña. Las alertas de pedidos y pagos se muestran por separado.</div><div class="layout"><section><section class="search-panel" aria-label="Buscar productos"><label class="search-label" for="search">🔎 Buscar un producto</label><form class="search-row" onsubmit="searchProduct(event)"><input id="search" type="search" placeholder="Escribe el nombre del producto..." autocomplete="off" oninput="renderProducts()"><button class="search-button" type="submit">Buscar</button></form><div id="searchStatus" class="search-status" aria-live="polite">Puedes buscar por nombre, categoría o descripción.</div></section><div class="tools"><button type="button" class="add" onclick="loadSharedMenu().catch(e=>alert(e.message))">↻ Actualizar carta</button><select id="mode"><option>Consumo en local</option><option>Retiro en el local</option></select><select id="displayProfile" aria-label="Tamaño de interfaz" title="Adaptar interfaz a la pantalla"><option value="auto">Pantalla: Automático</option><option value="compact">Pantalla: Compacta</option><option value="standard">Pantalla: Estándar</option><option value="large">Pantalla: Amplia</option></select></div><div id="menuSyncStatus" class="muted" aria-live="polite">Conectando con la carta web…</div><div class="tabbar"><button class="tab-arrow" id="catPrev" type="button" aria-label="Ver categorías anteriores">‹</button><nav class="tabs" id="tabs" aria-label="Categorías de productos"></nav><button class="tab-arrow" id="catNext" type="button" aria-label="Ver más categorías">›</button></div><div class="products" id="products"></div></section><aside class="cart"><h2>🧾 Pedido actual</h2><div id="cartLines">Agrega productos para comenzar.</div><div class="total" id="total">$0</div><div class="field"><label>Cliente (opcional)</label><input id="customer" placeholder="Nombre del cliente"></div><div class="field"><label>Forma de pago</label><select id="payment"><option>Efectivo</option><option>Transferencia</option><option>Tarjeta</option><option>Pendiente</option></select></div><div class="field"><label>Observaciones para cocina</label><textarea id="notes" rows="2" placeholder="Sin cebolla, término, etc."></textarea></div><button class="action primary" onclick="printReceipt()">Imprimir comanda</button><button class="action" onclick="newOrder()">Nuevo pedido / limpiar</button><p class="muted">La comanda se envía directamente a la impresora térmica del local.</p></aside></div></main><section id="receipt" class="receipt"></section>
 <section class="music-dock" aria-label="Música ambiental del POS">
  <strong class="music-dock-title">🎵 Música del local</strong>
  <button type="button" id="openYoutubeMusic">Abrir YouTube Music</button>
@@ -278,7 +313,31 @@ function resolveMenuImage(value){
 
 let category='Todos',cart={};
 const money=n=>'$'+Number(n||0).toLocaleString('es-CL');
+function applyDisplayProfile(profile){
+ const select=document.getElementById("displayProfile");
+ const chosen=profile||select?.value||"auto";
+ const body=document.body;
+ body.classList.remove("display-compact","display-standard","display-large");
+ let effective=chosen;
+ if(chosen==="auto"){
+  const width=window.innerWidth||document.documentElement.clientWidth;
+  const height=window.innerHeight||document.documentElement.clientHeight;
+  effective=(width<=1050||height<=520)?"compact":(width>=1600&&height>=900)?"large":"standard";
+ }
+ if(["compact","standard","large"].includes(effective))body.classList.add("display-"+effective);
+ if(select&&select.value!==chosen)select.value=chosen;
+ try{localStorage.setItem("lapica_pos_display_profile",chosen);}catch(_){}
+}
 function iniciarPOS(){
+ const displaySelect=document.getElementById("displayProfile");
+ let savedProfile="auto";
+ try{savedProfile=localStorage.getItem("lapica_pos_display_profile")||"auto";}catch(_){}
+ if(displaySelect){
+  displaySelect.value=["auto","compact","standard","large"].includes(savedProfile)?savedProfile:"auto";
+  applyDisplayProfile(displaySelect.value);
+  displaySelect.addEventListener("change",()=>applyDisplayProfile(displaySelect.value));
+  window.addEventListener("resize",()=>{if(displaySelect.value==="auto")applyDisplayProfile("auto");});
+ }
  renderTabs();renderProducts();drawCart();
  const tabs=document.getElementById('tabs');
  const products=document.getElementById('products');
