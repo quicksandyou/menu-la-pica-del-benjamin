@@ -157,7 +157,7 @@ body{padding-bottom:68px}
  <label class="music-volume">Volumen <input id="musicVolume" type="range" min="0" max="100" value="70"><span id="musicVolumeValue">70%</span></label>
  <div id="youtubePlayer" class="music-player-frame"></div>
 </section>
-<script>
+<script>let printerMode="manual";
 let ytPlayer=null,ytApiReady=false,musicRestoreTimer=null,musicDucked=false;
 const MUSIC_URL_KEY="lapica_pos_youtube_url";
 function youtubeVideoId(value){
@@ -515,7 +515,6 @@ async function checkOnlineOrderAlerts(){
 }
 setTimeout(()=>{checkOnlineOrderAlerts();setInterval(checkOnlineOrderAlerts,12000);},5000);
 
-let printerMode="manual";
 async function openSettingsPanel(){document.getElementById("settingsOverlay").style.display="flex";document.body.style.overflow="hidden";await refreshPrinters();}
 function closeSettingsPanel(){document.getElementById("settingsOverlay").style.display="none";document.body.style.overflow="";document.getElementById("settingsShortcut").focus();}
 async function refreshPrinters(){const select=document.getElementById("printerSelect"),status=document.getElementById("printerStatus"),count=document.getElementById("printerCount");select.innerHTML="<option value=\"\">Consultando Windows…</option>";status.textContent="Buscando impresoras instaladas…";try{const data=await window.posBridge.listPrinters();printerMode=data.mode==="automatic"?"automatic":"manual";document.getElementById("printerModeSelect").value=printerMode;document.getElementById("printerModeStatus").textContent=printerMode==="automatic"?"Modo automático activo para los pedidos nuevos web/APK.":"Modo manual activo: cada comanda se imprime cuando tú lo decides.";const printers=Array.isArray(data?.printers)?data.printers:[];count.textContent=printers.length+" dispositivo(s)";select.innerHTML="";if(!printers.length){select.innerHTML="<option value=\"\">No se encontraron impresoras</option>";status.textContent="Windows no informó impresoras. Comprueba la conexión USB y la cola de impresión.";return;}for(const p of printers){const option=document.createElement("option");option.value=p.name;option.textContent=p.name+(p.isDefault?" · Predeterminada":"")+(p.status?" · "+p.status:"");select.appendChild(option);}if(data.selected&&printers.some(p=>p.name===data.selected))select.value=data.selected;else if(data.defaultPrinter&&printers.some(p=>p.name===data.defaultPrinter))select.value=data.defaultPrinter;document.getElementById("printerSaved").textContent=data.selected?"Configurada: "+data.selected:"Aún no se ha guardado una impresora. Se muestra la predeterminada de Windows.";status.textContent="Detección completada. Selecciona la impresora térmica y guarda la selección.";}catch(error){select.innerHTML="<option value=\"\">No se pudo consultar</option>";status.textContent="Error al detectar impresoras: "+(error.message||error);}}
