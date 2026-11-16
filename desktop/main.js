@@ -26,8 +26,18 @@ const printedOrderIds=new Set();
 const printedOrdersFile=path.join(app.getPath("userData"),"printed-web-orders.json");
 const printerSettingsFile=path.join(app.getPath("userData"),"printer-settings.json");
 let selectedPrinterName="";
-try{selectedPrinterName=String(JSON.parse(fs.readFileSync(printerSettingsFile,"utf8")).selectedPrinter||"");}catch(_){}
-function persistPrinterSelection(name){selectedPrinterName=String(name||"");fs.mkdirSync(path.dirname(printerSettingsFile),{recursive:true});fs.writeFileSync(printerSettingsFile,JSON.stringify({selectedPrinter:selectedPrinterName,updatedAt:new Date().toISOString()},null,2),"utf8");}
+let printerMode="manual";
+try{
+ const savedPrinterSettings=JSON.parse(fs.readFileSync(printerSettingsFile,"utf8"));
+ selectedPrinterName=String(savedPrinterSettings.selectedPrinter||"");
+ printerMode=savedPrinterSettings.mode==="automatic"?"automatic":"manual";
+}catch(_){}
+function persistPrinterSettings(){
+ fs.mkdirSync(path.dirname(printerSettingsFile),{recursive:true});
+ fs.writeFileSync(printerSettingsFile,JSON.stringify({selectedPrinter:selectedPrinterName,mode:printerMode,updatedAt:new Date().toISOString()},null,2),"utf8");
+}
+function persistPrinterSelection(name){selectedPrinterName=String(name||"");persistPrinterSettings();}
+function persistPrinterMode(mode){printerMode=mode==="automatic"?"automatic":"manual";persistPrinterSettings();}
 try{for(const id of JSON.parse(fs.readFileSync(printedOrdersFile,"utf8")))printedOrderIds.add(String(id));}catch(_){}
 function persistPrintedOrderIds(){try{fs.writeFileSync(printedOrdersFile,JSON.stringify([...printedOrderIds].slice(-2000)),"utf8");}catch(e){console.warn("No se pudo guardar historial de comandas:",e.message);}}
 
@@ -102,7 +112,7 @@ async function printHtmlToThermalPrinter(receiptWindow,html,label,options={}){
 ipcMain.handle("pos:list-printers",async()=>{
  if(!win||win.isDestroyed())throw new Error("La ventana del POS no está disponible.");
  const printers=await win.webContents.getPrintersAsync();
- return {printers:printers.map(p=>({name:p.name,isDefault:!!p.isDefault,status:p.status||""})),selected:selectedPrinterName,defaultPrinter:printers.find(p=>p.isDefault)?.name||""};
+ return {printers:printers.map(p=>({name:p.name,isDefault:!!p.isDefault,status:p.status||""})),selected:selectedPrinterName,defaultPrinter:printers.find(p=>p.isDefault)?.name||"",mode:printerMode};
 });
 ipcMain.handle("pos:save-printer",async(_event,name)=>{
  const requested=String(name||"").trim();
@@ -113,6 +123,16 @@ ipcMain.handle("pos:save-printer",async(_event,name)=>{
  if(!found)throw new Error("La impresora ya no aparece instalada en Windows. Actualiza la lista.");
  persistPrinterSelection(found.name);
  return {ok:true,selected:found.name};
+});
+ipcMain.handle("pos:save-printer-mode",async(_event,mode)=>{
+ const requested=mode==="automatic"?"automatic":"manual";
+ if(requested==="automatic"){
+  if(!win||win.isDestroyed())throw new Error("La ventana del POS no está disponible.");
+  const printers=await win.webContents.getPrintersAsync();
+  if(!selectedPrinterName&&!printers.some(p=>p.isDefault))throw new Error("Selecciona una impresora o define una impresora predeterminada de Windows antes de activar el modo automático.");
+ }
+ persistPrinterMode(requested);
+ return {ok:true,mode:printerMode};
 });
 ipcMain.handle("pos:test-printer",async(_event,name)=>runPrintExclusive(async()=>{
  const requested=String(name||"").trim();
