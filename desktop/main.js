@@ -24,6 +24,10 @@ const SERVICE_CONFIG={
 
 const printedOrderIds=new Set();
 const printedOrdersFile=path.join(app.getPath("userData"),"printed-web-orders.json");
+const printerSettingsFile=path.join(app.getPath("userData"),"printer-settings.json");
+let selectedPrinterName="";
+try{selectedPrinterName=String(JSON.parse(fs.readFileSync(printerSettingsFile,"utf8")).selectedPrinter||"");}catch(_){}
+function persistPrinterSelection(name){selectedPrinterName=String(name||"");fs.mkdirSync(path.dirname(printerSettingsFile),{recursive:true});fs.writeFileSync(printerSettingsFile,JSON.stringify({selectedPrinter:selectedPrinterName,updatedAt:new Date().toISOString()},null,2),"utf8");}
 try{for(const id of JSON.parse(fs.readFileSync(printedOrdersFile,"utf8")))printedOrderIds.add(String(id));}catch(_){}
 function persistPrintedOrderIds(){try{fs.writeFileSync(printedOrdersFile,JSON.stringify([...printedOrderIds].slice(-2000)),"utf8");}catch(e){console.warn("No se pudo guardar historial de comandas:",e.message);}}
 
@@ -61,24 +65,15 @@ async function printEscPosRaw(lines){
 
 function escapeReceipt(value){return String(value??"").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));}
 async function findThermalPrinter(webContents){
- const target="80mm Series Printer";
- for(let attempt=0;attempt<2;attempt++){
-  try{
-   const printers=await webContents.getPrintersAsync();
-   console.log("Electron printers (attempt "+(attempt+1)+"):",printers.map(p=>p.name));
-   const found=printers.find(p=>String(p.name||"").trim().toLowerCase()===target.toLowerCase());
-   if(found)return found.name;
-  }catch(error){console.warn("Electron no pudo enumerar impresoras:",error.message);}
-  if(attempt===0)await new Promise(resolve=>setTimeout(resolve,400));
+ const printers=await webContents.getPrintersAsync();
+ if(selectedPrinterName){
+  const found=printers.find(p=>String(p.name||"").trim().toLowerCase()===selectedPrinterName.trim().toLowerCase());
+  if(found)return found.name;
+  throw new Error("La impresora configurada («"+selectedPrinterName+"») no está disponible. Abre Configuraciones → Dispositivos y selecciona una impresora conectada.");
  }
- // Fallback: consultar el registro de impresoras de Windows directamente.
- try{
-  const command='(Get-Printer -Name "'+target+'" -ErrorAction Stop).Name';
-  const result=await execFileAsync("powershell.exe",["-NoProfile","-NonInteractive","-Command",command],{windowsHide:true,timeout:5000});
-  const name=String(result.stdout||"").trim();
-  if(name.toLowerCase()===target.toLowerCase()){console.log("Impresora confirmada por Windows PowerShell:",name);return name;}
- }catch(error){console.warn("PowerShell tampoco pudo consultar la impresora:",error.message);}
- throw new Error("Windows/Electron no pudo confirmar la impresora 80mm Series Printer. Verifica que Cola de impresión esté iniciada.");
+ const defaultPrinter=printers.find(p=>p.isDefault);
+ if(defaultPrinter)return defaultPrinter.name;
+ throw new Error("No hay impresoras instaladas o disponibles en Windows. Abre Configuraciones → Dispositivos para detectarlas.");
 }
 async function printHtmlToThermalPrinter(receiptWindow,html,label,options={}){
  await receiptWindow.loadURL("data:text/html;charset=utf-8,"+encodeURIComponent(html));
@@ -104,6 +99,35 @@ async function printHtmlToThermalPrinter(receiptWindow,html,label,options={}){
  console.log(label+" enviado a "+(printerName||"la impresora predeterminada de Windows"));
  return printerName||"Impresora predeterminada de Windows";
 }
+ipcMain.handle("pos:list-printers",async()=>{
+ if(!win||win.isDestroyed())throw new Error("La ventana del POS no está disponible.");
+ const printers=await win.webContents.getPrintersAsync();
+ return {printers:printers.map(p=>({name:p.name,isDefault:!!p.isDefault,status:p.status||""})),selected:selectedPrinterName,defaultPrinter:printers.find(p=>p.isDefault)?.name||""};
+});
+ipcMain.handle("pos:save-printer",async(_event,name)=>{
+ const requested=String(name||"").trim();
+ if(!requested)throw new Error("Nombre de impresora vacío.");
+ if(!win||win.isDestroyed())throw new Error("La ventana del POS no está disponible.");
+ const printers=await win.webContents.getPrintersAsync();
+ const found=printers.find(p=>p.name===requested);
+ if(!found)throw new Error("La impresora ya no aparece instalada en Windows. Actualiza la lista.");
+ persistPrinterSelection(found.name);
+ return {ok:true,selected:found.name};
+});
+ipcMain.handle("pos:test-printer",async(_event,name)=>runPrintExclusive(async()=>{
+ const requested=String(name||"").trim();
+ if(!requested)throw new Error("Selecciona una impresora.");
+ if(!win||win.isDestroyed())throw new Error("La ventana del POS no está disponible.");
+ const printers=await win.webContents.getPrintersAsync();
+ if(!printers.some(p=>p.name===requested))throw new Error("La impresora no está disponible en Windows.");
+ const testWindow=new BrowserWindow({show:false,width:400,height:300,webPreferences:{nodeIntegration:false,contextIsolation:true}});
+ try{
+  const html="<!doctype html><html><head><meta charset='utf-8'><style>@page{size:80mm auto;margin:0}body{width:72mm;margin:0;padding:4mm;font:14px Arial;text-align:center;color:#000}.title{font-size:19px;font-weight:bold;margin:8px 0}.rule{border-top:1px dashed #333;margin:12px 0}</style></head><body><div class='title'>LA PICÁ DEL BENJAMÍN</div><div class='rule'></div><h2>PRUEBA DE IMPRESIÓN</h2><p>La impresora está configurada correctamente.</p><div class='rule'></div><p>"+escapeReceipt(requested)+"</p><p>"+new Date().toLocaleString("es-CL")+"</p></body></html>";
+  await testWindow.loadURL("data:text/html;charset=utf-8,"+encodeURIComponent(html));
+  await new Promise((resolve,reject)=>{const timeout=setTimeout(()=>reject(new Error("Tiempo de espera agotado al imprimir la prueba.")),20000);testWindow.webContents.print({silent:true,printBackground:true,deviceName:requested},(ok,reason)=>{clearTimeout(timeout);ok?resolve():reject(new Error(reason||"Windows rechazó la impresión."));});});
+  return {ok:true,printer:requested};
+ }finally{if(!testWindow.isDestroyed())testWindow.close();}
+}));
 ipcMain.handle("pos:print-local-receipt",(_event,payload)=>runPrintExclusive(async()=>{
  const content=String(payload?.html||"").trim();
  if(!content)return {ok:false,error:"La comanda está vacía."};
@@ -133,25 +157,13 @@ ipcMain.handle("pos:print-local-receipt",(_event,payload)=>runPrintExclusive(asy
   .ticket-footer strong{font-size:10px;font-weight:900}
   </style></head><body>${content}</body></html>`;
   await receiptWindow.loadURL("data:text/html;charset=utf-8,"+encodeURIComponent(html));
-  // Diálogo estándar de Windows: el usuario selecciona la impresora,
-  // igual que en Bloc de notas. No enumerar ni forzar controladores.
-  const result=await new Promise((resolve,reject)=>{
-   let settled=false;
-   const finish=(error,value)=>{
-    if(settled)return;
-    settled=true;
-    clearTimeout(timeout);
-    error?reject(error):resolve(value);
-   };
-   const timeout=setTimeout(()=>finish(new Error("Windows no respondió al diálogo de impresión en 120 segundos.")),120000);
-   try{
-    receiptWindow.webContents.print({silent:false,printBackground:true},(success,reason)=>{
-     if(success)finish(null,{ok:true,method:"Diálogo nativo de Windows"});
-     else finish(new Error(reason||"La impresión fue cancelada o Windows no pudo completarla."));
-    });
-   }catch(error){finish(error);}
+  const printerName=await findThermalPrinter(receiptWindow.webContents);
+  await new Promise((resolve,reject)=>{
+   const timeout=setTimeout(()=>reject(new Error("Windows no respondió a la impresión en 20 segundos.")),20000);
+   try{receiptWindow.webContents.print({silent:true,printBackground:true,deviceName:printerName},(success,reason)=>{clearTimeout(timeout);success?resolve():reject(new Error(reason||"Windows no pudo completar la impresión."));});}
+   catch(error){clearTimeout(timeout);reject(error);}
   });
-  return result;
+  return {ok:true,method:"Impresión automática",printer:printerName};
  }catch(error){console.error("Error impresión local POS:",error);return {ok:false,error:error.message||"Error de impresión"};}
  finally{if(!receiptWindow.isDestroyed())receiptWindow.close();}
 }));
