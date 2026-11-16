@@ -236,9 +236,26 @@ body.display-1280x1024 .price{font-size:18px}
  body.display-1280x1024 .layout{grid-template-columns:minmax(0,1fr)}
  body.display-1280x1024 .cart{position:static;order:-1;max-height:none}
 }
-</style></head><body><header class="top"><div><div class="brand">🍔 LA PICÁ DEL BENJAMÍN</div><div class="sub">Punto de venta local · Uso interno</div></div><div class="top-actions"><button id="gmailShortcut" type="button" onclick="openPosService(&quot;gmail&quot;)">✉️ Gmail</button><button id="whatsappShortcut" type="button" onclick="openPosService(&quot;whatsapp&quot;)">💬 WhatsApp</button><button id="staffShortcut" type="button" onclick="openStaffPanel()">🚴 Repartidor / Jefatura</button></div></header>
 
-<main id="app" class="wrap">
+/* Panel de configuración de pantalla */
+.settings-panel{margin:0 0 16px;padding:16px;background:linear-gradient(145deg,#21160e,#120d08);border:1px solid #9b6328;border-radius:14px;box-shadow:0 10px 28px #0006}
+.settings-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.settings-heading h2{margin:0;color:#ffd36b;font-size:20px}.settings-heading p{margin:4px 0 0;color:#d9c6ad;font-size:13px}
+.settings-close{background:#ffc34d;color:#241306}.settings-card{max-width:560px;padding:14px;background:#f4efe7;color:#21170f;border-radius:10px}
+.settings-card label{display:block;font-weight:900;margin-bottom:8px;color:#543516}
+.settings-card #displayProfile{display:block;width:100%;max-width:none;min-width:0;padding:12px;font-size:15px}
+.settings-card p{font-size:12px;line-height:1.5;color:#594632;margin:9px 0 0}
+.settings-card .settings-note{font-weight:800;color:#8a3f0c}
+</style></head><body><header class="top"><div><div class="brand">🍔 LA PICÁ DEL BENJAMÍN</div><div class="sub">Punto de venta local · Uso interno</div></div><div class="top-actions"><button id="gmailShortcut" type="button" onclick="openPosService(&quot;gmail&quot;)">✉️ Gmail</button><button id="whatsappShortcut" type="button" onclick="openPosService(&quot;whatsapp&quot;)">💬 WhatsApp</button><button id="staffShortcut" type="button" onclick="openStaffPanel()">🚴 Repartidor / Jefatura</button><button id="settingsShortcut" type="button" onclick="openSettingsPanel()">⚙️ Configuración</button></div></header>
+
+<main id="app" class="wrap"><section id="settingsPanel" class="settings-panel hidden" aria-label="Configuración de pantalla">
+ <div class="settings-heading"><div><h2>⚙️ Configuración del POS</h2><p>Personaliza cómo se ve el punto de venta en tu monitor.</p></div><button type="button" class="settings-close" onclick="closeSettingsPanel()">← Volver al POS</button></div>
+ <div class="settings-card"><label for="displayProfile">Resolución / tamaño de pantalla</label>
+  <select id="displayProfile" aria-label="Tamaño de interfaz" title="Adaptar interfaz a la pantalla"><option value="auto">Automático (detecta el monitor)</option><option value="compact">Compacta · 848 × 480</option><option value="standard">Estándar</option><option value="large">Amplia · monitores grandes</option><option value="1280x1024">1280 × 1024 · monitor 5:4</option></select>
+  <p>El cambio se aplica inmediatamente y queda guardado en este computador. Puedes volver a cambiarlo cuando conectes otro monitor.</p>
+  <p class="settings-note">Importante: esto adapta el tamaño y la distribución del POS. No cambia la resolución de Windows.</p>
+ </div>
+</section>
 <div class="alert-grid" aria-label="Alertas independientes">
  <section class="alert-card orders-alert" aria-live="polite">
   <div class="alert-heading"><strong>🛎️ PEDIDOS EN LÍNEA · WEB Y APK</strong><span id="ordersAlertCount">0</span></div>
@@ -251,7 +268,7 @@ body.display-1280x1024 .price{font-size:18px}
   <div id="paymentsAlertMessage">Mercado Pago y transferencias verificadas aparecerán aquí.</div>
  </section>
 </div>
-<div class="notice">POS local de acceso directo, sin contraseña. Las alertas de pedidos y pagos se muestran por separado.</div><div class="layout"><section><section class="search-panel" aria-label="Buscar productos"><label class="search-label" for="search">🔎 Buscar un producto</label><form class="search-row" onsubmit="searchProduct(event)"><input id="search" type="search" placeholder="Escribe el nombre del producto..." autocomplete="off" oninput="renderProducts()"><button class="search-button" type="submit">Buscar</button></form><div id="searchStatus" class="search-status" aria-live="polite">Puedes buscar por nombre, categoría o descripción.</div></section><div class="tools"><button type="button" class="add" onclick="loadSharedMenu().catch(e=>alert(e.message))">↻ Actualizar carta</button><select id="mode"><option>Consumo en local</option><option>Retiro en el local</option></select><select id="displayProfile" aria-label="Tamaño de interfaz" title="Adaptar interfaz a la pantalla"><option value="auto">Pantalla: Automático</option><option value="compact">Pantalla: Compacta</option><option value="standard">Pantalla: Estándar</option><option value="large">Pantalla: Amplia</option><option value="1280x1024">Pantalla: 1280 × 1024</option></select></div><div id="menuSyncStatus" class="muted" aria-live="polite">Conectando con la carta web…</div><div class="tabbar"><button class="tab-arrow" id="catPrev" type="button" aria-label="Ver categorías anteriores">‹</button><nav class="tabs" id="tabs" aria-label="Categorías de productos"></nav><button class="tab-arrow" id="catNext" type="button" aria-label="Ver más categorías">›</button></div><div class="products" id="products"></div></section><aside class="cart"><h2>🧾 Pedido actual</h2><div id="cartLines">Agrega productos para comenzar.</div><div class="total" id="total">$0</div><div class="field"><label>Cliente (opcional)</label><input id="customer" placeholder="Nombre del cliente"></div><div class="field"><label>Forma de pago</label><select id="payment"><option>Efectivo</option><option>Transferencia</option><option>Tarjeta</option><option>Pendiente</option></select></div><div class="field"><label>Observaciones para cocina</label><textarea id="notes" rows="2" placeholder="Sin cebolla, término, etc."></textarea></div><button class="action primary" onclick="printReceipt()">Imprimir comanda</button><button class="action" onclick="newOrder()">Nuevo pedido / limpiar</button><p class="muted">La comanda se envía directamente a la impresora térmica del local.</p></aside></div></main><section id="receipt" class="receipt"></section>
+<div class="notice">POS local de acceso directo, sin contraseña. Las alertas de pedidos y pagos se muestran por separado.</div><div class="layout"><section><section class="search-panel" aria-label="Buscar productos"><label class="search-label" for="search">🔎 Buscar un producto</label><form class="search-row" onsubmit="searchProduct(event)"><input id="search" type="search" placeholder="Escribe el nombre del producto..." autocomplete="off" oninput="renderProducts()"><button class="search-button" type="submit">Buscar</button></form><div id="searchStatus" class="search-status" aria-live="polite">Puedes buscar por nombre, categoría o descripción.</div></section><div class="tools"><button type="button" class="add" onclick="loadSharedMenu().catch(e=>alert(e.message))">↻ Actualizar carta</button><select id="mode"><option>Consumo en local</option><option>Retiro en el local</option></select></div><div id="menuSyncStatus" class="muted" aria-live="polite">Conectando con la carta web…</div><div class="tabbar"><button class="tab-arrow" id="catPrev" type="button" aria-label="Ver categorías anteriores">‹</button><nav class="tabs" id="tabs" aria-label="Categorías de productos"></nav><button class="tab-arrow" id="catNext" type="button" aria-label="Ver más categorías">›</button></div><div class="products" id="products"></div></section><aside class="cart"><h2>🧾 Pedido actual</h2><div id="cartLines">Agrega productos para comenzar.</div><div class="total" id="total">$0</div><div class="field"><label>Cliente (opcional)</label><input id="customer" placeholder="Nombre del cliente"></div><div class="field"><label>Forma de pago</label><select id="payment"><option>Efectivo</option><option>Transferencia</option><option>Tarjeta</option><option>Pendiente</option></select></div><div class="field"><label>Observaciones para cocina</label><textarea id="notes" rows="2" placeholder="Sin cebolla, término, etc."></textarea></div><button class="action primary" onclick="printReceipt()">Imprimir comanda</button><button class="action" onclick="newOrder()">Nuevo pedido / limpiar</button><p class="muted">La comanda se envía directamente a la impresora térmica del local.</p></aside></div></main><section id="receipt" class="receipt"></section>
 <section class="music-dock" aria-label="Música ambiental del POS">
  <strong class="music-dock-title">🎵 Música del local</strong>
  <button type="button" id="openYoutubeMusic">Abrir YouTube Music</button>
@@ -329,6 +346,9 @@ function resolveMenuImage(value){
 
 let category='Todos',cart={};
 const money=n=>'$'+Number(n||0).toLocaleString('es-CL');
+
+function openSettingsPanel(){const panel=document.getElementById("settingsPanel");if(panel){panel.classList.remove("hidden");panel.scrollIntoView({behavior:"smooth",block:"start"});}}
+function closeSettingsPanel(){const panel=document.getElementById("settingsPanel");if(panel)panel.classList.add("hidden");document.getElementById("settingsShortcut")?.focus();}
 function applyDisplayProfile(profile){
  const select=document.getElementById("displayProfile");
  const chosen=profile||select?.value||"auto";
