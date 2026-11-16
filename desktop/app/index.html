@@ -75,6 +75,10 @@
 .top-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .top-actions button{background:#2b1b0e;border:1px solid #9b6328;color:#ffe0a3;min-height:42px}
 .top-actions button:hover{background:#503016}
+.settings-overlay{position:fixed;inset:0;z-index:10010;background:#080604ed;display:none;align-items:center;justify-content:center;padding:18px}
+.settings-window{width:min(760px,100%);max-height:92vh;overflow:auto;background:linear-gradient(145deg,#24170d,#100c08);border:1px solid #a86a28;border-radius:18px;padding:20px;box-shadow:0 18px 70px #000c}
+.settings-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:15px}.settings-head h2{margin:0;color:#ffd36b}.settings-close{background:#49301b;color:#ffe4b5}.settings-tabs{display:flex;gap:8px;margin:12px 0 16px}.settings-tabs button{background:#342313;color:#f7dfb7;border:1px solid #805222}.settings-tabs button.active{background:#ffc34d;color:#241306}.device-card{background:#17120d;border:1px solid #654626;border-radius:12px;padding:14px;margin:10px 0}.device-row{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.device-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.device-actions button{background:#ffc34d;color:#241306}.device-status{font-size:12px;color:#d9c6ad;min-height:20px;margin-top:10px}.device-muted{color:#d9c6ad;font-size:12px;line-height:1.5}.settings-select{margin-top:8px;background:#fffaf2;color:#21170f}.settings-content[hidden]{display:none!important}
+@media(max-width:600px){.settings-window{padding:14px}.settings-head h2{font-size:18px}.settings-tabs{flex-wrap:wrap}}
 @media(max-width:700px){.top{align-items:flex-start;gap:10px;flex-wrap:wrap}.top-actions{width:100%}.top-actions button{flex:1;padding:9px 8px;font-size:12px}}
 /* Comanda 80mm: tipografía grande y alto contraste */
 .receipt{font:15px/1.4 Arial,Helvetica,sans-serif!important}
@@ -129,7 +133,7 @@
 .music-player-frame{width:1px;height:1px;position:absolute;left:-10000px;top:-10000px}
 body{padding-bottom:68px}
 @media(max-width:760px){.music-dock{flex-wrap:wrap;gap:7px}.music-dock input{flex:1;max-width:none}.music-dock .music-status{min-width:100px}body{padding-bottom:112px}}
-</style></head><body><header class="top"><div><div class="brand">🍔 LA PICÁ DEL BENJAMÍN</div><div class="sub">Punto de venta local · Uso interno</div></div><div class="top-actions"><button id="gmailShortcut" type="button" onclick="openPosService(&quot;gmail&quot;)">✉️ Gmail</button><button id="whatsappShortcut" type="button" onclick="openPosService(&quot;whatsapp&quot;)">💬 WhatsApp</button><button id="staffShortcut" type="button" onclick="openStaffPanel()">🚴 Repartidor / Jefatura</button></div></header>
+</style></head><body><header class="top"><div><div class="brand">🍔 LA PICÁ DEL BENJAMÍN</div><div class="sub">Punto de venta local · Uso interno</div></div><div class="top-actions"><button id="gmailShortcut" type="button" onclick="openPosService(&quot;gmail&quot;)">✉️ Gmail</button><button id="whatsappShortcut" type="button" onclick="openPosService(&quot;whatsapp&quot;)">💬 WhatsApp</button><button id="settingsShortcut" type="button" onclick="openSettingsPanel()">⚙️ Configuraciones</button><button id="staffShortcut" type="button" onclick="openStaffPanel()">🚴 Repartidor / Jefatura</button></div></header>
 
 <main id="app" class="wrap">
 <div class="alert-grid" aria-label="Alertas independientes">
@@ -500,6 +504,12 @@ async function checkOnlineOrderAlerts(){
 }
 setTimeout(()=>{checkOnlineOrderAlerts();setInterval(checkOnlineOrderAlerts,12000);},5000);
 
+async function openSettingsPanel(){document.getElementById("settingsOverlay").style.display="flex";document.body.style.overflow="hidden";await refreshPrinters();}
+function closeSettingsPanel(){document.getElementById("settingsOverlay").style.display="none";document.body.style.overflow="";document.getElementById("settingsShortcut").focus();}
+async function refreshPrinters(){const select=document.getElementById("printerSelect"),status=document.getElementById("printerStatus"),count=document.getElementById("printerCount");select.innerHTML="<option value=\"\">Consultando Windows…</option>";status.textContent="Buscando impresoras instaladas…";try{const data=await window.posBridge.listPrinters();const printers=Array.isArray(data?.printers)?data.printers:[];count.textContent=printers.length+" dispositivo(s)";select.innerHTML="";if(!printers.length){select.innerHTML="<option value=\"\">No se encontraron impresoras</option>";status.textContent="Windows no informó impresoras. Comprueba la conexión USB y la cola de impresión.";return;}for(const p of printers){const option=document.createElement("option");option.value=p.name;option.textContent=p.name+(p.isDefault?" · Predeterminada":"")+(p.status?" · "+p.status:"");select.appendChild(option);}if(data.selected&&printers.some(p=>p.name===data.selected))select.value=data.selected;else if(data.defaultPrinter&&printers.some(p=>p.name===data.defaultPrinter))select.value=data.defaultPrinter;document.getElementById("printerSaved").textContent=data.selected?"Configurada: "+data.selected:"Aún no se ha guardado una impresora. Se muestra la predeterminada de Windows.";status.textContent="Detección completada. Selecciona la impresora térmica y guarda la selección.";}catch(error){select.innerHTML="<option value=\"\">No se pudo consultar</option>";status.textContent="Error al detectar impresoras: "+(error.message||error);}}
+async function savePrinterSelection(){const name=document.getElementById("printerSelect").value,status=document.getElementById("printerStatus");if(!name){status.textContent="Selecciona una impresora antes de guardar.";return;}try{const result=await window.posBridge.savePrinter(name);if(!result?.ok)throw new Error(result?.error||"No se pudo guardar la impresora.");document.getElementById("printerSaved").textContent="Impresora configurada: "+name;status.textContent="✓ Selección guardada. Las próximas comandas usarán esta impresora.";}catch(error){status.textContent="No se pudo guardar: "+(error.message||error);}}
+async function testSelectedPrinter(){const name=document.getElementById("printerSelect").value,status=document.getElementById("printerStatus");if(!name){status.textContent="Primero selecciona una impresora.";return;}status.textContent="Enviando página de prueba a "+name+"…";try{const result=await window.posBridge.testPrinter(name);if(!result?.ok)throw new Error(result?.error||"Windows no confirmó la impresión.");status.textContent="✓ Prueba enviada correctamente a "+name+".";}catch(error){status.textContent="Error de impresión: "+(error.message||error);}}
+document.addEventListener("keydown",event=>{if(event.key==="Escape"&&document.getElementById("settingsOverlay").style.display!=="none")closeSettingsPanel();});
 async function openPosService(service){
  const labels={gmail:"Gmail",whatsapp:"WhatsApp"};
  try{
@@ -507,7 +517,23 @@ async function openPosService(service){
    await window.posBridge.openService(service);
  }catch(error){alert("No se pudo abrir "+(labels[service]||"el servicio")+": "+(error.message||"Error desconocido"));}
 }
-</script><section id="staffEmbedded" class="staff-overlay" style="display:none" aria-label="Panel de repartidor y jefatura">
+</script><section id="settingsOverlay" class="settings-overlay" style="display:none" role="dialog" aria-modal="true" aria-label="Configuraciones POS">
+ <div class="settings-window">
+  <div class="settings-head"><div><h2>⚙️ Configuraciones</h2><div class="device-muted">Administración del punto de venta</div></div><button class="settings-close" type="button" onclick="closeSettingsPanel()">✕ Cerrar</button></div>
+  <div class="settings-tabs"><button type="button" class="active" id="settingsTabDevices" onclick="showSettingsTab('devices')">🖨️ Dispositivos</button></div>
+  <section id="settingsDevices" class="settings-content">
+   <div class="device-card">
+    <div class="device-row"><strong>Impresoras instaladas en Windows</strong><span id="printerCount" class="device-muted">Sin consultar</span></div>
+    <p class="device-muted">El POS consulta las impresoras que Windows tiene instaladas. Selecciona la impresora térmica que utilizarán las comandas locales y los pedidos recibidos desde la web y APK.</p>
+    <label for="printerSelect" class="device-muted">Impresora principal</label>
+    <select id="printerSelect" class="settings-select"><option value="">Buscando impresoras…</option></select>
+    <div class="device-actions"><button type="button" onclick="refreshPrinters()">↻ Buscar impresoras</button><button type="button" onclick="savePrinterSelection()">Guardar selección</button><button type="button" onclick="testSelectedPrinter()">🧾 Imprimir prueba</button></div>
+    <div id="printerStatus" class="device-status" aria-live="polite">Consulta las impresoras conectadas para comenzar.</div>
+   </div>
+   <div class="device-card"><strong>Impresión de comandas</strong><p class="device-muted">La impresora seleccionada se utilizará para las comandas del POS y los pedidos web/APK. La identificación de pedidos ya impresos se mantiene para evitar duplicados.</p><div id="printerSaved" class="device-muted">No hay una impresora seleccionada.</div></div>
+  </section>
+ </div>
+</section><section id="staffEmbedded" class="staff-overlay" style="display:none" aria-label="Panel de repartidor y jefatura">
 <div class="staff-toolbar"><div><strong>🚴 Repartidor / Jefatura</strong><small>Panel de gestión interna</small></div><button type="button" class="staff-back" onclick="closeStaffPanel()">← Volver al POS</button></div>
 <iframe id="staffFrame" title="Panel de repartidor y jefatura" src="https://menu-la-pica-del-benjamin-pago.onrender.com/reparto.html"></iframe></section>
 <script>function openStaffPanel(){document.getElementById("staffEmbedded").style.display="flex";document.body.style.overflow="hidden";}
