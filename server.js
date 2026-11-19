@@ -170,11 +170,12 @@ function isOrderingOpen(){
   }).formatToParts(new Date());
   const values = Object.fromEntries(parts.map(part => [part.type, part.value]));
   const days = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
-  let day = days[values.weekday];
-  const hour = Number(values.hour);
-  const minute = Number(values.minute);
-  if (hour < 2) day = (day + 6) % 7;
-  return day >= 2 && day <= 6 && (hour < 2 || hour > 17 || (hour === 17 && minute >= 30));
+  const day = days[values.weekday];
+  const minutes = Number(values.hour) * 60 + Number(values.minute);
+  // Mar-Sáb: 17:30 a 23:59; Mié-Dom: 00:00 a 01:29, continuando turno anterior.
+  const evening = day >= 2 && day <= 6 && minutes >= 17 * 60 + 30;
+  const earlyMorning = (day >= 3 && day <= 6 || day === 0) && minutes < 90;
+  return evening || earlyMorning;
 }
 
 function send(res, status, body) {
@@ -912,7 +913,7 @@ La Picá del Benjamín`,
   }
 
   if (req.method === "GET" && req.url === "/") {
-    return send(res, 200, { status: "Servidor activo", ordering_open: isOrderingOpen(), hours: "Martes a sábado, 17:30 a 02:00 (America/Santiago)" });
+    return send(res, 200, { status: "Servidor activo", ordering_open: isOrderingOpen(), hours: "Martes a sábado, 17:30 a 01:30 (America/Santiago)" });
   }
 
   // Consultar la orden directamente en Mercado Pago; nunca confiar en el estado de la URL.
@@ -957,7 +958,7 @@ La Picá del Benjamín`,
 
   if (req.method === "POST" && new URL(req.url,"http://localhost").pathname === "/api/crear-transferencia") {
     if (!dbPool) return send(res,503,{error:"Base de datos no disponible. Inténtalo más tarde."});
-    if (!isOrderingOpen() && !isSuperAdmin(await getStaffUser())) return send(res,403,{error:"Estamos fuera de horario. Los pedidos están disponibles de martes a sábado, de 17:30 a 02:00."});
+    if (!isOrderingOpen() && !isSuperAdmin(await getStaffUser())) return send(res,403,{error:"Estamos fuera de horario. Los pedidos están disponibles de martes a sábado, de 17:30 a 01:30."});
     if (isRateLimited(req,10,60000)) return send(res,429,{error:"Has enviado varios pedidos. Espera un minuto."});
     try {
       const data=await readJson(req);
