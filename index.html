@@ -1099,7 +1099,8 @@ const APP_CATEGORY_GROUPS=[ {label:"Inicio",key:"Todos",icon:"⌂",categories:[]
  {label:"Fritos",key:"Fritos",icon:"🍟",categories:["Fritos"]},
  {label:"Bebidas",key:"Bebidas",icon:"🥤",categories:["Bebidas","Jugos naturales","Néctares","Aguas","Energéticas"]},
  {label:"Promociones",key:"Promociones",icon:"🎁",categories:["Promociones","Promociones sushi"]},
- {label:"Joyas",key:"Joyas & Detalles",icon:"💎",categories:["Joyas & Detalles"]}
+ {label:"Joyas",key:"Joyas & Detalles",icon:"💎",categories:["Joyas & Detalles"]},
+ {label:"Postres",key:"Postres",icon:"🍮",categories:["Postres"]}
 ];
 let active="Todos",cart={},payment="Efectivo";const fmt=n=>"$"+n.toLocaleString("es-CL");
 function scrollNativeToProducts(){if(!NATIVE_APP_MODE)return;const target=document.querySelector(".menu-column .section-title")||document.querySelector(".menu-column .grid");if(!target)return;requestAnimationFrame(()=>{const top=target.getBoundingClientRect().top+window.scrollY-16;window.scrollTo({top:Math.max(0,top),behavior:"smooth"});});}
