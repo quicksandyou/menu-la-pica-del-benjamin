@@ -1,6 +1,6 @@
 {
   "name": "la-pica-del-benjamin-desktop",
-  "version": "1.1.4",
+  "version": "1.1.5",
   "description": "Aplicación de escritorio La Picá del Benjamín",
   "main": "main.js",
   "scripts": {
@@ -33,7 +33,7 @@
         }
       ],
       "artifactName": "LaPicaDelBenjamin-Setup-${version}.${ext}",
-      "icon": "build/icon.ico"
+      "icon": "build/icon.ico.ico"
     },
     "nsis": {
       "oneClick": false,
@@ -41,8 +41,8 @@
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
       "shortcutName": "La Picá del Benjamín",
-      "installerIcon": "build/icon.ico",
-      "uninstallerIcon": "build/icon.ico"
+      "installerIcon": "build/icon.ico.ico",
+      "uninstallerIcon": "build/icon.ico.ico"
     },
     "publish": [
       {
