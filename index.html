@@ -738,6 +738,19 @@ html.native-app-ui #appNativeCartBar{bottom:calc(10px + env(safe-area-inset-bott
 html.native-app-ui #musicToggle{bottom:calc(86px + env(safe-area-inset-bottom))!important;background:#18120d!important;border-color:#4a321f!important;color:#f5d28a!important}
 html.native-app-ui #nativeProductDetail .native-detail-sheet{border:1px solid #68432a!important;border-radius:24px 24px 18px 18px!important;background:linear-gradient(160deg,#21150d,#090807)!important}
 @media(max-width:380px){html.native-app-ui .app-native-topbar{height:86px!important}html.native-app-ui .app-native-category-image{height:62px!important}html.native-app-ui .item h3{font-size:12px!important}html.native-app-ui .add{font-size:11px!important}}
+
+/* Guía de instalación APK Android/Samsung */
+.apk-install-guide{margin:12px 0 18px;border:1px solid #e5b77d;border-radius:14px;background:linear-gradient(135deg,#fff2df,#ffe3c8);color:#4a2c20;overflow:hidden}
+.apk-install-guide details{padding:0}
+.apk-install-guide summary{cursor:pointer;list-style:none;padding:14px 16px;font-weight:900;color:#a52d22}
+.apk-install-guide summary::-webkit-details-marker{display:none}
+.apk-install-guide summary:after{content:'＋';float:right;font-size:20px}
+.apk-install-guide details[open] summary:after{content:'－'}
+.apk-guide-content{padding:0 16px 15px;font-size:14px;line-height:1.55}
+.apk-guide-content ol{padding-left:22px;margin:10px 0}
+.apk-guide-content li{margin:8px 0}
+.apk-guide-warning{padding:10px;background:#fff8ec;border:1px solid #edc78c;border-radius:10px;font-weight:750;margin:12px 0 0}
+@media(max-width:520px){.apk-install-guide summary{padding:13px 12px;font-size:14px}.apk-guide-content{padding:0 12px 12px;font-size:13px}}
 </style><style>
 .closed-banner{position:sticky;top:0;z-index:1000;display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center;padding:12px 16px;background:linear-gradient(100deg,#3a2113,#8b4018);border:2px solid #e8a63a;color:#fff4d6;text-align:center;box-shadow:0 8px 24px #0005}.closed-banner strong{font-size:16px;color:#ffdb74}.closed-banner span{font-size:13px}
 </style><button type="button" class="app-drawer-toggle" id="appDrawerToggle" aria-label="Abrir menú" style="display:none">☰</button><div class="app-drawer-overlay" id="appDrawerOverlay" style="display:none"></div><audio id="siteMusic" src="./soundtrack.mp3.mpeg" loop preload="none"></audio><button id="musicToggle" type="button" aria-pressed="false" onclick="toggleMusic()">🎵 Activar música</button><a class="delivery-help" href="https://wa.me/56999064818?text=Hola%2C%20quisiera%20hacer%20una%20consulta%20sobre%20mi%20pedido%20de%20La%20Pic%C3%A1%20del%20Benjam%C3%ADn." target="_blank" rel="noopener noreferrer" aria-label="Consultar pedido con el encargado de delivery por WhatsApp"><span class="wa-icon">🟢</span><span>Consultas por WhatsApp</span></a><button type="button" class="ketchup-side left" aria-label="¡Aprieta para lanzar kétchup!" title="¡Toca para lanzar kétchup!" onclick="splashKetchup(event)"><span class="ketchup-splash">〰</span><span class="ketchup-bottle"></span></button><button type="button" class="ketchup-side right" aria-label="¡Aprieta para lanzar kétchup!" title="¡Toca para lanzar kétchup!" onclick="splashKetchup(event)"><span class="ketchup-splash">〰</span><span class="ketchup-bottle"></span></button><header class="site-header"><div class="app-native-topbar"><div class="app-native-logo"><img src="/logo_picada.jpg" alt="La Picá del Benjamín" loading="eager" decoding="async" onerror="this.onerror=null;this.src='/logo_picada.jpg'"></div><button id="appCartShortcut" type="button" aria-label="Ver carrito">🛒<span id="appCartCount">0</span></button></div><div class="head-inner"><div><div class="brand">La Picá del Benjamín</div><div class="tagline">Sabor que enamora, porciones que impresionan</div>
@@ -773,6 +786,24 @@ html.native-app-ui #nativeProductDetail .native-detail-sheet{border:1px solid #6
 <div id="foodSection">
 <div id="foodUpdate" class="feature-update" role="status"><span class="feature-icon">🚀</span><div><strong>¡Estamos incorporando nuevas funciones!</strong><p>Estamos mejorando nuestra tienda online para entregarte una experiencia de compra cada vez mejor. Gracias por tu paciencia y por preferir La Picá del Benjamín. ❤️</p></div></div>
 <div id="foodAppInstall" class="app-install"><div><strong>📲 Instala La Picá en tu celular o computador</strong><p>Accede como una app desde Android, iPhone o Windows, sin buscar la página cada vez.</p></div><button id="installAppButton" type="button">Instalar aplicación web</button><a class="apk-download" href="https://github.com/quicksandyou/menu-la-pica-del-benjamin/releases/download/android-apk-latest/app-debug.apk" download>⬇️ Descargar APK Android</a></div>
+<section id="apkInstallGuide" class="apk-install-guide">
+ <details>
+  <summary>📖 Manual: cómo instalar la APK en Android (Samsung)</summary>
+  <div class="apk-guide-content">
+   <p><strong>Si aparece “Aplicaciones desconocidas bloqueadas” o “Bloqueador automático”</strong>, sigue estos pasos para instalar La Picá del Benjamín:</p>
+   <ol>
+    <li>Descarga la APK desde el botón <strong>Descargar APK Android</strong> de esta página.</li>
+    <li>Abre la descarga desde la notificación o desde <strong>Mis archivos → Descargas</strong>.</li>
+    <li>Si aparece el aviso de Samsung <strong>“Aplicaciones desconocidas bloqueadas”</strong>, pulsa <strong>Aceptar</strong>.</li>
+    <li>En tu teléfono entra a <strong>Ajustes → Seguridad y privacidad → Bloqueador automático (Auto Blocker)</strong> y desactívalo temporalmente.</li>
+    <li>Si Android solicita permiso, entra a <strong>Ajustes → Aplicaciones → Acceso especial → Instalar aplicaciones desconocidas</strong>, selecciona el navegador o <strong>Mis archivos</strong> desde donde abriste la APK y activa <strong>Permitir desde esta fuente</strong>.</li>
+    <li>Vuelve a abrir el archivo APK y pulsa <strong>Instalar</strong>. Cuando termine, abre la aplicación.</li>
+    <li><strong>Por seguridad, vuelve a activar Bloqueador automático</strong> después de instalar.</li>
+   </ol>
+   <p class="apk-guide-warning">⚠️ Instala únicamente la APK oficial descargada desde esta página de La Picá del Benjamín.</p>
+  </div>
+ </details>
+</section>
 <div id="foodHero" class="hero"><div class="hero-main brand-hero"><img src="./La%20Pic%C3%A1%20del%20Benjam%C3%ADn_%20Sabor%20Ne%C3%B3n.png" alt="Banner de comida de La Picá del Benjamín" loading="eager" decoding="async"></div><div class="hero-side"><strong>¡Arma tu pedido!</strong><p>Elige tus favoritos, ingresa tu dirección de despacho y paga de forma segura por Internet. Solo delivery.</p><p>🚗 Delivery desde $1.990 en Linares</p><p>Fuera de Linares: tarifa según localidad (desde $3.000).</p></div></div>
 <div id="foodNotice" class="notice">📍 Estamos en <b>Pje. Hermano Claudio Ortíz #1229, Linares</b> · <a href="https://maps.app.goo.gl/zV6W4sxRxqezmYtb7" target="_blank" rel="noopener">Cómo llegar con Google Maps ↗</a> · 📲 Pedidos: +56 9 9906 4818</div><section id="payment-result" class="notice" style="display:none"></section>
 <section id="appNativeHome" aria-label="Inicio de La Picá del Benjamín"><div class="app-native-hero"><img id="appNativeHeroImage" alt="Sushi fresco de La Picá del Benjamín"><div class="app-native-hero-copy"><span>Sushi</span><span>Fresco y</span><strong>Delicioso</strong></div></div><div class="app-native-dots"><i></i><i></i><i></i></div><div id="appNativeCategoryGrid" class="app-native-categories"></div><button id="appNativeWhatsAppCta" class="app-native-whatsapp" type="button"><span class="app-native-wa-icon">◉</span><span>REALIZAR PEDIDO<br>ONLINE</span><b>›</b></button></section>
