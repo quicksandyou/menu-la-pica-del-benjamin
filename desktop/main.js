@@ -449,7 +449,7 @@ function saveOnlineCredentials(credentials){
 }
 ipcMain.handle("pos:get-saved-online-credentials",()=>readOnlineCredentials());
 ipcMain.handle("pos:save-online-credentials",(_event,credentials)=>({ok:saveOnlineCredentials(credentials)}));
-ipcMain.handle("pos:clear-online-credentials",()=>{try{if(fs.existsSync(onlineCredentialsFile))fs.unlinkSync(onlineCredentialsFile);return {ok:true};}catch{return {ok:false};}});
+ipcMain.handle("pos:clear-online-credentials",()=>{try{if(fs.existsSync(onlineCredentialsFile))fs.unlinkSync(onlineCredentialsFile);return {ok:true};}catch{return {ok:false};}});ipcMain.handle("pos:logout-online-orders",async()=>{try{if(fs.existsSync(onlineCredentialsFile))fs.unlinkSync(onlineCredentialsFile);const cookies=await win.webContents.session.cookies.get({url:"https://menu-la-pica-del-benjamin-pago.onrender.com"});for(const cookie of cookies){const url="https://menu-la-pica-del-benjamin-pago.onrender.com";await win.webContents.session.cookies.remove(url,cookie.name);}return {ok:true};}catch{return {ok:false};}});
 ipcMain.handle("pos:login-online-orders",async(_event,credentials={})=>{
  if(!win||win.isDestroyed())return {ok:false,error:"POS no disponible."};
  try{
