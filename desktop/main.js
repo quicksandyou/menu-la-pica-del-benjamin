@@ -27,7 +27,7 @@ const printedOrdersFile=path.join(app.getPath("userData"),"printed-web-orders.js
 const printerSettingsFile=path.join(app.getPath("userData"),"printer-settings.json");
 const screenSettingsFile=path.join(app.getPath("userData"),"screen-settings.json");
 let savedScreenSettings={width:1440,height:920,fullscreen:false};
-try{const candidate=JSON.parse(fs.readFileSync(screenSettingsFile,"utf8"));const validSizes=[[800,600],[1024,768],[1280,720],[1280,1024],[1366,768],[1440,900],[1600,900],[1920,1080]];if(validSizes.some(([w,h])=>candidate.width===w&&candidate.height===h))savedScreenSettings={width:candidate.width,height:candidate.height,fullscreen:!!candidate.fullscreen};}catch(_){}
+try{const candidate=JSON.parse(fs.readFileSync(screenSettingsFile,"utf8"));const validSizes=[[800,600],[1024,768],[1280,720],[1280,1024],[1366,768],[1440,900],[1440,920],[1600,900],[1920,1080]];if(validSizes.some(([w,h])=>candidate.width===w&&candidate.height===h))savedScreenSettings={width:candidate.width,height:candidate.height,fullscreen:!!candidate.fullscreen};}catch(_){}
 function persistScreenSettings(){try{fs.mkdirSync(path.dirname(screenSettingsFile),{recursive:true});fs.writeFileSync(screenSettingsFile,JSON.stringify(savedScreenSettings,null,2),"utf8");}catch(e){console.warn("No se pudo guardar configuración de pantalla:",e.message);}}
 let selectedPrinterName="";
 let printerMode="manual";
@@ -425,7 +425,7 @@ function createWindow(){
   });
   win.on("closed",()=>win=null);
 }
-ipcMain.handle("pos:set-window-size",async(_event,width,height)=>{const w=Number(width),h=Number(height);const allowed=[[800,600],[1024,768],[1280,720],[1280,1024],[1366,768],[1440,900],[1600,900],[1920,1080]];if(!allowed.some(([aw,ah])=>aw===w&&ah===h))throw new Error("Resolución no permitida.");if(!win||win.isDestroyed())throw new Error("Ventana POS no disponible.");if(win.isFullScreen())win.setFullScreen(false);win.setSize(w,h);win.center();savedScreenSettings={width:w,height:h,fullscreen:false};persistScreenSettings();return {ok:true,width:w,height:h};});
+ipcMain.handle("pos:set-window-size",async(_event,width,height)=>{const w=Number(width),h=Number(height);const allowed=[[800,600],[1024,768],[1280,720],[1280,1024],[1366,768],[1440,900],[1440,920],[1600,900],[1920,1080]];if(!allowed.some(([aw,ah])=>aw===w&&ah===h))throw new Error("Resolución no permitida.");if(!win||win.isDestroyed())throw new Error("Ventana POS no disponible.");if(win.isFullScreen())win.setFullScreen(false);win.setSize(w,h);win.center();savedScreenSettings={width:w,height:h,fullscreen:false};persistScreenSettings();return {ok:true,width:w,height:h};});
 ipcMain.handle("pos:toggle-fullscreen",async()=>{if(!win||win.isDestroyed())throw new Error("Ventana POS no disponible.");const next=!win.isFullScreen();win.setFullScreen(next);savedScreenSettings.fullscreen=next;persistScreenSettings();return {ok:true,fullscreen:next};});
 ipcMain.handle("pos:set-fullscreen",async(_event,value)=>{if(!win||win.isDestroyed())throw new Error("Ventana POS no disponible.");const next=!!value;win.setFullScreen(next);savedScreenSettings.fullscreen=next;persistScreenSettings();return {ok:true,fullscreen:next};});
 ipcMain.handle("pos:focus-window",async()=>{
