@@ -436,7 +436,7 @@ function chileDateKey(value){
 function isPaidOrderToday(order){
  const status=String(order?.payment_status||order?.status||"").toLowerCase().trim();
  const approval=String(order?.approval_status||"").toLowerCase().trim();
- const paid=["paid","approved","accredited","completed"].includes(status);
+ const paid=["paid","approved","accredited","completed","processed","succeeded","success"].includes(status);
  const date=order?.created_at||order?.createdAt||order?.date||order?.datetime;
  return paid&&approval!=="rejected"&&date&&chileDateKey(date)===chileDateKey(new Date());
 }
@@ -555,14 +555,14 @@ async function checkOnlineOrderAlerts(){
    knownOnlineOrders=current;
    knownPaymentStatuses=new Map(orders.map(o=>[String(o.id),String(o.payment_status||"pending").toLowerCase()]));
    const recovered=enqueueOrders(orders);
-   if(recovered){ordersAlertTotal+=recovered;const paidRecovered=orders.filter(o=>["paid","approved","accredited"].includes(String(o.payment_status||"").toLowerCase()));paymentsAlertTotal+=paidRecovered.length;showAlertMessage("paymentsAlertMessage",paidRecovered.length?"⚠ "+paidRecovered.length+" pedido(s) recuperado(s) con pago confirmado. Revisa la cola de impresión.":"Sin pagos confirmados nuevos.","paymentsAlertCount",paymentsAlertTotal);duckMusicForOrder();playAlertTone("payment");}
+   if(recovered){ordersAlertTotal+=recovered;const paidRecovered=orders.filter(o=>["paid","approved","accredited","completed","processed","succeeded","success"].includes(String(o.payment_status||"").toLowerCase()));paymentsAlertTotal+=paidRecovered.length;showAlertMessage("paymentsAlertMessage",paidRecovered.length?"⚠ "+paidRecovered.length+" pedido(s) recuperado(s) con pago confirmado. Revisa la cola de impresión.":"Sin pagos confirmados nuevos.","paymentsAlertCount",paymentsAlertTotal);duckMusicForOrder();playAlertTone("payment");}
    return;
   }
   const newOrders=[...current.keys()].filter(id=>!knownOnlineOrders.has(id));
   const paidOrders=[];
   for(const [id,o] of current){
    const status=String(o.payment_status||"pending").toLowerCase(),previous=knownPaymentStatuses.get(id);
-   if(previous!==undefined&&["paid","approved","accredited"].includes(status)&&!["paid","approved","accredited"].includes(previous))paidOrders.push(o);
+   if(previous!==undefined&&["paid","approved","accredited","completed","processed","succeeded","success"].includes(status)&&!["paid","approved","accredited","completed","processed","succeeded","success"].includes(previous))paidOrders.push(o);
    knownPaymentStatuses.set(id,status);
   }
   knownOnlineOrders=current;
