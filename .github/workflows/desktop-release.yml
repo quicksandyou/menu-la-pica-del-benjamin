@@ -35,11 +35,13 @@ jobs:
           from PIL import Image
           source = Image.open("build/icon.ico.ico.ico").convert("RGBA")
           source = source.resize((256, 256), Image.Resampling.LANCZOS)
-          source.save("build/icon.ico", format="ICO", sizes=[(16,16),(24,24),(32,32),(48,48),(64,64),(128,128),(256,256)])
+          source.save("build/icon.ico", format="ICO", sizes=[(256,256),(128,128),(64,64),(48,48),(32,32),(24,24),(16,16)])
           check = Image.open("build/icon.ico")
-          if check.size[0] < 256 or check.size[1] < 256:
-              raise SystemExit("El icono generado no alcanza 256x256")
-          print("Icono Windows generado:", check.size)
+          available_sizes = getattr(check, "ico", None).sizes if getattr(check, "ico", None) else set()
+          print("Tamaños disponibles en ICO:", sorted(available_sizes))
+          if (256, 256) not in available_sizes:
+              raise SystemExit("El ICO generado no contiene un recurso de 256x256")
+          print("Icono Windows generado y validado: 256x256")
           '@ | python -
       - name: Build Windows installer
         working-directory: desktop
