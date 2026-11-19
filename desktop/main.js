@@ -194,7 +194,7 @@ ipcMain.handle("pos:print-local-receipt",(_event,payload)=>runPrintExclusive(asy
 ipcMain.handle("pos:print-web-order",(_event,order)=>runPrintExclusive(async()=>{
  if(!order||!order.id)throw new Error("Pedido inválido para impresión.");
  const id=String(order.id);
- if(printedOrderIds.has(id))return {ok:true,duplicate:true};
+ if(printedOrderIds.has(id)&&!order._reprint)return {ok:true,duplicate:true};
  const items=Array.isArray(order.items_json)?order.items_json:(()=>{try{return JSON.parse(order.items_json||"[]")}catch(_){return []}})();
  const money=value=>"$"+Number(value||0).toLocaleString("es-CL");
  const rows=items.map(item=>{
