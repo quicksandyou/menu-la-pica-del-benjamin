@@ -92,7 +92,8 @@ async function findThermalPrinter(webContents){
 async function printHtmlToThermalPrinter(receiptWindow,html,label,options={}){
  await receiptWindow.loadURL("data:text/html;charset=utf-8,"+encodeURIComponent(html));
  const printerName=options.useNamedThermalPrinter?await findThermalPrinter(receiptWindow.webContents):null;
- const printOptions={silent:true,printBackground:true};
+ const printOptions={silent:!options.systemDialog,printBackground:true};
+ if(options.systemDialog){receiptWindow.show();receiptWindow.focus();}
  if(printerName)printOptions.deviceName=printerName;
  await new Promise((resolve,reject)=>{
   let settled=false;
@@ -293,7 +294,7 @@ ipcMain.handle("pos:print-web-order",(_event,order)=>runPrintExclusive(async()=>
  </body></html>`;
  const receiptWindow=new BrowserWindow({show:false,width:400,height:800,webPreferences:{nodeIntegration:false,contextIsolation:true}});
  try{
-  const printerName=await printHtmlToThermalPrinter(receiptWindow,html,"Comanda web/APK",{useNamedThermalPrinter:true});
+  const printerName=await printHtmlToThermalPrinter(receiptWindow,html,"Comanda web/APK",{systemDialog:true});
   const sent={printer:printerName,method:"Windows/Electron · formato 80mm"};
   console.log("Comanda web/APK enviada:",sent);printedOrderIds.add(id);
   persistPrintedOrderIds();
