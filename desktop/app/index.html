@@ -144,7 +144,7 @@ body{padding-bottom:68px}
   <input id="onlineStaffPass" type="password" autocomplete="current-password" placeholder="Contraseña" required style="flex:1;min-width:130px">
   <button type="submit" class="action primary">Conectar</button>
  </form>
- <div id="onlineOrdersLoginStatus" class="muted" role="status" style="margin-top:6px">Sin conexión de pedidos autenticada.</div>
+ <div id="onlineOrdersLoginStatus" class="muted" role="status" style="margin-top:6px">Sin conexión de pedidos autenticada.</div><button id="onlineOrdersLogout" type="button" class="action" onclick="logoutOnlineOrders()" style="display:none;margin-top:6px">Cerrar sesión de pedidos</button>
 </section>
 <div class="alert-grid" aria-label="Alertas independientes">
  <section class="alert-card orders-alert" aria-live="polite">
@@ -517,7 +517,7 @@ async function loginOnlineOrders(event){
   const result=await window.posBridge.loginOnlineOrders({username:document.getElementById("onlineStaffUser").value,password:document.getElementById("onlineStaffPass").value});
   if(!result?.ok)throw new Error(result?.error||"Credenciales no aceptadas.");
   document.getElementById("onlineStaffPass").value="";
-  const loginPanel=document.getElementById("onlineOrdersLogin");if(loginPanel)loginPanel.style.display="none";
+  const loginForm=document.querySelector("#onlineOrdersLogin form");if(loginForm)loginForm.style.display="none";const logoutBtn=document.getElementById("onlineOrdersLogout");if(logoutBtn)logoutBtn.style.display="inline-block";
   if(status)status.textContent="✓ Sesión conectada. Sincronizando pedidos Web/APK…";
   await checkOnlineOrderAlerts();
  }catch(error){if(status)status.textContent="Error de conexión: "+(error.message||error);}
@@ -604,6 +604,7 @@ async function openPosService(service){
 <script>function openStaffPanel(){document.getElementById("staffEmbedded").style.display="flex";document.body.style.overflow="hidden";}
 function closeStaffPanel(){document.getElementById("staffEmbedded").style.display="none";document.body.style.overflow="";document.getElementById("staffShortcut").focus();}
 document.addEventListener("keydown",event=>{if(event.key==="Escape"&&document.getElementById("staffEmbedded").style.display!=="none")closeStaffPanel();});</script><script>
+async function logoutOnlineOrders(){try{await window.posBridge.logoutOnlineOrders();const form=document.querySelector("#onlineOrdersLogin form");if(form)form.style.display="flex";const btn=document.getElementById("onlineOrdersLogout");if(btn)btn.style.display="none";const status=document.getElementById("onlineOrdersLoginStatus");if(status)status.textContent="Sesión cerrada. Ingresa nuevamente para conectar Web/APK.";renderPendingOrders();}catch{alert("No se pudo cerrar la sesión.");}}
 async function autoLoginOnlineOrders(){
  if(!window.posBridge?.getSavedOnlineCredentials)return;
  const status=document.getElementById("onlineOrdersLoginStatus");
@@ -613,7 +614,7 @@ async function autoLoginOnlineOrders(){
   if(userInput)userInput.value=saved.username;if(passInput)passInput.value=saved.password;
   if(status)status.textContent="🔐 Restaurando sesión guardada…";
   const result=await window.posBridge.loginOnlineOrders({username:saved.username,password:saved.password});
-  if(result?.ok){if(passInput)passInput.value="";const panel=document.getElementById("onlineOrdersLogin");if(panel)panel.style.display="none";if(status)status.textContent="✓ Sesión restaurada automáticamente.";await checkOnlineOrderAlerts();}
+  if(result?.ok){if(passInput)passInput.value="";const form=document.querySelector("#onlineOrdersLogin form");if(form)form.style.display="none";const logoutBtn=document.getElementById("onlineOrdersLogout");if(logoutBtn)logoutBtn.style.display="inline-block";if(status)status.textContent="✓ Sesión restaurada automáticamente.";await checkOnlineOrderAlerts();}
   else{if(passInput)passInput.value="";if(status)status.textContent="⚠ Sesión vencida. Ingresa nuevamente para reconectar.";}
  }catch(error){if(status)status.textContent="⚠ No se pudo restaurar sesión; conecta manualmente.";}
 }
