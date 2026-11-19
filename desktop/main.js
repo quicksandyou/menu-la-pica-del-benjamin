@@ -25,6 +25,10 @@ const SERVICE_CONFIG={
 const printedOrderIds=new Set();
 const printedOrdersFile=path.join(app.getPath("userData"),"printed-web-orders.json");
 const printerSettingsFile=path.join(app.getPath("userData"),"printer-settings.json");
+const screenSettingsFile=path.join(app.getPath("userData"),"screen-settings.json");
+let savedScreenSettings={width:1440,height:920,fullscreen:false};
+try{const candidate=JSON.parse(fs.readFileSync(screenSettingsFile,"utf8"));const validSizes=[[800,600],[1024,768],[1280,720],[1280,1024],[1366,768],[1440,900],[1600,900],[1920,1080]];if(validSizes.some(([w,h])=>candidate.width===w&&candidate.height===h))savedScreenSettings={width:candidate.width,height:candidate.height,fullscreen:!!candidate.fullscreen};}catch(_){}
+function persistScreenSettings(){try{fs.mkdirSync(path.dirname(screenSettingsFile),{recursive:true});fs.writeFileSync(screenSettingsFile,JSON.stringify(savedScreenSettings,null,2),"utf8");}catch(e){console.warn("No se pudo guardar configuración de pantalla:",e.message);}}
 let selectedPrinterName="";
 let printerMode="manual";
 try{
@@ -394,7 +398,7 @@ function configureAutoUpdates(){
 
 function createWindow(){
   win=new BrowserWindow({
-    width:1440,height:920,minWidth:1100,minHeight:720,
+    width:savedScreenSettings.width,height:savedScreenSettings.height,minWidth:800,minHeight:600,
     title:"La Picá del Benjamín",backgroundColor:"#100b07",autoHideMenuBar:true,
     webPreferences:{
       preload:path.join(__dirname,"preload.js"),
@@ -402,6 +406,10 @@ function createWindow(){
       partition:"persist:lapica-local"
     }
   });
+  if(savedScreenSettings.fullscreen)win.setFullScreen(true);
+  win.on("resize",()=>{if(!win.isFullScreen()&&!win.isMaximized()){const [width,height]=win.getSize();savedScreenSettings.width=width;savedScreenSettings.height=height;persistScreenSettings();}});
+  win.on("enter-full-screen",()=>{savedScreenSettings.fullscreen=true;persistScreenSettings();});
+  win.on("leave-full-screen",()=>{savedScreenSettings.fullscreen=false;persistScreenSettings();});
   // Inicio directo del POS local, como en la versión anterior.
   win.loadFile(path.join(__dirname,"app","index.html"));
   win.webContents.setWindowOpenHandler(({url})=>{
@@ -417,6 +425,9 @@ function createWindow(){
   });
   win.on("closed",()=>win=null);
 }
+ipcMain.handle("pos:set-window-size",async(_event,width,height)=>{const w=Number(width),h=Number(height);const allowed=[[800,600],[1024,768],[1280,720],[1280,1024],[1366,768],[1440,900],[1600,900],[1920,1080]];if(!allowed.some(([aw,ah])=>aw===w&&ah===h))throw new Error("Resolución no permitida.");if(!win||win.isDestroyed())throw new Error("Ventana POS no disponible.");if(win.isFullScreen())win.setFullScreen(false);win.setSize(w,h);win.center();savedScreenSettings={width:w,height:h,fullscreen:false};persistScreenSettings();return {ok:true,width:w,height:h};});
+ipcMain.handle("pos:toggle-fullscreen",async()=>{if(!win||win.isDestroyed())throw new Error("Ventana POS no disponible.");const next=!win.isFullScreen();win.setFullScreen(next);savedScreenSettings.fullscreen=next;persistScreenSettings();return {ok:true,fullscreen:next};});
+ipcMain.handle("pos:set-fullscreen",async(_event,value)=>{if(!win||win.isDestroyed())throw new Error("Ventana POS no disponible.");const next=!!value;win.setFullScreen(next);savedScreenSettings.fullscreen=next;persistScreenSettings();return {ok:true,fullscreen:next};});
 ipcMain.handle("pos:focus-window",async()=>{
  if(!win||win.isDestroyed())return false;
  if(win.isMinimized())win.restore();
