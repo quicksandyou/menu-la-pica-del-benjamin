@@ -440,8 +440,20 @@ if(gotSingleInstanceLock) app.whenReady().then(()=>{createWindow();configureAuto
 app.on("window-all-closed",()=>{if(process.platform!=="darwin")app.quit()});
 app.on("activate",()=>{if(BrowserWindow.getAllWindows().length===0)createWindow()});
 
+ipcMain.handle("pos:login-online-orders",async(_event,credentials={})=>{
+ if(!win||win.isDestroyed())return {ok:false,error:"POS no disponible."};
+ try{
+  const response=await win.webContents.session.fetch("https://menu-la-pica-del-benjamin-pago.onrender.com/api/personal/login",{
+   method:"POST",credentials:"include",headers:{"Accept":"application/json","Content-Type":"application/json"},
+   body:JSON.stringify({username:String(credentials.username||"").trim(),password:String(credentials.password||"")})
+  });
+  const data=await response.json().catch(()=>({}));
+  if(!response.ok)return {ok:false,error:data.error||("Inicio de sesión HTTP "+response.status)};
+  return {ok:true,user:data.user||null,mustChangePassword:Boolean(data.mustChangePassword)};
+ }catch(error){return {ok:false,error:error.message||"No se pudo conectar al servidor."};}
+});
 ipcMain.handle("pos:poll-online-orders",async()=>{
- if(!win||win.isDestroyed())return {ok:false,orders:[]};
+ if(!win||win.isDestroyed())return {ok:false,orders:[],error:error.message||"No se pudieron consultar pedidos. Inicia sesión en el POS."};
  try{
   const base=new Date(),dates=[];
   for(let d=0;d<7;d++){const day=new Date(base);day.setDate(base.getDate()-d);dates.push(new Intl.DateTimeFormat("en-CA",{timeZone:"America/Santiago",year:"numeric",month:"2-digit",day:"2-digit"}).format(day));}
@@ -451,7 +463,7 @@ ipcMain.handle("pos:poll-online-orders",async()=>{
    const data=await response.json();return Array.isArray(data.orders)?data.orders:[];
   }));
   const unique=new Map();
-  for(const o of results.flat())if(String(o.source||"online").toLowerCase()==="online")unique.set(String(o.id),o);
+  for(const o of results.flat())if(["online","web","apk","website","delivery"].includes(String(o.source||"online").toLowerCase()))unique.set(String(o.id),o);
   return {ok:true,orders:[...unique.values()].map(o=>({id:o.id,order_number:o.order_number,customer_name:o.customer_name,customer_phone:o.customer_phone,delivery_method:o.delivery_method,delivery_address:o.delivery_address,locality:o.locality,total_clp:o.total_clp,payment_status:o.payment_status,approval_status:o.approval_status,delivery_status:o.delivery_status,created_at:o.created_at,items_json:o.items_json,notes:o.notes}))};
  }catch(error){console.warn("No se pudieron consultar pedidos web:",error.message);return {ok:false,orders:[]};}
 });
