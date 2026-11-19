@@ -52,7 +52,7 @@ jobs:
           if [ -f reparto-manifest.json ]; then cp reparto-manifest.json www/reparto-manifest.json; fi
       - name: Preparar Capacitor
         run: |
-          npm install --no-save @capacitor/core@^7 @capacitor/cli@^7 @capacitor/android@^7 @capacitor/app-launcher@^7 sharp
+          npm install --no-save @capacitor/core@^7 @capacitor/cli@^7 @capacitor/android@^7 @capacitor/app-launcher@^7 @capacitor/browser@^7 sharp
           npx cap add android
           npx cap sync android
       - name: Habilitar apertura de aplicaciones bancarias instaladas
