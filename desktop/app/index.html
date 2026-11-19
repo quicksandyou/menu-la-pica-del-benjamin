@@ -246,14 +246,18 @@ body.display-1280x1024 .price{font-size:18px}
 .settings-card #displayProfile{display:block;width:100%;max-width:none;min-width:0;padding:12px;font-size:15px}
 .settings-card p{font-size:12px;line-height:1.5;color:#594632;margin:9px 0 0}
 .settings-card .settings-note{font-weight:800;color:#8a3f0c}
+/* Configuración multi-resolución y escala personalizable */
+.display-scale-control{margin-top:14px}.display-scale-control label{display:flex;justify-content:space-between;align-items:center;gap:8px}.display-scale-control label strong{font-size:16px;color:#8a3f0c}.display-scale-control input[type=range]{width:100%;margin:12px 0;accent-color:#b87323}.scale-labels{display:flex;justify-content:space-between;color:#6d5634;font-size:11px}.display-settings-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.display-settings-actions button{flex:1;min-height:42px;background:#382412;color:#ffe4a8;border:1px solid #a86a28;border-radius:8px;padding:9px 12px;font-weight:800}.settings-card{width:min(100%,720px)}.settings-card #displayProfile{font-size:14px;padding:11px}@media(max-width:520px){.display-settings-actions button{flex-basis:100%}}
 </style></head><body><header class="top"><div><div class="brand">🍔 LA PICÁ DEL BENJAMÍN</div><div class="sub">Punto de venta local · Uso interno</div></div><div class="top-actions"><button id="gmailShortcut" type="button" onclick="openPosService(&quot;gmail&quot;)">✉️ Gmail</button><button id="whatsappShortcut" type="button" onclick="openPosService(&quot;whatsapp&quot;)">💬 WhatsApp</button><button id="staffShortcut" type="button" onclick="openStaffPanel()">🚴 Repartidor / Jefatura</button><button id="settingsShortcut" type="button" onclick="openSettingsPanel()">⚙️ Configuración</button></div></header>
 
 <main id="app" class="wrap"><section id="settingsPanel" class="settings-panel hidden" aria-label="Configuración de pantalla">
  <div class="settings-heading"><div><h2>⚙️ Configuración del POS</h2><p>Personaliza cómo se ve el punto de venta en tu monitor.</p></div><button type="button" class="settings-close" onclick="closeSettingsPanel()">← Volver al POS</button></div>
  <div class="settings-card"><label for="displayProfile">Resolución / tamaño de pantalla</label>
-  <select id="displayProfile" aria-label="Tamaño de interfaz" title="Adaptar interfaz a la pantalla"><option value="auto">Automático (detecta el monitor)</option><option value="compact">Compacta · 848 × 480</option><option value="standard">Estándar</option><option value="large">Amplia · monitores grandes</option><option value="1280x1024">1280 × 1024 · monitor 5:4</option></select>
-  <p>El cambio se aplica inmediatamente y queda guardado en este computador. Puedes volver a cambiarlo cuando conectes otro monitor.</p>
-  <p class="settings-note">Importante: esto adapta el tamaño y la distribución del POS. No cambia la resolución de Windows.</p>
+  <select id="displayProfile" aria-label="Perfil de pantalla" title="Adaptar interfaz a diferentes resoluciones"><option value="auto">Automático · detectar tamaño disponible</option><option value="compact">Compacta · 848 × 480</option><option value="1024x600">1024 × 600</option><option value="1024x768">1024 × 768</option><option value="1280x720">1280 × 720 · HD</option><option value="1280x1024">1280 × 1024</option><option value="1366x768">1366 × 768</option><option value="1440x900">1440 × 900</option><option value="1600x900">1600 × 900</option><option value="1920x1080">1920 × 1080 · Full HD</option><option value="2560x1440">2560 × 1440 · QHD / 2K</option><option value="3840x2160">3840 × 2160 · 4K UHD</option></select>
+  <div class="display-scale-control"><label for="displayScale">Escala de interfaz <strong id="displayScaleValue">100%</strong></label><input id="displayScale" type="range" min="80" max="150" step="5" value="100"><div class="scale-labels"><span>80% compacta</span><span>150% grande</span></div></div>
+  <div class="display-settings-actions"><button type="button" id="displayReset">↺ Restaurar ajustes</button><button type="button" id="displayFullscreen">⛶ Pantalla completa</button></div>
+  <p>El perfil ajusta distribución y densidad del POS para el tamaño indicado. La escala permite agrandar o achicar botones y textos.</p>
+  <p class="settings-note">No cambia la resolución de Windows; adapta la interfaz dentro de la ventana y aprovecha el monitor disponible.</p>
  </div>
 </section>
 <div class="alert-grid" aria-label="Alertas independientes">
@@ -349,12 +353,15 @@ const money=n=>'$'+Number(n||0).toLocaleString('es-CL');
 
 function openSettingsPanel(){const panel=document.getElementById("settingsPanel");if(panel){panel.classList.remove("hidden");panel.scrollIntoView({behavior:"smooth",block:"start"});}}
 function closeSettingsPanel(){const panel=document.getElementById("settingsPanel");if(panel)panel.classList.add("hidden");document.getElementById("settingsShortcut")?.focus();}
+const DISPLAY_PROFILES=["auto","compact","1024x600","1024x768","1280x720","1280x1024","1366x768","1440x900","1600x900","1920x1080","2560x1440","3840x2160"];
+const DISPLAY_PROFILE_DENSITY={"1024x600":"compact","1024x768":"compact","1280x720":"standard","1280x1024":"1280x1024","1366x768":"standard","1440x900":"standard","1600x900":"large","1920x1080":"large","2560x1440":"large","3840x2160":"large"};
 function applyDisplayProfile(profile){
  const select=document.getElementById("displayProfile");
  const chosen=profile||select?.value||"auto";
  const body=document.body;
  body.classList.remove("display-compact","display-standard","display-large","display-1280x1024");
  let effective=chosen;
+ if(DISPLAY_PROFILE_DENSITY[chosen])effective=DISPLAY_PROFILE_DENSITY[chosen];
  if(chosen==="auto"){
   const width=window.innerWidth||document.documentElement.clientWidth;
   const height=window.innerHeight||document.documentElement.clientHeight;
@@ -364,16 +371,37 @@ function applyDisplayProfile(profile){
  if(select&&select.value!==chosen)select.value=chosen;
  try{localStorage.setItem("lapica_pos_display_profile",chosen);}catch(_){}
 }
+function applyDisplayScale(value,save=true){
+ const scale=Math.max(80,Math.min(150,Number(value)||100));
+ document.body.style.zoom=(scale/100).toString();
+ const label=document.getElementById("displayScaleValue");
+ if(label)label.textContent=scale+"%";
+ const slider=document.getElementById("displayScale");
+ if(slider&&slider.value!==String(scale))slider.value=String(scale);
+ if(save)try{localStorage.setItem("lapica_pos_display_scale",String(scale));}catch(_){}
+}
 function iniciarPOS(){
  const displaySelect=document.getElementById("displayProfile");
- let savedProfile="auto";
- try{savedProfile=localStorage.getItem("lapica_pos_display_profile")||"auto";}catch(_){}
+ const displayScale=document.getElementById("displayScale");
+ let savedProfile="auto",savedScale="100";
+ try{savedProfile=localStorage.getItem("lapica_pos_display_profile")||"auto";savedScale=localStorage.getItem("lapica_pos_display_scale")||"100";}catch(_){}
  if(displaySelect){
-  displaySelect.value=["auto","compact","standard","large","1280x1024"].includes(savedProfile)?savedProfile:"auto";
+  displaySelect.value=DISPLAY_PROFILES.includes(savedProfile)?savedProfile:"auto";
   applyDisplayProfile(displaySelect.value);
   displaySelect.addEventListener("change",()=>applyDisplayProfile(displaySelect.value));
   window.addEventListener("resize",()=>{if(displaySelect.value==="auto")applyDisplayProfile("auto");});
  }
+ applyDisplayScale(savedScale,false);
+ if(displayScale)displayScale.addEventListener("input",()=>applyDisplayScale(displayScale.value));
+ document.getElementById("displayReset")?.addEventListener("click",()=>{
+  if(displaySelect)displaySelect.value="auto";
+  applyDisplayProfile("auto");
+  applyDisplayScale(100);
+ });
+ document.getElementById("displayFullscreen")?.addEventListener("click",()=>{
+  if(document.fullscreenElement)document.exitFullscreen?.();
+  else document.documentElement.requestFullscreen?.();
+ });
  renderTabs();renderProducts();drawCart();
  const tabs=document.getElementById('tabs');
  const products=document.getElementById('products');
