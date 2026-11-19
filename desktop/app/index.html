@@ -136,6 +136,16 @@ body{padding-bottom:68px}
 </style></head><body><header class="top"><div><div class="brand">🍔 LA PICÁ DEL BENJAMÍN</div><div class="sub">Punto de venta local · Uso interno</div></div><div class="top-actions"><button id="gmailShortcut" type="button" onclick="openPosService(&quot;gmail&quot;)">✉️ Gmail</button><button id="whatsappShortcut" type="button" onclick="openPosService(&quot;whatsapp&quot;)">💬 WhatsApp</button><button id="settingsShortcut" type="button" onclick="openSettingsPanel()">⚙️ Configuraciones</button><button id="staffShortcut" type="button" onclick="openStaffPanel()">🚴 Repartidor / Jefatura</button></div></header>
 
 <main id="app" class="wrap">
+<section id="onlineOrdersLogin" class="alert-card" style="margin-bottom:12px">
+ <strong>🔐 Conectar pedidos Web y APK</strong>
+ <p class="muted" style="margin:6px 0">Inicia sesión con tu usuario de personal para habilitar la sincronización segura.</p>
+ <form onsubmit="loginOnlineOrders(event)" style="display:flex;gap:8px;flex-wrap:wrap">
+  <input id="onlineStaffUser" autocomplete="username" placeholder="Usuario de personal" required style="flex:1;min-width:130px">
+  <input id="onlineStaffPass" type="password" autocomplete="current-password" placeholder="Contraseña" required style="flex:1;min-width:130px">
+  <button type="submit" class="action primary">Conectar</button>
+ </form>
+ <div id="onlineOrdersLoginStatus" class="muted" role="status" style="margin-top:6px">Sin conexión de pedidos autenticada.</div>
+</section>
 <div class="alert-grid" aria-label="Alertas independientes">
  <section class="alert-card orders-alert" aria-live="polite">
   <div class="alert-heading"><strong>🛎️ PEDIDOS EN LÍNEA · WEB Y APK</strong><span id="ordersAlertCount">0</span></div>
@@ -497,17 +507,32 @@ function showAlertMessage(id,message,countId,count){
  const el=document.getElementById(id),badge=document.getElementById(countId);
  if(el)el.textContent=message;if(badge)badge.textContent=String(count);
 }
+async function loginOnlineOrders(event){
+ event?.preventDefault();
+ const status=document.getElementById("onlineOrdersLoginStatus");
+ const button=document.querySelector("#onlineOrdersLogin button[type=submit]");
+ if(button)button.disabled=true;
+ if(status)status.textContent="Conectando…";
+ try{
+  const result=await window.posBridge.loginOnlineOrders({username:document.getElementById("onlineStaffUser").value,password:document.getElementById("onlineStaffPass").value});
+  if(!result?.ok)throw new Error(result?.error||"Credenciales no aceptadas.");
+  document.getElementById("onlineStaffPass").value="";
+  if(status)status.textContent="✓ Sesión conectada. Sincronizando pedidos Web/APK…";
+  await checkOnlineOrderAlerts();
+ }catch(error){if(status)status.textContent="Error de conexión: "+(error.message||error);}
+ finally{if(button)button.disabled=false;}
+}
 async function checkOnlineOrderAlerts(){
  if(!window.posBridge||typeof window.posBridge.pollOnlineOrders!=="function")return;
  try{
-  const result=await window.posBridge.pollOnlineOrders();if(!result||!result.ok)return;
+  const result=await window.posBridge.pollOnlineOrders();if(!result||!result.ok){const loginStatus=document.getElementById("onlineOrdersLoginStatus");if(loginStatus)loginStatus.textContent="⚠ "+(result?.error||"No hay sesión. Conecta el usuario de personal.");return;} const loginStatus=document.getElementById("onlineOrdersLoginStatus");if(loginStatus)loginStatus.textContent="✓ Pedidos Web/APK conectados · actualización cada 12 segundos.";
   const orders=Array.isArray(result.orders)?result.orders:[];
   const current=new Map(orders.map(o=>[String(o.id),o]));
   if(knownOnlineOrders===null){
    knownOnlineOrders=current;
    knownPaymentStatuses=new Map(orders.map(o=>[String(o.id),String(o.payment_status||"pending").toLowerCase()]));
    const recovered=enqueueOrders(orders);
-   if(recovered){duckMusicForOrder();playAlertTone("order");}
+   if(recovered){ordersAlertTotal+=recovered;paymentsAlertTotal+=orders.filter(o=>["paid","approved","accredited"].includes(String(o.payment_status||"").toLowerCase())).length;duckMusicForOrder();playAlertTone("order");}
    return;
   }
   const newOrders=[...current.keys()].filter(id=>!knownOnlineOrders.has(id));
