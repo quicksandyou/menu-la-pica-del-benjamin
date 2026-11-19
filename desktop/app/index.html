@@ -526,13 +526,13 @@ async function checkOnlineOrderAlerts(){
  if(!window.posBridge||typeof window.posBridge.pollOnlineOrders!=="function")return;
  try{
   const result=await window.posBridge.pollOnlineOrders();if(!result||!result.ok){const loginStatus=document.getElementById("onlineOrdersLoginStatus");if(loginStatus)loginStatus.textContent="⚠ "+(result?.error||"No hay sesión. Conecta el usuario de personal.");return;} const loginStatus=document.getElementById("onlineOrdersLoginStatus");if(loginStatus)loginStatus.textContent="✓ Pedidos Web/APK conectados · actualización cada 12 segundos.";
-  const orders=Array.isArray(result.orders)?result.orders:[];
+  const orders=(Array.isArray(result.orders)?result.orders:[]).filter(isPaidOrderToday);
   const current=new Map(orders.map(o=>[String(o.id),o]));
   if(knownOnlineOrders===null){
    knownOnlineOrders=current;
    knownPaymentStatuses=new Map(orders.map(o=>[String(o.id),String(o.payment_status||"pending").toLowerCase()]));
    const recovered=enqueueOrders(orders);
-   if(recovered){ordersAlertTotal+=recovered;const paidRecovered=orders.filter(o=>["paid","approved","accredited"].includes(String(o.payment_status||"").toLowerCase()));paymentsAlertTotal+=paidRecovered.length;showAlertMessage("paymentsAlertMessage",paidRecovered.length?"⚠ "+paidRecovered.length+" pedido(s) recuperado(s) con pago confirmado. Revisa la cola de impresión.":"Sin pagos confirmados nuevos.","paymentsAlertCount",paymentsAlertTotal);duckMusicForOrder();playAlertTone("order");}
+   if(recovered){ordersAlertTotal+=recovered;const paidRecovered=orders.filter(o=>["paid","approved","accredited"].includes(String(o.payment_status||"").toLowerCase()));paymentsAlertTotal+=paidRecovered.length;showAlertMessage("paymentsAlertMessage",paidRecovered.length?"⚠ "+paidRecovered.length+" pedido(s) recuperado(s) con pago confirmado. Revisa la cola de impresión.":"Sin pagos confirmados nuevos.","paymentsAlertCount",paymentsAlertTotal);duckMusicForOrder();playAlertTone("payment");}
    return;
   }
   const newOrders=[...current.keys()].filter(id=>!knownOnlineOrders.has(id));
@@ -543,7 +543,7 @@ async function checkOnlineOrderAlerts(){
    knownPaymentStatuses.set(id,status);
   }
   knownOnlineOrders=current;
-  if(newOrders.length){ordersAlertTotal+=newOrders.length;showAlertMessage("ordersAlertMessage","🔔 "+newOrders.length+" pedido(s) nuevo(s) de Web/APK recibido(s). Revisa la cola de impresión.","ordersAlertCount",ordersAlertTotal);duckMusicForOrder();playAlertTone("order");}
+  if(newOrders.length){ordersAlertTotal+=newOrders.length;showAlertMessage("ordersAlertMessage","🔔 "+newOrders.length+" pedido(s) nuevo(s) de Web/APK recibido(s). Revisa la cola de impresión.","ordersAlertCount",ordersAlertTotal);duckMusicForOrder();playAlertTone("payment");}
   enqueueOrders(orders);
   if(newOrders.length&&printerMode==="automatic")await autoPrintNewOrders(newOrders.map(id=>current.get(id)).filter(Boolean));
   if(paidOrders.length){paymentsAlertTotal+=paidOrders.length;showAlertMessage("paymentsAlertMessage","💳 "+paidOrders.length+" pago(s) confirmado(s) detectado(s). Revisa los pedidos.","paymentsAlertCount",paymentsAlertTotal);playAlertTone("payment");}
