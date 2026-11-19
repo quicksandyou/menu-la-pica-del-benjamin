@@ -1537,7 +1537,7 @@ function validateSharedMenu(data){
 async function loadSharedMenu(){
  const status=document.getElementById('menuSyncStatus');
  if(status)status.textContent='Comprobando carta segura…';
- const urls=NATIVE_APP_MODE?['https://menu-la-pica-del-benjamin.onrender.com/menu.json?v='+Date.now(),'https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/menu.json?v='+Date.now(),'./menu.json?v='+Date.now()]:['/menu.json?v='+Date.now(),'https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/menu.json?v='+Date.now()];
+ const urls=NATIVE_APP_MODE?['https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/menu.json?v='+Date.now(),'https://menu-la-pica-del-benjamin.onrender.com/menu.json?v='+Date.now(),'./menu.json?v='+Date.now()]:['/menu.json?v='+Date.now(),'https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/menu.json?v='+Date.now()];
  let data=null,source='',errors=[];
  for(const url of urls){const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),10000);try{const response=await fetch(url,{cache:'no-store',signal:controller.signal});if(!response.ok)throw new Error('HTTP '+response.status);const candidate=validateSharedMenu(await response.json());data=candidate;source=url.startsWith('./')?'app-local':url.startsWith('/')?'web':'github';break;}catch(e){errors.push(url+': '+e.message);}finally{clearTimeout(timer);}}
  if(!data){try{const cached=localStorage.getItem('pica-menu-last-valid-v1');if(cached){data=validateSharedMenu(JSON.parse(cached));source='cache-local';}}catch(e){errors.push('caché local: '+e.message);}}
