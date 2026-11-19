@@ -31,16 +31,7 @@ jobs:
         shell: pwsh
         run: |
           python -m pip install --quiet Pillow
-          @'
-          from PIL import Image
-          source = Image.open("build/icon.ico.ico.ico").convert("RGBA")
-          source = source.resize((256, 256), Image.Resampling.LANCZOS)
-          source.save("build/icon.ico", format="ICO", sizes=[(256,256)])
-          check = Image.open("build/icon.ico")
-          print("Icono ICO generado:", check.size)
-          if check.size != (256, 256):
-              raise SystemExit("El icono final no es exactamente 256x256")
-          print("Icono Windows validado: 256x256")          '@ | python -
+          python -c "from PIL import Image; source=Image.open('build/icon.ico.ico.ico').convert('RGBA'); source=source.resize((256,256),Image.Resampling.LANCZOS); source.save('build/icon.ico',format='ICO',sizes=[(256,256)]); check=Image.open('build/icon.ico'); print('ICO size:',check.size); assert check.size==(256,256), 'ICO must be 256x256'; print('ICO validated')"
       - name: Build Windows installer
         working-directory: desktop
         run: npx electron-builder --win nsis --publish never
