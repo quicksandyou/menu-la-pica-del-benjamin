@@ -508,11 +508,20 @@ document.addEventListener("click",event=>{
  if(button)printPendingOrder(button.dataset.printOrder,button);
 });
 renderPendingOrders();
+function unlockAlertAudio(){
+ try{
+  const AudioCtx=window.AudioContext||window.webkitAudioContext;if(!AudioCtx)return;
+  alertSoundContext=alertSoundContext||new AudioCtx();
+  if(alertSoundContext.state==="suspended")alertSoundContext.resume().catch(()=>{});
+ }catch(e){console.warn("No se pudo habilitar audio:",e);}
+}
+document.addEventListener("pointerdown",unlockAlertAudio,{once:true,capture:true});
+document.addEventListener("keydown",unlockAlertAudio,{once:true,capture:true});
 function playAlertTone(kind){
  try{
   const AudioCtx=window.AudioContext||window.webkitAudioContext;if(!AudioCtx)return;
   alertSoundContext=alertSoundContext||new AudioCtx();
-  if(alertSoundContext.state==="suspended")alertSoundContext.resume();
+  if(alertSoundContext.state==="suspended"){alertSoundContext.resume().catch(()=>{});}
   const ctx=alertSoundContext;
   const notes=kind==="payment"?[660,880,1175]:[880,1046,880];
   notes.forEach((frequency,i)=>{
@@ -551,22 +560,25 @@ async function checkOnlineOrderAlerts(){
   const result=await window.posBridge.pollOnlineOrders();if(!result||!result.ok){const loginStatus=document.getElementById("onlineOrdersLoginStatus");if(loginStatus)loginStatus.textContent="⚠ "+(result?.error||"No hay sesión. Conecta el usuario de personal.");return;} const loginStatus=document.getElementById("onlineOrdersLoginStatus");if(loginStatus)loginStatus.textContent="✓ Pedidos Web/APK conectados · actualización cada 12 segundos.";
   const orders=(Array.isArray(result.orders)?result.orders:[]).filter(isPaidOrderToday);
   const current=new Map(orders.map(o=>[String(o.id),o]));
+  const paidStatuses=["paid","approved","accredited","completed","processed","succeeded","success"];
   if(knownOnlineOrders===null){
    knownOnlineOrders=current;
    knownPaymentStatuses=new Map(orders.map(o=>[String(o.id),String(o.payment_status||"pending").toLowerCase()]));
    const recovered=enqueueOrders(orders);
-   if(recovered){ordersAlertTotal+=recovered;const paidRecovered=orders.filter(o=>["paid","approved","accredited","completed","processed","succeeded","success"].includes(String(o.payment_status||"").toLowerCase()));paymentsAlertTotal+=paidRecovered.length;showAlertMessage("paymentsAlertMessage",paidRecovered.length?"⚠ "+paidRecovered.length+" pedido(s) recuperado(s) con pago confirmado. Revisa la cola de impresión.":"Sin pagos confirmados nuevos.","paymentsAlertCount",paymentsAlertTotal);duckMusicForOrder();playAlertTone("payment");}
+   if(recovered){ordersAlertTotal+=recovered;showAlertMessage("ordersAlertMessage","🔔 "+recovered+" pedido(s) recuperado(s) de Web/APK. Revisa la cola de impresión.","ordersAlertCount",ordersAlertTotal);duckMusicForOrder();playAlertTone("order");}
+   const paidRecovered=orders.filter(o=>paidStatuses.includes(String(o.payment_status||"").toLowerCase()));
+   if(paidRecovered.length){paymentsAlertTotal+=paidRecovered.length;showAlertMessage("paymentsAlertMessage","💳 "+paidRecovered.length+" pedido(s) con pago confirmado detectado(s).","paymentsAlertCount",paymentsAlertTotal);playAlertTone("payment");}
    return;
   }
   const newOrders=[...current.keys()].filter(id=>!knownOnlineOrders.has(id));
-  const paidOrders=[];
+  const paidOrders=newOrders.map(id=>current.get(id)).filter(o=>paidStatuses.includes(String(o?.payment_status||"").toLowerCase()));
   for(const [id,o] of current){
    const status=String(o.payment_status||"pending").toLowerCase(),previous=knownPaymentStatuses.get(id);
-   if(previous!==undefined&&["paid","approved","accredited","completed","processed","succeeded","success"].includes(status)&&!["paid","approved","accredited","completed","processed","succeeded","success"].includes(previous))paidOrders.push(o);
+   if(previous!==undefined&&paidStatuses.includes(status)&&!paidStatuses.includes(previous)&&!paidOrders.some(p=>String(p.id)===id))paidOrders.push(o);
    knownPaymentStatuses.set(id,status);
   }
   knownOnlineOrders=current;
-  if(newOrders.length){ordersAlertTotal+=newOrders.length;showAlertMessage("ordersAlertMessage","🔔 "+newOrders.length+" pedido(s) nuevo(s) de Web/APK recibido(s). Revisa la cola de impresión.","ordersAlertCount",ordersAlertTotal);duckMusicForOrder();playAlertTone("payment");}
+  if(newOrders.length){ordersAlertTotal+=newOrders.length;showAlertMessage("ordersAlertMessage","🔔 "+newOrders.length+" pedido(s) nuevo(s) de Web/APK recibido(s). Revisa la cola de impresión.","ordersAlertCount",ordersAlertTotal);duckMusicForOrder();playAlertTone("order");}
   enqueueOrders(orders);
   if(newOrders.length&&printerMode==="automatic")await autoPrintNewOrders(newOrders.map(id=>current.get(id)).filter(Boolean));
   if(paidOrders.length){paymentsAlertTotal+=paidOrders.length;showAlertMessage("paymentsAlertMessage","💳 "+paidOrders.length+" pago(s) confirmado(s) detectado(s). Revisa los pedidos.","paymentsAlertCount",paymentsAlertTotal);playAlertTone("payment");}
