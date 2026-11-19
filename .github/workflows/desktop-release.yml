@@ -37,7 +37,7 @@ jobs:
           source = source.resize((256, 256), Image.Resampling.LANCZOS)
           source.save("build/icon.ico", format="ICO", sizes=[(256,256),(128,128),(64,64),(48,48),(32,32),(24,24),(16,16)])
           check = Image.open("build/icon.ico")
-          available_sizes = getattr(check, "ico", None).sizes if getattr(check, "ico", None) else set()
+          available_sizes = getattr(check, "ico", None).sizes() if getattr(check, "ico", None) else set()
           print("Tamaños disponibles en ICO:", sorted(available_sizes))
           if (256, 256) not in available_sizes:
               raise SystemExit("El ICO generado no contiene un recurso de 256x256")
