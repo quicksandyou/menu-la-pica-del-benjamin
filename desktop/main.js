@@ -453,17 +453,17 @@ ipcMain.handle("pos:login-online-orders",async(_event,credentials={})=>{
  }catch(error){return {ok:false,error:error.message||"No se pudo conectar al servidor."};}
 });
 ipcMain.handle("pos:poll-online-orders",async()=>{
- if(!win||win.isDestroyed())return {ok:false,orders:[],error:error.message||"No se pudieron consultar pedidos. Inicia sesión en el POS."};
+ if(!win||win.isDestroyed())return {ok:false,orders:[],error:"POS no disponible."};
  try{
   const base=new Date(),dates=[];
   for(let d=0;d<7;d++){const day=new Date(base);day.setDate(base.getDate()-d);dates.push(new Intl.DateTimeFormat("en-CA",{timeZone:"America/Santiago",year:"numeric",month:"2-digit",day:"2-digit"}).format(day));}
   const results=await Promise.all(dates.map(async date=>{
-   const response=await win.webContents.session.fetch("https://menu-la-pica-del-benjamin-pago.onrender.com/api/reparto/pedidos?date="+date,{headers:{"Accept":"application/json"}});
+   const response=await win.webContents.session.fetch("https://menu-la-pica-del-benjamin-pago.onrender.com/api/reparto/pedidos?date="+date,{credentials:"include",headers:{"Accept":"application/json"}});
    if(!response.ok)throw new Error("Consulta de pedidos "+date+": HTTP "+response.status);
    const data=await response.json();return Array.isArray(data.orders)?data.orders:[];
   }));
   const unique=new Map();
   for(const o of results.flat())if(["online","web","apk","website","delivery"].includes(String(o.source||"online").toLowerCase()))unique.set(String(o.id),o);
   return {ok:true,orders:[...unique.values()].map(o=>({id:o.id,order_number:o.order_number,customer_name:o.customer_name,customer_phone:o.customer_phone,delivery_method:o.delivery_method,delivery_address:o.delivery_address,locality:o.locality,total_clp:o.total_clp,payment_status:o.payment_status,approval_status:o.approval_status,delivery_status:o.delivery_status,created_at:o.created_at,items_json:o.items_json,notes:o.notes}))};
- }catch(error){console.warn("No se pudieron consultar pedidos web:",error.message);return {ok:false,orders:[]};}
+ }catch(error){console.warn("No se pudieron consultar pedidos web:",error.message);return {ok:false,orders:[],error:error.message||"No se pudieron consultar pedidos. Revisa tu sesión de personal."};}
 });
