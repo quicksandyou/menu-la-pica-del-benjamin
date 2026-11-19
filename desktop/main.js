@@ -440,6 +440,16 @@ if(gotSingleInstanceLock) app.whenReady().then(()=>{createWindow();configureAuto
 app.on("window-all-closed",()=>{if(process.platform!=="darwin")app.quit()});
 app.on("activate",()=>{if(BrowserWindow.getAllWindows().length===0)createWindow()});
 
+const onlineCredentialsFile=path.join(app.getPath("userData"),"online-orders-credentials.bin");
+function readOnlineCredentials(){
+ try{if(!fs.existsSync(onlineCredentialsFile)||!require("electron").safeStorage.isEncryptionAvailable())return null;return JSON.parse(require("electron").safeStorage.decryptString(fs.readFileSync(onlineCredentialsFile)));}catch{return null;}
+}
+function saveOnlineCredentials(credentials){
+ try{const safe=require("electron").safeStorage;if(!safe.isEncryptionAvailable())return false;fs.writeFileSync(onlineCredentialsFile,safe.encryptString(JSON.stringify({username:String(credentials.username||""),password:String(credentials.password||"")})),{mode:0o600});return true;}catch{return false;}
+}
+ipcMain.handle("pos:get-saved-online-credentials",()=>readOnlineCredentials());
+ipcMain.handle("pos:save-online-credentials",(_event,credentials)=>({ok:saveOnlineCredentials(credentials)}));
+ipcMain.handle("pos:clear-online-credentials",()=>{try{if(fs.existsSync(onlineCredentialsFile))fs.unlinkSync(onlineCredentialsFile);return {ok:true};}catch{return {ok:false};}});
 ipcMain.handle("pos:login-online-orders",async(_event,credentials={})=>{
  if(!win||win.isDestroyed())return {ok:false,error:"POS no disponible."};
  try{
@@ -449,6 +459,7 @@ ipcMain.handle("pos:login-online-orders",async(_event,credentials={})=>{
   });
   const data=await response.json().catch(()=>({}));
   if(!response.ok)return {ok:false,error:data.error||("Inicio de sesión HTTP "+response.status)};
+  saveOnlineCredentials(credentials);
   return {ok:true,user:data.user||null,mustChangePassword:Boolean(data.mustChangePassword)};
  }catch(error){return {ok:false,error:error.message||"No se pudo conectar al servidor."};}
 });
