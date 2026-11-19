@@ -426,6 +426,18 @@ function readPrintQueue(){try{const value=JSON.parse(localStorage.getItem(PRINT_
 function savePrintQueue(queue){try{localStorage.setItem(PRINT_QUEUE_KEY,JSON.stringify(queue.slice(-2000)));}catch(e){console.error("No se pudo guardar cola local:",e);}}
 function readPrintedOnlineIds(){try{const value=JSON.parse(localStorage.getItem(PRINTED_ONLINE_KEY)||"[]");return new Set(Array.isArray(value)?value.map(String):[]);}catch(_){return new Set();}}
 function savePrintedOnlineId(id){try{const ids=readPrintedOnlineIds();ids.add(String(id));localStorage.setItem(PRINTED_ONLINE_KEY,JSON.stringify([...ids].slice(-2000)));}catch(e){console.error("No se pudo guardar historial de impresión web:",e);}}
+function chileDateKey(value){
+ const d=value?new Date(value):new Date();
+ if(Number.isNaN(d.getTime()))return "";
+ return new Intl.DateTimeFormat("en-CA",{timeZone:"America/Santiago",year:"numeric",month:"2-digit",day:"2-digit"}).format(d);
+}
+function isPaidOrderToday(order){
+ const status=String(order?.payment_status||order?.status||"").toLowerCase().trim();
+ const approval=String(order?.approval_status||"").toLowerCase().trim();
+ const paid=["paid","approved","accredited","completed"].includes(status);
+ const date=order?.created_at||order?.createdAt||order?.date||order?.datetime;
+ return paid&&approval!=="rejected"&&date&&chileDateKey(date)===chileDateKey(new Date());
+}
 function enqueueOrders(orders){
  const queue=readPrintQueue(),ids=new Set(queue.map(o=>String(o.id))),printed=readPrintedOnlineIds();
  let added=0;
@@ -548,7 +560,7 @@ async function checkOnlineOrderAlerts(){
   enqueueOrders(orders);
   if(newOrders.length&&printerMode==="automatic")await autoPrintNewOrders(newOrders.map(id=>current.get(id)).filter(Boolean));
   if(paidOrders.length){paymentsAlertTotal+=paidOrders.length;showAlertMessage("paymentsAlertMessage","💳 "+paidOrders.length+" pago(s) confirmado(s) detectado(s). Revisa los pedidos.","paymentsAlertCount",paymentsAlertTotal);playAlertTone("payment");}
- }catch(e){console.warn("Avisos de pedidos y pagos:",e);}
+ }catch(e){console.warn("Avisos de pedidos y pagos:",e);const status=document.getElementById("onlineOrdersLoginStatus");if(status)status.textContent="⚠ Error al consultar pedidos: "+(e?.message||e); }
 }
 setTimeout(()=>{checkOnlineOrderAlerts();setInterval(checkOnlineOrderAlerts,12000);},5000);
 
