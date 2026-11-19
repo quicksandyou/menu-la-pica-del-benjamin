@@ -33,7 +33,7 @@
         }
       ],
       "artifactName": "LaPicaDelBenjamin-Setup-${version}.${ext}",
-      "icon": "build/icon.ico.ico"
+      "icon": "build/icon.ico"
     },
     "nsis": {
       "oneClick": false,
@@ -41,8 +41,8 @@
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
       "shortcutName": "La Picá del Benjamín",
-      "installerIcon": "build/icon.ico.ico",
-      "uninstallerIcon": "build/icon.ico.ico"
+      "installerIcon": "build/icon.ico",
+      "uninstallerIcon": "build/icon.ico"
     },
     "publish": [
       {
