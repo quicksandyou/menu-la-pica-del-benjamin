@@ -475,7 +475,7 @@ ipcMain.handle("pos:poll-online-orders",async()=>{
    const data=await response.json();return Array.isArray(data.orders)?data.orders:[];
   }));
   const unique=new Map();
-  for(const o of results.flat())if(["online","web","apk","website","delivery"].includes(String(o.source||"online").toLowerCase()))unique.set(String(o.id),o);
+  for(const o of results.flat())if(["online","web","apk","website","delivery","mercadopago","mercado_pago","mp","checkout"].includes(String(o.source||"online").toLowerCase()))unique.set(String(o.id),o);
   return {ok:true,orders:[...unique.values()].map(o=>({id:o.id,order_number:o.order_number,customer_name:o.customer_name,customer_phone:o.customer_phone,delivery_method:o.delivery_method,delivery_address:o.delivery_address,locality:o.locality,total_clp:o.total_clp,payment_status:o.payment_status,approval_status:o.approval_status,delivery_status:o.delivery_status,created_at:o.created_at,items_json:o.items_json,notes:o.notes}))};
  }catch(error){console.warn("No se pudieron consultar pedidos web:",error.message);return {ok:false,orders:[],error:error.message||"No se pudieron consultar pedidos. Revisa tu sesión de personal."};}
 });
