@@ -1,4 +1,6 @@
 name: Construir APK Android
+permissions:
+  contents: write
 on:
   workflow_dispatch:
   push:
@@ -108,3 +110,13 @@ jobs:
           path: android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
           retention-days: 14
+      - name: Publicar APK Android para descarga en la web
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: android-apk-latest
+          name: La Picá del Benjamín - APK Android
+          body: Descarga la versión Android más reciente de La Picá del Benjamín.
+          prerelease: true
+          make_latest: false
+          overwrite_files: true
+          files: android/app/build/outputs/apk/debug/app-debug.apk
