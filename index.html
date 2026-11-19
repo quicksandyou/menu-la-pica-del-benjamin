@@ -1100,7 +1100,17 @@ const APP_CATEGORY_GROUPS=[ {label:"Inicio",key:"Todos",icon:"⌂",categories:[]
  {label:"Bebidas",key:"Bebidas",icon:"🥤",categories:["Bebidas","Jugos naturales","Néctares","Aguas","Energéticas"]},
  {label:"Promociones",key:"Promociones",icon:"🎁",categories:["Promociones","Promociones sushi"]},
  {label:"Joyas",key:"Joyas & Detalles",icon:"💎",categories:["Joyas & Detalles"]},
- {label:"Postres",key:"Postres",icon:"🍮",categories:["Postres"]}
+ {label:"Postres",key:"Postres",icon:"🍮",categories:["Postres"]},
+ {label:"Pizzas",key:"Pizzas",icon:"🍕",categories:["Pizzas"]},
+ {label:"Completos",key:"Completos",icon:"🌭",categories:["Completos"]},
+ {label:"Churrascos",key:"Churrascos",icon:"🥩",categories:["Churrascos"]},
+ {label:"Empanadas",key:"Empanadas",icon:"🥟",categories:["Empanadas"]},
+ {label:"Salsas",key:"Salsas",icon:"🥣",categories:["Salsas"]},
+ {label:"Aros de cebolla",key:"Aros de cebolla",icon:"🧅",categories:["Aros de cebolla"]},
+ {label:"Arrollados primavera",key:"Arrollados primavera",icon:"🥢",categories:["Arrollados primavera"]},
+ {label:"Nuggets de pollo",key:"Nuggets de pollo",icon:"🍗",categories:["Nuggets de pollo"]},
+ {label:"Salchipapas",key:"Salchipapas",icon:"🌭",categories:["Salchipapas"]},
+ {label:"Pollo crispy",key:"Pollo crispy",icon:"🍗",categories:["Pollo crispy"]}
 ];
 let active="Todos",cart={},payment="Efectivo";const fmt=n=>"$"+n.toLocaleString("es-CL");
 function scrollNativeToProducts(){if(!NATIVE_APP_MODE)return;const target=document.querySelector(".menu-column .section-title")||document.querySelector(".menu-column .grid");if(!target)return;requestAnimationFrame(()=>{const top=target.getBoundingClientRect().top+window.scrollY-16;window.scrollTo({top:Math.max(0,top),behavior:"smooth"});});}
