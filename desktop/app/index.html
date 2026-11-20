@@ -509,9 +509,22 @@ function updateOrdersShiftStatus(){
  const open=Boolean(evening||earlyMorning);
  shiftStatus.textContent=(open?"Turno en curso · cierre 01:30 AM":"Fuera del horario · pedidos pendientes se conservan")+" · Hora POS (Chile): "+v.hour+":"+v.minute+" · "+(spanishDays[v.weekday]||"día desconocido");
 }
+function updateOrdersShiftStatus(){
+ const shiftStatus=document.getElementById("ordersShiftStatus");
+ if(!shiftStatus)return;
+ const parts=new Intl.DateTimeFormat("en-US",{timeZone:"America/Santiago",weekday:"short",hour:"2-digit",minute:"2-digit",hourCycle:"h23"}).formatToParts(new Date());
+ const v=Object.fromEntries(parts.map(p=>[p.type,p.value]));
+ const days={Sun:0,Mon:1,Tue:2,Wed:3,Thu:4,Fri:5,Sat:6};
+ const spanishDays={Sun:"domingo",Mon:"lunes",Tue:"martes",Wed:"miércoles",Thu:"jueves",Fri:"viernes",Sat:"sábado"};
+ const day=days[v.weekday],minutes=Number(v.hour)*60+Number(v.minute);
+ const evening=day>=2&&day<=6&&minutes>=1050;
+ const earlyMorning=(day>=3&&day<=6||day===0)&&minutes<90;
+ const open=Boolean(evening||earlyMorning);
+ shiftStatus.textContent=(open?"Turno en curso · cierre 01:30 AM":"Fuera del horario · pedidos pendientes se conservan")+" · Hora POS (Chile): "+v.hour+":"+v.minute+" · "+(spanishDays[v.weekday]||"día desconocido");
+}
 function renderPendingOrders(){
  const queue=readPrintQueue(),host=document.getElementById("ordersPrintActions");
- showAlertMessage("ordersAlertMessage",queue.length?(printerMode==="automatic"?"Hay "+queue.length+" pedido(s) pendiente(s) de impresión automática o reintento.":"Hay "+queue.length+" pedido(s) de web/APK esperando impresión manual.":"Sin pedidos pendientes de impresión.","ordersAlertCount",queue.length);
+ showAlertMessage("ordersAlertMessage",queue.length?(printerMode==="automatic"?"Hay "+queue.length+" pedido(s) pendiente(s) de impresión automática o reintento.":"Hay "+queue.length+" pedido(s) de web/APK esperando impresión manual."):"Sin pedidos pendientes de impresión.","ordersAlertCount",queue.length);
  updateOrdersShiftStatus();
  if(!host)return;
  host.innerHTML=queue.map(order=>{
