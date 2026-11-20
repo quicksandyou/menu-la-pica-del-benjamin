@@ -501,10 +501,13 @@ function renderPendingOrders(){
  showAlertMessage("ordersAlertMessage",queue.length?(printerMode==="automatic"?"Hay "+queue.length+" pedido(s) pendiente(s) de impresión automática o reintento.":"Hay "+queue.length+" pedido(s) de web/APK esperando impresión manual."):"Sin pedidos pendientes de impresión.","ordersAlertCount",queue.length);
  const shiftStatus=document.getElementById("ordersShiftStatus");
  if(shiftStatus){
-  const parts=new Intl.DateTimeFormat("en-CA",{timeZone:"America/Santiago",year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",hourCycle:"h23"}).formatToParts(new Date());
+  const parts=new Intl.DateTimeFormat("en-US",{timeZone:"America/Santiago",weekday:"short",hour:"2-digit",minute:"2-digit",hourCycle:"h23"}).formatToParts(new Date());
   const v=Object.fromEntries(parts.map(p=>[p.type,p.value]));
-  const minutes=Number(v.hour)*60+Number(v.minute);
-  shiftStatus.textContent=minutes>=1050?"Turno en curso · cierre estimado 01:30 AM":minutes<90?"Turno en curso · comenzó el día anterior a las 17:30":"Fuera del horario del turno · los pendientes se conservan";
+  const days={Sun:0,Mon:1,Tue:2,Wed:3,Thu:4,Fri:5,Sat:6};
+  const day=days[v.weekday],minutes=Number(v.hour)*60+Number(v.minute);
+  const evening=day>=2&&day<=6&&minutes>=1050;
+  const earlyMorning=(day>=3&&day<=6||day===0)&&minutes<90;
+  shiftStatus.textContent=evening||earlyMorning?"Turno en curso · cierre estimado 01:30 AM":"Fuera del horario del turno · los pendientes se conservan";
  }
  if(!host)return;
  host.innerHTML=queue.map(order=>{
