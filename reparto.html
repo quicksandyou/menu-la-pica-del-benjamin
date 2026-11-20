@@ -433,7 +433,7 @@ $("exportWebSales").onclick=async()=>{
  btn.disabled=true;btn.textContent="Consultando pedidos…";status.textContent="Reuniendo pedidos web del período seleccionado…";
  try{
   const dates=[];for(let n=0;n<days;n++){const d=new Date(start);d.setDate(start.getDate()+n);dates.push(new Intl.DateTimeFormat("en-CA",{timeZone:"America/Santiago",year:"numeric",month:"2-digit",day:"2-digit"}).format(d))}
-  const data=await Promise.all(dates.map(async date=>{const result=await call("/api/reparto/pedidos?date="+encodeURIComponent(date));return Array.isArray(result.orders)?result.orders:[]}));
+  const data=[];for(let i=0;i<dates.length;i+=7){const batch=await Promise.all(dates.slice(i,i+7).map(async date=>{const result=await call("/api/reparto/pedidos?date="+encodeURIComponent(date));return Array.isArray(result.orders)?result.orders:[]}));data.push(...batch)}
   const orders=[...new Map(data.flat().filter(o=>String(o.source||"").toLowerCase()==="online").map(o=>[String(o.id),o])).values()].sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));
   const csv=exportSalesRows(orders),blob=new Blob([csv],{type:"text/csv;charset=utf-8"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="ventas-web-la-pica-del-benjamin-"+from+"-a-"+to+".csv";document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);
   const gross=orders.reduce((s,o)=>s+Number(o.total_clp||0),0);status.textContent="Reporte descargado: "+orders.length+" pedidos · Total ventas $"+gross.toLocaleString("es-CL")+" CLP. CSV compatible con Excel.";
