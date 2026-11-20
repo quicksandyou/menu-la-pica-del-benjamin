@@ -1321,7 +1321,7 @@ async function payOnline(){
    const data=await response.json();
    if(!response.ok)throw new Error(data.error || "No se pudo crear la orden. Revisa la configuración de Render.");
    if(!data.checkout_url)throw new Error("Mercado Pago no devolvió checkout_url.");
-   if(NATIVE_APP_MODE){const browser=window.Capacitor?.Plugins?.Browser;if(browser?.open){await browser.open({url:data.checkout_url});}else{window.location.href=data.checkout_url;}}else{window.location.href=data.checkout_url;}
+   window.location.href=data.checkout_url;
  }catch(error){
    alert(error.message||"No fue posible iniciar el pago. Puedes enviar tu pedido por WhatsApp.");
    button.disabled=false;button.textContent="💳 Pagar con Mercado Pago";
