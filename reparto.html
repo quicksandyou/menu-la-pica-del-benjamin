@@ -103,6 +103,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 </form>
 <p id="chatStatus" class="muted" aria-live="polite">La conversación se actualiza automáticamente.</p>
 </section>
+<section id="webSalesExport" class="card manager-panel-hidden"><h2>📊 Reporte de ventas web</h2><p class="muted">Descarga los pedidos web con datos del cliente, productos, pagos, despacho y totales. Selecciona un período de hasta 90 días.</p><div class="row"><label for="webSalesFrom">Desde</label><input id="webSalesFrom" type="date"><label for="webSalesTo">Hasta</label><input id="webSalesTo" type="date"><button type="button" class="btn" id="exportWebSales">📥 Exportar pedidos web a Excel</button></div><div id="webSalesExportStatus" class="status" aria-live="polite">El reporte se descarga como CSV compatible con Excel.</div></section>
 <section id="bulkRejectBar" class="card hidden">
  <strong>Revisión rápida de pedidos</strong>
  <p class="muted">Marca los pedidos pendientes que deseas rechazar.</p>
@@ -130,7 +131,7 @@ function setupManagerHome(role){
 function openManagerTab(tab){
  managerCurrentTab=tab;
  document.querySelectorAll("[data-manager-tab]").forEach(b=>b.classList.toggle("active",b.dataset.managerTab===tab));
- const ids={pageOrders:["orders","bulkRejectBar"],manual:["manual"],assign:["assign"],total:["closingCard"]};
+ const ids={pageOrders:["orders","bulkRejectBar","webSalesExport"],manual:["manual"],assign:["assign"],total:["closingCard"]};
  Object.entries(ids).forEach(([key,list])=>list.forEach(id=>$(id).classList.toggle("manager-panel-hidden",key!==tab)));
  $("ordersHeading").classList.toggle("driver-heading-hidden",tab!=="pageOrders");
  $("ordersHeading").textContent="Pedidos recibidos por la página";
@@ -412,6 +413,35 @@ document.addEventListener("click",event=>{
 function calculateManualTotal(){const expr=$("calcDisplay").value.replace(/\s+/g,"");if(!expr||!/^[0-9+*/().-]+$/.test(expr)||/[+*/.-]$/.test(expr)){throw new Error("Escribe una operación válida, por ejemplo 4500+3200+2000.");}const tokens=expr.match(/\d+(?:\.\d+)?|[()+*/-]/g)||[];let pos=0;function factor(){if(tokens[pos]==="-"){pos++;return -factor()}if(tokens[pos]==="+"){pos++;return factor()}if(tokens[pos]==="("){pos++;const v=expression();if(tokens[pos++]!==")")throw new Error("Revisa los paréntesis.");return v}const v=Number(tokens[pos++]);if(!Number.isFinite(v))throw new Error("Operación inválida.");return v}function term(){let v=factor();while(tokens[pos]==="*"||tokens[pos]==="/"){const op=tokens[pos++],n=factor();if(op==="/"&&n===0)throw new Error("No se puede dividir por cero.");v=op==="*"?v*n:v/n}return v}function expression(){let v=term();while(tokens[pos]==="+"||tokens[pos]==="-"){const op=tokens[pos++],n=term();v=op==="+"?v+n:v-n}return v}const result=expression();if(pos!==tokens.length||!Number.isFinite(result)||result<0||result>1000000)throw new Error("El resultado debe estar entre $0 y $1.000.000.");return Math.round(result)}$("calcEquals").onclick=()=>{try{$("calcResult").textContent="Resultado: $"+calculateManualTotal().toLocaleString("es-CL")}catch(e){$("calcResult").textContent=e.message}};$("calcClear").onclick=()=>{$("calcDisplay").value="";$("calcResult").textContent="Calculadora limpia."};$("calcUse").onclick=()=>{try{$("mTotal").value=calculateManualTotal();$("calcResult").textContent="Total copiado al pedido."}catch(e){$("calcResult").textContent=e.message}};
 $("saveManual").onclick=async()=>{const lines=$("mItems").value.split("\n").map(x=>x.trim()).filter(Boolean);if(!$("mName").value.trim()||!$("mPhone").value.trim()||!$("mAddress").value.trim()||!$("mLocality").value.trim()||!lines.length||!Number.isInteger(Number($("mTotal").value))||Number($("mTotal").value)<=0){$("message").textContent="Completa nombre, teléfono, dirección, localidad, productos y total.";return}const items=lines.map(line=>{const m=line.match(/^(\d+)\s*[x×]\s*(.+)$/i);return {quantity:m?Number(m[1]):1,name:m?m[2].trim():line}});try{const d=await call("/api/reparto/orden-manual",{customer_name:$("mName").value,customer_phone:$("mPhone").value,total_clp:Number($("mTotal").value),source:$("mSource").value,delivery_method:"Delivery",delivery_zone:$("mZone").value,delivery_address:$("mAddress").value,locality:$("mLocality").value,driver_username:$("mDriver").value,items,notes:$("mNotes").value});$("message").textContent="Pedido manual "+d.order_number+" registrado y asignado a "+d.driver_name+". Ya aparece en su panel.";["mName","mPhone","mAddress","mLocality","mItems","mTotal","mNotes","calcDisplay"].forEach(id=>$(id).value="");$("calcResult").textContent="Escribe una suma o cálculo y pulsa Calcular.";load()}catch(e){$("message").textContent=e.message}};
 $("saveExtra").onclick=async()=>{try{await call("/api/reparto/extras",{description:$("extraDesc").value,destination:$("extraDest").value,amount:Number($("extraAmount").value)});$("message").textContent="Carrera enviada a aprobación.";load()}catch(e){$("message").textContent=e.message}};
+
+// Exportación de pedidos web a CSV compatible con Excel, con resumen y detalle.
+function csvCell(value){const s=String(value??"").replace(/[\\r\\n]+/g," ");return '"'+s.replaceAll('"','""')+'"'}
+function formatItems(items){if(Array.isArray(items))return items.map(x=>{if(typeof x==="string")return x;const qty=x.quantity??x.qty??x.cantidad??1;const name=x.name??x.product_name??x.product??x.title??"Producto";return qty+" x "+name+(x.price_clp||x.price? " ($"+Number(x.price_clp||x.price).toLocaleString("es-CL")+")":"")}).join(" | ");if(items&&typeof items==="object")return JSON.stringify(items);return String(items||"")}
+function exportSalesRows(orders){
+ const header=["N° pedido","Fecha y hora","Nombre cliente","Teléfono","Correo","Dirección","Localidad","Tipo pedido","Productos / cantidades","Subtotal productos (CLP)","Delivery (CLP)","Total pedido (CLP)","Método pago","Estado pago","Estado pedido","Aprobación","Observaciones","Origen"];
+ const detail=orders.map(o=>{const fee=Number(o.delivery_fee_clp||0),total=Number(o.total_clp||0);let items=o.items_json;try{if(typeof items==="string")items=JSON.parse(items)}catch{};return [o.order_number||o.id,o.created_at,o.customer_name,o.customer_phone,o.customer_email,o.delivery_address,o.locality,o.delivery_method,formatItems(items),Math.max(0,total-fee),fee,total,o.payment_method||o.payment_type||"",o.payment_status,o.delivery_status,o.approval_status,o.notes||o.approval_note,o.source]});
+ const total=orders.reduce((sum,o)=>sum+Number(o.total_clp||0),0),delivery=orders.reduce((sum,o)=>sum+Number(o.delivery_fee_clp||0),0);
+ const summary=[["LA PICÁ DEL BENJAMÍN · REPORTE DE VENTAS WEB"],["Pedidos incluidos",orders.length],["Total ventas (CLP)",total],["Delivery recaudado (CLP)",delivery],["Venta de productos estimada (CLP)",Math.max(0,total-delivery)],[],header,...detail];
+ return "\\uFEFF"+summary.map(row=>row.map(csvCell).join(";")).join("\\r\\n");
+}
+$("exportWebSales").onclick=async()=>{
+ const btn=$("exportWebSales"),status=$("webSalesExportStatus"),from=$("webSalesFrom").value,to=$("webSalesTo").value;
+ if(!from||!to){status.textContent="Selecciona ambas fechas para generar el reporte.";return}
+ if(from>to){status.textContent="La fecha inicial no puede ser posterior a la fecha final.";return}
+ const start=new Date(from+"T12:00:00-03:00"),end=new Date(to+"T12:00:00-03:00"),days=Math.round((end-start)/86400000)+1;
+ if(days>90){status.textContent="El período máximo de exportación es 90 días. Reduce el rango.";return}
+ btn.disabled=true;btn.textContent="Consultando pedidos…";status.textContent="Reuniendo pedidos web del período seleccionado…";
+ try{
+  const dates=[];for(let n=0;n<days;n++){const d=new Date(start);d.setDate(start.getDate()+n);dates.push(new Intl.DateTimeFormat("en-CA",{timeZone:"America/Santiago",year:"numeric",month:"2-digit",day:"2-digit"}).format(d))}
+  const data=await Promise.all(dates.map(async date=>{const result=await call("/api/reparto/pedidos?date="+encodeURIComponent(date));return Array.isArray(result.orders)?result.orders:[]}));
+  const orders=[...new Map(data.flat().filter(o=>String(o.source||"").toLowerCase()==="online").map(o=>[String(o.id),o])).values()].sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));
+  const csv=exportSalesRows(orders),blob=new Blob([csv],{type:"text/csv;charset=utf-8"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="ventas-web-la-pica-del-benjamin-"+from+"-a-"+to+".csv";document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);
+  const gross=orders.reduce((s,o)=>s+Number(o.total_clp||0),0);status.textContent="Reporte descargado: "+orders.length+" pedidos · Total ventas $"+gross.toLocaleString("es-CL")+" CLP. CSV compatible con Excel.";
+ }catch(e){status.textContent="No se pudo exportar: "+e.message}
+ finally{btn.disabled=false;btn.textContent="📥 Exportar pedidos web a Excel"}
+};
+const todaySales=chileToday();$("webSalesFrom").value=todaySales;$("webSalesTo").value=todaySales;
+
 let closingCsvContent="";
 $("closeCsv").onclick=async()=>{
  const button=$("closeCsv"),preview=$("closingPreview");
