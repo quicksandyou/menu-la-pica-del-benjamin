@@ -422,7 +422,7 @@ function exportSalesRows(orders){
  const detail=orders.map(o=>{const fee=Number(o.delivery_fee_clp||0),total=Number(o.total_clp||0);let items=o.items_json;try{if(typeof items==="string")items=JSON.parse(items)}catch{};return [o.order_number||o.id,o.created_at,o.customer_name,o.customer_phone,o.customer_email,o.delivery_address,o.locality,o.delivery_method,formatItems(items),Math.max(0,total-fee),fee,total,o.payment_method||o.payment_type||"",o.payment_status,o.delivery_status,o.approval_status,o.notes||o.approval_note,o.source]});
  const total=orders.reduce((sum,o)=>sum+Number(o.total_clp||0),0),delivery=orders.reduce((sum,o)=>sum+Number(o.delivery_fee_clp||0),0);
  const summary=[["LA PICÁ DEL BENJAMÍN · REPORTE DE VENTAS WEB"],["Pedidos incluidos",orders.length],["Total ventas (CLP)",total],["Delivery recaudado (CLP)",delivery],["Venta de productos estimada (CLP)",Math.max(0,total-delivery)],[],header,...detail];
- return "\\uFEFF"+summary.map(row=>row.map(csvCell).join(";")).join("\\r\\n");
+ return "\uFEFF"+summary.map(row=>row.map(csvCell).join(";")).join("\r\n");
 }
 $("exportWebSales").onclick=async()=>{
  const btn=$("exportWebSales"),status=$("webSalesExportStatus"),from=$("webSalesFrom").value,to=$("webSalesTo").value;
