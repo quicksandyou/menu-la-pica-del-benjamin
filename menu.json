@@ -26,10 +26,10 @@
   "products": [
     {
       "category": "Promociones sushi",
-      "name": "Acevichado (10 cortes)",
+      "name": "Acevichar cada 10 cortes",
       "price_clp": 2990,
-      "description": "10 cortes de sushi acevichado.",
-      "image_url": "assets/promos/01-acevichado-10-cortes.jpg"
+      "description": "Agrega el toque acevichado encima a tus rolls (cada 10 cortes).",
+      "image_url": "assets/promos/01_acevichar_cada_10_cortes_2990.png"
     },
     {
       "category": "Promociones sushi",
@@ -69,28 +69,28 @@
       "name": "30 cortes fríos",
       "price_clp": 7990,
       "description": "Promoción de 30 piezas de sushi frío.",
-      "image_url": "assets/promos/06-30-cortes-frios.jpg"
+      "image_url": "assets/promos/02_30_cortes_frios_7990.png"
     },
     {
       "category": "Promociones sushi",
       "name": "30 cortes fritos",
       "price_clp": 8490,
       "description": "Promoción de 30 piezas de sushi frito.",
-      "image_url": "assets/promos/05-30-cortes-fritos.jpg"
+      "image_url": "assets/promos/03_30_cortes_fritos_8490.png"
     },
     {
       "category": "Promociones sushi",
       "name": "Mix 20 cortes",
       "price_clp": 6490,
       "description": "Mix surtido de 20 piezas.",
-      "image_url": "assets/promos/07-mix-20-cortes.jpg"
+      "image_url": "assets/promos/05_mix_20_cortes_6490.png"
     },
     {
       "category": "Promociones sushi",
       "name": "Mix 30 cortes",
       "price_clp": 10990,
       "description": "Mix surtido de 30 piezas.",
-      "image_url": "assets/promos/08-mix-30-cortes.jpg"
+      "image_url": "assets/promos/04_mix_30_cortes_10990.png"
     },
     {
       "category": "Promociones sushi",
