@@ -852,16 +852,16 @@
       "category": "Fritos",
       "name": "6 empanadas",
       "price_clp": 2000,
-      "description": "6 empanadas doradas.",
-      "image_url": "assets/empanadas.jpg",
+      "description": "6 empanadas de queso doradas.",
+      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/empanadas_queso.jpg",
       "display_group": "Empanadas"
     },
     {
       "category": "Fritos",
       "name": "12 empanadas",
       "price_clp": 4000,
-      "description": "12 empanadas doradas.",
-      "image_url": "assets/empanadas.jpg",
+      "description": "12 empanadas de queso doradas.",
+      "image_url": "https://raw.githubusercontent.com/quicksandyou/menu-la-pica-del-benjamin/main/empanadas_queso.jpg",
       "display_group": "Empanadas"
     },
     {
