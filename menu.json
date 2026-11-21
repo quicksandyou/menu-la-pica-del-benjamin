@@ -701,15 +701,16 @@
       "category": "Completos",
       "name": "2 Completos · Clásico o Italiano",
       "price_clp": 3000,
-      "description": "Dos completos a elección: clásico o italiano.",
+      "description": "Dos completos a elección: Italiano, Palta mayo o Completo con chucrut. Base: pan y salchicha. Puedes dejar un comentario adicional en tu pedido.",
       "image_url": "assets/completos.jpg",
       "option_groups": [
         {
-          "label": "Completo",
+          "label": "Elige cada completo",
           "quantity": 2,
           "choices": [
-            "Clásico",
-            "Italiano"
+            "Italiano",
+            "Palta mayo",
+            "Completo con chucrut"
           ]
         }
       ]
