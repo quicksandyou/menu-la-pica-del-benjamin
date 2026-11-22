@@ -676,7 +676,7 @@ La Picá del Benjamín`,
     if (!dbPool) return send(res, 503, { error: "Base de datos no disponible." });
     try {
       const claimed = await dbPool.query(
-        "UPDATE remote_print_jobs SET status='processing',lease_until=NOW()+INTERVAL '45 seconds' WHERE id IN (SELECT id FROM remote_print_jobs WHERE status='queued' OR (status='processing' AND lease_until<NOW()) ORDER BY created_at ASC LIMIT 5) RETURNING id,payload_json,created_at",
+        "UPDATE remote_print_jobs SET status='processing',lease_until=NOW()+INTERVAL '45 seconds',result_note=NULL,completed_at=NULL WHERE id IN (SELECT id FROM remote_print_jobs WHERE status IN ('queued','failed') OR (status='processing' AND lease_until<NOW()) ORDER BY created_at ASC LIMIT 5) RETURNING id,payload_json,created_at",
       );
       return send(res, 200, { ok: true, jobs: claimed.rows });
     } catch (error) {
