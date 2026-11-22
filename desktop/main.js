@@ -311,28 +311,40 @@ async function refreshRemoteQueueSession(){
  if(!response.ok||!data.user||data.mustChangePassword)return {ok:false,error:data.error||"No se pudo renovar la sesión autorizada del POS."};
  return {ok:true};
 }
+const remotePosAuthFile=path.join(app.getPath("userData"),"remote-pos-auth.bin");
+const remotePosDeviceId=require("crypto").randomUUID();
+function readRemotePosAuth(){try{const safe=require("electron").safeStorage;if(!safe.isEncryptionAvailable()||!fs.existsSync(remotePosAuthFile))return null;return JSON.parse(safe.decryptString(fs.readFileSync(remotePosAuthFile)));}catch(_){return null;}}
+function saveRemotePosAuth(auth){try{const safe=require("electron").safeStorage;if(!safe.isEncryptionAvailable())return false;fs.writeFileSync(remotePosAuthFile,safe.encryptString(JSON.stringify(auth)),{mode:0o600});return true;}catch(_){return false;}}
+async function pairRemotePosDevice(){
+ const base="https://menu-la-pica-del-benjamin-pago.onrender.com",credentials=readOnlineCredentials();
+ if(!credentials?.username||!credentials?.password)return {ok:false,error:"No hay credenciales autorizadas para emparejar el POS."};
+ const login=await win.webContents.session.fetch(base+"/api/personal/login",{method:"POST",credentials:"include",headers:{"Accept":"application/json","Content-Type":"application/json"},body:JSON.stringify(credentials)});
+ const loginData=await login.json().catch(()=>({}));
+ if(!login.ok||!loginData.user||loginData.mustChangePassword)return {ok:false,error:loginData.error||"La cuenta guardada no puede autorizar el POS."};
+ const pair=await win.webContents.session.fetch(base+"/api/remoto/pos/pair",{method:"POST",credentials:"include",headers:{"Accept":"application/json","Content-Type":"application/json"},body:JSON.stringify({device_id:remotePosDeviceId,device_name:"POS La Picá del Benjamín"})});
+ const pairData=await pair.json().catch(()=>({}));
+ if(!pair.ok||!pairData.token)return {ok:false,error:pairData.error||"No se pudo emparejar el POS."};
+ if(!saveRemotePosAuth({device_id:remotePosDeviceId,token:pairData.token}))return {ok:false,error:"No se pudo guardar de forma cifrada la autorización del dispositivo."};
+ return {ok:true,token:pairData.token};
+}
+async function getRemotePosToken(){
+ let auth=readRemotePosAuth();if(auth?.token)return auth.token;
+ const paired=await pairRemotePosDevice();return paired.ok?paired.token:null;
+}
 async function fetchRemoteQueueWithAuth(){
  const base="https://menu-la-pica-del-benjamin-pago.onrender.com";
- const credentials=readOnlineCredentials();
- if(!credentials?.username||!credentials?.password)return {response:null,error:"Falta conectar Pedidos Web/APK con una cuenta de jefatura; no hay credenciales guardadas para leer comandas remotas."};
- const requestQueue=()=>win.webContents.session.fetch(base+"/api/remoto/bandeja",{credentials:"include",headers:{"Accept":"application/json","Cache-Control":"no-cache"}});
- let response=await requestQueue();
- if(response.status===401||response.status===403){
-  const login=await win.webContents.session.fetch(base+"/api/personal/login",{method:"POST",credentials:"include",headers:{"Accept":"application/json","Content-Type":"application/json"},body:JSON.stringify(credentials)});
-  const loginData=await login.json().catch(()=>({}));
-  if(!login.ok||!loginData.user||loginData.mustChangePassword)return {response:null,error:loginData.error||"La sesión de jefatura del POS no pudo autenticarse para leer comandas remotas."};
-  response=await requestQueue();
- }
- if(response.status===404)response=await win.webContents.session.fetch(base+"/api/remoto/cola",{credentials:"include",headers:{"Accept":"application/json","Cache-Control":"no-cache"}});
+ let token=await getRemotePosToken();
+ if(!token)return {response:null,error:"No se pudo autorizar la conexión independiente del POS."};
+ let response=await win.webContents.session.fetch(base+"/api/remoto/pos/poll",{headers:{"Accept":"application/json","Cache-Control":"no-cache","Authorization":"Bearer "+token}});
+ if(response.status===401){const paired=await pairRemotePosDevice();if(!paired.ok)return {response:null,error:paired.error};token=paired.token;response=await win.webContents.session.fetch(base+"/api/remoto/pos/poll",{headers:{"Accept":"application/json","Cache-Control":"no-cache","Authorization":"Bearer "+token}});}
  return {response};
 }
 ipcMain.handle("pos:poll-remote-print-jobs",async()=>{
  if(!win||win.isDestroyed())return {ok:false,jobs:[],error:"POS no disponible."};
  try{
   const queueFetch=await fetchRemoteQueueWithAuth();
-  if(!queueFetch.response)return {ok:false,jobs:[],error:queueFetch.error||"Sesión del POS no autorizada."};
-  const response=queueFetch.response;
-  const data=await response.json().catch(()=>({}));
+  if(!queueFetch.response)return {ok:false,jobs:[],error:queueFetch.error||"POS no autorizado."};
+  const response=queueFetch.response,data=await response.json().catch(()=>({}));
   if(!response.ok)return {ok:false,jobs:[],error:data.error||("Cola remota HTTP "+response.status)};
   return {ok:true,jobs:Array.isArray(data.jobs)?data.jobs:[]};
  }catch(error){return {ok:false,jobs:[],error:error.message||"No se pudo consultar la cola remota."};}
@@ -342,9 +354,10 @@ ipcMain.handle("pos:ack-remote-print-job",async(_event,payload={})=>{
  const jobId=Number(payload.job_id),status=String(payload.status||""),note=String(payload.note||"").slice(0,300);
  if(!Number.isSafeInteger(jobId)||jobId<1||!["printed","failed"].includes(status))return {ok:false,error:"Resultado de trabajo remoto inválido."};
  try{
-  const sendResult=()=>win.webContents.session.fetch("https://menu-la-pica-del-benjamin-pago.onrender.com/api/remoto/resultado",{method:"POST",credentials:"include",headers:{"Accept":"application/json","Content-Type":"application/json"},body:JSON.stringify({job_id:jobId,status,note})});
+  let token=await getRemotePosToken();if(!token)return {ok:false,error:"POS no emparejado."};
+  const sendResult=()=>win.webContents.session.fetch("https://menu-la-pica-del-benjamin-pago.onrender.com/api/remoto/pos/resultado",{method:"POST",headers:{"Accept":"application/json","Content-Type":"application/json","Authorization":"Bearer "+token},body:JSON.stringify({job_id:jobId,status,note})});
   let response=await sendResult();
-  if(response.status===401||response.status===403){const auth=await refreshRemoteQueueSession();if(!auth.ok)return {ok:false,error:auth.error};response=await sendResult();}
+  if(response.status===401){const paired=await pairRemotePosDevice();if(!paired.ok)return {ok:false,error:paired.error};token=paired.token;response=await sendResult();}
   const data=await response.json().catch(()=>({}));
   if(!response.ok)return {ok:false,error:data.error||("Confirmación HTTP "+response.status)};
   return {ok:true};
