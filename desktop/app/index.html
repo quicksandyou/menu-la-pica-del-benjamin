@@ -152,13 +152,8 @@ body{padding-bottom:68px}
 <main id="app" class="wrap">
 <section id="onlineOrdersLogin" class="alert-card" style="margin-bottom:12px">
  <strong>🔐 Conectar pedidos Web y APK</strong>
- <p class="muted" style="margin:6px 0">Inicia sesión con tu usuario de personal para habilitar la sincronización segura.</p>
- <form onsubmit="loginOnlineOrders(event)" style="display:flex;gap:8px;flex-wrap:wrap">
-  <input id="onlineStaffUser" autocomplete="username" placeholder="Usuario de personal" required style="flex:1;min-width:130px">
-  <input id="onlineStaffPass" type="password" autocomplete="current-password" placeholder="Contraseña" required style="flex:1;min-width:130px">
-  <button type="submit" class="action primary">Conectar</button>
- </form>
- <div id="onlineOrdersLoginStatus" class="muted" role="status" style="margin-top:6px">Sin conexión de pedidos autenticada.</div><div id="remotePrintStatus" class="muted" role="status" style="margin-top:6px">🖨️ Impresión remota: esperando sesión del POS.</div><a href="https://menu-la-pica-del-benjamin-pago.onrender.com/remoto" target="_blank" rel="noopener" class="action" style="display:inline-block;margin-top:8px;text-align:center">📱 Abrir acceso remoto desde celular</a><button id="onlineOrdersLogout" type="button" class="action" onclick="logoutOnlineOrders()" style="display:none;margin-top:6px">Cerrar sesión de pedidos</button>
+ <p class="muted" style="margin:6px 0">El POS intenta conectarse automáticamente con la cuenta autorizada guardada de forma cifrada en este equipo.</p>
+ <div id="onlineOrdersLoginStatus" class="muted" role="status" style="margin-top:6px">⏳ Verificando conexión segura de pedidos…</div><div id="remotePrintStatus" class="muted" role="status" style="margin-top:6px">🖨️ Impresión remota: verificando sesión del POS.</div><a href="https://menu-la-pica-del-benjamin-pago.onrender.com/remoto" target="_blank" rel="noopener" class="action" style="display:inline-block;margin-top:8px;text-align:center">📱 Abrir acceso remoto desde celular</a><button id="onlineOrdersLogout" type="button" class="action" onclick="logoutOnlineOrders()" style="display:none;margin-top:6px">Desconectar pedidos Web/APK</button>
 </section>
 <div class="alert-grid" aria-label="Alertas independientes">
  <section class="alert-card orders-alert" aria-live="polite">
@@ -812,7 +807,7 @@ async function autoLoginOnlineOrders(){
  if(!window.posBridge?.getSavedOnlineCredentials)return;
  const status=document.getElementById("onlineOrdersLoginStatus");
  try{
-  const saved=await window.posBridge.getSavedOnlineCredentials();if(!saved?.username||!saved?.password)return;
+  const saved=await window.posBridge.getSavedOnlineCredentials();if(!saved?.username||!saved?.password){if(status)status.textContent="⚠ Este POS aún no tiene una cuenta autorizada guardada. La conexión inicial debe configurarla la jefatura.";return;}
   const userInput=document.getElementById("onlineStaffUser"),passInput=document.getElementById("onlineStaffPass");
   if(userInput)userInput.value=saved.username;if(passInput)passInput.value="";
   if(status)status.textContent="🔐 Conectando automáticamente con la cuenta autorizada…";
