@@ -331,7 +331,7 @@ ipcMain.handle("pos:ack-remote-print-job",async(_event,payload={})=>{
  const jobId=Number(payload.job_id),status=String(payload.status||""),note=String(payload.note||"").slice(0,300);
  if(!Number.isSafeInteger(jobId)||jobId<1||!["printed","failed"].includes(status))return {ok:false,error:"Resultado de trabajo remoto inválido."};
  try{
-  const response=await win.webContents.session.fetch("https://menu-la-pica-del-benjamin-pago.onrender.com/api/remoto/resultado",{method:"POST",credentials:"include",headers:{"Accept":"application/json","Content-Type":"application/json"},body:JSON.stringify({job_id:jobId,status,note})});
+  const sendResult=()=>win.webContents.session.fetch("https://menu-la-pica-del-benjamin-pago.onrender.com/api/remoto/resultado",{method:"POST",credentials:"include",headers:{"Accept":"application/json","Content-Type":"application/json"},body:JSON.stringify({job_id:jobId,status,note})});\n  let response=await sendResult();\n  if(response.status===401||response.status===403){const auth=await refreshRemoteQueueSession();if(!auth.ok)return {ok:false,error:auth.error};response=await sendResult();}
   const data=await response.json().catch(()=>({}));
   if(!response.ok)return {ok:false,error:data.error||("Confirmación HTTP "+response.status)};
   return {ok:true};
