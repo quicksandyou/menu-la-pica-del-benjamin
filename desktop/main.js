@@ -315,10 +315,14 @@ async function fetchRemoteQueueWithAuth(){
  const base="https://menu-la-pica-del-benjamin-pago.onrender.com";
  const credentials=readOnlineCredentials();
  if(!credentials?.username||!credentials?.password)return {response:null,error:"Falta conectar Pedidos Web/APK con una cuenta de jefatura; no hay credenciales guardadas para leer comandas remotas."};
- const login=await win.webContents.session.fetch(base+"/api/personal/login",{method:"POST",credentials:"include",headers:{"Accept":"application/json","Content-Type":"application/json"},body:JSON.stringify(credentials)});
- const loginData=await login.json().catch(()=>({}));
- if(!login.ok||!loginData.user||loginData.mustChangePassword)return {response:null,error:loginData.error||"La sesión de jefatura del POS no pudo autenticarse para comandas remotas."};
- let response=await win.webContents.session.fetch(base+"/api/remoto/bandeja",{credentials:"include",headers:{"Accept":"application/json","Cache-Control":"no-cache"}});
+ const requestQueue=()=>win.webContents.session.fetch(base+"/api/remoto/bandeja",{credentials:"include",headers:{"Accept":"application/json","Cache-Control":"no-cache"}});
+ let response=await requestQueue();
+ if(response.status===401||response.status===403){
+  const login=await win.webContents.session.fetch(base+"/api/personal/login",{method:"POST",credentials:"include",headers:{"Accept":"application/json","Content-Type":"application/json"},body:JSON.stringify(credentials)});
+  const loginData=await login.json().catch(()=>({}));
+  if(!login.ok||!loginData.user||loginData.mustChangePassword)return {response:null,error:loginData.error||"La sesión de jefatura del POS no pudo autenticarse para leer comandas remotas."};
+  response=await requestQueue();
+ }
  if(response.status===404)response=await win.webContents.session.fetch(base+"/api/remoto/cola",{credentials:"include",headers:{"Accept":"application/json","Cache-Control":"no-cache"}});
  return {response};
 }
