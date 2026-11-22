@@ -312,7 +312,7 @@ async function refreshRemoteQueueSession(){
  return {ok:true};
 }
 async function fetchRemoteQueueWithAuth(){
- const url="https://menu-la-pica-del-benjamin-pago.onrender.com/api/remoto/cola";
+ const url="https://menu-la-pica-del-benjamin-pago.onrender.com/api/remoto/bandeja";
  let response=await win.webContents.session.fetch(url,{credentials:"include",headers:{"Accept":"application/json"}});
  if(response.status===401||response.status===403){const auth=await refreshRemoteQueueSession();if(!auth.ok)return {response:null,error:auth.error};response=await win.webContents.session.fetch(url,{credentials:"include",headers:{"Accept":"application/json"}});}
  return {response};
