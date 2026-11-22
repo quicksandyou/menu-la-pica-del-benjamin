@@ -67,6 +67,18 @@ async function initializeDatabase() {
       token_hash TEXT PRIMARY KEY, user_id BIGINT NOT NULL REFERENCES app_users(id) ON DELETE CASCADE,
       expires_at TIMESTAMPTZ NOT NULL, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     );
+    CREATE TABLE IF NOT EXISTS remote_print_jobs (
+      id BIGSERIAL PRIMARY KEY,
+      payload_json JSONB NOT NULL,
+      created_by BIGINT REFERENCES app_users(id) ON DELETE SET NULL,
+      status VARCHAR(20) NOT NULL DEFAULT 'queued',
+      lease_until TIMESTAMPTZ,
+      result_note TEXT,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      completed_at TIMESTAMPTZ
+    );
+    CREATE INDEX IF NOT EXISTS idx_remote_print_jobs_status_created ON remote_print_jobs(status,created_at);
+    CREATE INDEX IF NOT EXISTS idx_remote_print_jobs_lease ON remote_print_jobs(lease_until);
     CREATE TABLE IF NOT EXISTS staff_chat_messages (
       id BIGSERIAL PRIMARY KEY,
       sender_id BIGINT NOT NULL REFERENCES app_users(id) ON DELETE CASCADE,
@@ -288,6 +300,18 @@ const server = http.createServer(async (req, res) => {
   }
 
   const requestPath = new URL(req.url, "http://localhost").pathname;
+
+  // Portal de impresión remota: servido en el mismo origen para conservar la cookie segura.
+  if (req.method === "GET" && requestPath === "/remoto") {
+    try {
+      const page = await fs.promises.readFile(path.join(__dirname, "remoto.html"));
+      res.writeHead(200, { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff", "Content-Security-Policy": "default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self; frame-ancestors 'none'" });
+      return res.end(page);
+    } catch (error) {
+      console.error("No se pudo cargar remoto.html:", error.message);
+      return send(res, 503, { error: "El acceso remoto no está disponible en este momento." });
+    }
+  }
 
   // Servir recursos gráficos del panel de reparto desde la carpeta icons.
   // Se restringe la ruta a /icons/ y se valida la ruta resuelta para impedir traversal.
@@ -600,6 +624,67 @@ La Picá del Benjamín`,
   }
   function isSuperAdmin(staff) { return Boolean(staff && staff.role === "superadmin"); }
   function canManageOrders(staff) { return Boolean(staff && ["superadmin","manager"].includes(staff.role)); }
+  // Pedidos manuales remotos: solo administrador y jefatura.
+  if (requestPath === "/api/remoto/pedidos" && req.method === "POST") {
+    const staff = await getStaffUser();
+    if (!canManageOrders(staff)) return send(res, 403, { error: "Solo administrador o jefatura pueden enviar pedidos remotos." });
+    if (!dbPool) return send(res, 503, { error: "Base de datos no disponible." });
+    if (isRateLimited(req, 20, 60000)) return send(res, 429, { error: "Demasiados pedidos remotos. Espera un minuto." });
+    try {
+      const d = await readJson(req);
+      const order = String(d.order || "").trim().slice(0, 3000);
+      const phone = String(d.phone || "").trim().slice(0, 30);
+      const name = String(d.name || "").trim().slice(0, 120);
+      const address = String(d.address || "").trim().slice(0, 500);
+      const notes = String(d.notes || "").trim().slice(0, 1000);
+      const total = Number(d.total_clp);
+      if (order.length < 3 || !Number.isSafeInteger(total) || total < 0 || total > 1000000) {
+        return send(res, 400, { error: "Escribe el pedido y un total válido (hasta $1.000.000)." });
+      }
+      const payload = { order, phone, name, address, notes, total_clp: total, created_at: new Date().toISOString(), sender: staff.full_name };
+      const saved = await dbPool.query("INSERT INTO remote_print_jobs(payload_json,created_by) VALUES($1::jsonb,$2) RETURNING id,created_at", [JSON.stringify(payload),staff.id]);
+      return send(res, 201, { ok: true, job_id: saved.rows[0].id, created_at: saved.rows[0].created_at, message: "Pedido enviado al POS del local." });
+    } catch (error) {
+      console.error("Remote print order create:", error.message);
+      return send(res, 400, { error: "No se pudo enviar el pedido remoto." });
+    }
+  }
+
+  // POS reclama una pequeña tanda de trabajos; la concesión expira si el POS se desconecta.
+  if (requestPath === "/api/remoto/cola" && req.method === "GET") {
+    const staff = await getStaffUser();
+    if (!canManageOrders(staff)) return send(res, 403, { error: "Sesión autorizada requerida." });
+    if (!dbPool) return send(res, 503, { error: "Base de datos no disponible." });
+    try {
+      const claimed = await dbPool.query(
+        "UPDATE remote_print_jobs SET status='processing',lease_until=NOW()+INTERVAL '45 seconds' WHERE id IN (SELECT id FROM remote_print_jobs WHERE status='queued' OR (status='processing' AND lease_until<NOW()) ORDER BY created_at ASC LIMIT 5) RETURNING id,payload_json,created_at",
+      );
+      return send(res, 200, { ok: true, jobs: claimed.rows });
+    } catch (error) {
+      console.error("Remote queue poll:", error.message);
+      return send(res, 503, { error: "No se pudo consultar la cola remota." });
+    }
+  }
+
+  // POS confirma resultado de impresión; no se permite reescribir trabajos ya finalizados.
+  if (requestPath === "/api/remoto/resultado" && req.method === "POST") {
+    const staff = await getStaffUser();
+    if (!canManageOrders(staff)) return send(res, 403, { error: "Sesión autorizada requerida." });
+    if (!dbPool) return send(res, 503, { error: "Base de datos no disponible." });
+    try {
+      const d = await readJson(req);
+      const id = Number(d.job_id), status = String(d.status || "");
+      const note = String(d.note || "").trim().slice(0, 300);
+      if (!Number.isSafeInteger(id) || id < 1 || !["printed","failed"].includes(status)) return send(res, 400, { error: "Resultado de impresión inválido." });
+      const updated = await dbPool.query("UPDATE remote_print_jobs SET status=$1,result_note=$2,completed_at=NOW(),lease_until=NULL WHERE id=$3 AND status='processing' RETURNING id", [status,note||null,id]);
+      if (!updated.rowCount) return send(res, 409, { error: "El trabajo ya fue procesado o venció su reserva." });
+      return send(res, 200, { ok: true });
+    } catch (error) {
+      console.error("Remote print ack:", error.message);
+      return send(res, 400, { error: "No se pudo guardar el resultado de impresión." });
+    }
+  }
+
   function canUsePaymentTestMode(staff) {
     return Boolean(staff && ["superadmin","manager"].includes(staff.role) &&
       String(process.env.MP_ACCESS_TOKEN_TEST || "").trim());
