@@ -652,6 +652,23 @@ La Picá del Benjamín`,
     }
   }
 
+  // Diagnóstico temporal y seguro de comandas remotas: solo jefatura/admin, no altera estados ni reclama trabajos.
+  if (requestPath === "/api/remoto/diagnostico" && req.method === "GET") {
+    const staff = await getStaffUser();
+    if (!canManageOrders(staff) || staff.must_change_password) return send(res, 403, { error: "Acceso de jefatura/admin requerido." });
+    if (!dbPool) return send(res, 503, { error: "Base de datos no disponible." });
+    try {
+      const rows = await dbPool.query(
+        "SELECT id,status,created_at,completed_at,result_note,payload_json->>'order' AS order_text,payload_json->>'total_clp' AS total_clp,payload_json->>'notes' AS notes,payload_json->>'sender' AS sender FROM remote_print_jobs ORDER BY created_at DESC LIMIT 30"
+      );
+      return send(res, 200, { ok: true, checked_at: new Date().toISOString(), count: rows.rows.length, jobs: rows.rows });
+    } catch (error) {
+      console.error("Remote queue diagnostics:", error.message);
+      return send(res, 503, { error: "No se pudo revisar la cola remota." });
+    }
+  }
+
+
   // POS reclama una pequeña tanda de trabajos; la concesión expira si el POS se desconecta.
   if (requestPath === "/api/remoto/cola" && req.method === "GET") {
     const staff = await getStaffUser();
