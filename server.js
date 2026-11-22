@@ -675,10 +675,10 @@ La Picá del Benjamín`,
     if (!canManageOrders(staff) || staff.must_change_password) return send(res, 403, { error: "Sesión autorizada con contraseña actualizada requerida." });
     if (!dbPool) return send(res, 503, { error: "Base de datos no disponible." });
     try {
-      const claimed = await dbPool.query(
-        "UPDATE remote_print_jobs SET status='processing',lease_until=NOW()+INTERVAL '45 seconds',result_note=NULL,completed_at=NULL WHERE id IN (SELECT id FROM remote_print_jobs WHERE status IN ('queued','failed') OR (status='processing' AND lease_until<NOW()) ORDER BY created_at ASC LIMIT 5) RETURNING id,payload_json,created_at",
+      const queued = await dbPool.query(
+        "SELECT id,payload_json,created_at FROM remote_print_jobs WHERE status IN ('queued','failed') OR (status='processing' AND lease_until<NOW()) ORDER BY created_at ASC LIMIT 50",
       );
-      return send(res, 200, { ok: true, jobs: claimed.rows });
+      return send(res, 200, { ok: true, jobs: queued.rows });
     } catch (error) {
       console.error("Remote queue poll:", error.message);
       return send(res, 503, { error: "No se pudo consultar la cola remota." });
@@ -695,7 +695,7 @@ La Picá del Benjamín`,
       const id = Number(d.job_id), status = String(d.status || "");
       const note = String(d.note || "").trim().slice(0, 300);
       if (!Number.isSafeInteger(id) || id < 1 || !["printed","failed"].includes(status)) return send(res, 400, { error: "Resultado de impresión inválido." });
-      const updated = await dbPool.query("UPDATE remote_print_jobs SET status=$1,result_note=$2,completed_at=NOW(),lease_until=NULL WHERE id=$3 AND status='processing' RETURNING id", [status,note||null,id]);
+      const updated = await dbPool.query("UPDATE remote_print_jobs SET status=$1,result_note=$2,completed_at=NOW(),lease_until=NULL WHERE id=$3 AND status IN ('queued','failed','processing') RETURNING id", [status,note||null,id]);
       if (!updated.rowCount) return send(res, 409, { error: "El trabajo ya fue procesado o venció su reserva." });
       return send(res, 200, { ok: true });
     } catch (error) {
