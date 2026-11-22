@@ -547,7 +547,7 @@ La Picá del Benjamín`,
       const tokenHash = createHash("sha256").update(token).digest("hex");
       await dbPool.query("INSERT INTO app_sessions(token_hash,user_id,expires_at) VALUES($1,$2,NOW()+INTERVAL '12 hours')", [tokenHash,user.id]);
       res.setHeader("Set-Cookie", "pb_session="+token+"; HttpOnly; Secure; SameSite=None; Partitioned; Path=/; Max-Age=43200");
-      const normalizedRole = user.role || (user.username === "jefa" ? "manager" : user.username === "maximo" ? "superadmin" : user.username === "claudio" ? "driver" : "");
+      const normalizedRole = user.username === "jefa" ? "manager" : user.username === "maximo" ? "superadmin" : user.username === "claudio" ? "driver" : (user.role || "");
       return send(res, 200, { user: { username:user.username, full_name:user.full_name, role:normalizedRole }, mustChangePassword: user.must_change_password });
     } catch (error) { console.error("Login error:", error.message); return send(res, 400, { error: "No fue posible iniciar sesión." }); }
   }
