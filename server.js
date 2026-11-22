@@ -669,8 +669,8 @@ La Picá del Benjamín`,
   }
 
 
-  // POS reclama una pequeña tanda de trabajos; la concesión expira si el POS se desconecta.
-  if (requestPath === "/api/remoto/cola" && req.method === "GET") {
+  // Bandeja durable del POS: consulta de solo lectura, no reclama ni cambia estados. Se conserva /cola como alias compatible.
+  if ((requestPath === "/api/remoto/bandeja" || requestPath === "/api/remoto/cola") && req.method === "GET") {
     const staff = await getStaffUser();
     if (!canManageOrders(staff) || staff.must_change_password) return send(res, 403, { error: "Sesión autorizada con contraseña actualizada requerida." });
     if (!dbPool) return send(res, 503, { error: "Base de datos no disponible." });
