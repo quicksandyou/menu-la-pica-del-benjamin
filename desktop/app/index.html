@@ -501,7 +501,7 @@ function readPrintQueue(){try{const value=JSON.parse(localStorage.getItem(PRINT_
 function savePrintQueue(queue){try{localStorage.setItem(PRINT_QUEUE_KEY,JSON.stringify(queue.slice(-2000)));}catch(e){console.error("No se pudo guardar cola local:",e);}}
 function readPrintedOnlineIds(){try{const value=JSON.parse(localStorage.getItem(PRINTED_ONLINE_KEY)||"[]");return new Set(Array.isArray(value)?value.map(String):[]);}catch(_){return new Set();}}
 function archiveOldPendingOrders(orders){try{const key="lapica_pos_old_pending_print_archive_v1",existing=JSON.parse(localStorage.getItem(key)||"[]"),byId=new Map(existing.map(x=>[String(x.id),x]));for(const order of orders){const id=String(order?.id||"");if(id)byId.set(id,{id,order:{...order},archived_at:new Date().toISOString(),reason:"Pedido pendiente de impresión de fecha anterior"});}localStorage.setItem(key,JSON.stringify([...byId.values()].slice(-2000)));}catch(e){console.warn("No se pudo archivar cola antigua:",e);}}
-function cleanPrintQueue(){const printed=readPrintedOnlineIds(),all=readPrintQueue(),old=all.filter(o=>!isPaidOrderToday(o)),today=all.filter(o=>isPaidOrderToday(o)&&!printed.has(String(o.id)));if(old.length)archiveOldPendingOrders(old);savePrintQueue(today);return today;}
+function cleanPrintQueue(){const printed=readPrintedOnlineIds(),all=readPrintQueue(),old=all.filter(o=>!isOrderToday(o)),today=all.filter(o=>isOrderToday(o)&&!printed.has(String(o.id)));if(old.length)archiveOldPendingOrders(old);savePrintQueue(today);return today;}
 function savePrintedOnlineId(id){try{const ids=readPrintedOnlineIds();ids.add(String(id));localStorage.setItem(PRINTED_ONLINE_KEY,JSON.stringify([...ids].slice(-2000)));}catch(e){console.error("No se pudo guardar historial de impresión web:",e);}}
 function chileDateKey(value){
  const d=value?new Date(value):new Date();
@@ -515,13 +515,18 @@ function isPaidOrderToday(order){
  const date=order?.created_at||order?.createdAt||order?.date||order?.datetime;
  return paid&&approval!=="rejected"&&date&&chileDateKey(date)===chileDateKey(new Date());
 }
+function isOrderToday(order){
+ const date=order?.created_at||order?.createdAt||order?.date||order?.datetime;
+ return date&&chileDateKey(date)===chileDateKey(new Date());
+}
+
 function enqueueOrders(orders){
  const queue=cleanPrintQueue(),ids=new Set(queue.map(o=>String(o.id))),printed=readPrintedOnlineIds();
  let added=0;
  for(const order of orders){
   const id=String(order?.id||"");
   const rejected=String(order?.approval_status||"").toLowerCase()==="rejected"||["rejected","cancelled","canceled"].includes(String(order?.payment_status||"").toLowerCase());
-  if(id&&isPaidOrderToday(order)&&!rejected&&!ids.has(id)&&!printed.has(id)){queue.push(order);ids.add(id);added++;}
+  if(id&&isOrderToday(order)&&!rejected&&!ids.has(id)&&!printed.has(id)){queue.push(order);ids.add(id);added++;}
  }
  savePrintQueue(queue);renderPendingOrders();
  return added;
@@ -573,7 +578,7 @@ function renderPendingOrders(){
 const printingOnlineOrderIds=new Set();
 async function printPendingOrder(id,button,automatic=false){
  const queue=cleanPrintQueue(),order=queue.find(item=>String(item.id)===String(id));
- if(!order||!isPaidOrderToday(order)||(!button&&!automatic)||printingOnlineOrderIds.has(String(id)))return false;
+ if(!order||!isOrderToday(order)||(!button&&!automatic)||printingOnlineOrderIds.has(String(id)))return false;
  printingOnlineOrderIds.add(String(id));
  if(button){button.disabled=true;button.textContent="Enviando a impresora…";}
  try{
