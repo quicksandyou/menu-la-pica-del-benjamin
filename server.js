@@ -539,7 +539,8 @@ La Picá del Benjamín`,
       const tokenHash = createHash("sha256").update(token).digest("hex");
       await dbPool.query("INSERT INTO app_sessions(token_hash,user_id,expires_at) VALUES($1,$2,NOW()+INTERVAL '12 hours')", [tokenHash,user.id]);
       res.setHeader("Set-Cookie", "pb_session="+token+"; HttpOnly; Secure; SameSite=None; Partitioned; Path=/; Max-Age=43200");
-      return send(res, 200, { user: { username:user.username, full_name:user.full_name, role:user.role }, mustChangePassword: user.must_change_password });
+      const normalizedRole = user.role || (user.username === "jefa" ? "manager" : user.username === "maximo" ? "superadmin" : user.username === "claudio" ? "driver" : "");
+      return send(res, 200, { user: { username:user.username, full_name:user.full_name, role:normalizedRole }, mustChangePassword: user.must_change_password });
     } catch (error) { console.error("Login error:", error.message); return send(res, 400, { error: "No fue posible iniciar sesión." }); }
   }
 
@@ -623,7 +624,8 @@ La Picá del Benjamín`,
     return result.rows[0] || null;
   }
   function isSuperAdmin(staff) { return Boolean(staff && staff.role === "superadmin"); }
-  function canManageOrders(staff) { return Boolean(staff && ["superadmin","manager","jefatura","jefa","jefe"].includes(String(staff.role || "").toLowerCase())); }
+  function normalizedStaffRole(staff) { const role=String(staff?.role||"").trim().toLowerCase(); if(role) return role; const username=String(staff?.username||"").trim().toLowerCase(); return username==="jefa"?"manager":username==="maximo"?"superadmin":username==="claudio"?"driver":""; }
+  function canManageOrders(staff) { return Boolean(staff && ["superadmin","manager","jefatura","jefa","jefe"].includes(normalizedStaffRole(staff))); }
   // Pedidos manuales remotos: solo administrador y jefatura.
   if (requestPath === "/api/remoto/pedidos" && req.method === "POST") {
     const staff = await getStaffUser();
