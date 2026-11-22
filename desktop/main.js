@@ -312,9 +312,14 @@ async function refreshRemoteQueueSession(){
  return {ok:true};
 }
 async function fetchRemoteQueueWithAuth(){
- const url="https://menu-la-pica-del-benjamin-pago.onrender.com/api/remoto/bandeja";
- let response=await win.webContents.session.fetch(url,{credentials:"include",headers:{"Accept":"application/json"}});
- if(response.status===401||response.status===403){const auth=await refreshRemoteQueueSession();if(!auth.ok)return {response:null,error:auth.error};response=await win.webContents.session.fetch(url,{credentials:"include",headers:{"Accept":"application/json"}});}
+ const base="https://menu-la-pica-del-benjamin-pago.onrender.com";
+ const credentials=readOnlineCredentials();
+ if(!credentials?.username||!credentials?.password)return {response:null,error:"Falta conectar Pedidos Web/APK con una cuenta de jefatura; no hay credenciales guardadas para leer comandas remotas."};
+ const login=await win.webContents.session.fetch(base+"/api/personal/login",{method:"POST",credentials:"include",headers:{"Accept":"application/json","Content-Type":"application/json"},body:JSON.stringify(credentials)});
+ const loginData=await login.json().catch(()=>({}));
+ if(!login.ok||!loginData.user||loginData.mustChangePassword)return {response:null,error:loginData.error||"La sesión de jefatura del POS no pudo autenticarse para comandas remotas."};
+ let response=await win.webContents.session.fetch(base+"/api/remoto/bandeja",{credentials:"include",headers:{"Accept":"application/json","Cache-Control":"no-cache"}});
+ if(response.status===404)response=await win.webContents.session.fetch(base+"/api/remoto/cola",{credentials:"include",headers:{"Accept":"application/json","Cache-Control":"no-cache"}});
  return {response};
 }
 ipcMain.handle("pos:poll-remote-print-jobs",async()=>{
