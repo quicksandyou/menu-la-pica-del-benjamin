@@ -345,7 +345,7 @@ ipcMain.handle("pos:print-remote-order",(_event,job)=>runPrintExclusive(async()=
  if(!job||!job.id)throw new Error("Trabajo remoto inválido.");
  const id="remote-"+String(job.id);
  if(printedOrderIds.has(id))return {ok:true,duplicate:true};
- const payload=job.payload_json&&typeof job.payload_json==="object"?job.payload_json:{};
+ const payload=(()=>{try{const raw=job.payload_json;if(raw&&typeof raw==="object")return raw;if(typeof raw==="string")return JSON.parse(raw)||{};}catch(_){}return job.payload&&typeof job.payload==="object"?job.payload:{};})();
  const money=value=>"$"+Number(value||0).toLocaleString("es-CL");
  const orderText=String(payload.order||"Pedido remoto").trim();
  const items=orderText.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
