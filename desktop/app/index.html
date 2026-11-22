@@ -152,7 +152,13 @@ body{padding-bottom:68px}
 <main id="app" class="wrap">
 <section id="onlineOrdersLogin" class="alert-card" style="margin-bottom:12px">
  <strong>🔐 Conectar pedidos Web y APK</strong>
- <p class="muted" style="margin:6px 0">El POS intenta conectarse automáticamente con la cuenta autorizada guardada de forma cifrada en este equipo.</p>
+ <p class="muted" style="margin:6px 0">Conexión automática con la cuenta autorizada y guardada de forma cifrada en este equipo.</p>
+ <button type="button" class="action" onclick="toggleOnlineSetup()">⚙️ Configurar conexión inicial</button>
+ <form id="onlineLoginSetupForm" onsubmit="loginOnlineOrders(event)" style="display:none;gap:8px;flex-wrap:wrap;margin-top:8px">
+  <input id="onlineStaffUser" autocomplete="username" placeholder="Usuario de personal" required style="flex:1;min-width:130px">
+  <input id="onlineStaffPass" type="password" autocomplete="current-password" placeholder="Contraseña" required style="flex:1;min-width:130px">
+  <button type="submit" class="action primary">Guardar y conectar</button>
+ </form>
  <div id="onlineOrdersLoginStatus" class="muted" role="status" style="margin-top:6px">⏳ Verificando conexión segura de pedidos…</div><div id="remotePrintStatus" class="muted" role="status" style="margin-top:6px">🖨️ Impresión remota: verificando sesión del POS.</div><a href="https://menu-la-pica-del-benjamin-pago.onrender.com/remoto" target="_blank" rel="noopener" class="action" style="display:inline-block;margin-top:8px;text-align:center">📱 Abrir acceso remoto desde celular</a><button id="onlineOrdersLogout" type="button" class="action" onclick="logoutOnlineOrders()" style="display:none;margin-top:6px">Desconectar pedidos Web/APK</button>
 </section>
 <div class="alert-grid" aria-label="Alertas independientes">
@@ -803,12 +809,13 @@ async function openPosService(service){
 function openStaffPanel(){document.getElementById("staffEmbedded").style.display="flex";document.body.style.overflow="hidden";}
 function closeStaffPanel(){document.getElementById("staffEmbedded").style.display="none";document.body.style.overflow="";document.getElementById("staffShortcut").focus();}
 document.addEventListener("keydown",event=>{if(event.key==="Escape"&&document.getElementById("staffEmbedded").style.display!=="none")closeStaffPanel();});</script><script>
+function toggleOnlineSetup(){const form=document.getElementById("onlineLoginSetupForm");if(!form)return;form.style.display=form.style.display==="none"?"flex":"none";if(form.style.display==="flex")document.getElementById("onlineStaffUser")?.focus();}
 async function logoutOnlineOrders(){try{await window.posBridge.logoutOnlineOrders();const form=document.querySelector("#onlineOrdersLogin form");if(form)form.style.display="flex";const btn=document.getElementById("onlineOrdersLogout");if(btn)btn.style.display="none";const status=document.getElementById("onlineOrdersLoginStatus");if(status)status.textContent="Sesión cerrada. Ingresa nuevamente para conectar Web/APK.";renderPendingOrders();}catch{alert("No se pudo cerrar la sesión.");}}
 async function autoLoginOnlineOrders(){
  if(!window.posBridge?.getSavedOnlineCredentials)return;
  const status=document.getElementById("onlineOrdersLoginStatus");
  try{
-  const saved=await window.posBridge.getSavedOnlineCredentials();if(!saved?.username||!saved?.password){if(status)status.textContent="⚠ Este POS aún no tiene una cuenta autorizada guardada. La conexión inicial debe configurarla la jefatura.";return;}
+  const saved=await window.posBridge.getSavedOnlineCredentials();if(!saved?.username||!saved?.password){if(status)status.textContent="⚠ Sin cuenta guardada. Pulsa “Configurar conexión inicial” una sola vez para autorizar este POS.";return;}
   const userInput=document.getElementById("onlineStaffUser"),passInput=document.getElementById("onlineStaffPass");
   if(userInput)userInput.value=saved.username;if(passInput)passInput.value="";
   if(status)status.textContent="🔐 Conectando automáticamente con la cuenta autorizada…";
