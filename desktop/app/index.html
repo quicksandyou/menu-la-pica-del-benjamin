@@ -725,7 +725,7 @@ function renderRemoteComandas(){
   const statusClass=item.status==="printed"?"printed":item.status==="failed"?"failed":"pending";
   const statusText=item.status==="printed"?"✓ IMPRESA":item.status==="failed"?"⚠ ERROR":"⏳ RECIBIDA / IMPRIMIENDO";
   const when=new Date(item.created_at).toLocaleString("es-CL",{timeZone:"America/Santiago"});
-  return '<article class="remote-comanda-item '+statusClass+'"><div class="remote-comanda-title"><span>REM-'+escapeHTML(item.id)+'</span><span class="remote-comanda-status">'+statusText+'</span></div><div class="remote-comanda-meta">👤 Enviada por: '+escapeHTML(item.sender)+' · '+escapeHTML(when)+'<br>Cliente: '+escapeHTML(item.name)+' · '+escapeHTML(item.phone)+'<br>Dirección: '+escapeHTML(item.address)+'</div><div class="remote-comanda-detail">📝 '+escapeHTML(item.order)+'<br>💰 Total: 
+  return '<article class="remote-comanda-item '+statusClass+'"><div class="remote-comanda-title"><span>REM-'+escapeHTML(item.id)+'</span><span class="remote-comanda-status">'+statusText+'</span></div><div class="remote-comanda-meta">👤 Enviada por: '+escapeHTML(item.sender)+' · '+escapeHTML(when)+'<br>Cliente: '+escapeHTML(item.name)+' · '+escapeHTML(item.phone)+'<br>Dirección: '+escapeHTML(item.address)+'</div><div class="remote-comanda-detail">📝 '+escapeHTML(item.order)+'<br>💰 Total: ' +Number(item.total||0).toLocaleString("es-CL")+(item.notes?'\n🍳 Observaciones: '+escapeHTML(item.notes):'')+(item.note?'\n⚠ '+escapeHTML(item.note):'')+'</div></article>';
  if(remotePrintQueueBusy||!window.posBridge?.pollRemotePrintJobs)return;
  remotePrintQueueBusy=true;
  const status=document.getElementById("remotePrintStatus");
