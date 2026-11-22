@@ -619,7 +619,7 @@ La Picá del Benjamín`,
   async function getStaffUser() {
     const token = (req.headers.cookie || "").split(";").map(x=>x.trim()).find(x=>x.startsWith("pb_session="))?.slice(11);
     if (!token || !dbPool) return null;
-    const result = await dbPool.query("SELECT u.id,u.username,u.full_name,u.role FROM app_sessions s JOIN app_users u ON u.id=s.user_id WHERE s.token_hash=$1 AND s.expires_at>NOW() AND u.active=TRUE", [createHash("sha256").update(token).digest("hex")]);
+    const result = await dbPool.query("SELECT u.id,u.username,u.full_name,u.role,u.must_change_password FROM app_sessions s JOIN app_users u ON u.id=s.user_id WHERE s.token_hash=$1 AND s.expires_at>NOW() AND u.active=TRUE", [createHash("sha256").update(token).digest("hex")]);
     return result.rows[0] || null;
   }
   function isSuperAdmin(staff) { return Boolean(staff && staff.role === "superadmin"); }
@@ -627,7 +627,7 @@ La Picá del Benjamín`,
   // Pedidos manuales remotos: solo administrador y jefatura.
   if (requestPath === "/api/remoto/pedidos" && req.method === "POST") {
     const staff = await getStaffUser();
-    if (!canManageOrders(staff)) return send(res, 403, { error: "Solo administrador o jefatura pueden enviar pedidos remotos." });
+    if (!canManageOrders(staff) || staff.must_change_password) return send(res, 403, { error: "Acceso remoto requiere administrador o jefatura con contraseña actualizada." });
     if (!dbPool) return send(res, 503, { error: "Base de datos no disponible." });
     if (isRateLimited(req, 20, 60000)) return send(res, 429, { error: "Demasiados pedidos remotos. Espera un minuto." });
     try {
@@ -653,7 +653,7 @@ La Picá del Benjamín`,
   // POS reclama una pequeña tanda de trabajos; la concesión expira si el POS se desconecta.
   if (requestPath === "/api/remoto/cola" && req.method === "GET") {
     const staff = await getStaffUser();
-    if (!canManageOrders(staff)) return send(res, 403, { error: "Sesión autorizada requerida." });
+    if (!canManageOrders(staff) || staff.must_change_password) return send(res, 403, { error: "Sesión autorizada con contraseña actualizada requerida." });
     if (!dbPool) return send(res, 503, { error: "Base de datos no disponible." });
     try {
       const claimed = await dbPool.query(
