@@ -321,7 +321,7 @@ ipcMain.handle("pos:poll-remote-print-jobs",async()=>{
  if(!win||win.isDestroyed())return {ok:false,jobs:[],error:"POS no disponible."};
  try{
   const queueFetch=await fetchRemoteQueueWithAuth();
-  if(!queueFetch.responsereturn {ok:false,jobs:[],error:queueFetch.error||"Sesión del POS no autorizada."};
+  if(!queueFetch.response)return {ok:false,jobs:[],error:queueFetch.error||"Sesión del POS no autorizada."};
   const response=queueFetch.response;
   const data=await response.json().catch(()=>({}));
   if(!response.ok)return {ok:false,jobs:[],error:data.error||("Cola remota HTTP "+response.status)};
@@ -334,7 +334,8 @@ ipcMain.handle("pos:ack-remote-print-job",async(_event,payload={})=>{
  if(!Number.isSafeInteger(jobId)||jobId<1||!["printed","failed"].includes(status))return {ok:false,error:"Resultado de trabajo remoto inválido."};
  try{
   const sendResult=()=>win.webContents.session.fetch("https://menu-la-pica-del-benjamin-pago.onrender.com/api/remoto/resultado",{method:"POST",credentials:"include",headers:{"Accept":"application/json","Content-Type":"application/json"},body:JSON.stringify({job_id:jobId,status,note})});
-  let response=await sendResult();\n  if(response.status===401||response.status===403){const auth=await refreshRemoteQueueSession();if(!auth.ok)return {ok:false,error:auth.error};response=await sendResult();}
+  let response=await sendResult();
+  if(response.status===401||response.status===403){const auth=await refreshRemoteQueueSession();if(!auth.ok)return {ok:false,error:auth.error};response=await sendResult();}
   const data=await response.json().catch(()=>({}));
   if(!response.ok)return {ok:false,error:data.error||("Confirmación HTTP "+response.status)};
   return {ok:true};
