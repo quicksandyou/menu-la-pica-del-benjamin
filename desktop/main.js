@@ -303,6 +303,45 @@ ipcMain.handle("pos:print-web-order",(_event,order)=>runPrintExclusive(async()=>
   if(!receiptWindow.isDestroyed())receiptWindow.close();
  }
 }));
+ipcMain.handle("pos:poll-remote-print-jobs",async()=>{
+ if(!win||win.isDestroyed())return {ok:false,jobs:[],error:"POS no disponible."};
+ try{
+  const response=await win.webContents.session.fetch("https://menu-la-pica-del-benjamin-pago.onrender.com/api/remoto/cola",{credentials:"include",headers:{"Accept":"application/json"}});
+  const data=await response.json().catch(()=>({}));
+  if(!response.ok)return {ok:false,jobs:[],error:data.error||("Cola remota HTTP "+response.status)};
+  return {ok:true,jobs:Array.isArray(data.jobs)?data.jobs:[]};
+ }catch(error){return {ok:false,jobs:[],error:error.message||"No se pudo consultar la cola remota."};}
+});
+ipcMain.handle("pos:ack-remote-print-job",async(_event,payload={})=>{
+ if(!win||win.isDestroyed())return {ok:false,error:"POS no disponible."};
+ const jobId=Number(payload.job_id),status=String(payload.status||""),note=String(payload.note||"").slice(0,300);
+ if(!Number.isSafeInteger(jobId)||jobId<1||!["printed","failed"].includes(status))return {ok:false,error:"Resultado de trabajo remoto inválido."};
+ try{
+  const response=await win.webContents.session.fetch("https://menu-la-pica-del-benjamin-pago.onrender.com/api/remoto/resultado",{method:"POST",credentials:"include",headers:{"Accept":"application/json","Content-Type":"application/json"},body:JSON.stringify({job_id:jobId,status,note})});
+  const data=await response.json().catch(()=>({}));
+  if(!response.ok)return {ok:false,error:data.error||("Confirmación HTTP "+response.status)};
+  return {ok:true};
+ }catch(error){return {ok:false,error:error.message||"No se pudo confirmar el trabajo remoto."};}
+});
+ipcMain.handle("pos:print-remote-order",(_event,job)=>runPrintExclusive(async()=>{
+ if(!job||!job.id)throw new Error("Trabajo remoto inválido.");
+ const id="remote-"+String(job.id);
+ if(printedOrderIds.has(id))return {ok:true,duplicate:true};
+ const payload=job.payload_json&&typeof job.payload_json==="object"?job.payload_json:{};
+ const money=value=>"$"+Number(value||0).toLocaleString("es-CL");
+ const orderText=String(payload.order||"Pedido remoto").trim();
+ const items=orderText.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
+ const rows=items.map((item,index)=>'<div class="item"><div class="item-main"><span class="qty">'+(items.length>1?(index+1)+'.':'')+'</span><span class="product">'+escapeReceipt(item)+'</span></div></div>').join("");
+ const created=payload.created_at?new Date(payload.created_at).toLocaleString("es-CL",{timeZone:"America/Santiago"}):new Date().toLocaleString("es-CL",{timeZone:"America/Santiago"});
+ const html=`<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Comanda remota</title><style>
+ @page{size:80mm auto;margin:0}*{box-sizing:border-box}html,body{width:80mm;margin:0;padding:0;background:#fff;color:#111}body{padding:4mm;font:15px/1.4 Arial,Helvetica,sans-serif}.brand{text-align:center;font-size:21px;font-weight:900}.brand-sub{text-align:center;font-size:12px;letter-spacing:1.5px;margin-top:2px}.ticket-type{text-align:center;font-size:16px;font-weight:900;margin-top:9px}.order{text-align:center;font-size:25px;font-weight:900;margin:3px 0 7px}.rule{border-top:1px dashed #333;margin:8px 0}.meta{font-size:12px}.section-title{font-size:15px;font-weight:900;margin:7px 0 5px}.customer{font-size:15px;font-weight:900;line-height:1.5}.item{padding:10px 0;border-bottom:2px solid #222}.item-main{font-size:18px;font-weight:900;line-height:1.3;display:flex;gap:5px}.qty{font-size:18px;min-width:18px}.product{text-transform:uppercase;font-size:18px;font-weight:900;overflow-wrap:anywhere}.total-row{display:flex;justify-content:space-between;font-size:25px;font-weight:900;margin:13px 0}.notes{font-size:15px;font-weight:800;line-height:1.45;border:1px solid #333;padding:8px;white-space:pre-wrap;overflow-wrap:anywhere}.footer{text-align:center;font-size:12px;margin-top:12px}.footer strong{font-size:14px}</style></head><body><div class="brand">LA PICÁ DEL BENJAMÍN</div><div class="brand-sub">SABOR QUE SE COMPARTE</div><div class="ticket-type">COMANDA REMOTA</div><div class="order">REM-${escapeReceipt(job.id)}</div><div class="meta"><strong>FECHA</strong> ${escapeReceipt(created)}<br><strong>ENVIADO POR</strong> ${escapeReceipt(payload.sender||"Personal autorizado")}</div><div class="rule"></div><div class="section-title">DATOS DEL CLIENTE</div><div class="customer">${escapeReceipt(payload.name||"Sin nombre")}<br>Tel: ${escapeReceipt(payload.phone||"No informado")}<br>${escapeReceipt(payload.address||"Dirección no informada")}</div><div class="rule"></div><div class="section-title">DETALLE DEL PEDIDO</div>${rows||'<div class="item">Sin detalle</div>'}<div class="rule"></div><div class="total-row"><span>TOTAL</span><span>${money(payload.total_clp)}</span></div>${payload.notes?'<div class="section-title">OBSERVACIONES PARA COCINA</div><div class="notes">'+escapeReceipt(payload.notes)+'</div>':""}<div class="rule"></div><div class="footer"><strong>¡GRACIAS POR TU COMPRA!</strong><br>La Picá del Benjamín</div></body></html>`;
+ const receiptWindow=new BrowserWindow({show:false,width:400,height:800,webPreferences:{nodeIntegration:false,contextIsolation:true}});
+ try{
+  const printerName=await printHtmlToThermalPrinter(receiptWindow,html,"Comanda remota",{systemDialog:false,useNamedThermalPrinter:true});
+  printedOrderIds.add(id);persistPrintedOrderIds();
+  return {ok:true,printer:printerName};
+ }finally{if(!receiptWindow.isDestroyed())receiptWindow.close();}
+}));
 let youtubeMusicRestoreTimer=null;
 ipcMain.handle("pos:duck-youtube-music",async(_event,durationMs=4500)=>{
  const musicWin=serviceWindows.get("youtubeMusic");
