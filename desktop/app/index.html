@@ -728,8 +728,6 @@ function renderRemoteComandas(){
   return '<article class="remote-comanda-item '+statusClass+'"><div class="remote-comanda-title"><span>REM-'+escapeHTML(item.id)+'</span><span class="remote-comanda-status">'+statusText+'</span></div><div class="remote-comanda-meta">👤 Enviada por: '+escapeHTML(item.sender)+' · '+escapeHTML(when)+'<br>Cliente: '+escapeHTML(item.name)+' · '+escapeHTML(item.phone)+'<br>Dirección: '+escapeHTML(item.address)+'</div><div class="remote-comanda-detail">📝 '+escapeHTML(item.order)+'<br>💰 Total: '+Number(item.total||0).toLocaleString("es-CL")+(item.notes?'\n🍳 Observaciones: '+escapeHTML(item.notes):'')+(item.note?'\n⚠ '+escapeHTML(item.note):'')+'</div></article>';
  }).join("");
 }
-let remotePrintQueueBusy=false,remotePrintProcessed=0;
-async function checkRemotePrintQueue(){
  if(remotePrintQueueBusy||!window.posBridge?.pollRemotePrintJobs)return;
  remotePrintQueueBusy=true;
  const status=document.getElementById("remotePrintStatus");
