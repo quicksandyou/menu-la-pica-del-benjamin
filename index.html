@@ -763,6 +763,7 @@ html.native-app-ui #nativeProductDetail .native-detail-sheet{border:1px solid #6
 <span>Síguenos en Facebook</span>
 </a></div><div class="header-info"><div class="info-chip">📍 <b>Pje. Hermano Claudio Ortíz #1229</b><br>Linares · <a href="https://maps.app.goo.gl/zV6W4sxRxqezmYtb7" target="_blank" rel="noopener">Ver ubicación real ↗</a></div><div class="info-chip">🕒 <b>Horario de atención</b><br>Martes a sábado · 17:30 a 01:30 AM</div></div></div></header>
 <div id="closedBanner" class="closed-banner" role="status" aria-live="polite" style="display:none"><strong>🌙 ¡Estamos cerrados por ahora!</strong><span>Los pedidos se reciben de martes a sábado, de 17:30 a 01:30 AM. Puedes revisar nuestro menú y volver a pedir en horario de atención.</span></div>
+<div id="turnStatus" class="turn-status closed" role="status" aria-live="polite"><span class="turn-dot"></span><span id="turnStatusText">🌙 Fuera de horario · Volvemos a las 17:30</span></div>
 <section id="launchCountdown" class="launch-countdown" role="status" aria-live="polite">
  <div class="launch-countdown-inner">
   <div class="launch-copy"><span class="launch-kicker">🚀 CUENTA REGRESIVA OFICIAL</span><strong>¡Se acerca el estreno de la tienda online!</strong><p>Estamos preparando la web y la APK definitiva. Los pagos online estarán habilitados al terminar esta cuenta regresiva.</p></div>
@@ -1064,6 +1065,9 @@ function applySchedule(){
  const launchLocked=isLaunchPaymentLocked();
  const notice=document.getElementById("closedNotice");
  const closedBanner=document.getElementById("closedBanner");
+ const turnStatus=document.getElementById("turnStatus"),turnStatusText=document.getElementById("turnStatusText");
+ if(turnStatus){turnStatus.classList.toggle("open",open);turnStatus.classList.toggle("closed",!open);}
+ if(turnStatusText)turnStatusText.textContent=open?"🟢 Estamos atendiendo · Pedidos disponibles":"🌙 Fuera de horario · Volvemos a las 17:30";
  const launchNotice=document.getElementById("launchOrderLockNotice");
  if(notice)notice.style.display=open?"none":"block";
  if(closedBanner)closedBanner.style.display=open?"none":"flex";
@@ -1629,5 +1633,12 @@ input:focus,select:focus,textarea:focus{outline:2px solid #ed9a52!important;outl
  .cart{border-radius:15px!important}
 }
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+
+/* Estado de turno visible en Web y APK */
+.turn-status{display:flex;align-items:center;gap:8px;margin:10px auto;padding:10px 14px;border-radius:999px;width:max-content;max-width:calc(100% - 24px);font-weight:800;font-size:14px;box-shadow:0 3px 12px #0002}
+.turn-status.open{background:#dcfce7;color:#166534;border:1px solid #86efac}
+.turn-status.closed{background:#fef3c7;color:#92400e;border:1px solid #fcd34d}
+.turn-status .turn-dot{width:9px;height:9px;border-radius:50%;background:currentColor;display:inline-block}
+@media(max-width:480px){.turn-status{font-size:13px;padding:8px 12px}}
 </style>
 </html>
