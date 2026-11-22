@@ -145,7 +145,7 @@ body{padding-bottom:68px}
   <input id="onlineStaffPass" type="password" autocomplete="current-password" placeholder="Contraseña" required style="flex:1;min-width:130px">
   <button type="submit" class="action primary">Conectar</button>
  </form>
- <div id="onlineOrdersLoginStatus" class="muted" role="status" style="margin-top:6px">Sin conexión de pedidos autenticada.</div><button id="onlineOrdersLogout" type="button" class="action" onclick="logoutOnlineOrders()" style="display:none;margin-top:6px">Cerrar sesión de pedidos</button>
+ <div id="onlineOrdersLoginStatus" class="muted" role="status" style="margin-top:6px">Sin conexión de pedidos autenticada.</div><div id="remotePrintStatus" class="muted" role="status" style="margin-top:6px">🖨️ Impresión remota: esperando sesión del POS.</div><a href="https://menu-la-pica-del-benjamin-pago.onrender.com/remoto" target="_blank" rel="noopener" class="action" style="display:inline-block;margin-top:8px;text-align:center">📱 Abrir acceso remoto desde celular</a><button id="onlineOrdersLogout" type="button" class="action" onclick="logoutOnlineOrders()" style="display:none;margin-top:6px">Cerrar sesión de pedidos</button>
 </section>
 <div class="alert-grid" aria-label="Alertas independientes">
  <section class="alert-card orders-alert" aria-live="polite">
@@ -679,6 +679,33 @@ async function checkOnlineOrderAlerts(){
   if(paidOrders.length){paymentsAlertTotal+=paidOrders.length;showAlertMessage("paymentsAlertMessage","💳 "+paidOrders.length+" pago(s) confirmado(s) detectado(s). Revisa los pedidos.","paymentsAlertCount",paymentsAlertTotal);playAlertTone("payment");}
  }catch(e){console.warn("Avisos de pedidos y pagos:",e);const status=document.getElementById("onlineOrdersLoginStatus");if(status)status.textContent="⚠ Error al consultar pedidos: "+(e?.message||e); }
 }
+let remotePrintQueueBusy=false,remotePrintProcessed=0;
+async function checkRemotePrintQueue(){
+ if(remotePrintQueueBusy||!window.posBridge?.pollRemotePrintJobs)return;
+ remotePrintQueueBusy=true;
+ const status=document.getElementById("remotePrintStatus");
+ try{
+  const result=await window.posBridge.pollRemotePrintJobs();
+  if(!result?.ok){if(status)status.textContent="🖨️ Impresión remota sin conexión de personal.";return;}
+  const jobs=Array.isArray(result.jobs)?result.jobs:[[];
+  if(!jobs.length){if(status)status.textContent="🖨️ Impresión remota conectada · esperando pedidos.";return;}
+  for(const job of jobs){
+   try{
+    const printed=await window.posBridge.printRemoteOrder(job);
+    const ack=await window.posBridge.ackRemotePrintJob({job_id:job.id,status:"printed",note:printed?.duplicate?"Impresión duplicada evitada":"Impresión local confirmada"});
+    if(!ack?.ok)throw new Error(ack?.error||"No se pudo confirmar el trabajo.");
+    remotePrintProcessed++;
+    if(status)status.textContent="✓ Pedido remoto #"+job.id+" impreso · "+remotePrintProcessed+" enviado(s) desde remoto.";
+    showAlertMessage("ordersAlertMessage","📱 Pedido remoto #"+job.id+" impreso en el local.","ordersAlertCount",ordersAlertTotal+1);ordersAlertTotal++;duckMusicForOrder();playAlertTone("order");
+   }catch(error){
+    const ack=await window.posBridge.ackRemotePrintJob({job_id:job.id,status:"failed",note:String(error?.message||error).slice(0,250)}).catch(()=>({ok:false}));
+    if(status)status.textContent="⚠️ Falló impresión remota #"+job.id+": "+(error?.message||error)+(ack?.ok?" (registrado)":" (sin confirmación del servidor)");
+   }
+  }
+ }catch(error){if(status)status.textContent="⚠️ Impresión remota: "+(error?.message||error);}
+ finally{remotePrintQueueBusy=false;}
+}
+setTimeout(()=>{checkRemotePrintQueue();setInterval(checkRemotePrintQueue,7000);},7000);
 setTimeout(()=>{checkOnlineOrderAlerts();setInterval(checkOnlineOrderAlerts,12000);},5000);
 
 function showSettingsTab(tab){const devices=tab==="devices";document.getElementById("settingsDevices").hidden=!devices;document.getElementById("settingsScreen").hidden=devices;document.getElementById("settingsTabDevices").classList.toggle("active",devices);document.getElementById("settingsTabScreen").classList.toggle("active",!devices);if(!devices)loadScreenSettings();}
