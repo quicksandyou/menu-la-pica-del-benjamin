@@ -79,6 +79,14 @@ async function initializeDatabase() {
     );
     CREATE INDEX IF NOT EXISTS idx_remote_print_jobs_status_created ON remote_print_jobs(status,created_at);
     CREATE INDEX IF NOT EXISTS idx_remote_print_jobs_lease ON remote_print_jobs(lease_until);
+    CREATE TABLE IF NOT EXISTS remote_pos_devices (
+      device_id VARCHAR(120) PRIMARY KEY,
+      device_name VARCHAR(120) NOT NULL,
+      token_hash TEXT NOT NULL,
+      active BOOLEAN NOT NULL DEFAULT TRUE,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      last_seen TIMESTAMPTZ
+    );
     CREATE TABLE IF NOT EXISTS staff_chat_messages (
       id BIGSERIAL PRIMARY KEY,
       sender_id BIGINT NOT NULL REFERENCES app_users(id) ON DELETE CASCADE,
@@ -626,6 +634,47 @@ La Picá del Benjamín`,
   function isSuperAdmin(staff) { return Boolean(staff && staff.role === "superadmin"); }
   function normalizedStaffRole(staff) { const role=String(staff?.role||"").trim().toLowerCase(); if(role) return role; const username=String(staff?.username||"").trim().toLowerCase(); return username==="jefa"?"manager":username==="maximo"?"superadmin":username==="claudio"?"driver":""; }
   function canManageOrders(staff) { return Boolean(staff && ["superadmin","manager","jefatura","jefa","jefe"].includes(normalizedStaffRole(staff))); }
+  // Canal independiente POS: pairing autenticado una vez; después consulta usando token del dispositivo.
+  async function authenticateRemotePosDevice() {
+    const bearer=String(req.headers.authorization||"").replace(/^Bearer\\s+/i,"").trim();
+    if(!bearer||!dbPool)return null;
+    const hash=createHash("sha256").update(bearer).digest("hex");
+    const result=await dbPool.query("SELECT device_id,device_name FROM remote_pos_devices WHERE token_hash=$1 AND active=TRUE",[hash]);
+    if(!result.rowCount)return null;
+    await dbPool.query("UPDATE remote_pos_devices SET last_seen=NOW() WHERE device_id=$1",[result.rows[0].device_id]);
+    return result.rows[0];
+  }
+  if(requestPath==="/api/remoto/pos/pair"&&req.method==="POST"){
+    const staff=await getStaffUser();
+    if(!canManageOrders(staff)||staff.must_change_password)return send(res,403,{error:"Autorización de jefatura requerida."});
+    if(!dbPool)return send(res,503,{error:"Base de datos no disponible."});
+    try{
+      const d=await readJson(req),deviceId=String(d.device_id||"").trim().slice(0,120),deviceName=String(d.device_name||"POS local").trim().slice(0,120)||"POS local";
+      if(!deviceId)return send(res,400,{error:"Identificador de dispositivo inválido."});
+      const token=randomBytes(32).toString("hex"),hash=createHash("sha256").update(token).digest("hex");
+      await dbPool.query("INSERT INTO remote_pos_devices(device_id,device_name,token_hash,active,last_seen) VALUES($1,$2,$3,TRUE,NOW()) ON CONFLICT(device_id) DO UPDATE SET device_name=EXCLUDED.device_name,token_hash=EXCLUDED.token_hash,active=TRUE,last_seen=NOW()",[deviceId,deviceName,hash]);
+      return send(res,200,{ok:true,token,device_id:deviceId,message:"POS emparejado para comandas remotas."});
+    }catch(error){console.error("Remote POS pairing:",error.message);return send(res,500,{error:"No se pudo emparejar el POS."});}
+  }
+  if(requestPath==="/api/remoto/pos/poll"&&req.method==="GET"){
+    const device=await authenticateRemotePosDevice();
+    if(!device)return send(res,401,{error:"POS no emparejado o token inválido."});
+    try{
+      const rows=await dbPool.query("SELECT id,payload_json,created_at FROM remote_print_jobs WHERE status IN ('queued','failed') ORDER BY created_at ASC LIMIT 50");
+      return send(res,200,{ok:true,device:device.device_name,jobs:rows.rows});
+    }catch(error){console.error("Remote POS poll:",error.message);return send(res,503,{error:"No se pudo consultar la cola remota."});}
+  }
+  if(requestPath==="/api/remoto/pos/resultado"&&req.method==="POST"){
+    const device=await authenticateRemotePosDevice();
+    if(!device)return send(res,401,{error:"POS no emparejado o token inválido."});
+    try{
+      const d=await readJson(req),id=Number(d.job_id),status=String(d.status||""),note=String(d.note||"").trim().slice(0,300);
+      if(!Number.isSafeInteger(id)||id<1||!["printed","failed"].includes(status))return send(res,400,{error:"Resultado inválido."});
+      const updated=await dbPool.query("UPDATE remote_print_jobs SET status=$1,result_note=$2,completed_at=NOW(),lease_until=NULL WHERE id=$3 AND status IN ('queued','failed','processing') RETURNING id",[status,note||null,id]);
+      if(!updated.rowCount)return send(res,409,{error:"Comanda ya procesada."});
+      return send(res,200,{ok:true});
+    }catch(error){console.error("Remote POS result:",error.message);return send(res,400,{error:"No se pudo guardar el resultado."});}
+  }
   // Pedidos manuales remotos: solo administrador y jefatura.
   if (requestPath === "/api/remoto/pedidos" && req.method === "POST") {
     const staff = await getStaffUser();
