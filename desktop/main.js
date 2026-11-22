@@ -468,6 +468,7 @@ function createWindow(){
 ipcMain.handle("pos:set-window-size",async(_event,width,height)=>{const w=Number(width),h=Number(height);const allowed=[[800,600],[1024,768],[1280,720],[1280,1024],[1366,768],[1440,900],[1440,920],[1600,900],[1920,1080]];if(!allowed.some(([aw,ah])=>aw===w&&ah===h))throw new Error("Resolución no permitida.");if(!win||win.isDestroyed())throw new Error("Ventana POS no disponible.");if(win.isFullScreen())win.setFullScreen(false);win.setSize(w,h);win.center();savedScreenSettings={width:w,height:h,fullscreen:false};persistScreenSettings();return {ok:true,width:w,height:h};});
 ipcMain.handle("pos:toggle-fullscreen",async()=>{if(!win||win.isDestroyed())throw new Error("Ventana POS no disponible.");const next=!win.isFullScreen();win.setFullScreen(next);savedScreenSettings.fullscreen=next;persistScreenSettings();return {ok:true,fullscreen:next};});
 ipcMain.handle("pos:set-fullscreen",async(_event,value)=>{if(!win||win.isDestroyed())throw new Error("Ventana POS no disponible.");const next=!!value;win.setFullScreen(next);savedScreenSettings.fullscreen=next;persistScreenSettings();return {ok:true,fullscreen:next};});
+ipcMain.handle("pos:open-test-store",async()=>{try{await shell.openExternal("https://menu-la-pica-del-benjamin.onrender.com/?modoPrueba=1");return {ok:true};}catch(error){return {ok:false,error:error.message||"No se pudo abrir la tienda de prueba."};}});
 ipcMain.handle("pos:focus-window",async()=>{
  if(!win||win.isDestroyed())return false;
  if(win.isMinimized())win.restore();
