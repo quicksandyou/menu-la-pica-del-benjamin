@@ -73,6 +73,7 @@
 .remote-comanda-meta,.remote-comanda-detail{font-size:12px;line-height:1.45;margin-top:5px;white-space:pre-wrap;overflow-wrap:anywhere}
 .remote-comanda-meta{color:#e0cda7}.remote-comanda-detail{color:#fff3d4}
 .remote-comandas-empty{font-size:12px;color:#dfcba8;margin-top:6px}
+.remote-print-btn{width:100%;margin-top:10px;padding:12px;background:linear-gradient(90deg,#ffd45c,#ed7817);color:#241306;font-weight:950;border-radius:10px}.remote-print-btn:disabled{opacity:.65;cursor:wait}
 @media(max-width:700px){.remote-comandas-card{padding:11px}}
 
 .alert-card{border-radius:12px;padding:13px 15px;min-height:78px;font-size:13px;line-height:1.4}
@@ -708,52 +709,34 @@ async function checkOnlineOrderAlerts(){
  }catch(e){console.warn("Avisos de pedidos y pagos:",e);const status=document.getElementById("onlineOrdersLoginStatus");if(status)status.textContent="⚠ Error al consultar pedidos: "+(e?.message||e); }
 }
 const REMOTE_COMANDAS_KEY="lapica_pos_remote_comandas_recent_v1";
+const REMOTE_PENDING_KEY="lapica_pos_remote_pending_jobs_v1";
 function readRemoteComandas(){try{const items=JSON.parse(localStorage.getItem(REMOTE_COMANDAS_KEY)||"[]");return Array.isArray(items)?items:[];}catch(_){return [];}}
 function saveRemoteComandas(items){try{localStorage.setItem(REMOTE_COMANDAS_KEY,JSON.stringify(items.slice(0,15)));}catch(e){console.warn("No se pudo guardar historial de comandas remotas:",e);}}
+function readRemotePending(){try{const items=JSON.parse(localStorage.getItem(REMOTE_PENDING_KEY)||"[]");return Array.isArray(items)?items:[];}catch(_){return [];}}
+function saveRemotePending(items){try{localStorage.setItem(REMOTE_PENDING_KEY,JSON.stringify(items.slice(0,20)));}catch(e){console.warn("No se pudo guardar la cola remota local:",e);}}
 function recordRemoteComanda(job,status,note=""){
  const payload=job?.payload_json&&typeof job.payload_json==="object"?job.payload_json:{};
  const item={id:String(job?.id||""),sender:String(payload.sender||"Personal autorizado"),order:String(payload.order||"Pedido remoto"),name:String(payload.name||"Sin nombre"),phone:String(payload.phone||"No informado"),address:String(payload.address||"Dirección no informada"),total:Number(payload.total_clp||0),notes:String(payload.notes||""),created_at:String(payload.created_at||job?.created_at||new Date().toISOString()),status,note:String(note||"")};
  const items=readRemoteComandas().filter(x=>String(x.id)!==item.id);items.unshift(item);saveRemoteComandas(items);renderRemoteComandas();
 }
 function renderRemoteComandas(){
- const items=readRemoteComandas().slice(0,8),list=document.getElementById("remoteComandasList"),badge=document.getElementById("remoteComandasCount"),summary=document.getElementById("remoteComandasSummary");
- if(!list)return;
- const pending=items.filter(x=>x.status==="pending").length,failed=items.filter(x=>x.status==="failed").length;
- if(badge)badge.textContent=String(pending+failed);
- if(summary)summary.textContent=items.length?(pending?"⏳ "+pending+" comanda(s) en impresión o espera":failed?"⚠ "+failed+" comanda(s) con error":"Comandas remotas recientes · impresión automática desde el POS"):"Esperando comandas remotas…";
+ const items=readRemoteComandas().slice(0,8),pendingJobs=readRemotePending(),list=document.getElementById("remoteComandasList"),badge=document.getElementById("remoteComandasCount"),summary=document.getElementById("remoteComandasSummary");if(!list)return;
+ const pending=items.filter(x=>x.status==="pending").length,failed=items.filter(x=>x.status==="failed").length;if(badge)badge.textContent=String(pending);if(summary)summary.textContent=pending?"📥 "+pending+" comanda(s) recibida(s) · impresión manual pendiente":items.length?(failed?"⚠ "+failed+" comanda(s) con error":"Comandas remotas recientes · impresión manual"):"Esperando comandas remotas…";
  if(!items.length){list.innerHTML='<div class="remote-comandas-empty">Todavía no hay comandas remotas recientes.</div>';return;}
- list.innerHTML=items.map(item=>{
-  const statusClass=item.status==="printed"?"printed":item.status==="failed"?"failed":"pending";
-  const statusText=item.status==="printed"?"✓ IMPRESA":item.status==="failed"?"⚠ ERROR":"⏳ RECIBIDA / IMPRIMIENDO";
-  const when=new Date(item.created_at).toLocaleString("es-CL",{timeZone:"America/Santiago"});
-  return '<article class="remote-comanda-item '+statusClass+'"><div class="remote-comanda-title"><span>REM-'+escapeHTML(item.id)+'</span><span class="remote-comanda-status">'+statusText+'</span></div><div class="remote-comanda-meta">👤 Enviada por: '+escapeHTML(item.sender)+' · '+escapeHTML(when)+'<br>Cliente: '+escapeHTML(item.name)+' · '+escapeHTML(item.phone)+'<br>Dirección: '+escapeHTML(item.address)+'</div><div class="remote-comanda-detail">📝 '+escapeHTML(item.order)+'<br>💰 Total: '+Number(item.total||0).toLocaleString("es-CL")+(item.notes?'\n🍳 Observaciones: '+escapeHTML(item.notes):'')+(item.note?'\n⚠ '+escapeHTML(item.note):'')+'</div></article>';
- }).join("");
+ list.innerHTML=items.map(item=>{const statusClass=item.status==="printed"?"printed":item.status==="failed"?"failed":"pending",statusText=item.status==="printed"?"✓ IMPRESA":item.status==="failed"?"⚠ ERROR":"📥 PENDIENTE DE IMPRESIÓN",when=new Date(item.created_at).toLocaleString("es-CL",{timeZone:"America/Santiago"}),hasJob=pendingJobs.some(j=>String(j.id)===String(item.id)),button=item.status==="pending"&&hasJob?'<button type="button" class="remote-print-btn" data-remote-print-id="'+escapeHTML(item.id)+'">🖨️ IMPRIMIR COMANDA</button>':"";
+  return '<article class="remote-comanda-item '+statusClass+'"><div class="remote-comanda-title"><span>REM-'+escapeHTML(item.id)+'</span><span class="remote-comanda-status">'+statusText+'</span></div><div class="remote-comanda-meta">👤 Enviada por: '+escapeHTML(item.sender)+' · '+escapeHTML(when)+'<br>Cliente: '+escapeHTML(item.name)+' · '+escapeHTML(item.phone)+'<br>Dirección: '+escapeHTML(item.address)+'</div><div class="remote-comanda-detail">📝 '+escapeHTML(item.order)+'<br>💰 Total: $ '+Number(item.total||0).toLocaleString("es-CL")+(item.notes?'<br>🍳 Observaciones: '+escapeHTML(item.notes):"")+(item.note?'<br>⚠ '+escapeHTML(item.note):"")+'</div>'+button+'</article>';}).join("");
+}
+async function printRemoteComanda(id){
+ const job=readRemotePending().find(j=>String(j.id)===String(id));if(!job)return alert("Comanda no encontrada en la cola local.");const btn=document.querySelector('[data-remote-print-id="'+CSS.escape(String(id))+'"]');if(btn){btn.disabled=true;btn.textContent="Imprimiendo…";}
+ try{const printed=await window.posBridge.printRemoteOrder(job);const ack=await window.posBridge.ackRemotePrintJob({job_id:job.id,status:"printed",note:printed?.duplicate?"Duplicado evitado":"Impresión confirmada"});if(!ack?.ok)throw new Error(ack.error||"No se confirmó el estado en el servidor.");saveRemotePending(readRemotePending().filter(j=>String(j.id)!==String(id)));recordRemoteComanda(job,"printed","Impresión confirmada");const status=document.getElementById("remotePrintStatus");if(status)status.textContent="✓ Comanda remota #"+id+" impresa y confirmada.";playAlertTone("order");
+ }catch(e){if(btn){btn.disabled=false;btn.textContent="🖨️ REINTENTAR IMPRESIÓN";}const status=document.getElementById("remotePrintStatus");if(status)status.textContent="⚠️ Comanda #"+id sigue pendiente: "+(e.message||e);alert("No se pudo imprimir. La comanda permanece pendiente para reintentar. "+(e.message||e));}
 }
 async function checkRemotePrintQueue(){
- if(remotePrintQueueBusy||!window.posBridge?.pollRemotePrintJobs)return;
- remotePrintQueueBusy=true;
- const status=document.getElementById("remotePrintStatus");
- try{
-  const result=await window.posBridge.pollRemotePrintJobs();
-  if(!result?.ok){if(status)status.textContent="🖨️ Impresión remota sin conexión de personal.";return;}
-  const jobs=Array.isArray(result.jobs)?result.jobs:[];
-  if(!jobs.length){if(status)status.textContent="🖨️ Impresión remota conectada · esperando pedidos.";return;}
-  for(const job of jobs){
-   try{
-    const printed=await window.posBridge.printRemoteOrder(job);
-    const ack=await window.posBridge.ackRemotePrintJob({job_id:job.id,status:"printed",note:printed?.duplicate?"Impresión duplicada evitada":"Impresión local confirmada"});
-    if(!ack?.ok)throw new Error(ack?.error||"No se pudo confirmar el trabajo.");
-    remotePrintProcessed++;
-    if(status)status.textContent="✓ Pedido remoto #"+job.id+" impreso · "+remotePrintProcessed+" enviado(s) desde remoto.";
-    showAlertMessage("ordersAlertMessage","📱 Pedido remoto #"+job.id+" impreso en el local.","ordersAlertCount",ordersAlertTotal+1);ordersAlertTotal++;duckMusicForOrder();playAlertTone("order");
-   }catch(error){
-    const ack=await window.posBridge.ackRemotePrintJob({job_id:job.id,status:"failed",note:String(error?.message||error).slice(0,250)}).catch(()=>({ok:false}));
-    if(status)status.textContent="⚠️ Falló impresión remota #"+job.id+": "+(error?.message||error)+(ack?.ok?" (registrado)":" (sin confirmación del servidor)");
-   }
-  }
- }catch(error){if(status)status.textContent="⚠️ Impresión remota: "+(error?.message||error);}
- finally{remotePrintQueueBusy=false;}
+ if(remotePrintQueueBusy||!window.posBridge?.pollRemotePrintJobs)return;remotePrintQueueBusy=true;const status=document.getElementById("remotePrintStatus");
+ try{const result=await window.posBridge.pollRemotePrintJobs();if(!result?.ok){if(status)status.textContent="⚠️ Comandas remotas: "+(result.error||"sin conexión/autorización");return;}if(status)status.textContent="🖨️ Conectado · impresión manual de comandas remotas.";const jobs=Array.isArray(result.jobs)?result.jobs:[];if(!jobs.length)return;const current=readRemotePending(),known=new Set(current.map(j=>String(j.id)));let newJobs=0;for(const job of jobs){if(!known.has(String(job.id))){current.unshift(job);known.add(String(job.id));recordRemoteComanda(job,"pending");newJobs++;}}if(newJobs){saveRemotePending(current);renderRemoteComandas();showAlertMessage("ordersAlertMessage","📱 "+newJobs+" comanda(s) remota(s) recibida(s). Presiona IMPRIMIR en el POS.","ordersAlertCount",ordersAlertTotal+newJobs);ordersAlertTotal+=newJobs;duckMusicForOrder();playAlertTone("order");}}catch(e){if(status)status.textContent="⚠️ Comandas remotas: "+(e.message||e);}finally{remotePrintQueueBusy=false;}
 }
+const remoteComandasListEl=document.getElementById("remoteComandasList");if(remoteComandasListEl)remoteComandasListEl.addEventListener("click",event=>{const btn=event.target.closest("[data-remote-print-id]");if(btn)printRemoteComanda(btn.getAttribute("data-remote-print-id"));});
+renderRemoteComandas();
 setTimeout(()=>{checkRemotePrintQueue();setInterval(checkRemotePrintQueue,7000);},7000);
 setTimeout(()=>{checkOnlineOrderAlerts();setInterval(checkOnlineOrderAlerts,12000);},5000);
 
