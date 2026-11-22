@@ -303,10 +303,24 @@ ipcMain.handle("pos:print-web-order",(_event,order)=>runPrintExclusive(async()=>
   if(!receiptWindow.isDestroyed())receiptWindow.close();
  }
 }));
+async function refreshRemoteQueueSession(){
+ const credentials=readOnlineCredentials();
+ if(!credentials?.username||!credentials?.password)return {ok:false,error:"No hay credenciales de jefatura guardadas para autorizar comandas remotas."};
+ const response=await win.webContents.session.fetch("https://menu-la-pica-del-benjamin-pago.onrender.com/api/personal/login",{method:"POST",credentials:"include",headers:{"Accept":"application/json","Content-Type":"application/json"},body:JSON.stringify(credentials)});
+ const data=await response.json().catch(()=>({}));
+ if(!response.ok||!data.user||data.mustChangePassword)return {ok:false,error:data.error||"No se pudo renovar la sesión autorizada del POS."};
+ return {ok:true};
+}
+async function fetchRemoteQueueWithAuth(){
+ const url="https://menu-la-pica-del-benjamin-pago.onrender.com/api/remoto/cola";
+ let response=await win.webContents.session.fetch(url,{credentials:"include",headers:{"Accept":"application/json"}});
+ if(response.status===401||response.status===403){const auth=await refreshRemoteQueueSession();if(!auth.ok)return {response:null,error:auth.error};response=await win.webContents.session.fetch(url,{credentials:"include",headers:{"Accept":"application/json"}});}
+ return {response};
+}
 ipcMain.handle("pos:poll-remote-print-jobs",async()=>{
  if(!win||win.isDestroyed())return {ok:false,jobs:[],error:"POS no disponible."};
  try{
-  const response=await win.webContents.session.fetch("https://menu-la-pica-del-benjamin-pago.onrender.com/api/remoto/cola",{credentials:"include",headers:{"Accept":"application/json"}});
+  const queueFetch=await fetchRemoteQueueWithAuth();\n  if(!queueFetch.response)return {ok:false,jobs:[],error:queueFetch.error||"Sesión del POS no autorizada."};\n  const response=queueFetch.response;
   const data=await response.json().catch(()=>({}));
   if(!response.ok)return {ok:false,jobs:[],error:data.error||("Cola remota HTTP "+response.status)};
   return {ok:true,jobs:Array.isArray(data.jobs)?data.jobs:[]};
