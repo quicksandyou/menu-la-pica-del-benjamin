@@ -687,7 +687,7 @@ async function checkRemotePrintQueue(){
  try{
   const result=await window.posBridge.pollRemotePrintJobs();
   if(!result?.ok){if(status)status.textContent="🖨️ Impresión remota sin conexión de personal.";return;}
-  const jobs=Array.isArray(result.jobs)?result.jobs:[[];
+  const jobs=Array.isArray(result.jobs)?result.jobs:[];
   if(!jobs.length){if(status)status.textContent="🖨️ Impresión remota conectada · esperando pedidos.";return;}
   for(const job of jobs){
    try{
