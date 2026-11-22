@@ -672,7 +672,7 @@ async function loginOnlineOrders(event){
   if(!result?.ok)throw new Error(result?.error||"Credenciales no aceptadas.");
   document.getElementById("onlineStaffPass").value="";
   const loginForm=document.querySelector("#onlineOrdersLogin form");if(loginForm)loginForm.style.display="none";const logoutBtn=document.getElementById("onlineOrdersLogout");if(logoutBtn)logoutBtn.style.display="inline-block";
-  if(status)status.textContent="✓ Sesión conectada. Sincronizando pedidos Web/APK…";
+  const setupButton=document.querySelector("#onlineOrdersLogin button[onclick=\"toggleOnlineSetup()\"]");if(setupButton)setupButton.style.display="none";if(status)status.textContent="✓ Sesión conectada. Sincronizando pedidos Web/APK…";
   await checkOnlineOrderAlerts();
  }catch(error){if(status)status.textContent="Error de conexión: "+(error.message||error);}
  finally{if(button)button.disabled=false;}
@@ -820,7 +820,7 @@ async function autoLoginOnlineOrders(){
   if(userInput)userInput.value=saved.username;if(passInput)passInput.value="";
   if(status)status.textContent="🔐 Conectando automáticamente con la cuenta autorizada…";
   const result=await window.posBridge.loginOnlineOrders({username:saved.username,password:saved.password});
-  if(result?.ok){const form=document.querySelector("#onlineOrdersLogin form");if(form)form.style.display="none";const logoutBtn=document.getElementById("onlineOrdersLogout");if(logoutBtn)logoutBtn.style.display="inline-block";if(status)status.textContent="✓ Pedidos Web/APK conectados automáticamente.";await checkOnlineOrderAlerts();}
+  if(result?.ok){const form=document.querySelector("#onlineOrdersLogin form");if(form)form.style.display="none";const logoutBtn=document.getElementById("onlineOrdersLogout");if(logoutBtn)logoutBtn.style.display="inline-block";const setupButton=document.querySelector("#onlineOrdersLogin button[onclick=\"toggleOnlineSetup()\"]");if(setupButton)setupButton.style.display="none";if(status)status.textContent="✓ Pedidos Web/APK conectados automáticamente.";await checkOnlineOrderAlerts();}
   else{if(passInput)passInput.value="";if(result.authRejected)await window.posBridge.clearOnlineCredentials();if(status)status.textContent="⚠ "+(result.error||"No se pudo conectar. Ingresa nuevamente para renovar la sesión.");}
  }catch(error){if(status)status.textContent="⚠ No se pudo conectar automáticamente; verifica internet e intenta iniciar sesión manualmente.";}
 }
