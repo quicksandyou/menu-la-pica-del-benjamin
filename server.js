@@ -305,7 +305,7 @@ const server = http.createServer(async (req, res) => {
   if (req.method === "GET" && requestPath === "/remoto") {
     try {
       const page = await fs.promises.readFile(path.join(__dirname, "remoto.html"));
-      res.writeHead(200, { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff", "Content-Security-Policy": "default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self; frame-ancestors 'none'" });
+      res.writeHead(200, { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff", "Content-Security-Policy": "default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self'; frame-ancestors 'none'" });
       return res.end(page);
     } catch (error) {
       console.error("No se pudo cargar remoto.html:", error.message);
