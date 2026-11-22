@@ -19,7 +19,7 @@
 <button class="btn" id="sendBtn" onclick="sendOrder()">📨 Enviar e imprimir en el local</button><button class="btn secondary" onclick="logout()">Cerrar sesión</button><div id="sendStatus" class="status hidden"></div>
 </section></div>
 <script>
-const API="";
+const API="https://menu-la-pica-del-benjamin-pago.onrender.com";
 function returnToPOS(){if(window.history.length>1){window.history.back();return;}window.close();}
 function statusBox(id,text,kind){const el=document.getElementById(id);el.textContent=text;el.className="status "+(kind||"");el.classList.remove("hidden");}
 async function api(path,opts={}){const res=await fetch(API+path,{...opts,credentials:"include",headers:{"Accept":"application/json","Content-Type":"application/json",...(opts.headers||{})}});const data=await res.json().catch(()=>({}));if(!res.ok)throw new Error(data.error||"HTTP "+res.status);return data;}
