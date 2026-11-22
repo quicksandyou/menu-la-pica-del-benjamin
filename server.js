@@ -623,7 +623,7 @@ La Picá del Benjamín`,
     return result.rows[0] || null;
   }
   function isSuperAdmin(staff) { return Boolean(staff && staff.role === "superadmin"); }
-  function canManageOrders(staff) { return Boolean(staff && ["superadmin","manager"].includes(staff.role)); }
+  function canManageOrders(staff) { return Boolean(st && ["superadmin","manager","jefatura","jefa","jefe"].includes(String(staff.role || "").toLowerCase())); }
   // Pedidos manuales remotos: solo administrador y jefatura.
   if (requestPath === "/api/remoto/pedidos" && req.method === "POST") {
     const staff = await getStaffUser();
