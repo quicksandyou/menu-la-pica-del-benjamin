@@ -311,6 +311,11 @@ const server = http.createServer(async (req, res) => {
 
   // Portal de impresión remota: servido en el mismo origen para conservar la cookie segura.
   if (req.method === "GET" && requestPath === "/remoto") {
+    const canonicalRemoteUrl = "https://menu-la-pica-del-benjamin-pago.onrender.com/remoto";
+    if (String(req.headers.host || "").toLowerCase() === "menu-la-pica-del-benjamin.onrender.com") {
+      res.writeHead(302, { "Location": canonicalRemoteUrl, "Cache-Control": "no-store" });
+      return res.end();
+    }
     try {
       const page = await fs.promises.readFile(path.join(__dirname, "remoto.html"));
       res.writeHead(200, { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff", "Content-Security-Policy": "default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self'; frame-ancestors 'none'" });
