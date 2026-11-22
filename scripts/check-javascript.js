@@ -3,8 +3,8 @@ const fs=require("node:fs");
 const vm=require("node:vm");
 const path=require("node:path");
 const root=process.cwd();
-const htmlFiles=["index.html","desktop/app/index.html","reparto.html"];
-const jsFiles=["desktop/main.js","desktop/preload.js"];
+const htmlFiles=["index.html","desktop/app/index.html","reparto.html","remoto.html"];
+const jsFiles=["desktop/main.js","desktop/preload.js","server.js"];
 let count=0;
 for(const file of htmlFiles){
  const full=path.join(root,file);if(!fs.existsSync(full))continue;
