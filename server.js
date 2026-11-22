@@ -636,7 +636,7 @@ La Picá del Benjamín`,
   function canManageOrders(staff) { return Boolean(staff && ["superadmin","manager","jefatura","jefa","jefe"].includes(normalizedStaffRole(staff))); }
   // Canal independiente POS: pairing autenticado una vez; después consulta usando token del dispositivo.
   async function authenticateRemotePosDevice() {
-    const bearer=String(req.headers.authorization||"").replace(/^Bearer\\s+/i,"").trim();
+    const bearer=String(req.headers.authorization||"").replace(/^Bearer\s+/i,"").trim();
     if(!bearer||!dbPool)return null;
     const hash=createHash("sha256").update(bearer).digest("hex");
     const result=await dbPool.query("SELECT device_id,device_name FROM remote_pos_devices WHERE token_hash=$1 AND active=TRUE",[hash]);
