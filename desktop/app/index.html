@@ -62,6 +62,19 @@
 @media(max-width:600px){.staff-overlay{padding:7px;gap:7px}.staff-toolbar{padding:10px}.staff-toolbar strong{font-size:14px}.staff-back{padding:10px 12px;font-size:13px}}
 
 .printed-orders-overlay{position:fixed;inset:0;z-index:10030;background:#080604ee;display:none;align-items:center;justify-content:center;padding:12px}.printed-orders-window{width:min(850px,100%);max-height:92vh;overflow:auto;background:linear-gradient(145deg,#24170d,#100c08);border:1px solid #a86a28;border-radius:18px;padding:18px;box-shadow:0 18px 70px #000c}.printed-orders-header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}.printed-orders-header h2{margin:0;color:#ffd36b}.printed-orders-header p{margin:4px 0;color:#d9c6ad;font-size:12px}.printed-orders-close{background:#49301b;color:#ffe4b5}.printed-orders-window input{margin-bottom:12px}.printed-orders-list{display:grid;gap:10px}.printed-order-card{background:#17120d;border:1px solid #654626;border-radius:12px;padding:12px}.printed-order-number{color:#ffd36b;font-size:16px}.printed-order-time,.printed-order-method{color:#d9c6ad;font-size:12px;float:right}.printed-order-customer{margin-top:6px;font-weight:800}.printed-order-items{font-size:12px;line-height:1.5;color:#e8d4b8;margin-top:8px}.printed-order-footer{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:10px}.printed-order-footer strong{color:#ffc34d}.printed-order-footer button{background:#ffc34d;color:#241306}.printed-orders-status,.printed-orders-empty{color:#d9c6ad;font-size:12px;margin-top:10px}@media(max-width:600px){.printed-orders-window{padding:12px}.printed-orders-header h2{font-size:17px}.printed-orders-close{padding:8px 10px;font-size:12px}}.alert-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.remote-comandas-card{margin:0 0 12px;border-radius:12px;padding:14px 16px;background:#312414;border:1px solid #d49a32;color:#ffefc9}
+.remote-comandas-heading{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:14px;font-weight:950;margin-bottom:6px}
+.remote-comandas-heading span{border-radius:999px;background:#ffffff20;padding:3px 9px}
+.remote-comandas-list{display:grid;gap:8px;margin-top:10px}
+.remote-comanda-item{border:1px solid #92713b;background:#211b12;border-radius:10px;padding:10px 12px}
+.remote-comanda-item.pending{border-color:#e3b347}.remote-comanda-item.printed{border-color:#65ad74}.remote-comanda-item.failed{border-color:#df786e}
+.remote-comanda-title{display:flex;align-items:center;justify-content:space-between;gap:8px;font-weight:900}
+.remote-comanda-status{font-size:12px;font-weight:900;white-space:nowrap}
+.remote-comanda-meta,.remote-comanda-detail{font-size:12px;line-height:1.45;margin-top:5px;white-space:pre-wrap;overflow-wrap:anywhere}
+.remote-comanda-meta{color:#e0cda7}.remote-comanda-detail{color:#fff3d4}
+.remote-comandas-empty{font-size:12px;color:#dfcba8;margin-top:6px}
+@media(max-width:700px){.remote-comandas-card{padding:11px}}
+
 .alert-card{border-radius:12px;padding:13px 15px;min-height:78px;font-size:13px;line-height:1.4}
 .orders-alert{background:#182d3b;border:1px solid #3982a9;color:#e6f5ff}
 .payments-alert{background:#2c2410;border:1px solid #bd8c2c;color:#fff0c7}
@@ -159,6 +172,11 @@ body{padding-bottom:68px}
   <div id="paymentsAlertMessage">Mercado Pago y transferencias verificadas aparecerán aquí.</div>
  </section>
 </div>
+<section class="remote-comandas-card" aria-live="polite" aria-label="Comandas remotas de jefatura">
+ <div class="remote-comandas-heading"><strong>📱 COMANDAS REMOTAS · JEFATURA</strong><span id="remoteComandasCount">0</span></div>
+ <div id="remoteComandasSummary">Esperando comandas remotas…</div>
+ <div id="remoteComandasList" class="remote-comandas-list"><div class="remote-comandas-empty">Todavía no hay comandas remotas recientes.</div></div>
+</section>
 <div class="notice">POS local de acceso directo, sin contraseña. Las alertas de pedidos y pagos se muestran por separado.</div><div class="layout"><section><section class="search-panel" aria-label="Buscar productos"><label class="search-label" for="search">🔎 Buscar un producto</label><form class="search-row" onsubmit="searchProduct(event)"><input id="search" type="search" placeholder="Escribe el nombre del producto..." autocomplete="off" oninput="renderProducts()"><button class="search-button" type="submit">Buscar</button></form><div id="searchStatus" class="search-status" aria-live="polite">Puedes buscar por nombre, categoría o descripción.</div></section><div class="tools"><button type="button" class="add" onclick="loadSharedMenu().catch(e=>alert(e.message))">↻ Actualizar carta</button><select id="mode"><option>Consumo en local</option><option>Retiro en el local</option></select></div><div id="menuSyncStatus" class="muted" aria-live="polite">Conectando con la carta web…</div><div class="tabbar"><button class="tab-arrow" id="catPrev" type="button" aria-label="Ver categorías anteriores">‹</button><nav class="tabs" id="tabs" aria-label="Categorías de productos"></nav><button class="tab-arrow" id="catNext" type="button" aria-label="Ver más categorías">›</button></div><div class="products" id="products"></div></section><aside class="cart"><div class="pos-order-tabs"><button type="button" class="pos-order-tab active" id="cartModeTab" onclick="setOrderMode('cart')">🛒 Cliente (opcional)</button><button type="button" class="pos-order-tab" id="manualModeTab" onclick="setOrderMode('manual')">✍️ Manual</button></div><section id="cartModePanel"><h2>🧾 Pedido actual</h2><div id="cartLines">Agrega productos para comenzar.</div><div class="total" id="total">$0</div><div class="field"><label>Cliente (opcional)</label><input id="customer" placeholder="Nombre del cliente"></div><div class="field"><label>Forma de pago</label><select id="payment" onchange="updateCashChange()"><option>Efectivo</option><option>Transferencia</option><option>Tarjeta</option><option>Pendiente</option></select></div><div class="cash-box" id="cashBox"><div class="field"><label>Dinero recibido (efectivo)</label><input id="cashReceived" type="number" min="0" step="50" inputmode="numeric" placeholder="Ej. 20000" oninput="updateCashChange()"></div><div class="cash-change" id="cashChangeRow"><span id="cashStatus">VUELTO</span><strong id="cashChange">$0</strong></div></div><div class="field"><label>Observaciones para cocina</label><textarea id="notes" rows="2" placeholder="Sin cebolla, término, etc."></textarea></div><button class="action primary" onclick="printReceipt()">Imprimir comanda</button><button class="action" onclick="newOrder()">Nuevo pedido / limpiar</button><p class="muted">La comanda se envía directamente a la impresora térmica del local.</p></section><section id="manualModePanel" class="hidden"><h2>✍️ Pedido manual</h2><div class="field"><label>Pedido (qué va a llevar)</label><textarea id="manualOrder" rows="4" placeholder="Ej. 2 completos italianos, 1 papas fritas, 2 bebidas Coca-Cola"></textarea></div><div class="field"><label>Teléfono</label><input id="manualPhone" inputmode="tel" placeholder="Ej. +56 9 1234 5678"></div><div class="field"><label>Nombre</label><input id="manualName" placeholder="Nombre del cliente"></div><div class="field"><label>Dirección</label><textarea id="manualAddress" rows="2" placeholder="Dirección de entrega"></textarea></div><div class="manual-total-field"><label for="manualTotal">Total (ingreso manual)</label><div class="manual-total-input"><span>$</span><input id="manualTotal" type="number" min="0" step="1" inputmode="numeric" placeholder="Escribe el total" /></div></div><div class="field"><label>Observaciones para cocina</label><textarea id="manualNotes" rows="3" placeholder="Sin cebolla, agregar salsas, etc."></textarea></div><button class="action primary" onclick="printManualReceipt()">🖨 Imprimir comanda</button><button class="action" onclick="newOrder()">＋ Nuevo pedido / limpiar</button><p class="muted">El pedido y el total se ingresan manualmente.</p></section></aside></aside></div></main><section id="receipt" class="receipt"></section>
 <section class="music-dock" aria-label="Música ambiental del POS">
  <strong class="music-dock-title">🎵 Música del local</strong>
@@ -687,6 +705,128 @@ async function checkOnlineOrderAlerts(){
   if(newOrders.length&&printerMode==="automatic")await autoPrintNewOrders(newOrders.map(id=>current.get(id)).filter(Boolean));
   if(paidOrders.length){paymentsAlertTotal+=paidOrders.length;showAlertMessage("paymentsAlertMessage","💳 "+paidOrders.length+" pago(s) confirmado(s) detectado(s). Revisa los pedidos.","paymentsAlertCount",paymentsAlertTotal);playAlertTone("payment");}
  }catch(e){console.warn("Avisos de pedidos y pagos:",e);const status=document.getElementById("onlineOrdersLoginStatus");if(status)status.textContent="⚠ Error al consultar pedidos: "+(e?.message||e); }
+}
+const REMOTE_COMANDAS_KEY="lapica_pos_remote_comandas_recent_v1";
+function readRemoteComandas(){try{const items=JSON.parse(localStorage.getItem(REMOTE_COMANDAS_KEY)||"[]");return Array.isArray(items)?items:[];}catch(_){return [];}}
+function saveRemoteComandas(items){try{localStorage.setItem(REMOTE_COMANDAS_KEY,JSON.stringify(items.slice(0,15)));}catch(e){console.warn("No se pudo guardar historial de comandas remotas:",e);}}
+function recordRemoteComanda(job,status,note=""){
+ const payload=job?.payload_json&&typeof job.payload_json==="object"?job.payload_json:{};
+ const item={id:String(job?.id||""),sender:String(payload.sender||"Personal autorizado"),order:String(payload.order||"Pedido remoto"),name:String(payload.name||"Sin nombre"),phone:String(payload.phone||"No informado"),address:String(payload.address||"Dirección no informada"),total:Number(payload.total_clp||0),notes:String(payload.notes||""),created_at:String(payload.created_at||job?.created_at||new Date().toISOString()),status,note:String(note||"")};
+ const items=readRemoteComandas().filter(x=>String(x.id)!==item.id);items.unshift(item);saveRemoteComandas(items);renderRemoteComandas();
+}
+function renderRemoteComandas(){
+ const items=readRemoteComandas().slice(0,8),list=document.getElementById("remoteComandasList"),badge=document.getElementById("remoteComandasCount"),summary=document.getElementById("remoteComandasSummary");
+ if(!list)return;
+ const pending=items.filter(x=>x.status==="pending").length,failed=items.filter(x=>x.status==="failed").length;
+ if(badge)badge.textContent=String(pending+failed);
+ if(summary)summary.textContent=items.length?(pending?"⏳ "+pending+" comanda(s) en impresión o espera":failed?"⚠ "+failed+" comanda(s) con error":"Comandas remotas recientes · impresión automática desde el POS"):"Esperando comandas remotas…";
+ if(!items.length){list.innerHTML='<div class="remote-comandas-empty">Todavía no hay comandas remotas recientes.</div>';return;}
+ list.innerHTML=items.map(item=>{
+  const statusClass=item.status==="printed"?"printed":item.status==="failed"?"failed":"pending";
+  const statusText=item.status==="printed"?"✓ IMPRESA":item.status==="failed"?"⚠ ERROR":"⏳ RECIBIDA / IMPRIMIENDO";
+  const when=new Date(item.created_at).toLocaleString("es-CL",{timeZone:"America/Santiago"});
+  return '<article class="remote-comanda-item '+statusClass+'"><div class="remote-comanda-title"><span>REM-'+escapeHTML(item.id)+'</span><span class="remote-comanda-status">'+statusText+'</span></div><div class="remote-comanda-meta">👤 Enviada por: '+escapeHTML(item.sender)+' · '+escapeHTML(when)+'<br>Cliente: '+escapeHTML(item.name)+' · '+escapeHTML(item.phone)+'<br>Dirección: '+escapeHTML(item.address)+'</div><div class="remote-comanda-detail">📝 '+escapeHTML(item.order)+'<br>💰 Total: 
+ if(remotePrintQueueBusy||!window.posBridge?.pollRemotePrintJobs)return;
+ remotePrintQueueBusy=true;
+ const status=document.getElementById("remotePrintStatus");
+ try{
+  const result=await window.posBridge.pollRemotePrintJobs();
+  if(!result?.ok){if(status)status.textContent="🖨️ Impresión remota sin conexión de personal.";return;}
+  const jobs=Array.isArray(result.jobs)?result.jobs:[];
+  if(!jobs.length){if(status)status.textContent="🖨️ Impresión remota conectada · esperando pedidos.";return;}
+  for(const job of jobs){
+   try{
+    recordRemoteComanda(job,"pending","Recibida por POS; impresión automática en curso");
+    const printed=await window.posBridge.printRemoteOrder(job);
+    const ack=await window.posBridge.ackRemotePrintJob({job_id:job.id,status:"printed",note:printed?.duplicate?"Impresión duplicada evitada":"Impresión local confirmada"});
+    if(!ack?.ok)throw new Error(ack?.error||"No se pudo confirmar el trabajo.");
+    recordRemoteComanda(job,"printed","Impresión confirmada por Windows");
+    remotePrintProcessed++;
+    if(status)status.textContent="✓ Pedido remoto #"+job.id+" impreso · "+remotePrintProcessed+" enviado(s) desde remoto.";
+    showAlertMessage("ordersAlertMessage","📱 Pedido remoto #"+job.id+" impreso en el local.","ordersAlertCount",ordersAlertTotal+1);ordersAlertTotal++;duckMusicForOrder();playAlertTone("order");
+   }catch(error){
+    const failureNote=String(error?.message||error).slice(0,250);
+    recordRemoteComanda(job,"failed",failureNote);
+    const ack=await window.posBridge.ackRemotePrintJob({job_id:job.id,status:"failed",note:failureNote}).catch(()=>({ok:false}));
+    if(status)status.textContent="⚠️ Falló impresión remota #"+job.id+": "+(error?.message||error)+(ack?.ok?" (registrado)":" (sin confirmación del servidor)");
+   }
+  }
+ }catch(error){if(status)status.textContent="⚠️ Impresión remota: "+(error?.message||error);}
+ finally{remotePrintQueueBusy=false;}
+}
+renderRemoteComandas();
+setTimeout(()=>{checkRemotePrintQueue();setInterval(checkRemotePrintQueue,7000);},7000);
+setTimeout(()=>{checkOnlineOrderAlerts();setInterval(checkOnlineOrderAlerts,12000);},5000);
+
+function showSettingsTab(tab){const devices=tab==="devices";document.getElementById("settingsDevices").hidden=!devices;document.getElementById("settingsScreen").hidden=devices;document.getElementById("settingsTabDevices").classList.toggle("active",devices);document.getElementById("settingsTabScreen").classList.toggle("active",!devices);if(!devices)loadScreenSettings();}
+async function applyScreenSize(){const value=document.getElementById("screenSizeSelect").value;const [width,height]=value.split("x").map(Number);try{const result=await window.posBridge.setWindowSize(width,height);if(result?.ok){document.getElementById("screenStatus").textContent=`Tamaño aplicado: ${width} × ${height}. Se guardará para el próximo inicio.`;}else throw new Error(result?.error||"No se pudo aplicar.");}catch(e){document.getElementById("screenStatus").textContent="Error: "+(e.message||e);}}
+async function toggleScreenFullscreen(){try{const result=await window.posBridge.toggleFullscreen();document.getElementById("screenStatus").textContent=result.fullscreen?"Pantalla completa activada.":"Modo ventana activado."; }catch(e){document.getElementById("screenStatus").textContent="Error: "+(e.message||e);}}
+async function exitScreenFullscreen(){try{await window.posBridge.setFullscreen(false);document.getElementById("screenStatus").textContent="Modo ventana activado."; }catch(e){document.getElementById("screenStatus").textContent="Error: "+(e.message||e);}}
+async function restoreScreenDefaults(){document.getElementById("screenSizeSelect").value="1440x920";await applyScreenSize();}
+async function openSettingsPanel(){document.getElementById("settingsOverlay").style.display="flex";document.body.style.overflow="hidden";showSettingsTab("devices");await refreshPrinters();}
+function closeSettingsPanel(){document.getElementById("settingsOverlay").style.display="none";document.body.style.overflow="";document.getElementById("settingsShortcut").focus();}
+async function refreshPrinters(){const select=document.getElementById("printerSelect"),status=document.getElementById("printerStatus"),count=document.getElementById("printerCount");select.innerHTML="<option value=\"\">Consultando Windows…</option>";status.textContent="Buscando impresoras instaladas…";try{const data=await window.posBridge.listPrinters();printerMode=data.mode==="automatic"?"automatic":"manual";document.getElementById("printerModeSelect").value=printerMode;document.getElementById("printerModeStatus").textContent=printerMode==="automatic"?"Modo automático activo para los pedidos nuevos web/APK.":"Modo manual activo: cada comanda se imprime cuando tú lo decides.";const printers=Array.isArray(data?.printers)?data.printers:[];count.textContent=printers.length+" dispositivo(s)";select.innerHTML="";if(!printers.length){select.innerHTML="<option value=\"\">No se encontraron impresoras</option>";status.textContent="Windows no informó impresoras. Comprueba la conexión USB y la cola de impresión.";return;}for(const p of printers){const option=document.createElement("option");option.value=p.name;option.textContent=p.name+(p.isDefault?" · Predeterminada":"")+(p.status?" · "+p.status:"");select.appendChild(option);}if(data.selected&&printers.some(p=>p.name===data.selected))select.value=data.selected;else if(data.defaultPrinter&&printers.some(p=>p.name===data.defaultPrinter))select.value=data.defaultPrinter;document.getElementById("printerSaved").textContent=data.selected?"Configurada: "+data.selected:"Aún no se ha guardado una impresora. Se muestra la predeterminada de Windows.";status.textContent="Detección completada. Selecciona la impresora térmica y guarda la selección.";}catch(error){select.innerHTML="<option value=\"\">No se pudo consultar</option>";status.textContent="Error al detectar impresoras: "+(error.message||error);}}
+async function savePrinterSelection(){const name=document.getElementById("printerSelect").value,status=document.getElementById("printerStatus");if(!name){status.textContent="Selecciona una impresora antes de guardar.";return;}try{const result=await window.posBridge.savePrinter(name);if(!result?.ok)throw new Error(result?.error||"No se pudo guardar la impresora.");document.getElementById("printerSaved").textContent="Impresora configurada: "+name;status.textContent="✓ Selección guardada. Las próximas comandas usarán esta impresora.";}catch(error){status.textContent="No se pudo guardar: "+(error.message||error);}}
+async function savePrinterMode(){const requested=document.getElementById("printerModeSelect").value,status=document.getElementById("printerModeStatus");status.textContent="Guardando modo de impresión…";try{const result=await window.posBridge.savePrinterMode(requested);if(!result?.ok)throw new Error(result?.error||"No se pudo guardar el modo.");printerMode=result.mode==="automatic"?"automatic":"manual";status.textContent=printerMode==="automatic"?"✓ Modo automático activado. Se imprimirán los pedidos nuevos web/APK. Los pendientes anteriores seguirán disponibles para impresión manual.":"✓ Modo manual activado. Tú decides cuándo imprimir cada pedido." ;renderPendingOrders();}catch(error){status.textContent="No se pudo guardar: "+(error.message||error);document.getElementById("printerModeSelect").value=printerMode;}}
+async function testSelectedPrinter(){const name=document.getElementById("printerSelect").value,status=document.getElementById("printerStatus");if(!name){status.textContent="Primero selecciona una impresora.";return;}status.textContent="Enviando página de prueba a "+name+"…";try{const result=await window.posBridge.testPrinter(name);if(!result?.ok)throw new Error(result?.error||"Windows no confirmó la impresión.");status.textContent="✓ Prueba enviada correctamente a "+name+".";}catch(error){status.textContent="Error de impresión: "+(error.message||error);}}
+document.addEventListener("keydown",event=>{if(event.key==="Escape"&&document.getElementById("settingsOverlay").style.display!=="none")closeSettingsPanel();});
+async function openPosService(service){
+ const labels={gmail:"Gmail",whatsapp:"WhatsApp"};
+ try{
+   if(!window.posBridge||typeof window.posBridge.openService!=="function")throw new Error("Esta función estará disponible en la próxima actualización del POS.");
+   await window.posBridge.openService(service);
+ }catch(error){alert("No se pudo abrir "+(labels[service]||"el servicio")+": "+(error.message||"Error desconocido"));}
+}
+</script><section id="settingsOverlay" class="settings-overlay" style="display:none" role="dialog" aria-modal="true" aria-label="Configuraciones POS">
+ <div class="settings-window">
+  <div class="settings-head"><div><h2>⚙️ Configuraciones</h2><div class="device-muted">Administración del punto de venta</div></div><button class="settings-close" type="button" onclick="closeSettingsPanel()">✕ Cerrar</button></div>
+  <div class="settings-tabs"><button type="button" class="active" id="settingsTabDevices" onclick="showSettingsTab('devices')">🖨️ Dispositivos</button><button type="button" id="settingsTabScreen" onclick="showSettingsTab('screen')">🖥️ Pantalla</button></div>
+  <section id="settingsScreen" class="settings-content" hidden><div class="device-card"><strong>Resolución de ventana del POS</strong><p class="device-muted">Estas opciones cambian el tamaño de la ventana del POS, no la resolución física del monitor. La selección se guardará para el próximo inicio.</p><label for="screenSizeSelect" class="device-muted">Tamaño de ventana</label><select id="screenSizeSelect" class="settings-select"><option value="800x600">800 × 600 · Pequeña</option><option value="1024x768">1024 × 768 · Compacta</option><option value="1280x720">1280 × 720 · HD</option><option value="1280x1024">1280 × 1024 · Estándar</option><option value="1366x768">1366 × 768 · Notebook</option><option value="1440x920">1440 × 920 · Predeterminado</option><option value="1440x900">1440 × 900</option><option value="1600x900">1600 × 900 · HD+</option><option value="1920x1080">1920 × 1080 · Full HD</option></select><div class="device-actions"><button type="button" onclick="applyScreenSize()">Aplicar tamaño</button><button type="button" onclick="toggleScreenFullscreen()">⛶ Pantalla completa</button><button type="button" onclick="restoreScreenDefaults()">Restaurar predeterminado</button></div><div id="screenStatus" class="device-status" aria-live="polite">Configuración de pantalla lista.</div></div><div class="device-card"><strong>Modo de pantalla</strong><p class="device-muted">Puedes cambiar entre ventana normal y pantalla completa. El POS recordará el tamaño seleccionado cuando vuelvas al modo ventana.</p><div class="device-actions"><button type="button" onclick="exitScreenFullscreen()">Salir de pantalla completa</button></div></div></section><section id="settingsDevices" class="settings-content">
+   <div class="device-card">
+    <div class="device-row"><strong>Impresoras instaladas en Windows</strong><span id="printerCount" class="device-muted">Sin consultar</span></div>
+    <p class="device-muted">El POS consulta las impresoras que Windows tiene instaladas. Selecciona la impresora térmica que utilizarán las comandas locales y los pedidos recibidos desde la web y APK.</p>
+    <label for="printerSelect" class="device-muted">Impresora principal</label>
+    <select id="printerSelect" class="settings-select"><option value="">Buscando impresoras…</option></select>
+    <div class="device-actions"><button type="button" onclick="refreshPrinters()">↻ Buscar impresoras</button><button type="button" onclick="savePrinterSelection()">Guardar selección</button><button type="button" onclick="testSelectedPrinter()">🧾 Imprimir prueba</button></div>
+    <div id="printerStatus" class="device-status" aria-live="polite">Consulta las impresoras conectadas para comenzar.</div>
+   </div>
+   <div class="device-card">
+    <strong>Modo de impresión de pedidos web y APK</strong>
+    <p class="device-muted">Elige si deseas imprimir cada pedido manualmente desde el POS o enviar automáticamente a la impresora los pedidos nuevos que lleguen desde la web y APK. Las comandas locales y su método actual de impresión no se modifican.</p>
+    <label for="printerModeSelect" class="device-muted">Modo de funcionamiento</label>
+    <select id="printerModeSelect" class="settings-select">
+     <option value="manual">Manual · yo decido cuándo imprimir</option>
+     <option value="automatic">Automático · imprimir pedidos nuevos</option>
+    </select>
+    <div class="device-actions"><button type="button" onclick="savePrinterMode()">Guardar modo de impresión</button></div>
+    <div id="printerModeStatus" class="device-status" aria-live="polite">Modo manual seleccionado por defecto.</div>
+   </div>
+   <div class="device-card"><strong>Impresión de comandas</strong><p class="device-muted">La identificación de pedidos ya impresos se mantiene para evitar duplicados. Si falla una impresión automática, el pedido queda pendiente para reintentar manualmente.</p><div id="printerSaved" class="device-muted">No hay una impresora seleccionada.</div></div>
+  </section>
+ </div>
+</section><section id="staffEmbedded" class="staff-overlay" style="display:none" aria-label="Panel de repartidor y jefatura">
+<div class="staff-toolbar"><div><strong>🚴 Repartidor / Jefatura</strong><small>Panel de gestión interna</small></div><button type="button" class="staff-back" onclick="closeStaffPanel()">← Volver al POS</button></div>
+<iframe id="staffFrame" title="Panel de repartidor y jefatura" src="https://menu-la-pica-del-benjamin-pago.onrender.com/reparto.html"></iframe></section>
+<script>function openStaffPanel(){document.getElementById("staffEmbedded").style.display="flex";document.body.style.overflow="hidden";}
+function closeStaffPanel(){document.getElementById("staffEmbedded").style.display="none";document.body.style.overflow="";document.getElementById("staffShortcut").focus();}
+document.addEventListener("keydown",event=>{if(event.key==="Escape"&&document.getElementById("staffEmbedded").style.display!=="none")closeStaffPanel();});</script><script>
+async function logoutOnlineOrders(){try{await window.posBridge.logoutOnlineOrders();const form=document.querySelector("#onlineOrdersLogin form");if(form)form.style.display="flex";const btn=document.getElementById("onlineOrdersLogout");if(btn)btn.style.display="none";const status=document.getElementById("onlineOrdersLoginStatus");if(status)status.textContent="Sesión cerrada. Ingresa nuevamente para conectar Web/APK.";renderPendingOrders();}catch{alert("No se pudo cerrar la sesión.");}}
+async function autoLoginOnlineOrders(){
+ if(!window.posBridge?.getSavedOnlineCredentials)return;
+ const status=document.getElementById("onlineOrdersLoginStatus");
+ try{
+  const saved=await window.posBridge.getSavedOnlineCredentials();if(!saved?.username||!saved?.password)return;
+  const userInput=document.getElementById("onlineStaffUser"),passInput=document.getElementById("onlineStaffPass");
+  if(userInput)userInput.value=saved.username;if(passInput)passInput.value="";
+  if(status)status.textContent="🔐 Conectando automáticamente con la cuenta autorizada…";
+  const result=await window.posBridge.loginOnlineOrders({username:saved.username,password:saved.password});
+  if(result?.ok){const form=document.querySelector("#onlineOrdersLogin form");if(form)form.style.display="none";const logoutBtn=document.getElementById("onlineOrdersLogout");if(logoutBtn)logoutBtn.style.display="inline-block";if(status)status.textContent="✓ Pedidos Web/APK conectados automáticamente.";await checkOnlineOrderAlerts();}
+  else{if(passInput)passInput.value="";if(result.authRejected)await window.posBridge.clearOnlineCredentials();if(status)status.textContent="⚠ "+(result.error||"No se pudo conectar. Ingresa nuevamente para renovar la sesión.");}
+ }catch(error){if(status)status.textContent="⚠ No se pudo conectar automáticamente; verifica internet e intenta iniciar sesión manualmente.";}
+}
+window.addEventListener("DOMContentLoaded",()=>setTimeout(autoLoginOnlineOrders,350));
+</script></body></html>+Number(item.total||0).toLocaleString("es-CL")+(item.notes?'\n🍳 Observaciones: '+escapeHTML(item.notes):'')+(item.note?'\n⚠ '+escapeHTML(item.note):'')+'</div></article>';
+ }).join("");
 }
 let remotePrintQueueBusy=false,remotePrintProcessed=0;
 async function checkRemotePrintQueue(){
