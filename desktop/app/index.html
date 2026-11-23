@@ -720,7 +720,7 @@ function recordRemoteComanda(job,status,note=""){
  const item={id:String(job?.id||""),sender:String(payload.sender||"Personal autorizado"),order:String(payload.order||"Pedido remoto"),name:String(payload.name||"Sin nombre"),phone:String(payload.phone||"No informado"),address:String(payload.address||"Dirección no informada"),total:Number(payload.total_clp||0),notes:String(payload.notes||""),created_at:String(payload.created_at||job?.created_at||new Date().toISOString()),status,note:String(note||"")};
  const items=readRemoteComandas().filter(x=>String(x.id)!==item.id);items.unshift(item);saveRemoteComandas(items);renderRemoteComandas();
 }
-function remoteDateChile(value){const d=new Date(value||Date.now());return new Intl.DateTimeFormat("en-CA",{timeZone:"America/Santiago",year:"numeric",month:"2-digit",day:"2-digit"}).format(d);}
+function remoteDate(value){const d=new Date(value||Date.now());return new Intl.DateTimeFormat("en-CA",{timeZone:"America/Santiago",year:"numeric",month:"2-digit",day:"2-digit"}).format(d);}
 function readRemoteDeleted(){try{return JSON.parse(localStorage.getItem("lapica_pos_remote_deleted_v1")||"[]");}catch(_){return [];}}
 function deleteRemoteComandaLocal(id){const key=String(id);localStorage.setItem("lapica_pos_remote_deleted_v1",JSON.stringify([...new Set([...readRemoteDeleted(),key])].slice(-500)));saveRemotePending(readRemotePending().filter(j=>String(j.id)!==key));saveRemoteComandas(readRemoteComandas().filter(j=>String(j.id)!==key));renderRemoteComandas();}
 function renderRemoteComandas(){
